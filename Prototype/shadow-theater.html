@@ -1,0 +1,1225 @@
+<title>그림자 극장 잔영</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Song+Myung&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: 게임보이식 세로 구성 — 위 15:11 무대(필드/전투), 아래 조작부. 단일 다크(극장/LIMBO) 룩 */
+:root{
+  color-scheme: dark;
+  --ink:#09080d; --stage:#12101b; --panel:#1a1726; --panel2:#221e31; --line:#2f2a44;
+  --text:#ebe5f5; --dim:#958dae; --gold:#e9c77b; --curtain:#5a1324; --curtain2:#7d1d33;
+  --flame:#ff7a59; --frost:#7fd6ff; --shade:#c38bff; --none:#bdb6cf;
+  --hp:#8fe0b4; --hpwarn:#f0c35a; --hpcrit:#ff6b6b;
+  --f-display:'Song Myung', 'Nanum Myeongjo', serif;
+  --f-body:'Gowun Dodum', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  --f-mono:'IBM Plex Mono', ui-monospace, Menlo, monospace;
+  --spd:1;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--ink);color:var(--text);font-family:var(--f-body);font-size:14px;line-height:1.5;padding-inline:16px;padding-block:12px 24px}
+button{font-family:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.app{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
+header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+header h1{font-family:var(--f-display);font-weight:400;font-size:26px;margin:0;letter-spacing:.02em;text-wrap:balance}
+header h1 small{font-size:13px;color:var(--dim);margin-left:6px;font-family:var(--f-body)}
+.tabs{display:flex;gap:4px}
+.tabs button{background:none;border:1px solid var(--line);border-radius:999px;padding:3px 12px;font-size:12px;color:var(--dim)}
+.tabs button[aria-selected="true"]{color:var(--ink);background:var(--gold);border-color:var(--gold)}
+
+/* ── 무대 ── */
+.screen{position:relative;width:100%;aspect-ratio:15/11;max-width:100%;background:var(--stage);border-radius:10px;overflow:hidden;border:1px solid var(--line);user-select:none;-webkit-user-select:none;touch-action:none}
+.layer{position:absolute;inset:0}
+#fieldCanvas{width:100%;height:100%;display:block;image-rendering:auto}
+.hud{position:absolute;left:8px;top:8px;display:flex;gap:8px;align-items:center;background:rgba(9,8,13,.72);border:1px solid var(--line);border-radius:8px;padding:4px 8px;font-size:12px;pointer-events:none}
+.hud .gold{color:var(--gold);font-family:var(--f-mono)}
+.toast{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);background:rgba(9,8,13,.86);border:1px solid var(--gold);color:var(--text);padding:5px 12px;border-radius:999px;font-size:12px;white-space:nowrap;max-width:94%;overflow:hidden;text-overflow:ellipsis;transition:opacity .3s}
+
+/* 커튼 전환 */
+.curtain{position:absolute;top:0;bottom:0;width:51%;z-index:30;pointer-events:none;
+  background:repeating-linear-gradient(90deg,var(--curtain) 0 14px,var(--curtain2) 14px 22px,var(--curtain) 22px 30px);
+  box-shadow:inset 0 -30px 40px rgba(0,0,0,.5);transition:transform .45s cubic-bezier(.7,0,.3,1)}
+.curtain.l{left:0;transform:translateX(-101%)}
+.curtain.r{right:0;transform:translateX(101%)}
+.screen.closed .curtain.l,.screen.closed .curtain.r{transform:translateX(0)}
+.curtain::after{content:"";position:absolute;left:0;right:0;top:0;height:16px;background:linear-gradient(var(--gold),#8a6a2c);opacity:.85}
+
+/* 스타터 선택 */
+#select{display:flex;flex-direction:column;justify-content:center;gap:8px;padding:10px 12px;background:radial-gradient(ellipse at 50% 0%,#2a2340 0%,var(--stage) 60%)}
+#select h2{font-family:var(--f-display);font-weight:400;font-size:18px;margin:0;text-align:center}
+#select p.sub{margin:0;text-align:center;color:var(--dim);font-size:12px}
+.starters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.starter{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px 6px 8px;display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;min-width:0}
+.starter:hover{border-color:var(--gold)}
+.starter canvas{width:100%;max-width:96px;aspect-ratio:1}
+.starter b{font-family:var(--f-display);font-weight:400;font-size:15px}
+.starter span{font-size:11px;color:var(--dim);line-height:1.35}
+
+/* 전투 무대 */
+#battle{background:
+  radial-gradient(ellipse 40% 60% at 70% -10%,rgba(233,199,123,.18),transparent 70%),
+  radial-gradient(ellipse 40% 60% at 25% -10%,rgba(195,139,255,.14),transparent 70%),
+  linear-gradient(#171425 0%,#0e0c16 62%,#1a1520 62%,#110e17 100%)}
+.platform{position:absolute;border-radius:50%;background:radial-gradient(ellipse,rgba(233,199,123,.28),rgba(233,199,123,.05) 60%,transparent 72%)}
+.platform.e{right:6%;top:40%;width:40%;height:13%}
+.platform.p{left:3%;bottom:2%;width:46%;height:14%}
+.fighter{position:absolute;aspect-ratio:1}
+.fighter canvas{width:100%;height:100%;display:block}
+.fighter.e{right:9%;top:6%;width:33%}
+.fighter.p{left:6%;bottom:6%;width:39%}
+.info{position:absolute;background:rgba(18,16,27,.88);border:1px solid var(--line);border-radius:8px;padding:5px 8px 6px;width:47%;font-size:12px}
+.info.e{left:3%;top:6%}
+.info.p{right:3%;bottom:7%}
+.info .row{display:flex;justify-content:space-between;gap:6px;align-items:baseline;min-width:0}
+.info .nm{font-family:var(--f-display);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.info .lv{font-family:var(--f-mono);font-size:11px;color:var(--dim);flex:none}
+.hpbar{height:6px;background:#2a2638;border-radius:3px;overflow:hidden;margin-top:3px}
+.hpbar i{display:block;height:100%;width:100%;background:var(--hp);transition:width calc(.45s / var(--spd)) ease-out,background .3s}
+.meta{display:flex;justify-content:space-between;align-items:center;margin-top:3px;gap:6px}
+.hpnum{font-family:var(--f-mono);font-size:11px;color:var(--dim);font-variant-numeric:tabular-nums}
+.fp{display:flex;gap:3px}
+.fp b{width:8px;height:8px;border-radius:50%;border:1px solid var(--gold);opacity:.5}
+.fp b.on{background:var(--gold);opacity:1;box-shadow:0 0 6px var(--gold)}
+.chip{font-size:10px;padding:0 6px;border-radius:999px;border:1px solid currentColor;line-height:16px}
+.elem{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:1px}
+#fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:5}
+.dmg{position:absolute;font-family:var(--f-mono);font-weight:600;font-size:18px;color:#fff;text-shadow:0 0 8px rgba(0,0,0,.9);pointer-events:none;z-index:6;animation:pop calc(.8s / var(--spd)) ease-out forwards}
+.dmg.crit{color:var(--gold);font-size:22px}
+.dmg.heal{color:var(--hp)}
+@keyframes pop{0%{transform:translate(-50%,0) scale(.6);opacity:0}20%{transform:translate(-50%,-14px) scale(1.15);opacity:1}100%{transform:translate(-50%,-34px) scale(1);opacity:0}}
+.cutin{position:absolute;left:0;right:0;top:38%;height:22%;z-index:8;display:flex;align-items:center;justify-content:center;pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(9,8,13,.92) 18%,rgba(9,8,13,.92) 82%,transparent);
+  font-family:var(--f-display);font-size:26px;letter-spacing:.08em;animation:cut calc(.9s / var(--spd)) ease-in-out forwards}
+@keyframes cut{0%{transform:translateX(-100%)}25%,75%{transform:translateX(0)}100%{transform:translateX(100%)}}
+.lunge-p{animation:lungeP calc(.26s / var(--spd)) ease-in-out}
+.lunge-e{animation:lungeE calc(.26s / var(--spd)) ease-in-out}
+@keyframes lungeP{50%{transform:translate(28%,-18%)}}
+@keyframes lungeE{50%{transform:translate(-28%,18%)}}
+.hit{animation:hit calc(.3s / var(--spd)) linear}
+@keyframes hit{0%,40%,80%{filter:brightness(4)}20%,60%,100%{filter:none}25%{transform:translateX(-4%)}50%{transform:translateX(4%)}75%{transform:translateX(-2%)}}
+.dodge{animation:dodge calc(.3s / var(--spd)) ease-out}
+@keyframes dodge{50%{transform:translateX(14%);opacity:.5}}
+.shake{animation:shake calc(.32s / var(--spd)) linear}
+@keyframes shake{20%{transform:translate(-6px,3px)}40%{transform:translate(5px,-4px)}60%{transform:translate(-4px,2px)}80%{transform:translate(3px,-1px)}}
+.faint{animation:faint calc(.7s / var(--spd)) ease-in forwards}
+@keyframes faint{to{opacity:0;transform:translateY(18%) scaleY(.4);filter:blur(4px)}}
+.enter{animation:enter calc(.45s / var(--spd)) ease-out}
+@keyframes enter{from{opacity:0;transform:scale(.3);filter:blur(6px)}}
+.exit{animation:exit calc(.35s / var(--spd)) ease-in forwards}
+@keyframes exit{to{opacity:0;transform:scale(.3);filter:blur(6px)}}
+.sealed{animation:sealed calc(.9s / var(--spd)) ease-in forwards}
+@keyframes sealed{60%{filter:brightness(3) drop-shadow(0 0 12px var(--gold))}100%{opacity:0;transform:scale(.1) translateY(30%)}}
+.book{position:absolute;width:9%;aspect-ratio:3/4;z-index:7;background:linear-gradient(90deg,#3b2b17,#6b4f26);border:1px solid var(--gold);border-radius:2px;box-shadow:0 0 14px var(--gold);transition:left calc(.45s / var(--spd)) ease-out,top calc(.45s / var(--spd)) ease-out,transform calc(.45s / var(--spd))}
+
+/* 모달 */
+.modal{position:absolute;inset:6px;z-index:20;background:rgba(14,12,22,.96);border:1px solid var(--line);border-radius:10px;padding:10px 12px;overflow:auto;display:flex;flex-direction:column;gap:8px}
+.modal h3{margin:0;font-family:var(--f-display);font-weight:400;font-size:18px;display:flex;justify-content:space-between;align-items:center}
+.modal h3 button{font-size:12px;background:none;border:1px solid var(--line);border-radius:999px;padding:1px 10px;font-family:var(--f-body)}
+.list{display:flex;flex-direction:column;gap:6px}
+.card{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:8px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:5px 8px}
+.card canvas{width:44px;height:44px}
+.card .t{font-family:var(--f-display);font-size:14px}
+.card .s{font-size:11px;color:var(--dim)}
+.card .lore{grid-column:1/-1;font-size:12px;color:var(--text);opacity:.85;line-height:1.55;border-top:1px dashed var(--line);padding-top:4px}
+.card button{font-size:11px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:3px 8px}
+
+/* ── 조작부 ── */
+.controls{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px;min-height:196px;display:flex;flex-direction:column;gap:8px}
+.fieldctl{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center}
+.dpad{display:grid;grid-template-columns:repeat(3,44px);grid-template-rows:repeat(3,44px);gap:3px}
+.dpad button{background:var(--panel2);border:1px solid var(--line);border-radius:8px;font-size:16px;color:var(--dim);touch-action:none}
+.dpad button:active,.dpad button.on{background:var(--line);color:var(--text)}
+.dpad .u{grid-column:2;grid-row:1}.dpad .l{grid-column:1;grid-row:2}.dpad .r{grid-column:3;grid-row:2}.dpad .d{grid-column:2;grid-row:3}
+.mid{display:flex;flex-direction:column;gap:6px;min-width:0}
+.mid button{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:13px;text-align:left}
+.mid button small{color:var(--dim);font-size:11px;margin-left:4px}
+.abtn{width:62px;height:62px;border-radius:50%;background:var(--curtain);border:1px solid var(--curtain2);font-family:var(--f-display);font-size:20px;color:var(--gold)}
+.hint{font-size:11px;color:var(--dim);margin:0}
+.msg{min-height:42px;background:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:14px;line-height:1.45}
+.menu{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.menu.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.menu button{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:7px 6px;font-size:13px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.menu button:disabled{opacity:.35;cursor:not-allowed}
+.menu button.primary{border-color:var(--gold);color:var(--gold)}
+.menu button .cost{font-family:var(--f-mono);font-size:11px;color:var(--gold);margin-left:3px}
+.bbar{display:flex;gap:6px;align-items:center}
+.bbar button{background:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;font-size:11px;font-family:var(--f-mono)}
+.bbar button.on{border-color:var(--gold);color:var(--gold)}
+.bbar span{margin-left:auto;font-size:11px;color:var(--dim);font-family:var(--f-mono)}
+
+/* 데이터 탭 */
+#tab-data{display:flex;flex-direction:column;gap:8px}
+#tab-data p{margin:0;color:var(--dim);font-size:12.5px;max-width:65ch}
+#tab-data code{font-family:var(--f-mono);font-size:12px;color:var(--gold)}
+#dataText{width:100%;min-height:420px;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:10px;font-family:var(--f-mono);font-size:12px;line-height:1.5;resize:vertical}
+.row-btns{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.row-btns button{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 12px;font-size:13px}
+.row-btns button.primary{border-color:var(--gold);color:var(--gold)}
+#dataMsg{font-size:12px;color:var(--dim)}
+@media (prefers-reduced-motion: reduce){ .curtain{transition-duration:.01s} }
+@media (max-width:400px){ .dpad{grid-template-columns:repeat(3,38px);grid-template-rows:repeat(3,38px)} .abtn{width:54px;height:54px} }
+</style>
+
+<div class="app">
+  <header>
+    <h1>그림자 극장 잔영<small>전투·필드 프로토타입</small></h1>
+    <div class="tabs" role="tablist">
+      <button id="tabPlayBtn" role="tab" aria-selected="true">플레이</button>
+      <button id="tabDataBtn" role="tab" aria-selected="false">밸런스 데이터</button>
+    </div>
+  </header>
+
+  <section id="tab-play" style="display:flex;flex-direction:column;gap:10px">
+    <div class="screen" id="screen">
+      <div class="layer" id="select">
+        <h2>첫 번째 배우를 고르세요</h2>
+        <p class="sub">각본집에 처음으로 기록될 그림자입니다</p>
+        <div class="starters" id="starters"></div>
+      </div>
+      <div class="layer" id="field" hidden>
+        <canvas id="fieldCanvas"></canvas>
+        <div class="hud" id="hud"></div>
+        <div class="toast" id="toast" style="opacity:0"></div>
+      </div>
+      <div class="layer" id="battle" hidden>
+        <div class="platform e"></div><div class="platform p"></div>
+        <div class="fighter e" id="fE"><canvas width="220" height="220"></canvas></div>
+        <div class="fighter p" id="fP"><canvas width="220" height="220"></canvas></div>
+        <div class="info e" id="infoE"></div>
+        <div class="info p" id="infoP"></div>
+        <canvas id="fx"></canvas>
+      </div>
+      <div class="modal" id="modal" hidden></div>
+      <div class="curtain l"></div><div class="curtain r"></div>
+    </div>
+
+    <div class="controls" id="controls">
+      <div id="ctlField" hidden>
+        <div class="fieldctl">
+          <div class="dpad" id="dpad">
+            <button class="u" data-d="0,-1" aria-label="위">▲</button>
+            <button class="l" data-d="-1,0" aria-label="왼쪽">◀</button>
+            <button class="r" data-d="1,0" aria-label="오른쪽">▶</button>
+            <button class="d" data-d="0,1" aria-label="아래">▼</button>
+          </div>
+          <div class="mid">
+            <button id="btnParty">파티<small>선두 교체</small></button>
+            <button id="btnBook">각본집<small>도감</small></button>
+            <button id="btnTower">훈련소<small>연속 전투</small></button>
+          </div>
+          <button class="abtn" id="btnA" aria-label="조사">A</button>
+        </div>
+        <p class="hint">방향키/WASD 이동 · Space 조사 · 천막에 부딪히면 회복 · 북동쪽 끝에 검열관이 있습니다</p>
+      </div>
+      <div id="ctlBattle" hidden style="display:flex;flex-direction:column;gap:8px">
+        <div class="msg" id="msg"></div>
+        <div class="menu" id="menu"></div>
+        <div class="bbar">
+          <button id="btnAuto">AUTO</button>
+          <button id="btnSpeed">x1</button>
+          <span id="turnLbl"></span>
+        </div>
+      </div>
+      <div id="ctlSelect"><p class="hint">스타팅 그림자를 선택하면 막이 오릅니다.</p></div>
+    </div>
+  </section>
+
+  <section id="tab-data" hidden>
+    <p>필드명은 Unity의 <code>ShadowData</code> / <code>SkillData</code> / <code>ItemData</code> ScriptableObject와 같습니다. 여기서 숫자를 고쳐 적용하고 플레이해 본 뒤, 마음에 드는 값을 SO 인스펙터에 그대로 옮기면 됩니다.</p>
+    <p>enum 값: element = <code>None|Flame|Frost|Shade</code>, damageType = <code>None|Physical|Magical</code>, statusEffect = <code>None|Freeze|Burn|Bleed|AttackDown|DefenseDown|SpeedDown</code>, target = <code>Enemy|Self</code></p>
+    <textarea id="dataText" spellcheck="false" aria-label="밸런스 데이터 JSON"></textarea>
+    <div class="row-btns">
+      <button class="primary" id="btnApply">적용</button>
+      <button id="btnReset">기본값으로</button>
+      <button id="btnCopy">복사</button>
+      <span id="dataMsg"></span>
+    </div>
+  </section>
+</div>
+
+<script>
+"use strict";
+// ═════════════════════════════════════════════════════════════
+// 1. 데이터 (Unity SO 필드명과 동일)
+// ═════════════════════════════════════════════════════════════
+const DEFAULT_DATA = {
+  skills: {
+    slash:      { displayName:"실루엣 베기", fpCost:0, fpGain:1, damageType:"Physical", element:"None",  damageMultiplier:1.0, accuracy:0.95, bonusCritRate:0,   target:"Enemy", healRatio:0, statusEffect:"None", statusChance:0, statusDuration:0, isUltimate:false, cameraShake:0.1 },
+    inkshot:    { displayName:"잉크 탄환",   fpCost:0, fpGain:1, damageType:"Magical",  element:"None",  damageMultiplier:0.9, accuracy:1.0,  bonusCritRate:0,   target:"Enemy", healRatio:0, statusEffect:"None", statusChance:0, statusDuration:0, isUltimate:false, cameraShake:0.1 },
+    claw:       { displayName:"그림자 할퀴기", fpCost:0, fpGain:1, damageType:"Physical", element:"None", damageMultiplier:0.9, accuracy:0.95, bonusCritRate:0.1, target:"Enemy", healRatio:0, statusEffect:"None", statusChance:0, statusDuration:0, isUltimate:false, cameraShake:0.1 },
+    peck:       { displayName:"쪼기",       fpCost:0, fpGain:1, damageType:"Physical", element:"None",  damageMultiplier:0.85,accuracy:1.0,  bonusCritRate:0.05,target:"Enemy", healRatio:0, statusEffect:"None", statusChance:0, statusDuration:0, isUltimate:false, cameraShake:0.05 },
+
+    emberStrike:{ displayName:"잿불 일격", fpCost:2, fpGain:0, damageType:"Physical", element:"Flame", damageMultiplier:1.6, accuracy:0.95, bonusCritRate:0, target:"Enemy", healRatio:0, statusEffect:"Burn", statusChance:0.3, statusDuration:3, isUltimate:false, cameraShake:0.3 },
+    fallenCrown:{ displayName:"무너진 왕관", fpCost:4, fpGain:0, damageType:"Physical", element:"Flame", damageMultiplier:2.6, accuracy:0.9, bonusCritRate:0.1, target:"Enemy", healRatio:0, statusEffect:"None", statusChance:0, statusDuration:0, isUltimate:true, cameraShake:0.8 },
+    frostSigil: { displayName:"서리 문장", fpCost:2, fpGain:0, damageType:"Magical", element:"Frost", damageMultiplier:1.4, accuracy:1.0, bonusCritRate:0, target:"Enemy", healRatio:0, statusEffect:"Freeze", statusChance:0.3, statusDuration:1, isUltimate:false, cameraShake:0.2 },
+    forbidden:  { displayName:"금서 낭독", fpCost:4, fpGain:0, damageType:"Magical", element:"Frost", damageMultiplier:2.4, accuracy:1.0, bonusCritRate:0, target:"Enemy", healRatio:0, statusEffect:"DefenseDown", statusChance:0.6, statusDuration:3, isUltimate:true, cameraShake:0.7 },
+    nightLeap:  { displayName:"밤그늘 도약", fpCost:1, fpGain:0, damageType:"Physical", element:"Shade", damageMultiplier:1.3, accuracy:0.95, bonusCritRate:0.3, target:"Enemy", healRatio:0, statusEffect:"None", statusChance:0, statusDuration:0, isUltimate:false, cameraShake:0.2 },
+    moonHowl:   { displayName:"달빛 울음", fpCost:2, fpGain:0, damageType:"None", element:"Shade", damageMultiplier:0, accuracy:1.0, bonusCritRate:0, target:"Enemy", healRatio:0, statusEffect:"AttackDown", statusChance:1.0, statusDuration:3, isUltimate:false, cameraShake:0 },
+    bloodFang:  { displayName:"핏빛 송곳니", fpCost:4, fpGain:0, damageType:"Physical", element:"Shade", damageMultiplier:2.2, accuracy:0.95, bonusCritRate:0.2, target:"Enemy", healRatio:0, statusEffect:"Bleed", statusChance:0.6, statusDuration:3, isUltimate:true, cameraShake:0.7 },
+
+    cutString:  { displayName:"실 끊기", fpCost:2, fpGain:0, damageType:"Physical", element:"Shade", damageMultiplier:1.3, accuracy:0.95, bonusCritRate:0, target:"Enemy", healRatio:0, statusEffect:"SpeedDown", statusChance:0.3, statusDuration:2, isUltimate:false, cameraShake:0.2 },
+    stitch:     { displayName:"꿰매기", fpCost:2, fpGain:0, damageType:"None", element:"None", damageMultiplier:0, accuracy:1.0, bonusCritRate:0, target:"Self", healRatio:0.35, statusEffect:"None", statusChance:0, statusDuration:0, isUltimate:false, cameraShake:0 },
+    cinderPeck: { displayName:"불티 쪼기", fpCost:2, fpGain:0, damageType:"Physical", element:"Flame", damageMultiplier:1.3, accuracy:1.0, bonusCritRate:0.05, target:"Enemy", healRatio:0, statusEffect:"Burn", statusChance:0.2, statusDuration:3, isUltimate:false, cameraShake:0.2 },
+    frostBreath:{ displayName:"서리 숨결", fpCost:2, fpGain:0, damageType:"Magical", element:"Frost", damageMultiplier:1.3, accuracy:1.0, bonusCritRate:0, target:"Enemy", healRatio:0, statusEffect:"Freeze", statusChance:0.2, statusDuration:1, isUltimate:false, cameraShake:0.2 },
+    blackInk:   { displayName:"검은 먹칠", fpCost:2, fpGain:0, damageType:"Magical", element:"Shade", damageMultiplier:1.5, accuracy:1.0, bonusCritRate:0, target:"Enemy", healRatio:0, statusEffect:"DefenseDown", statusChance:0.5, statusDuration:3, isUltimate:false, cameraShake:0.3 },
+    erasure:    { displayName:"소거", fpCost:4, fpGain:0, damageType:"Magical", element:"Shade", damageMultiplier:2.3, accuracy:1.0, bonusCritRate:0, target:"Enemy", healRatio:0, statusEffect:"None", statusChance:0, statusDuration:0, isUltimate:true, cameraShake:0.8 }
+  },
+  shadows: {
+    knight: { displayName:"잿빛 기사", title:"멸망한 왕국의 기사", element:"Flame", role:"PhysicalDealer", shape:"knight", accentColor:"#ff7a59",
+      baseHp:110, baseAtk:26, baseDef:14, baseSpd:9, critRate:0.08, evasion:0.03, hpGrowth:11, atkGrowth:2.4, defGrowth:1.2, spdGrowth:0.4,
+      basicAttack:"slash", skills:["emberStrike","fallenCrown"], baseCaptureRate:0.3, expReward:40, goldReward:20,
+      loreLocked:"불타는 성벽 앞에서 끝까지 검을 놓지 않았다는 기사의 그림자.",
+      loreUnlocked:"왕은 성문을 열라 명했고, 기사는 따랐다. 밀려든 것은 적군이 아니라 굶주린 백성이었다. 그는 백성을 베지 못했고, 왕국은 그날 밤 무너졌다. 그림자가 된 지금도 그는 묻는다. 검을 들지 않은 것이 죄였는가." },
+    mage: { displayName:"서리 사서", title:"금기된 책의 마도사", element:"Frost", role:"MagicNuker", shape:"mage", accentColor:"#7fd6ff",
+      baseHp:90, baseAtk:28, baseDef:9, baseSpd:11, critRate:0.05, evasion:0.05, hpGrowth:9, atkGrowth:2.6, defGrowth:0.8, spdGrowth:0.5,
+      basicAttack:"inkshot", skills:["frostSigil","forbidden"], baseCaptureRate:0.3, expReward:40, goldReward:20,
+      loreLocked:"얼어붙은 서고에서 한 권의 책을 끌어안은 채 발견된 그림자.",
+      loreUnlocked:"그녀가 지킨 책에는 세계가 멸망하는 날짜가 적혀 있었다. 아무도 믿지 않았고, 그녀는 책을 봉인하는 대신 스스로를 서고와 함께 얼렸다. 날짜가 지났을 때 그녀를 녹여줄 사람은 남아 있지 않았다." },
+    beast: { displayName:"밤의 방랑자", title:"밤의 방랑 야수", element:"Shade", role:"SpeedUtility", shape:"beast", accentColor:"#c38bff",
+      baseHp:95, baseAtk:22, baseDef:10, baseSpd:17, critRate:0.2, evasion:0.12, hpGrowth:10, atkGrowth:2.2, defGrowth:0.9, spdGrowth:0.8,
+      basicAttack:"claw", skills:["nightLeap","moonHowl","bloodFang"], baseCaptureRate:0.3, expReward:40, goldReward:20,
+      loreLocked:"달이 뜨는 밤마다 같은 언덕을 맴도는 짐승의 그림자.",
+      loreUnlocked:"한때는 마을의 목동견이었다. 마지막 밤, 주인은 문을 잠그고 짐승을 밖에 두었다. 짐승은 아침이 올 때까지 문 앞을 지켰고, 문은 다시 열리지 않았다. 그래서 그는 지금도 돌아갈 집을 찾는다." },
+    puppet: { displayName:"끊어진 인형", title:"버려진 무대의 꼭두각시", element:"None", role:"Support", shape:"puppet", accentColor:"#e9c77b",
+      baseHp:72, baseAtk:16, baseDef:9, baseSpd:9, critRate:0.05, evasion:0.05, hpGrowth:9, atkGrowth:1.8, defGrowth:1.0, spdGrowth:0.4,
+      basicAttack:"slash", skills:["cutString","stitch"], baseCaptureRate:0.5, expReward:28, goldReward:8,
+      loreLocked:"실이 모두 끊어졌는데도 춤을 멈추지 않는 인형.",
+      loreUnlocked:"인형사는 마지막 공연을 마치지 못하고 쓰러졌다. 인형은 박수 소리를 기다리며 끝나지 않은 3막을 혼자 반복한다. 관객석이 빈 지 백 년이 지났다." },
+    crow: { displayName:"재까마귀", title:"불탄 탑의 파수꾼", element:"Flame", role:"SpeedUtility", shape:"crow", accentColor:"#ff9a6b",
+      baseHp:58, baseAtk:17, baseDef:6, baseSpd:15, critRate:0.1, evasion:0.1, hpGrowth:8, atkGrowth:2.0, defGrowth:0.6, spdGrowth:0.7,
+      basicAttack:"peck", skills:["cinderPeck"], baseCaptureRate:0.5, expReward:28, goldReward:8,
+      loreLocked:"날개 끝이 아직도 타고 있는 까마귀.",
+      loreUnlocked:"봉화탑의 불을 지키던 새였다. 적이 왔을 때 불을 붙인 것은 그였지만, 아무도 봉화를 보지 못했다. 이미 모두 떠난 뒤였으니까." },
+    mask: { displayName:"얼음 가면", title:"웃지 않는 광대", element:"Frost", role:"Tank", shape:"mask", accentColor:"#9fe3ff",
+      baseHp:84, baseAtk:15, baseDef:13, baseSpd:7, critRate:0.05, evasion:0.03, hpGrowth:10, atkGrowth:1.6, defGrowth:1.4, spdGrowth:0.3,
+      basicAttack:"inkshot", skills:["frostBreath"], baseCaptureRate:0.45, expReward:30, goldReward:10,
+      loreLocked:"눈물 자국이 얼어붙은 광대의 가면.",
+      loreUnlocked:"웃음을 파는 광대는 슬픔을 보여서는 안 됐다. 그는 가면 안에서만 울었고, 눈물은 가면에 얼어붙어 결국 얼굴과 하나가 되었다." },
+    censor: { displayName:"검열관 무명", title:"검은 검열단 집행자", element:"Shade", role:"MagicNuker", shape:"censor", accentColor:"#ff4d6d",
+      baseHp:135, baseAtk:18, baseDef:11, baseSpd:10, critRate:0.08, evasion:0.04, hpGrowth:12, atkGrowth:2.0, defGrowth:1.2, spdGrowth:0.4,
+      basicAttack:"inkshot", skills:["blackInk","erasure"], baseCaptureRate:0, expReward:80, goldReward:120,
+      loreLocked:"\"괴로운 과거 따위, 남아 있어 봐야 고통뿐이다.\"",
+      loreUnlocked:"검열관은 기록하지 않는다. 지울 뿐이다." }
+  },
+  items: {
+    potion: { displayName:"회복 시약", effectType:"HealRatio", value:0.5, usableInBattle:true },
+    tonic:  { displayName:"열기 토닉", effectType:"GainFP", value:2, usableInBattle:true },
+    ink:    { displayName:"짙은 잉크", effectType:"CaptureBoost", value:1.8, usableInBattle:true },
+    salve:  { displayName:"해빙 연고", effectType:"CureStatus", value:0, usableInBattle:true }
+  }
+};
+let DATA = JSON.parse(JSON.stringify(DEFAULT_DATA));
+const SK = id => DATA.skills[id];
+const SH = id => DATA.shadows[id];
+const IT = id => DATA.items[id];
+
+const ELEM = { None:{n:"무",c:"var(--none)"}, Flame:{n:"불꽃",c:"var(--flame)"}, Frost:{n:"서리",c:"var(--frost)"}, Shade:{n:"그림자",c:"var(--shade)"} };
+const STATUS_NAME = { Freeze:"빙결", Burn:"화상", Bleed:"출혈", AttackDown:"공격↓", DefenseDown:"방어↓", SpeedDown:"속도↓" };
+function elemMul(a, d){
+  if (a==="None"||d==="None") return 1;
+  const beats=(x,y)=>(x==="Flame"&&y==="Frost")||(x==="Frost"&&y==="Shade")||(x==="Shade"&&y==="Flame");
+  if (beats(a,d)) return 1.5; if (beats(d,a)) return 0.75; return 1;
+}
+
+// ═════════════════════════════════════════════════════════════
+// 2. 개체 (ShadowInstance) / 전투 유닛 (BattleUnit)
+// ═════════════════════════════════════════════════════════════
+const stat = (inst,k) => { const d=SH(inst.shadowId); return Math.round(d["base"+k] + d[k.toLowerCase()+"Growth"]*(inst.level-1)); };
+const maxHpOf = inst => stat(inst,"Hp");
+const expToNext = inst => 20 + inst.level*inst.level*5;
+function newInst(id, lv){ const i={ instanceId:Math.random().toString(36).slice(2,10), shadowId:id, level:Math.max(1,lv), exp:0, currentHp:0 }; i.currentHp=maxHpOf(i); return i; }
+function addExp(inst, amount){
+  let ups=0; inst.exp+=amount;
+  while(inst.exp>=expToNext(inst)){ inst.exp-=expToNext(inst); const prev=maxHpOf(inst); inst.level++; inst.currentHp+=maxHpOf(inst)-prev; ups++; }
+  return ups;
+}
+const isMajor = t => t==="Freeze"||t==="Burn"||t==="Bleed";
+
+class Unit {
+  constructor(inst, side){ this.inst=inst; this.side=side; this.major=null; this.debuffs=[];
+    if (inst.currentHp<0||inst.currentHp>this.maxHp) inst.currentHp=this.maxHp; }
+  get d(){ return SH(this.inst.shadowId); }
+  get name(){ return this.d.displayName; }
+  get level(){ return this.inst.level; }
+  get maxHp(){ return maxHpOf(this.inst); }
+  get hp(){ return this.inst.currentHp; }
+  get hpRatio(){ return this.hp/this.maxHp; }
+  get fainted(){ return this.hp<=0; }
+  has(t){ return this.debuffs.some(x=>x.type===t); }
+  get atk(){ return Math.round(stat(this.inst,"Atk")*(this.has("AttackDown")?0.7:1)); }
+  get def(){ return Math.round(stat(this.inst,"Def")*(this.has("DefenseDown")?0.7:1)); }
+  get spd(){ return Math.round(stat(this.inst,"Spd")*(this.has("SpeedDown")?0.5:1)); }
+  get canAct(){ return !this.major || this.major.type!=="Freeze"; }
+  takeDamage(n){ const v=Math.max(0,Math.min(n,this.hp)); this.inst.currentHp-=v; return v; }
+  heal(n){ const v=Math.max(0,Math.min(n,this.maxHp-this.hp)); this.inst.currentHp+=v; return v; }
+  applyStatus(t,dur){
+    if (t==="None"||this.fainted) return false;
+    if (isMajor(t)){ if (this.major) return false; this.major={type:t,turns:dur}; return true; }
+    const ex=this.debuffs.find(x=>x.type===t); if (ex){ ex.turns=Math.max(ex.turns,dur); return true; }
+    this.debuffs.push({type:t,turns:dur}); return true;
+  }
+  clearDebuffs(){ this.debuffs=[]; }
+  clearAll(){ this.major=null; this.debuffs=[]; }
+  dot(){ return this.major&&(this.major.type==="Burn"||this.major.type==="Bleed") ? Math.max(1,Math.floor(this.maxHp/16)) : 0; }
+  tick(){ const out=[];
+    if (this.major && --this.major.turns<=0){ out.push(this.major.type); this.major=null; }
+    for (let i=this.debuffs.length-1;i>=0;i--) if (--this.debuffs[i].turns<=0){ out.push(this.debuffs[i].type); this.debuffs.splice(i,1); }
+    return out; }
+}
+
+// ═════════════════════════════════════════════════════════════
+// 3. 공식 (DamageCalculator) / AI (BattleAI)
+// ═════════════════════════════════════════════════════════════
+function calcHit(att, def, s){
+  const r={missed:false,critical:false,elementMultiplier:1,damage:0,statusApplied:false,status:s.statusEffect};
+  if (Math.random() > s.accuracy*(1-def.d.evasion)){ r.missed=true; return r; }
+  if (s.damageType!=="None" && s.damageMultiplier>0){
+    const d = def.def*(s.damageType==="Magical"?0.5:1);
+    let raw = att.atk*s.damageMultiplier*(100/(100+d));
+    const el = s.element!=="None" ? s.element : att.d.element;
+    r.elementMultiplier = elemMul(el, def.d.element); raw*=r.elementMultiplier;
+    r.critical = Math.random() < att.d.critRate + s.bonusCritRate; if (r.critical) raw*=1.5;
+    raw *= 0.9+Math.random()*0.1;
+    r.damage = Math.max(1, Math.round(raw));
+  }
+  r.statusApplied = s.statusEffect!=="None" && Math.random()<s.statusChance;
+  return r;
+}
+function captureChance(t, bonus){
+  if (!(t.d.baseCaptureRate>0)) return 0;
+  const hpF = 1-(2/3)*t.hpRatio;
+  const st = t.major ? (t.major.type==="Freeze"?1.5:1.2) : 1;
+  return Math.min(1, Math.max(0, t.d.baseCaptureRate*hpF*st*bonus));
+}
+const expReward = u => Math.round(u.d.expReward*u.level/5)+5;
+
+function aiChoose(self, opp, fp){
+  const basic=self.d.basicAttack, cands=[];
+  for (const id of self.d.skills){ const s=SK(id); if (!s||s.fpCost>fp) continue; cands.push({id,score:aiScore(self,opp,s)}); }
+  if (!cands.length) return {type:"Attack", side:self.side, skill:basic};
+  cands.sort((a,b)=>b.score-a.score);
+  const best=cands[0];
+  if (best.score<=0 || (Math.random()<0.25 && !SK(best.id).isUltimate)) return {type:"Attack", side:self.side, skill:basic};
+  return {type:"Skill", side:self.side, skill:best.id};
+}
+function aiScore(self, opp, s){
+  if (s.target==="Self") return s.healRatio>0 && self.hpRatio<0.4 ? 100 : 0;
+  const el = s.element!=="None"?s.element:self.d.element;
+  let sc = s.damageMultiplier*s.accuracy*elemMul(el,opp.d.element)*10;
+  if (s.statusEffect!=="None"){
+    const already = isMajor(s.statusEffect) ? !!opp.major : opp.has(s.statusEffect);
+    if (!already) sc += s.statusChance*(s.damageMultiplier>0?5:12);
+  }
+  return sc;
+}
+const PRIORITY = {Escape:4, Switch:3, Item:2, Record:2, Attack:0, Skill:0};
+
+// ═════════════════════════════════════════════════════════════
+// 4. 게임 상태 (SaveData)
+// ═════════════════════════════════════════════════════════════
+const G = { party:[], seen:new Set(), recorded:new Set(), gold:100, inv:{potion:3,tonic:1,ink:2,salve:1},
+  cleared:new Set(), auto:false, speed:1, bestFloor:0, busy:false };
+const wait = ms => new Promise(r=>setTimeout(r, ms/G.speed));
+const realWait = ms => new Promise(r=>setTimeout(r, ms));
+const $ = s => document.querySelector(s);
+const el = (tag, cls, html) => { const e=document.createElement(tag); if(cls) e.className=cls; if(html!=null) e.innerHTML=html; return e; };
+
+// ═════════════════════════════════════════════════════════════
+// 5. 실루엣 드로잉 (검은 벡터 실루엣 + 포인트 컬러)
+// ═════════════════════════════════════════════════════════════
+const BODY="#050409";
+function drawShape(ctx, shape, S, accent, flip){
+  ctx.save();
+  if (flip){ ctx.translate(S,0); ctx.scale(-1,1); }
+  const k=S/100; const X=v=>v*k;
+  const glow=(b)=>{ ctx.shadowColor=accent; ctx.shadowBlur=b*k; };
+  const fillBody=()=>{ ctx.fillStyle=BODY; glow(5); ctx.fill(); };
+  const P=(pts)=>{ ctx.beginPath(); pts.forEach((p,i)=>i?ctx.lineTo(X(p[0]),X(p[1])):ctx.moveTo(X(p[0]),X(p[1]))); ctx.closePath(); };
+  const E=(x,y,rx,ry,rot=0)=>{ ctx.beginPath(); ctx.ellipse(X(x),X(y),X(rx),X(ry),rot,0,Math.PI*2); };
+  const L=(x1,y1,x2,y2,w,col)=>{ ctx.beginPath(); ctx.moveTo(X(x1),X(y1)); ctx.lineTo(X(x2),X(y2)); ctx.lineWidth=X(w); ctx.lineCap="round"; ctx.strokeStyle=col||BODY; ctx.stroke(); };
+  const eye=(x,y,rx,ry,rot=0)=>{ ctx.save(); glow(8); ctx.fillStyle=accent; E(x,y,rx,ry,rot); ctx.fill(); ctx.restore(); };
+
+  switch(shape){
+    case "knight":
+      P([[40,30],[22,90],[58,90],[56,34]]); fillBody();                       // 망토
+      glow(4); L(43,70,40,92,7); L(54,70,57,92,7);                             // 다리
+      P([[36,34],[63,34],[60,73],[39,73]]); fillBody();                        // 몸통
+      E(61,37,9,6); fillBody();                                                 // 견갑
+      E(49,23,11,12); fillBody();                                               // 투구
+      P([[44,13],[28,4],[34,12],[30,14],[41,17]]); fillBody();                  // 깃털 장식
+      glow(3); L(60,42,72,52,6);                                                // 팔
+      ctx.save(); glow(10); L(69,56,93,12,3.4,accent); ctx.restore();           // 검 (포인트 컬러)
+      L(64,52,76,60,3);                                                         // 코등이
+      eye(54,23,5,1.3);
+      break;
+    case "mage":
+      ctx.beginPath(); ctx.moveTo(X(50),X(14)); ctx.quadraticCurveTo(X(30),X(40),X(20),X(93)); ctx.lineTo(X(80),X(93)); ctx.quadraticCurveTo(X(70),X(40),X(50),X(14)); ctx.closePath(); fillBody();
+      E(50,26,13,14); fillBody();
+      glow(3); L(29,18,25,95,3);                                                // 지팡이
+      eye(29,16,4,4);
+      eye(49,27,1.8,2.2); eye(56,27,1.8,2.2);
+      ctx.save(); ctx.translate(X(74),X(50)); ctx.rotate(-0.25);                // 떠 있는 금서
+      glow(14); ctx.fillStyle=accent; ctx.globalAlpha=.9; ctx.fillRect(X(-9),X(-6),X(18),X(12));
+      ctx.globalAlpha=1; ctx.fillStyle=BODY; ctx.fillRect(X(-.6),X(-6),X(1.2),X(12)); ctx.restore();
+      ctx.save(); ctx.fillStyle=accent; glow(6); [[82,36],[66,38],[86,58]].forEach(([x,y])=>{E(x,y,1,1);ctx.fill();}); ctx.restore();
+      break;
+    case "beast":
+      ctx.beginPath(); ctx.moveTo(X(26),X(52)); ctx.quadraticCurveTo(X(4),X(36),X(10),X(64)); ctx.quadraticCurveTo(X(18),X(58),X(28),X(60)); ctx.closePath(); fillBody(); // 꼬리
+      E(48,58,25,13); fillBody();
+      glow(3); [[31,66,28,90],[39,68,37,90],[59,68,61,90],[67,66,70,90]].forEach(a=>L(...a,5));
+      P([[32,47],[36,38],[40,46],[45,36],[49,45],[54,37],[57,46]]); fillBody(); // 갈기
+      P([[64,46],[84,48],[92,56],[80,63],[64,61]]); fillBody();                 // 머리
+      P([[69,47],[71,33],[77,46]]); fillBody(); P([[76,47],[81,35],[83,49]]); fillBody();
+      eye(81,52,3,1.2,-0.2);
+      break;
+    case "puppet":
+      ctx.save(); ctx.globalAlpha=.55; [[30,0,33,52],[50,0,50,15],[70,0,67,52]].forEach(a=>L(...a,.6,accent)); ctx.restore();
+      E(50,25,10,10); fillBody();
+      P([[42,37],[58,37],[60,62],[40,62]]); fillBody();
+      glow(3); L(42,40,33,52,4); L(58,40,67,52,4); L(45,62,40,90,4.5); L(55,62,62,88,4.5);
+      eye(46,24,1.6,1.6); eye(54,25,1.6,1.6);
+      ctx.save(); glow(5); ctx.strokeStyle=accent; ctx.lineWidth=X(.8); ctx.beginPath(); ctx.moveTo(X(44),X(30)); ctx.lineTo(X(56),X(30)); ctx.stroke(); ctx.restore();
+      break;
+    case "crow":
+      P([[44,52],[18,16],[34,26],[28,8],[46,30],[46,14],[58,46]]); fillBody(); // 날개
+      E(50,57,20,12,-0.2); fillBody();
+      P([[32,60],[10,72],[34,66]]); fillBody();
+      E(68,44,9,8); fillBody();
+      P([[75,41],[92,46],[75,49]]); fillBody();
+      glow(3); L(48,68,46,86,2.2); L(56,68,58,86,2.2);
+      eye(71,43,2,2);
+      ctx.save(); glow(10); ctx.fillStyle=accent; ctx.globalAlpha=.85; [[20,18],[29,10],[16,24]].forEach(([x,y])=>{E(x,y,1.6,1.6);ctx.fill();}); ctx.restore();
+      break;
+    case "mask":
+      ctx.beginPath(); ctx.moveTo(X(50),X(16)); ctx.bezierCurveTo(X(16),X(30),X(30),X(70),X(20),X(94));
+      ctx.lineTo(X(35),X(84)); ctx.lineTo(X(44),X(95)); ctx.lineTo(X(56),X(85)); ctx.lineTo(X(66),X(95)); ctx.lineTo(X(80),X(92));
+      ctx.bezierCurveTo(X(70),X(70),X(84),X(30),X(50),X(16)); ctx.closePath(); fillBody();
+      E(50,34,14,18); ctx.fillStyle=BODY; ctx.fill(); ctx.save(); glow(8); ctx.strokeStyle=accent; ctx.lineWidth=X(1.2); ctx.stroke(); ctx.restore();
+      eye(44,31,4,1.6,0.35); eye(56,31,4,1.6,-0.35);
+      ctx.save(); glow(6); ctx.strokeStyle=accent; ctx.lineWidth=X(.9); ctx.beginPath(); ctx.moveTo(X(44),X(34)); ctx.lineTo(X(43),X(45)); ctx.stroke();
+      ctx.beginPath(); ctx.arc(X(50),X(46),X(5),Math.PI*1.15,Math.PI*1.85); ctx.stroke(); ctx.restore();
+      break;
+    case "censor":
+      P([[38,38],[62,38],[76,95],[24,95]]); fillBody();
+      ctx.fillStyle=BODY; ctx.fillRect(X(40),X(3),X(20),X(18)); ctx.fillRect(X(33),X(19),X(34),X(4));
+      E(50,30,9,9); fillBody();
+      glow(3); L(60,44,72,56,5);
+      ctx.save(); glow(12); L(70,60,93,6,3,accent); ctx.restore();            // 거대한 깃펜 칼날
+      ctx.save(); ctx.fillStyle=accent; glow(8); E(70,66,1.6,2.6); ctx.fill(); E(69,74,1.1,1.8); ctx.fill(); ctx.restore();
+      ctx.save(); glow(6); L(38,40,62,40,1,accent); ctx.restore();
+      eye(47,29,2.2,1.2); eye(54,29,2.2,1.2);
+      break;
+    case "director":
+      ctx.fillStyle=BODY; glow(5); ctx.fillRect(X(41),X(4),X(18),X(16)); ctx.fillRect(X(34),X(19),X(32),X(3.5));
+      E(50,28,8,8); fillBody();
+      P([[38,36],[62,36],[66,78],[70,92],[56,82],[50,92],[44,82],[30,92],[34,78]]); fillBody();
+      glow(3); L(62,42,70,56,4.5); L(70,56,70,62,1.2);
+      ctx.save(); glow(16); ctx.fillStyle=accent; E(70,67,4.5,5.5); ctx.fill(); ctx.restore();
+      eye(53,27,1.6,1.4);
+      break;
+  }
+  ctx.restore();
+}
+const spriteCache = new Map();
+function sprite(shape, accent, size, flip){
+  const key=shape+accent+size+(flip?"f":"");
+  if (!spriteCache.has(key)){ const c=document.createElement("canvas"); c.width=c.height=size; drawShape(c.getContext("2d"),shape,size,accent,flip); spriteCache.set(key,c); }
+  return spriteCache.get(key);
+}
+function paintCanvas(cv, shape, accent, flip){
+  const ctx=cv.getContext("2d"); ctx.clearRect(0,0,cv.width,cv.height);
+  const pad=cv.width*0.08; ctx.save(); ctx.translate(pad,pad); drawShape(ctx, shape, cv.width-pad*2, accent, flip); ctx.restore();
+}
+
+// ═════════════════════════════════════════════════════════════
+// 6. 필드 (타일맵 / 플레이어 / 심볼 인카운터)
+// ═════════════════════════════════════════════════════════════
+const MAP = [
+  "###############",
+  "#..T....L..T..#",
+  "#.....##......#",
+  "#.T...##..~~..#",
+  "#.L.......~~..#",
+  "#....T........#",
+  "#..........T..#",
+  "#.T..L..##....#",
+  "#.......##..L.#",
+  "#.H..........T#",
+  "###############"];
+const COLS=15, ROWS=11;
+const CHECKPOINT={x:3,y:9};
+const tileAt=(x,y)=> (y<0||y>=ROWS||x<0||x>=COLS) ? "#" : MAP[y][x];
+const solid=(x,y)=> "#T~LH".includes(tileAt(x,y));
+const groundNoise = Array.from({length:ROWS*COLS},()=>Math.random());
+
+const player = { x:3, y:9, px:3, py:9, fx:3, fy:9, t:1, moving:false, dir:{x:1,y:0}, facing:1 };
+const STEP_MS=170, SYM_STEP_MS=280;
+const WILD_POOL=[["puppet",34],["crow",28],["mask",28],["knight",4],["mage",3],["beast",3]];
+const symbols=[];
+function pickWild(){ const tot=WILD_POOL.reduce((a,b)=>a+b[1],0); let r=Math.random()*tot; for(const [id,w] of WILD_POOL){ if((r-=w)<0) return id; } return "puppet"; }
+function makeSymbol(o){ return Object.assign({ x:0,y:0,px:0,py:0,fx:0,fy:0,t:1,moving:false, home:null, active:true, frozen:false, cooldownUntil:0,
+  nextAt:performance.now()+800+Math.random()*1500, wander:true, wanderRadius:3, chaseRange:4, respawnAt:0, mode:"Wild", encounterId:"", levelRange:[2,4], flip:false }, o); }
+function initSymbols(){
+  symbols.length=0;
+  [[6,4],[10,6],[4,6],[11,8]].forEach(([x,y])=>symbols.push(makeSymbol({x,y,px:x,py:y,fx:x,fy:y,home:{x,y},shadowId:pickWild()})));
+  if (!G.cleared.has("censor_prologue"))
+    symbols.push(makeSymbol({x:12,y:2,px:12,py:2,fx:12,fy:2,home:{x:12,y:2},shadowId:"censor",mode:"Boss",encounterId:"censor_prologue",levelRange:[8,8],wander:false,chaseRange:0}));
+}
+const symbolAt=(x,y,except)=>symbols.find(s=>s!==except&&s.active&&s.x===x&&s.y===y);
+
+const keys=new Set(); let padDir=null;
+function inputDir(){
+  if (padDir) return padDir;
+  if (keys.has("ArrowUp")||keys.has("w")) return {x:0,y:-1};
+  if (keys.has("ArrowDown")||keys.has("s")) return {x:0,y:1};
+  if (keys.has("ArrowLeft")||keys.has("a")) return {x:-1,y:0};
+  if (keys.has("ArrowRight")||keys.has("d")) return {x:1,y:0};
+  return null;
+}
+function tryPlayerStep(){
+  const d=inputDir(); if (!d) return;
+  player.dir=d; if (d.x) player.facing=d.x;
+  const nx=player.x+d.x, ny=player.y+d.y;
+  if (tileAt(nx,ny)==="H"){ restAtTent(); keys.clear(); padDir=null; document.querySelectorAll(".dpad .on").forEach(b=>b.classList.remove("on")); return; }
+  if (solid(nx,ny)) return;
+  player.fx=player.x; player.fy=player.y; player.x=nx; player.y=ny; player.t=0; player.moving=true;
+}
+function restAtTent(){
+  G.party.forEach(i=>i.currentHp=maxHpOf(i));
+  toast("극장 천막에서 쉬었다. 모든 그림자가 회복되었다.");
+}
+function interact(){
+  const tx=player.x+player.dir.x, ty=player.y+player.dir.y;
+  const t=tileAt(tx,ty);
+  if (t==="H") restAtTent();
+  else if (t==="L") toast("가로등 아래에서 누군가의 이름이 지워져 있다.");
+  else if (t==="T") toast("말라 죽은 나무. 가지 끝에 실 한 가닥이 걸려 있다.");
+  else if (t==="~") toast("안개 웅덩이에 얼굴이 비치지 않는다.");
+  else toast("아무것도 없다.");
+}
+function symbolAI(s, now){
+  if (!s.active){ if (s.respawnAt && now>=s.respawnAt){ s.respawnAt=0; s.shadowId=pickWild(); s.x=s.fx=s.px=s.home.x; s.y=s.fy=s.py=s.home.y; s.t=1; s.active=true; } return; }
+  if (s.frozen||s.moving||!s.wander||now<s.nextAt) return;
+  const dist=Math.abs(player.x-s.x)+Math.abs(player.y-s.y);
+  const chasing = s.chaseRange>0 && dist<=s.chaseRange && now>=s.cooldownUntil;
+  let d;
+  if (chasing){
+    const dx=player.x-s.x, dy=player.y-s.y;
+    const p = Math.abs(dx)>Math.abs(dy) ? {x:Math.sign(dx),y:0} : {x:0,y:Math.sign(dy)};
+    const sec = p.x ? {x:0,y:Math.sign(dy)} : {x:Math.sign(dx),y:0};
+    d = (!solid(s.x+p.x,s.y+p.y) && !symbolAt(s.x+p.x,s.y+p.y,s)) ? p : sec;
+  } else {
+    const dirs=[{x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}]; d=dirs[Math.floor(Math.random()*4)];
+    if (Math.abs(s.x+d.x-s.home.x)+Math.abs(s.y+d.y-s.home.y)>s.wanderRadius) d=null;
+  }
+  s.nextAt = now + (chasing ? 60 : 1200+Math.random()*1300);
+  if (!d||(!d.x&&!d.y)) return;
+  const nx=s.x+d.x, ny=s.y+d.y;
+  const intoPlayer = nx===player.x&&ny===player.y;
+  if (!intoPlayer && (solid(nx,ny)||symbolAt(nx,ny,s))) return;
+  if (d.x) s.flip=d.x<0;
+  s.fx=s.x; s.fy=s.y; s.x=nx; s.y=ny; s.t=0; s.moving=true;
+}
+function checkEncounter(now){
+  if (G.busy) return;
+  for (const s of symbols){
+    if (!s.active||s.frozen||now<s.cooldownUntil) continue;
+    if (s.x===player.x&&s.y===player.y){ symbolBattle(s); return; }
+  }
+}
+
+// 렌더링
+const fcv=$("#fieldCanvas"), fctx=fcv.getContext("2d");
+const dark=document.createElement("canvas"), dctx=dark.getContext("2d");
+let TS=32, lastT=performance.now();
+function resizeField(){
+  const r=fcv.getBoundingClientRect(); const dpr=Math.min(2,window.devicePixelRatio||1);
+  fcv.width=Math.max(1,Math.round(r.width*dpr)); fcv.height=Math.max(1,Math.round(r.height*dpr));
+  dark.width=fcv.width; dark.height=fcv.height; TS=fcv.width/COLS;
+}
+const LAMP_COLORS=["#7fd6ff","#ff8fc8","#c38bff","#9fffd6"];
+function drawField(now){
+  const c=fctx, W=fcv.width, H=fcv.height, ts=TS;
+  c.fillStyle="#0d0b14"; c.fillRect(0,0,W,H);
+  for(let y=0;y<ROWS;y++) for(let x=0;x<COLS;x++){
+    const n=groundNoise[y*COLS+x], t=tileAt(x,y), X=x*ts, Y=y*ts;
+    c.fillStyle = n>0.5 ? "#15121e" : "#120f1a"; c.fillRect(X,Y,ts,ts);
+    if (n>0.82){ c.fillStyle="#1d1928"; c.fillRect(X+ts*.3,Y+ts*.55,ts*.12,ts*.06); }
+    if (t==="#"){ c.fillStyle="#07060b"; c.fillRect(X,Y,ts,ts); c.fillStyle="#262139"; c.fillRect(X,Y,ts,ts*.08); c.fillStyle="#0e0c15"; c.fillRect(X+ts*.1,Y+ts*.45,ts*.8,ts*.05); }
+    else if (t==="~"){ c.fillStyle="#141c2c"; c.fillRect(X,Y,ts,ts); c.fillStyle="rgba(127,214,255,.10)"; c.beginPath(); c.ellipse(X+ts/2+Math.sin(now/900+x)*ts*.12,Y+ts/2,ts*.36,ts*.12,0,0,7); c.fill(); }
+    else if (t==="T"){ c.strokeStyle="#030206"; c.lineCap="round"; c.lineWidth=ts*.14; c.beginPath(); c.moveTo(X+ts*.5,Y+ts*.98); c.lineTo(X+ts*.5,Y+ts*.35); c.stroke();
+      c.lineWidth=ts*.07; c.beginPath(); c.moveTo(X+ts*.5,Y+ts*.55); c.lineTo(X+ts*.18,Y+ts*.22); c.moveTo(X+ts*.5,Y+ts*.45); c.lineTo(X+ts*.82,Y+ts*.1); c.moveTo(X+ts*.5,Y+ts*.38); c.lineTo(X+ts*.42,Y+ts*.02); c.stroke(); }
+    else if (t==="L"){ c.fillStyle="#030206"; c.fillRect(X+ts*.45,Y+ts*.25,ts*.1,ts*.75); c.fillStyle=LAMP_COLORS[(x+y)%4]; c.beginPath(); c.arc(X+ts*.5,Y+ts*.24,ts*.1,0,7); c.fill(); }
+    else if (t==="H"){ c.fillStyle="#3a0d18"; c.beginPath(); c.moveTo(X+ts*.05,Y+ts*.98); c.lineTo(X+ts*.5,Y+ts*.08); c.lineTo(X+ts*.95,Y+ts*.98); c.fill();
+      c.fillStyle="#7d1d33"; c.beginPath(); c.moveTo(X+ts*.38,Y+ts*.98); c.lineTo(X+ts*.5,Y+ts*.45); c.lineTo(X+ts*.62,Y+ts*.98); c.fill(); c.fillStyle="#e9c77b"; c.fillRect(X+ts*.47,Y+ts*.02,ts*.06,ts*.1); }
+  }
+  // 심볼
+  for (const s of symbols){
+    if (!s.active) continue;
+    const d=SH(s.shadowId); if(!d) continue;
+    const blink = now<s.cooldownUntil && Math.floor(now/120)%2===0;
+    if (blink) continue;
+    const bob=Math.sin(now/300+s.home.x)*ts*.05;
+    const size=s.mode==="Boss"?ts*1.5:ts*1.1;
+    const img=sprite(d.shape,d.accentColor,Math.round(size*1.5),!s.flip);
+    c.drawImage(img, s.px*ts+ts/2-size/2, s.py*ts+ts-size+bob - ts*.08, size, size);
+  }
+  // 플레이어
+  const pimg=sprite("director","#e9c77b",Math.round(ts*1.6),player.facing<0);
+  const pb = player.moving ? Math.sin(player.t*Math.PI)*ts*.08 : 0;
+  c.drawImage(pimg, player.px*ts+ts/2-ts*.55, player.py*ts+ts-ts*1.1-pb, ts*1.1, ts*1.1);
+
+  // 안개
+  c.save(); c.globalAlpha=.07; c.fillStyle="#c9c2e0";
+  for(let i=0;i<4;i++){ const fx=((now/60000*(i+1)*W*.3)+i*W*.33)%(W*1.4)-W*.2; c.beginPath(); c.ellipse(fx,H*(.2+i*.22),W*.3,H*.08,0,0,7); c.fill(); }
+  c.restore();
+
+  // 조명: 어둠 레이어에 빛 구멍
+  dctx.globalCompositeOperation="source-over"; dctx.clearRect(0,0,W,H); dctx.fillStyle="rgba(4,3,9,.80)"; dctx.fillRect(0,0,W,H);
+  dctx.globalCompositeOperation="destination-out";
+  const lights=[];
+  for(let y=0;y<ROWS;y++) for(let x=0;x<COLS;x++){ const t=tileAt(x,y); if(t==="L") lights.push([x+.5,y+.24,3.1+Math.sin(now/170+x*3)*.08,LAMP_COLORS[(x+y)%4]]); if(t==="H") lights.push([x+.5,y+.5,2.4,"#e9c77b"]); }
+  lights.push([player.px+.5+player.facing*.2,player.py+.5,2.6,"#e9c77b"]);
+  for (const s of symbols) if (s.active) lights.push([s.px+.5,s.py+.4,s.mode==="Boss"?1.8:.9,SH(s.shadowId).accentColor]);
+  for (const [lx,ly,r] of lights){ const g=dctx.createRadialGradient(lx*ts,ly*ts,0,lx*ts,ly*ts,r*ts); g.addColorStop(0,"rgba(0,0,0,1)"); g.addColorStop(1,"rgba(0,0,0,0)"); dctx.fillStyle=g; dctx.beginPath(); dctx.arc(lx*ts,ly*ts,r*ts,0,7); dctx.fill(); }
+  c.drawImage(dark,0,0);
+  c.save(); c.globalCompositeOperation="lighter";
+  for (const [lx,ly,r,col] of lights){ const g=c.createRadialGradient(lx*ts,ly*ts,0,lx*ts,ly*ts,r*ts*.8); g.addColorStop(0,hexA(col,.16)); g.addColorStop(1,hexA(col,0)); c.fillStyle=g; c.beginPath(); c.arc(lx*ts,ly*ts,r*ts*.8,0,7); c.fill(); }
+  c.restore();
+}
+function hexA(hex,a){ const h=hex.replace("#",""); const n=parseInt(h.length===3?h.split("").map(x=>x+x).join(""):h,16); return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`; }
+
+function fieldLoop(now){
+  const dt=now-lastT; lastT=now;
+  if (!$("#field").hidden){
+    if (!G.busy && $("#modal").hidden){
+      if (player.moving){ player.t=Math.min(1,player.t+dt/STEP_MS); player.px=player.fx+(player.x-player.fx)*player.t; player.py=player.fy+(player.y-player.fy)*player.t; if(player.t>=1) player.moving=false; }
+      if (!player.moving) tryPlayerStep();
+      for (const s of symbols){
+        if (s.moving){ s.t=Math.min(1,s.t+dt/SYM_STEP_MS); s.px=s.fx+(s.x-s.fx)*s.t; s.py=s.fy+(s.y-s.fy)*s.t; if(s.t>=1) s.moving=false; }
+        symbolAI(s, now);
+      }
+      checkEncounter(now);
+    }
+    drawField(now);
+    renderHud();
+  }
+  requestAnimationFrame(fieldLoop);
+}
+let hudKey="";
+function renderHud(){
+  const lead=G.party[0]; if(!lead) return;
+  const k=lead.instanceId+lead.currentHp+lead.level+G.gold;
+  if (k===hudKey) return; hudKey=k;
+  const d=SH(lead.shadowId);
+  $("#hud").innerHTML=`<span><span class="elem" style="background:${ELEM[d.element].c}"></span>${d.displayName} Lv.${lead.level}</span><span class="hpnum">${lead.currentHp}/${maxHpOf(lead)}</span><span class="gold">${G.gold} G</span>`;
+}
+let toastTimer;
+function toast(msg){ const t=$("#toast"); t.textContent=msg; t.style.opacity=1; clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.style.opacity=0,2400); }
+
+// 커튼 전환 (ScreenFader 대응)
+const curtainClose=async()=>{ $("#screen").classList.add("closed"); await realWait(480); };
+const curtainOpen=async()=>{ $("#screen").classList.remove("closed"); await realWait(480); };
+
+// ═════════════════════════════════════════════════════════════
+// 7. 전투 (BattleManager) + 연출 (IBattlePresenter)
+// ═════════════════════════════════════════════════════════════
+let B=null;
+const msgEl=$("#msg"), menuEl=$("#menu");
+
+function setupBattle(ctx){
+  B = { ctx, p:ctx.playerParty.map(i=>new Unit(i,"Player")), e:ctx.enemyParty.map(i=>new Unit(i,"Enemy")),
+        pi:0, ei:0, fp:{Player:0,Enemy:0}, turn:0, ended:false, captureBonus:1, escapeAttempts:0,
+        outcome:{result:null, encounterId:ctx.encounterId, captured:null, exp:0, gold:0}, resolve:null };
+  B.pi = B.p.findIndex(u=>!u.fainted);
+  ctx.enemyParty.forEach(i=>G.seen.add(i.shadowId));
+  showLayer("battle");
+  $("#fE").className="fighter e"; $("#fP").className="fighter p";
+  paintFighter("Enemy"); paintFighter("Player"); refreshInfo();
+  setMenu("none"); msgEl.textContent="";
+  updateBar();
+  return B;
+}
+const PA=()=>B.p[B.pi], EA=()=>B.e[B.ei];
+const active=side=>side==="Player"?PA():EA();
+const opponent=side=>side==="Player"?EA():PA();
+const canCapture=()=>B.ctx.mode==="Wild";
+const canEscape=()=>B.ctx.mode==="Wild"||B.ctx.mode==="Training";
+function addFp(side,n){ B.fp[side]=Math.max(0,Math.min(5,B.fp[side]+n)); }
+function finish(result){ B.outcome.result=result; B.ended=true; }
+
+async function battleLoop(){
+  await P.intro();
+  while(!B.ended){
+    B.turn++; addFp("Player",1); addFp("Enemy",1); refreshInfo(); updateBar();
+    let pa = await waitPlayerAction();
+    if (!pa) pa = aiChoose(PA(), EA(), B.fp.Player);
+    pa.actor=PA();
+    const ea=aiChoose(EA(), PA(), B.fp.Enemy); ea.actor=EA();
+    setMenu("none");
+    for (const a of orderActions(pa,ea)){
+      if (B.ended) break;
+      const cur=active(a.side);
+      if (cur.fainted) continue;
+      if (a.type!=="Switch" && cur!==a.actor) continue;
+      await execute(a);
+      await handleFaints();
+    }
+    if (B.ended) break;
+    await endOfTurn();
+    await handleFaints();
+  }
+  await P.result();
+  return B.outcome;
+}
+function orderActions(p,e){
+  let first;
+  if (PRIORITY[p.type]!==PRIORITY[e.type]) first=PRIORITY[p.type]>PRIORITY[e.type];
+  else if (PA().spd!==EA().spd) first=PA().spd>EA().spd;
+  else first=Math.random()<0.5;
+  return first?[p,e]:[e,p];
+}
+function waitPlayerAction(){
+  return new Promise(res=>{
+    if (G.auto){ setTimeout(()=>res(null), 250/G.speed); return; }
+    B.resolve=res; setMenu("main");
+    msgEl.textContent=`${PA().name}은(는) 무엇을 할까?`;
+  });
+}
+function submit(a){ if (!B||!B.resolve) return; const r=B.resolve; B.resolve=null; setMenu("none"); r(a); }
+
+async function execute(a){
+  switch(a.type){
+    case "Attack": case "Skill": return doSkill(a);
+    case "Switch": return doSwitch(a.side, a.index);
+    case "Record": return doRecord();
+    case "Item":   return doItem(a);
+    case "Escape": return doEscape();
+  }
+}
+async function doSkill(a){
+  const u=active(a.side), o=opponent(a.side);
+  let s=SK(a.skill); if(!s) return;
+  if (!u.canAct){ await P.say(`${u.name}은(는) 얼어붙어 움직일 수 없다!`); return; }
+  if (B.fp[a.side] < s.fpCost){ s=SK(u.d.basicAttack); a.skill=u.d.basicAttack; }
+  addFp(a.side, s.fpGain - s.fpCost); refreshInfo();
+  if (s.target==="Self"){
+    await P.say(`${u.name}의 ${s.displayName}!`, 450);
+    const h=u.heal(Math.round(u.maxHp*s.healRatio));
+    await P.heal(u,h); return;
+  }
+  const hit=calcHit(u,o,s);
+  if (!hit.missed && hit.damage>0) hit.damage=o.takeDamage(hit.damage);
+  await P.skill(u,o,s,hit);
+  if (!hit.missed && hit.statusApplied && !o.fainted && o.applyStatus(s.statusEffect,s.statusDuration)){
+    refreshInfo(); await P.say(`${o.name}에게 [${STATUS_NAME[s.statusEffect]}] 효과!`);
+  }
+}
+async function doSwitch(side, idx, silent){
+  const list = side==="Player"?B.p:B.e;
+  if (idx<0||idx>=list.length||list[idx].fainted) return;
+  const prev=active(side);
+  if (!prev.fainted){ prev.clearDebuffs(); await P.withdraw(prev); }
+  if (side==="Player") B.pi=idx; else B.ei=idx;
+  await P.sendOut(active(side));
+}
+async function doRecord(){
+  const t=EA();
+  if (!canCapture()){ await P.say("다른 연출가의 그림자는 기록할 수 없다!"); return; }
+  const ch=captureChance(t,B.captureBonus);
+  const ok=Math.random()<ch;
+  await P.record(t, ok, ch);
+  if (ok){ t.clearAll(); B.outcome.captured=t.inst; finish("Captured"); }
+}
+async function doItem(a){
+  const item=IT(a.item); if(!item) return;
+  if (!(G.inv[a.item]>0)) return;
+  G.inv[a.item]--;
+  const t=active(a.side);
+  await P.say(`${item.displayName}을(를) 사용했다.`, 450);
+  if (item.effectType==="HealFlat"){ await P.heal(t, t.heal(Math.round(item.value))); }
+  else if (item.effectType==="HealRatio"){ await P.heal(t, t.heal(Math.round(t.maxHp*item.value))); }
+  else if (item.effectType==="CureStatus"){ t.clearAll(); refreshInfo(); await P.say(`${t.name}의 상태 이상이 풀렸다.`); }
+  else if (item.effectType==="GainFP"){ addFp(a.side, Math.round(item.value)); refreshInfo(); await P.say(`공연 열기가 ${Math.round(item.value)} 올랐다!`); }
+  else if (item.effectType==="CaptureBoost"){ B.captureBonus=Math.max(B.captureBonus,item.value); await P.say("각본집의 잉크가 짙어졌다! (기록 성공률 상승)"); }
+}
+async function doEscape(){
+  if (!canEscape()){ await P.say("이 공연에서는 도망칠 수 없다!"); return; }
+  B.escapeAttempts++;
+  const ok = PA().spd>=EA().spd || Math.random()<0.5+0.1*B.escapeAttempts;
+  await P.say(ok?"무사히 무대에서 내려왔다.":"도망칠 수 없다!", 700);
+  if (ok) finish("Escaped");
+}
+async function endOfTurn(){
+  for (const u of [PA(),EA()]){
+    if (u.fainted) continue;
+    const dmg=u.dot();
+    if (dmg>0){ const st=u.major.type; u.takeDamage(dmg); await P.statusDamage(u,st,dmg); }
+    for (const s of u.tick()) await P.say(`${u.name}의 [${STATUS_NAME[s]}] 상태가 풀렸다.`, 500);
+    refreshInfo();
+  }
+}
+async function handleFaints(){
+  if (B.ended) return;
+  if (EA().fainted){
+    const def=EA(); await P.faint(def);
+    const exp=expReward(def); B.outcome.exp+=exp;
+    if (!PA().fainted){
+      const ups=addExp(PA().inst, exp);
+      await P.say(`${PA().name}은(는) ${exp} 경험치를 얻었다.`, 600);
+      if (ups>0){ refreshInfo(); await P.say(`${PA().name}의 레벨이 ${PA().level}(으)로 올랐다!`, 800); }
+    }
+    const next=B.e.findIndex(u=>!u.fainted);
+    if (next<0){ B.outcome.gold=B.e.reduce((a,u)=>a+u.d.goldReward,0); finish("Victory"); return; }
+    await P.say("상대가 다음 그림자를 무대에 올린다!");
+    await doSwitch("Enemy", next);
+  }
+  if (PA().fainted){
+    await P.faint(PA());
+    const alive=B.p.map((u,i)=>[u,i]).filter(([u])=>!u.fainted);
+    if (!alive.length){ finish("Defeat"); return; }
+    let idx;
+    if (G.auto || alive.length===1) idx=alive[0][1];
+    else idx = await new Promise(res=>{ B.forced=res; setMenu("forced"); msgEl.textContent="다음 배우를 무대에 올리세요."; });
+    setMenu("none");
+    await doSwitch("Player", idx);
+  }
+}
+
+// 연출
+const stage=$("#battle"), fxCv=$("#fx"), fxCtx=fxCv.getContext("2d");
+let particles=[], fxRunning=false;
+function fighterEl(side){ return side==="Player"?$("#fP"):$("#fE"); }
+function paintFighter(side){ const u=active(side); paintCanvas(fighterEl(side).querySelector("canvas"), u.d.shape, u.d.accentColor, side==="Enemy"); }
+function anim(elm, cls, ms){ return new Promise(r=>{ elm.classList.remove(cls); void elm.offsetWidth; elm.classList.add(cls); setTimeout(()=>{ if(!["faint","exit","sealed"].includes(cls)) elm.classList.remove(cls); r(); }, ms/G.speed); }); }
+function centerOf(side){ const s=stage.getBoundingClientRect(), r=fighterEl(side).getBoundingClientRect(); return {x:r.left-s.left+r.width/2, y:r.top-s.top+r.height*.45}; }
+function popup(side, text, cls){ const c=centerOf(side); const d=el("div","dmg "+(cls||""),text); d.style.left=c.x+"px"; d.style.top=(c.y-10)+"px"; stage.appendChild(d); setTimeout(()=>d.remove(),900/G.speed); }
+function burst(side, color, n){
+  const r=stage.getBoundingClientRect(); const dpr=Math.min(2,devicePixelRatio||1);
+  if (fxCv.width!==Math.round(r.width*dpr)){ fxCv.width=Math.round(r.width*dpr); fxCv.height=Math.round(r.height*dpr); }
+  const c=centerOf(side);
+  for(let i=0;i<n;i++){ const a=Math.random()*Math.PI*2, sp=1.5+Math.random()*4.5; particles.push({x:c.x*dpr,y:c.y*dpr,vx:Math.cos(a)*sp*dpr,vy:Math.sin(a)*sp*dpr-1,life:1,color,size:(1.5+Math.random()*3)*dpr}); }
+  if (!fxRunning){ fxRunning=true; requestAnimationFrame(fxTick); }
+}
+function fxTick(){
+  fxCtx.clearRect(0,0,fxCv.width,fxCv.height);
+  fxCtx.globalCompositeOperation="lighter";
+  particles=particles.filter(p=>p.life>0);
+  for(const p of particles){ p.x+=p.vx*G.speed; p.y+=p.vy*G.speed; p.vy+=.08*G.speed; p.life-=.025*G.speed;
+    fxCtx.globalAlpha=Math.max(0,p.life); fxCtx.fillStyle=p.color; fxCtx.beginPath(); fxCtx.arc(p.x,p.y,p.size,0,7); fxCtx.fill(); }
+  fxCtx.globalAlpha=1;
+  if (particles.length) requestAnimationFrame(fxTick); else { fxRunning=false; fxCtx.clearRect(0,0,fxCv.width,fxCv.height); }
+}
+const ELEM_HEX={None:"#e9e3f5",Flame:"#ff7a59",Frost:"#7fd6ff",Shade:"#c38bff"};
+
+const P = {
+  async say(t, ms=650){ msgEl.textContent=t; await wait(ms); },
+  async intro(){
+    const e=EA(), p=PA();
+    anim(fighterEl("Enemy"),"enter",450); anim(fighterEl("Player"),"enter",450);
+    const head = B.ctx.mode==="Boss" ? `${e.d.title} ${e.name}이(가) 막을 가로막았다!`
+               : B.ctx.mode==="Training" ? `훈련소 ${B.ctx.floor}층 — ${e.name} Lv.${e.level}`
+               : `안개 속에서 ${e.name}이(가) 나타났다!`;
+    await this.say(head, 900);
+    await this.say(`가라, ${p.name}!`, 500);
+  },
+  async sendOut(u){ paintFighter(u.side); const f=fighterEl(u.side); f.className="fighter "+(u.side==="Player"?"p":"e"); refreshInfo(); await anim(f,"enter",450); await this.say(u.side==="Player"?`가라, ${u.name}!`:`${u.name}이(가) 무대에 올랐다.`, 450); },
+  async withdraw(u){ await this.say(u.side==="Player"?`${u.name}, 돌아와!`:`${u.name}이(가) 물러났다.`, 350); await anim(fighterEl(u.side),"exit",350); },
+  async skill(u,o,s,hit){
+    await this.say(`${u.name}의 ${s.displayName}!`, 380);
+    if (s.isUltimate){ const ci=el("div","cutin",`<span style="color:${ELEM_HEX[s.element]};text-shadow:0 0 18px ${ELEM_HEX[s.element]}">${s.displayName}</span>`); stage.appendChild(ci); await wait(900); ci.remove(); }
+    await anim(fighterEl(u.side), u.side==="Player"?"lunge-p":"lunge-e", 260);
+    if (hit.missed){ anim(fighterEl(o.side),"dodge",300); popup(o.side,"MISS"); await this.say("하지만 빗나갔다!", 500); return; }
+    if (s.damageType!=="None" && s.damageMultiplier>0){
+      burst(o.side, ELEM_HEX[s.element!=="None"?s.element:u.d.element], s.isUltimate?60:hit.critical?36:22);
+      if (hit.critical || s.cameraShake>=0.3) anim(stage,"shake",320);
+      anim(fighterEl(o.side),"hit",300);
+      popup(o.side, hit.damage, hit.critical?"crit":"");
+      refreshInfo();
+      await wait(420);
+      if (hit.critical) await this.say("급소에 맞았다!", 450);
+      if (hit.elementMultiplier>1) await this.say("효과가 굉장했다!", 500);
+      else if (hit.elementMultiplier<1) await this.say("효과가 별로인 듯하다…", 500);
+    } else {
+      burst(o.side, ELEM_HEX[s.element], 14); await wait(300);
+    }
+  },
+  async heal(u,h){ burst(u.side,"#8fe0b4",16); popup(u.side,"+"+h,"heal"); refreshInfo(); await this.say(`${u.name}의 HP가 ${h} 회복되었다.`, 550); },
+  async statusDamage(u,st,d){ burst(u.side, st==="Burn"?"#ff7a59":"#ff4d6d", 10); anim(fighterEl(u.side),"hit",300); popup(u.side,d); refreshInfo(); await this.say(`${u.name}은(는) ${STATUS_NAME[st]} 피해를 입었다.`, 550); },
+  async faint(u){ await anim(fighterEl(u.side),"faint",700); await this.say(`${u.name}의 실루엣이 흩어졌다…`, 650); },
+  async record(t, ok, ch){
+    await this.say(`각본집을 펼쳤다… (성공률 ${Math.round(ch*100)}%)`, 500);
+    const book=el("div","book"); const p=centerOf("Player"), e=centerOf("Enemy");
+    book.style.left=p.x+"px"; book.style.top=p.y+"px"; stage.appendChild(book); void book.offsetWidth;
+    book.style.left=e.x+"px"; book.style.top=(e.y+10)+"px"; book.style.transform="rotate(-14deg)";
+    await wait(480);
+    if (ok){ burst("Enemy","#e9c77b",40); await anim(fighterEl("Enemy"),"sealed",900); book.remove(); await this.say(`${t.name}의 기억이 각본집에 기록되었다!`, 900); }
+    else { anim(fighterEl("Enemy"),"hit",300); book.remove(); await this.say(`${t.name}이(가) 각본을 찢고 뛰쳐나왔다!`, 700); }
+  },
+  async result(){
+    const o=B.outcome;
+    const line = o.result==="Victory" ? `막이 내렸다. ${o.gold} G를 얻었다.`
+               : o.result==="Defeat" ? "모든 배우가 쓰러졌다… 천막으로 돌아간다."
+               : o.result==="Captured" ? "새로운 배우가 극단에 합류했다." : "";
+    if (line) await this.say(line, 900);
+  }
+};
+function refreshInfo(){
+  for (const side of ["Player","Enemy"]){
+    const u=active(side); const box=side==="Player"?$("#infoP"):$("#infoE");
+    const pct=Math.max(0,u.hp/u.maxHp*100);
+    const col= pct>50?"var(--hp)":pct>20?"var(--hpwarn)":"var(--hpcrit)";
+    const st=[u.major?u.major.type:null,...u.debuffs.map(d=>d.type)].filter(Boolean).map(t=>`<span class="chip" style="color:${t==="Freeze"?"var(--frost)":t==="Burn"?"var(--flame)":"var(--hpcrit)"}">${STATUS_NAME[t]}</span>`).join(" ");
+    const fp=Array.from({length:5},(_,i)=>`<b class="${i<B.fp[side]?"on":""}"></b>`).join("");
+    if (!box.firstChild){ box.innerHTML=`<div class="row"><span class="nm"></span><span class="lv"></span></div><div class="hpbar"><i></i></div><div class="meta"><span class="hpnum"></span><span class="st"></span><span class="fp" title="공연 열기 FP"></span></div>`; }
+    box.querySelector(".nm").innerHTML=`<span class="elem" style="background:${ELEM[u.d.element].c}"></span>${u.name}`;
+    box.querySelector(".lv").textContent=`Lv.${u.level}`;
+    const bar=box.querySelector(".hpbar i"); bar.style.width=pct+"%"; bar.style.background=col;
+    box.querySelector(".hpnum").textContent=`${u.hp}/${u.maxHp}`;
+    box.querySelector(".st").innerHTML=st;
+    box.querySelector(".fp").innerHTML=fp;
+  }
+}
+function updateBar(){
+  $("#btnAuto").classList.toggle("on",G.auto); $("#btnSpeed").textContent="x"+G.speed;
+  document.documentElement.style.setProperty("--spd",G.speed);
+  $("#turnLbl").textContent = B ? `TURN ${B.turn}` : "";
+}
+
+// 메뉴
+function setMenu(kind){
+  menuEl.innerHTML=""; menuEl.className="menu";
+  const add=(label,fn,opt={})=>{ const b=el("button",opt.cls||"",label); if(opt.disabled) b.disabled=true; if(opt.title) b.title=opt.title; b.onclick=fn; menuEl.appendChild(b); return b; };
+  if (kind==="none") return;
+  if (kind==="main"){
+    const u=PA();
+    add("공격",()=>submit({type:"Attack",side:"Player",skill:u.d.basicAttack}),{cls:"primary"});
+    add("스킬",()=>setMenu("skill"));
+    add("교체",()=>setMenu("switch"),{disabled:!B.p.some((x,i)=>i!==B.pi&&!x.fainted)});
+    add("각본 기록",()=>submit({type:"Record",side:"Player"}),{disabled:!canCapture(), title: canCapture()?`성공률 ${Math.round(captureChance(EA(),B.captureBonus)*100)}%`:"기록 불가"});
+    add("도구",()=>setMenu("item"));
+    add("도주",()=>submit({type:"Escape",side:"Player"}),{disabled:!canEscape()});
+  }
+  else if (kind==="skill"){
+    menuEl.className="menu two";
+    for (const id of PA().d.skills){ const s=SK(id); if(!s) continue;
+      add(`<span class="elem" style="background:${ELEM[s.element].c}"></span>${s.displayName}<span class="cost">${s.fpCost}FP</span>`, ()=>submit({type:"Skill",side:"Player",skill:id}), {disabled:B.fp.Player<s.fpCost}); }
+    add("← 뒤로",()=>setMenu("main"));
+  }
+  else if (kind==="switch"||kind==="forced"){
+    menuEl.className="menu two";
+    B.p.forEach((u,i)=>{ if(i===B.pi||u.fainted) return;
+      add(`${u.name} <span class="cost">${u.hp}/${u.maxHp}</span>`, ()=> kind==="forced" ? (()=>{ const r=B.forced; B.forced=null; r(i); })() : submit({type:"Switch",side:"Player",index:i})); });
+    if (kind==="switch") add("← 뒤로",()=>setMenu("main"));
+  }
+  else if (kind==="item"){
+    menuEl.className="menu two";
+    for (const id of Object.keys(DATA.items)){ const it=IT(id); if(!it.usableInBattle) continue;
+      const n=G.inv[id]||0;
+      add(`${it.displayName} <span class="cost">x${n}</span>`, ()=>submit({type:"Item",side:"Player",item:id}), {disabled:n<=0}); }
+    add("← 뒤로",()=>setMenu("main"));
+  }
+}
+
+// ═════════════════════════════════════════════════════════════
+// 8. 흐름 (GameFlowController)
+// ═════════════════════════════════════════════════════════════
+function showLayer(name){
+  for (const id of ["select","field","battle"]) $("#"+id).hidden = id!==name;
+  $("#ctlSelect").hidden = name!=="select";
+  $("#ctlField").hidden = name!=="field";
+  $("#ctlBattle").hidden = name!=="battle";
+  $("#ctlBattle").style.display = name==="battle" ? "flex" : "none";
+  if (name==="field") requestAnimationFrame(resizeField);
+}
+async function symbolBattle(sym){
+  if (G.busy || !G.party.some(i=>i.currentHp>0)) return;
+  G.busy=true; sym.frozen=true; keys.clear(); padDir=null;
+  // 위치 정리
+  player.px=player.x; player.py=player.y; player.moving=false;
+  await realWait(220);
+  await curtainClose();
+  const lv=()=>sym.levelRange[0]+Math.floor(Math.random()*(sym.levelRange[1]-sym.levelRange[0]+1));
+  setupBattle({ mode:sym.mode, playerParty:G.party, enemyParty:[newInst(sym.shadowId,lv())], encounterId:sym.encounterId });
+  await curtainOpen();
+  const out=await battleLoop();
+  applyOutcome(out);
+  await curtainClose();
+  showLayer("field");
+  if (out.result==="Defeat"){ player.x=player.px=CHECKPOINT.x; player.y=player.py=CHECKPOINT.y; }
+  sym.frozen=false;
+  if (out.result==="Victory"||out.result==="Captured"){
+    sym.active=false;
+    if (sym.encounterId){ const i=symbols.indexOf(sym); if(i>=0) symbols.splice(i,1); }
+    else sym.respawnAt=performance.now()+20000;
+  } else {
+    sym.cooldownUntil=performance.now()+3000;
+  }
+  hudKey=""; B=null;
+  await curtainOpen();
+  G.busy=false;
+  if (out.result==="Captured") toast(`각본집에 새 기록: ${SH(out.captured.shadowId).displayName}`);
+  if (out.result==="Victory" && sym.encounterId) toast("검열관이 물러났다. 지워진 이름들이 희미하게 돌아온다.");
+}
+function applyOutcome(out){
+  G.gold += out.gold||0;
+  if (out.result==="Captured"){
+    const inst=out.captured; inst.currentHp=maxHpOf(inst);
+    G.recorded.add(inst.shadowId); G.seen.add(inst.shadowId);
+    if (G.party.length<6) G.party.push(inst);
+  }
+  if (out.result==="Victory" && out.encounterId) G.cleared.add(out.encounterId);
+  if (out.result==="Defeat") G.party.forEach(i=>i.currentHp=maxHpOf(i));
+}
+async function trainingTower(){
+  if (G.busy) return;
+  if (!G.party.some(i=>i.currentHp>0)){ toast("싸울 수 있는 그림자가 없다. 천막에서 쉬자."); return; }
+  G.busy=true; keys.clear(); padDir=null;
+  await curtainClose();
+  let floor=1, first=true, last=null;
+  while(true){
+    const pool=["puppet","crow","mask","knight","mage","beast"];
+    const enemies=[newInst(pool[Math.floor(Math.random()*pool.length)], 2+floor)];
+    if (floor%5===0) enemies.push(newInst(pool[Math.floor(Math.random()*pool.length)], 2+floor));
+    setupBattle({ mode:"Training", floor, playerParty:G.party, enemyParty:enemies, encounterId:"" });
+    if (first){ await curtainOpen(); first=false; }
+    last=await battleLoop();
+    G.gold += last.gold||0;
+    if (last.result!=="Victory") break;
+    G.bestFloor=Math.max(G.bestFloor,floor);
+    msgEl.textContent=`${floor}층 돌파! (최고 기록 ${G.bestFloor}층) HP는 회복되지 않습니다.`;
+    const go = G.auto ? (await wait(900), G.party.some(i=>i.currentHp>maxHpOf(i)*0.3)) : await new Promise(res=>{
+      menuEl.innerHTML=""; menuEl.className="menu two";
+      const a=el("button","primary","다음 층으로"); a.onclick=()=>res(true);
+      const b=el("button","","천막으로 복귀"); b.onclick=()=>res(false);
+      menuEl.append(a,b);
+    });
+    if (!go) break;
+    floor++;
+  }
+  if (last && last.result==="Defeat") G.party.forEach(i=>i.currentHp=maxHpOf(i));
+  await curtainClose(); showLayer("field"); B=null; hudKey=""; await curtainOpen();
+  G.busy=false;
+  toast(`훈련 종료 — 최고 ${G.bestFloor}층`);
+}
+
+// ═════════════════════════════════════════════════════════════
+// 9. 메뉴 패널 (파티 / 각본집)
+// ═════════════════════════════════════════════════════════════
+function openModal(html){ const m=$("#modal"); m.innerHTML=html; m.hidden=false; m.querySelector("[data-close]").onclick=()=>{ m.hidden=true; hudKey=""; }; return m; }
+function miniCanvas(d, dim){ const c=document.createElement("canvas"); c.width=c.height=88; paintCanvas(c,d.shape,dim?"#3a3450":d.accentColor,false); return c; }
+function openParty(){
+  const m=openModal(`<h3>극단 (파티) <button data-close>닫기</button></h3><div class="list"></div>`);
+  const list=m.querySelector(".list");
+  G.party.forEach((inst,i)=>{
+    const d=SH(inst.shadowId);
+    const card=el("div","card");
+    card.appendChild(miniCanvas(d));
+    card.appendChild(el("div","",`<div class="t"><span class="elem" style="background:${ELEM[d.element].c}"></span>${d.displayName} <span class="s">Lv.${inst.level}</span></div><div class="s">HP ${inst.currentHp}/${maxHpOf(inst)} · 공격 ${stat(inst,"Atk")} · 방어 ${stat(inst,"Def")} · 속도 ${stat(inst,"Spd")} · EXP ${inst.exp}/${expToNext(inst)}</div>`));
+    const b=el("button","", i===0?"선두":"선두로"); b.disabled=i===0;
+    b.onclick=()=>{ G.party.unshift(G.party.splice(i,1)[0]); openParty(); };
+    card.appendChild(b); list.appendChild(card);
+  });
+  list.appendChild(el("p","hint",`도구: ${Object.keys(G.inv).map(k=>`${IT(k)?.displayName??k} x${G.inv[k]}`).join(" · ")}`));
+}
+function openBook(){
+  const ids=Object.keys(DATA.shadows);
+  const m=openModal(`<h3>각본집 <span class="s" style="font-family:var(--f-body);font-size:12px;color:var(--dim)">기록 ${[...G.recorded].length}/${ids.filter(i=>SH(i).baseCaptureRate>0).length}</span><button data-close>닫기</button></h3><div class="list"></div>`);
+  const list=m.querySelector(".list");
+  ids.forEach(id=>{
+    const d=SH(id), rec=G.recorded.has(id), seen=G.seen.has(id)||rec;
+    const card=el("div","card");
+    card.appendChild(miniCanvas(d,!seen));
+    card.appendChild(el("div","",`<div class="t">${seen?d.displayName:"???"}</div><div class="s">${seen?d.title:"아직 만나지 못한 그림자"}</div>`));
+    card.appendChild(el("span","s",rec?"기록됨":seen?"조우":""));
+    if (seen) card.appendChild(el("div","lore", rec? d.loreUnlocked : d.loreLocked));
+    list.appendChild(card);
+  });
+}
+
+// ═════════════════════════════════════════════════════════════
+// 10. 시작 / 입력 바인딩
+// ═════════════════════════════════════════════════════════════
+function buildStarters(){
+  const box=$("#starters"); box.innerHTML="";
+  const roleTxt={PhysicalDealer:"물리 딜러 · 높은 공격력",MagicNuker:"마법 누커 · 빙결",SpeedUtility:"속도/유틸 · 치명타·회피"};
+  for (const id of ["knight","mage","beast"]){
+    const d=SH(id), b=el("button","starter");
+    const c=document.createElement("canvas"); c.width=c.height=192; paintCanvas(c,d.shape,d.accentColor,false);
+    b.appendChild(c);
+    b.appendChild(el("b","",`<span class="elem" style="background:${ELEM[d.element].c}"></span>${d.displayName}`));
+    b.appendChild(el("span","",`${d.title}<br>${roleTxt[d.role]||""}`));
+    b.onclick=()=>startGame(id);
+    box.appendChild(b);
+  }
+}
+async function startGame(id){
+  G.party=[newInst(id,5)]; G.recorded=new Set([id]); G.seen=new Set([id]);
+  G.gold=100; G.inv={potion:3,tonic:1,ink:2,salve:1}; G.cleared=new Set(); G.bestFloor=0;
+  player.x=player.px=CHECKPOINT.x; player.y=player.py=CHECKPOINT.y; player.moving=false;
+  initSymbols(); hudKey="";
+  await curtainClose(); showLayer("field"); await curtainOpen();
+  toast("안개 속 그림자에 닿으면 막이 오릅니다.");
+}
+
+addEventListener("keydown",e=>{
+  if ($("#tab-play").hidden || e.target.tagName==="TEXTAREA") return;
+  const k=e.key.length===1?e.key.toLowerCase():e.key;
+  if (["ArrowUp","ArrowDown","ArrowLeft","ArrowRight","w","a","s","d"].includes(k)){ keys.add(k); e.preventDefault(); }
+  if ((k===" "||k==="z") && !$("#field").hidden && !G.busy && $("#modal").hidden){ interact(); e.preventDefault(); }
+});
+addEventListener("keyup",e=>{ const k=e.key.length===1?e.key.toLowerCase():e.key; keys.delete(k); });
+addEventListener("blur",()=>{ keys.clear(); padDir=null; });
+document.querySelectorAll("#dpad button").forEach(b=>{
+  const [x,y]=b.dataset.d.split(",").map(Number);
+  const on=e=>{ e.preventDefault(); padDir={x,y}; b.classList.add("on"); try{b.setPointerCapture(e.pointerId);}catch(_){} };
+  const off=()=>{ if(padDir&&padDir.x===x&&padDir.y===y) padDir=null; b.classList.remove("on"); };
+  b.addEventListener("pointerdown",on); b.addEventListener("pointerup",off); b.addEventListener("pointercancel",off); b.addEventListener("lostpointercapture",off);
+});
+$("#btnA").onclick=()=>{ if(!G.busy && $("#modal").hidden) interact(); };
+$("#btnParty").onclick=()=>{ if(!G.busy) openParty(); };
+$("#btnBook").onclick=()=>{ if(!G.busy) openBook(); };
+$("#btnTower").onclick=()=>{ if($("#modal").hidden) trainingTower(); };
+$("#btnAuto").onclick=()=>{ G.auto=!G.auto; updateBar(); if (G.auto && B){ if (B.resolve) submit(null); if (B.forced){ const r=B.forced; B.forced=null; r(B.p.findIndex(u=>!u.fainted)); } } };
+$("#btnSpeed").onclick=()=>{ G.speed = G.speed===1?2:G.speed===2?3:1; updateBar(); };
+addEventListener("resize",()=>{ if(!$("#field").hidden) resizeField(); });
+
+// 탭
+function selectTab(play){
+  $("#tab-play").hidden=!play; $("#tab-play").style.display=play?"flex":"none";
+  $("#tab-data").hidden=play;
+  $("#tabPlayBtn").setAttribute("aria-selected",play); $("#tabDataBtn").setAttribute("aria-selected",!play);
+  if (!play) $("#dataText").value=JSON.stringify(DATA,null,2);
+  else if (!$("#field").hidden) requestAnimationFrame(resizeField);
+}
+$("#tabPlayBtn").onclick=()=>selectTab(true);
+$("#tabDataBtn").onclick=()=>selectTab(false);
+function validateData(d){
+  const errs=[];
+  if (!d.skills||!d.shadows||!d.items) errs.push("skills / shadows / items 세 항목이 모두 있어야 합니다.");
+  else for (const [id,s] of Object.entries(d.shadows)){
+    if (!d.skills[s.basicAttack]) errs.push(`${id}.basicAttack "${s.basicAttack}" 스킬이 없습니다.`);
+    (s.skills||[]).forEach(k=>{ if(!d.skills[k]) errs.push(`${id}.skills의 "${k}" 스킬이 없습니다.`); });
+    if (!ELEM[s.element]) errs.push(`${id}.element "${s.element}"는 None/Flame/Frost/Shade 중 하나여야 합니다.`);
+  }
+  return errs;
+}
+$("#btnApply").onclick=()=>{
+  try{
+    const d=JSON.parse($("#dataText").value); const errs=validateData(d);
+    if (errs.length){ $("#dataMsg").textContent=errs[0]; return; }
+    DATA=d; spriteCache.clear(); buildStarters(); hudKey="";
+    $("#dataMsg").textContent="적용했습니다. 보유 중인 그림자에도 바로 반영됩니다.";
+  }catch(err){ $("#dataMsg").textContent="JSON 형식 오류: "+err.message; }
+};
+$("#btnReset").onclick=()=>{ DATA=JSON.parse(JSON.stringify(DEFAULT_DATA)); spriteCache.clear(); buildStarters(); $("#dataText").value=JSON.stringify(DATA,null,2); $("#dataMsg").textContent="기본값으로 되돌렸습니다."; };
+$("#btnCopy").onclick=async()=>{ const t=$("#dataText"); try{ await navigator.clipboard.writeText(t.value); $("#dataMsg").textContent="복사했습니다."; }catch(_){ t.focus(); t.select(); $("#dataMsg").textContent="텍스트를 선택했습니다. Ctrl+C로 복사하세요."; } };
+
+// 테스트 훅
+window.__st = { G, DATA:()=>DATA, symbols, player, startGame, symbolBattle, trainingTower, getB:()=>B };
+
+buildStarters();
+showLayer("select");
+requestAnimationFrame(t=>{ lastT=t; fieldLoop(t); });
+</script>
