@@ -186,14 +186,21 @@ namespace ShadowTheater.EditorTools
             importer.spritePixelsPerUnit = 256f;
             importer.npotScale = TextureImporterNPOTScale.None;
 
-            // Texture2D.width can report the platform-resized import size (for example,
-            // a 2172 px source imported at the default 2048 px maximum). SpriteMetaData
-            // rects, however, are expressed in source-image pixels. Mixing the two makes
-            // the final slice cross the PNG boundary on some Unity/editor settings.
-            importer.GetSourceTextureWidthAndHeight(out int sourceWidth, out int sourceHeight);
-            if (sourceWidth < FormKeys.Length || sourceHeight < 1)
+            // Unity 2022 validates legacy SpriteMetaData against the currently imported
+            // texture size. That size can be lower than the PNG source size because of a
+            // platform/max-size setting, so use the imported texture as the authority.
+            var importedTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(spec.sheetPath);
+            if (importedTexture == null)
             {
-                Debug.LogError($"[GrowthBatch] 이미지 크기가 올바르지 않습니다: {spec.sheetPath} ({sourceWidth}x{sourceHeight})");
+                Debug.LogError($"[GrowthBatch] 이미지를 불러올 수 없습니다: {spec.sheetPath}");
+                return;
+            }
+
+            int importedWidth = importedTexture.width;
+            int importedHeight = importedTexture.height;
+            if (importedWidth <= FormKeys.Length || importedHeight < 1)
+            {
+                Debug.LogError($"[GrowthBatch] 이미지 크기가 올바르지 않습니다: {spec.sheetPath} ({importedWidth}x{importedHeight})");
                 return;
             }
 
@@ -201,14 +208,17 @@ namespace ShadowTheater.EditorTools
             for (int i = 0; i < metadata.Length; i++)
             {
                 // Integer boundaries also support sheets whose width is not divisible by four.
-                int left = sourceWidth * i / metadata.Length;
-                int right = sourceWidth * (i + 1) / metadata.Length;
+                int left = importedWidth * i / metadata.Length;
+                int right = importedWidth * (i + 1) / metadata.Length;
+                // Some Unity 2022 patch releases reject a final rect whose right edge is
+                // exactly equal to texture.width. One transparent edge pixel is expendable.
+                if (i == metadata.Length - 1) right = Mathf.Min(right, importedWidth - 1);
                 metadata[i] = new SpriteMetaData
                 {
                     name = $"{spec.shadowId}_{FormKeys[i]}",
                     alignment = (int)SpriteAlignment.BottomCenter,
                     pivot = new Vector2(0.5f, 0f),
-                    rect = new Rect(left, 0, right - left, sourceHeight)
+                    rect = new Rect(left, 0, right - left, importedHeight)
                 };
             }
 #pragma warning disable 0618
