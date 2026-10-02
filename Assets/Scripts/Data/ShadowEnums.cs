@@ -19,6 +19,20 @@ namespace ShadowTheater.Data
         Support
     }
 
+    public enum MemoryStage
+    {
+        Echo = 0,       // 잔영
+        Restored = 1,   // 기억 복원
+        TrueName = 2    // 진명 각성
+    }
+
+    public enum AwakeningPath
+    {
+        None = 0,
+        Salvation = 1, // 구원
+        Grudge = 2     // 원한
+    }
+
     public enum DamageType
     {
         None,       // 데미지 없음 (상태이상/회복 전용 스킬)

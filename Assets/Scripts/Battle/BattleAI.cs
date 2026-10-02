@@ -12,10 +12,10 @@ namespace ShadowTheater.Battle
     {
         public static BattleAction Choose(BattleUnit self, BattleUnit opponent, int currentFp)
         {
-            var basic = self.Data.basicAttack;
+            var basic = self.BasicAttack;
             var candidates = new List<(SkillData skill, float score)>();
 
-            foreach (var s in self.Data.skills)
+            foreach (var s in self.Skills)
             {
                 if (s == null || s.fpCost > currentFp) continue;
                 candidates.Add((s, Score(self, opponent, s)));

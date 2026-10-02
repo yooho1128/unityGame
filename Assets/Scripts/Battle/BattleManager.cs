@@ -272,7 +272,7 @@ namespace ShadowTheater.Battle
             // FP 처리 (AI가 잘못 골랐을 때 대비해 한 번 더 체크)
             if (GetFp(a.side) < skill.fpCost)
             {
-                skill = user.Data.basicAttack;
+                skill = user.BasicAttack;
                 if (skill == null) yield break;
             }
             AddFp(a.side, skill.fpGain - skill.fpCost);
@@ -529,11 +529,11 @@ namespace ShadowTheater.Battle
             switch (a.type)
             {
                 case ActionType.Attack:
-                    if (a.skill == null) a.skill = PlayerActive.Data.basicAttack;
+                    if (a.skill == null) a.skill = PlayerActive.BasicAttack;
                     if (a.skill == null) { reason = "기본 공격 미설정"; return false; }
                     return true;
                 case ActionType.Skill:
-                    if (a.skill == null || !PlayerActive.Data.skills.Contains(a.skill)) { reason = "보유하지 않은 스킬"; return false; }
+                    if (a.skill == null || !PlayerActive.Skills.Contains(a.skill)) { reason = "보유하지 않은 스킬"; return false; }
                     if (!CanUseSkill(a.skill)) { reason = "FP 부족"; return false; }
                     return true;
                 case ActionType.Switch:

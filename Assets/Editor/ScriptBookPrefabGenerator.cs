@@ -51,7 +51,7 @@ namespace ShadowTheater.EditorTools
             var recordedButton = CreateButton("Recorded", root, new Vector2(0.595f, 0.85f),
                 new Vector2(0.945f, 0.90f), "기록 완료", new Color(0.10f, 0.075f, 0.17f, 1f));
 
-            var listPanel = CreateRect("ListPanel", root, new Vector2(0.055f, 0.50f),
+            var listPanel = CreateRect("ListPanel", root, new Vector2(0.055f, 0.58f),
                 new Vector2(0.945f, 0.83f));
             var listImage = listPanel.gameObject.AddComponent<Image>();
             listImage.color = new Color(0.035f, 0.025f, 0.07f, 1f);
@@ -82,28 +82,40 @@ namespace ShadowTheater.EditorTools
             template.gameObject.SetActive(false);
 
             var detail = CreateRect("DetailPanel", root, new Vector2(0.055f, 0.04f),
-                new Vector2(0.945f, 0.475f));
+                new Vector2(0.945f, 0.55f));
             var detailImage = detail.gameObject.AddComponent<Image>();
             detailImage.color = new Color(0.035f, 0.025f, 0.07f, 1f);
             var accent = CreateRect("AccentGlow", detail, new Vector2(0f, 0f), new Vector2(0.014f, 1f))
                 .gameObject.AddComponent<Image>();
             accent.raycastTarget = false;
-            var portrait = CreateRect("Portrait", detail, new Vector2(0.04f, 0.55f), new Vector2(0.31f, 0.94f))
+            var portrait = CreateRect("Portrait", detail, new Vector2(0.04f, 0.62f), new Vector2(0.31f, 0.94f))
                 .gameObject.AddComponent<Image>();
             portrait.preserveAspect = true;
             portrait.raycastTarget = false;
-            var name = CreateText("Name", detail, new Vector2(0.35f, 0.80f),
+            var name = CreateText("Name", detail, new Vector2(0.35f, 0.82f),
                 new Vector2(0.95f, 0.95f), 38, FontStyle.Bold, TextAnchor.MiddleLeft);
-            var title = CreateText("Title", detail, new Vector2(0.35f, 0.68f),
-                new Vector2(0.95f, 0.82f), 25, FontStyle.Normal, TextAnchor.MiddleLeft);
+            var title = CreateText("Title", detail, new Vector2(0.35f, 0.71f),
+                new Vector2(0.95f, 0.83f), 25, FontStyle.Normal, TextAnchor.MiddleLeft);
             title.color = new Color(0.74f, 0.69f, 0.82f, 1f);
-            var type = CreateText("Type", detail, new Vector2(0.35f, 0.57f),
-                new Vector2(0.95f, 0.70f), 23, FontStyle.Bold, TextAnchor.MiddleLeft);
+            var type = CreateText("Type", detail, new Vector2(0.35f, 0.61f),
+                new Vector2(0.95f, 0.72f), 23, FontStyle.Bold, TextAnchor.MiddleLeft);
             type.color = new Color(0.72f, 0.55f, 1f, 1f);
+            var stage = CreateText("MemoryStage", detail, new Vector2(0.04f, 0.53f),
+                new Vector2(0.96f, 0.62f), 24, FontStyle.Bold, TextAnchor.MiddleLeft);
+            stage.color = new Color(0.58f, 0.84f, 1f, 1f);
             var stats = CreateText("Stats", detail, new Vector2(0.04f, 0.45f),
-                new Vector2(0.96f, 0.56f), 23, FontStyle.Normal, TextAnchor.MiddleLeft);
-            var lore = CreateText("Lore", detail, new Vector2(0.04f, 0.055f),
-                new Vector2(0.96f, 0.44f), 25, FontStyle.Normal, TextAnchor.UpperLeft);
+                new Vector2(0.96f, 0.54f), 22, FontStyle.Normal, TextAnchor.MiddleLeft);
+            var restore = CreateButton("Restore", detail, new Vector2(0.04f, 0.36f),
+                new Vector2(0.32f, 0.44f), "기억 복원", new Color(0.16f, 0.24f, 0.42f, 1f));
+            var salvation = CreateButton("Salvation", detail, new Vector2(0.35f, 0.36f),
+                new Vector2(0.64f, 0.44f), "구원 각성", new Color(0.13f, 0.32f, 0.29f, 1f));
+            var grudge = CreateButton("Grudge", detail, new Vector2(0.67f, 0.36f),
+                new Vector2(0.96f, 0.44f), "원한 각성", new Color(0.36f, 0.10f, 0.25f, 1f));
+            var feedback = CreateText("AwakeningFeedback", detail, new Vector2(0.04f, 0.29f),
+                new Vector2(0.96f, 0.36f), 20, FontStyle.Normal, TextAnchor.MiddleLeft);
+            feedback.color = new Color(0.72f, 0.68f, 0.82f, 1f);
+            var lore = CreateText("Lore", detail, new Vector2(0.04f, 0.045f),
+                new Vector2(0.96f, 0.285f), 23, FontStyle.Normal, TextAnchor.UpperLeft);
             lore.horizontalOverflow = HorizontalWrapMode.Wrap;
             lore.verticalOverflow = VerticalWrapMode.Truncate;
             lore.color = new Color(0.84f, 0.81f, 0.90f, 1f);
@@ -121,12 +133,20 @@ namespace ShadowTheater.EditorTools
             so.FindProperty("typeText").objectReferenceValue = type;
             so.FindProperty("statsText").objectReferenceValue = stats;
             so.FindProperty("loreText").objectReferenceValue = lore;
+            so.FindProperty("stageText").objectReferenceValue = stage;
+            so.FindProperty("awakeningFeedbackText").objectReferenceValue = feedback;
+            so.FindProperty("restoreButton").objectReferenceValue = restore;
+            so.FindProperty("salvationButton").objectReferenceValue = salvation;
+            so.FindProperty("grudgeButton").objectReferenceValue = grudge;
             so.ApplyModifiedPropertiesWithoutUndo();
 
             UnityEditor.Events.UnityEventTools.AddPersistentListener(close.onClick, controller.Close);
             UnityEditor.Events.UnityEventTools.AddPersistentListener(allButton.onClick, controller.ShowAll);
             UnityEditor.Events.UnityEventTools.AddPersistentListener(seenButton.onClick, controller.ShowSeen);
             UnityEditor.Events.UnityEventTools.AddPersistentListener(recordedButton.onClick, controller.ShowRecorded);
+            UnityEditor.Events.UnityEventTools.AddPersistentListener(restore.onClick, controller.RestoreSelected);
+            UnityEditor.Events.UnityEventTools.AddPersistentListener(salvation.onClick, controller.AwakenSalvation);
+            UnityEditor.Events.UnityEventTools.AddPersistentListener(grudge.onClick, controller.AwakenGrudge);
             root.gameObject.SetActive(false);
 
             PrefabUtility.SaveAsPrefabAsset(canvasGo, PrefabPath);

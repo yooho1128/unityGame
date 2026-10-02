@@ -3,6 +3,26 @@ using UnityEngine;
 
 namespace ShadowTheater.Data
 {
+    [System.Serializable]
+    public class MemoryFormData
+    {
+        public bool enabled;
+        public string formName;
+        public Sprite silhouetteSprite;
+        [ColorUsage(true, true)] public Color accentColor = Color.white;
+        [Min(1)] public int requiredLevel = 10;
+        [Tooltip("개인 기억 퀘스트 완료 플래그. 비우면 레벨만 검사")]
+        public string requiredFlag;
+        [Min(0.1f)] public float hpMultiplier = 1.15f;
+        [Min(0.1f)] public float atkMultiplier = 1.12f;
+        [Min(0.1f)] public float defMultiplier = 1.10f;
+        [Min(0.1f)] public float spdMultiplier = 1.08f;
+        [Range(0f, 1f)] public float bonusCritRate;
+        [Range(0f, 1f)] public float bonusEvasion;
+        public List<SkillData> bonusSkills = new List<SkillData>();
+        [TextArea(2, 8)] public string loreAppend;
+    }
+
     /// <summary>
     /// 그림자(영웅) 원본 정의 (ScriptableObject). 레벨/현재 HP 등 개체별 값은 ShadowInstance에 저장.
     /// Create > ShadowTheater > Shadow Data
@@ -51,12 +71,25 @@ namespace ShadowTheater.Data
         [TextArea(3, 8)] public string loreLocked;    // 미수집 시 표시
         [TextArea(5, 15)] public string loreUnlocked; // 수집 후 해금되는 비극 스토리
 
+        [Header("기억 성장")]
+        public MemoryFormData restoredForm = new MemoryFormData();
+        public MemoryFormData salvationForm = new MemoryFormData { requiredLevel = 25, hpMultiplier = 1.32f, atkMultiplier = 1.28f, defMultiplier = 1.24f, spdMultiplier = 1.20f };
+        public MemoryFormData grudgeForm = new MemoryFormData { requiredLevel = 25, hpMultiplier = 1.20f, atkMultiplier = 1.40f, defMultiplier = 1.12f, spdMultiplier = 1.28f };
+
         public int GetHp(int level) => Mathf.RoundToInt(baseHp + hpGrowth * (level - 1));
         public int GetAtk(int level) => Mathf.RoundToInt(baseAtk + atkGrowth * (level - 1));
         public int GetDef(int level) => Mathf.RoundToInt(baseDef + defGrowth * (level - 1));
         public int GetSpd(int level) => Mathf.RoundToInt(baseSpd + spdGrowth * (level - 1));
 
         public bool IsCapturable => baseCaptureRate > 0f;
+
+        public MemoryFormData GetForm(MemoryStage stage, AwakeningPath path)
+        {
+            if (stage == MemoryStage.Restored) return restoredForm;
+            if (stage == MemoryStage.TrueName)
+                return path == AwakeningPath.Grudge ? grudgeForm : salvationForm;
+            return null;
+        }
 
 #if UNITY_EDITOR
         private void OnValidate()

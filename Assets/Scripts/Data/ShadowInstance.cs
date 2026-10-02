@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ShadowTheater.Data
@@ -15,6 +16,8 @@ namespace ShadowTheater.Data
         public int level = 1;
         public int exp;
         public int currentHp = -1;  // -1 = 최대치로 초기화
+        public MemoryStage memoryStage;
+        public AwakeningPath awakeningPath;
 
         [NonSerialized] private ShadowData _data;
         public ShadowData Data => _data != null ? _data : (_data = ShadowDatabase.Instance.GetShadow(shadowId));
@@ -30,7 +33,18 @@ namespace ShadowTheater.Data
             currentHp = MaxHp;
         }
 
-        public int MaxHp => Data.GetHp(level);
+        public MemoryFormData ActiveForm => Data.GetForm(memoryStage, awakeningPath);
+        public int MaxHp => ApplyMultiplier(Data.GetHp(level), ActiveForm?.hpMultiplier ?? 1f);
+        public int Atk => ApplyMultiplier(Data.GetAtk(level), ActiveForm?.atkMultiplier ?? 1f);
+        public int Def => ApplyMultiplier(Data.GetDef(level), ActiveForm?.defMultiplier ?? 1f);
+        public int Spd => ApplyMultiplier(Data.GetSpd(level), ActiveForm?.spdMultiplier ?? 1f);
+        public float CritRate => Mathf.Clamp01(Data.critRate + (ActiveForm?.bonusCritRate ?? 0f));
+        public float Evasion => Mathf.Clamp01(Data.evasion + (ActiveForm?.bonusEvasion ?? 0f));
+        public Sprite Silhouette => ActiveForm != null && ActiveForm.silhouetteSprite != null
+            ? ActiveForm.silhouetteSprite : Data.silhouetteSprite;
+        public Color AccentColor => ActiveForm != null ? ActiveForm.accentColor : Data.accentColor;
+        public string DisplayName => ActiveForm != null && !string.IsNullOrEmpty(ActiveForm.formName)
+            ? ActiveForm.formName : Data.displayName;
         public bool IsFainted => currentHp == 0;
 
         public int ExpToNext => 20 + level * level * 5; // 임시 곡선
@@ -57,5 +71,23 @@ namespace ShadowTheater.Data
         {
             if (currentHp < 0 || currentHp > MaxHp) currentHp = MaxHp;
         }
+
+        public List<SkillData> GetAvailableSkills()
+        {
+            var result = new List<SkillData>(Data.skills);
+            if (memoryStage >= MemoryStage.Restored) AddSkills(result, Data.restoredForm?.bonusSkills);
+            if (memoryStage == MemoryStage.TrueName) AddSkills(result, ActiveForm?.bonusSkills);
+            return result;
+        }
+
+        private static void AddSkills(List<SkillData> target, List<SkillData> source)
+        {
+            if (source == null) return;
+            foreach (var skill in source)
+                if (skill != null && !target.Contains(skill)) target.Add(skill);
+        }
+
+        private static int ApplyMultiplier(int value, float multiplier) =>
+            Mathf.Max(1, Mathf.RoundToInt(value * multiplier));
     }
 }

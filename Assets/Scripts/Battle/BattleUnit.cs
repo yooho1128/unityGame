@@ -31,18 +31,20 @@ namespace ShadowTheater.Battle
         }
 
         // ── 스탯 ──
-        public string Name => Data.displayName;
+        public string Name => Instance.DisplayName;
         public int Level => Instance.level;
         public int MaxHp => Instance.MaxHp;
         public int Hp => Instance.currentHp;
         public float HpRatio => (float)Hp / MaxHp;
         public bool IsFainted => Hp <= 0;
 
-        public int Atk => Mathf.RoundToInt(Data.GetAtk(Level) * (HasDebuff(StatusEffectType.AttackDown) ? 0.7f : 1f));
-        public int Def => Mathf.RoundToInt(Data.GetDef(Level) * (HasDebuff(StatusEffectType.DefenseDown) ? 0.7f : 1f));
-        public int Spd => Mathf.RoundToInt(Data.GetSpd(Level) * (HasDebuff(StatusEffectType.SpeedDown) ? 0.5f : 1f));
-        public float CritRate => Data.critRate;
-        public float Evasion => Data.evasion;
+        public int Atk => Mathf.RoundToInt(Instance.Atk * (HasDebuff(StatusEffectType.AttackDown) ? 0.7f : 1f));
+        public int Def => Mathf.RoundToInt(Instance.Def * (HasDebuff(StatusEffectType.DefenseDown) ? 0.7f : 1f));
+        public int Spd => Mathf.RoundToInt(Instance.Spd * (HasDebuff(StatusEffectType.SpeedDown) ? 0.5f : 1f));
+        public float CritRate => Instance.CritRate;
+        public float Evasion => Instance.Evasion;
+        public SkillData BasicAttack => Data.basicAttack;
+        public List<SkillData> Skills => Instance.GetAvailableSkills();
 
         public bool CanAct => MajorStatus == null || MajorStatus.type != StatusEffectType.Freeze;
 

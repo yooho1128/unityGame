@@ -147,6 +147,29 @@ Assets/Scripts/
 전체·조우·기록 완료 필터와 `기록 수 / 전체 수` 진행률을 지원한다. 신규 기록은 기존
 `SaveManager.MarkRecorded()` 및 전투 포획 흐름을 그대로 사용하므로 별도 세이브 설정이 필요 없다.
 
+## 그림자 기억 성장 세팅
+각 `ShadowData`의 `Memory Growth`에서 세 형태를 설정한다.
+
+- `restoredForm`: 기억 복원 형태. 권장 레벨 10~15
+- `salvationForm`: 구원 진명 각성. 권장 레벨 25 이상
+- `grudgeForm`: 원한 진명 각성. 권장 레벨 25 이상
+
+사용할 형태는 `enabled`를 켜고 `formName`, 실루엣, HDR 포인트 컬러, 요구 레벨,
+`requiredFlag`, 능력치 배율, 추가 스킬, 추가 Lore를 입력한다. `requiredFlag`에는 해당 그림자의
+개인 비극 퀘스트 완료 플래그를 연결한다. 예: `memory_knight_restored`, `truth_knight_revealed`.
+
+성장 규칙:
+1. 기록 직후에는 모든 개체가 `잔영`이다.
+2. 기억 복원은 잔영 상태에서만 가능하며 복원 형태의 레벨/플래그를 검사한다.
+3. 진명 각성은 기억 복원 후에만 가능하며 구원/원한 형태가 서로 다른 조건과 능력치를 가질 수 있다.
+4. 각성 순간 현재 HP 비율을 유지하고 최대 HP, 공격, 방어, 속도, 치명타, 회피가 즉시 갱신된다.
+5. 형태별 `bonusSkills`는 전투 AI와 플레이어 스킬 검증에 실제 보유 스킬로 포함된다.
+   진명 각성 후에도 기억 복원 단계에서 얻은 추가 스킬은 유지된다.
+
+각본집은 파티와 서고에서 해당 종의 가장 높은 성장 단계/레벨 개체를 찾아 표시한다. 상세 화면의
+`기억 복원`, `구원 각성`, `원한 각성` 버튼에서 조건을 확인하고 성장을 실행한다. 성장 단계와 분기,
+해금된 형태는 `ShadowInstance`에 저장되며 구버전 세이브는 버전 4로 자동 이관된다.
+
 ## 전투만 먼저 확인할 때
 빈 씬 → GameObject에 BattleManager + BattleTestBootstrap → ShadowData 연결 → Play.
 화면 좌상단 OnGUI 버튼으로 조작, 로그는 Console.
@@ -154,6 +177,6 @@ Assets/Scripts/
 ## 다음 작업 후보
 1. BattleUI (uGUI) — BattleManager 이벤트 바인딩 (HP바, FP 구슬, 행동 메뉴)
 2. DOTween BattlePresenter — 돌진/피격/컷인/카메라 쉐이크 (웹 프로토타입 연출 그대로)
-3. 엔딩 갤러리와 회차 시작
-4. 파티 편성·보관함 UI
+3. 파티 편성·보관함 UI
+4. 엔딩 갤러리와 회차 시작
 5. 설정/오디오/언어 메뉴

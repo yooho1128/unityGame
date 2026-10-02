@@ -58,7 +58,7 @@ namespace ShadowTheater.Battle
             if (bm.State == BattleState.WaitingForInput)
             {
                 if (GUILayout.Button("공격")) bm.SubmitAction(BattleAction.Attack(BattleSide.Player, null));
-                foreach (var s in bm.PlayerActive.Data.skills)
+                foreach (var s in bm.PlayerActive.Skills)
                 {
                     GUI.enabled = bm.CanUseSkill(s);
                     if (GUILayout.Button($"스킬: {s.displayName} (FP {s.fpCost})"))

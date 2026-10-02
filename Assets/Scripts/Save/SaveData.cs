@@ -12,7 +12,7 @@ namespace ShadowTheater.Save
     [Serializable]
     public class SaveData
     {
-        public const int CurrentVersion = 3;
+        public const int CurrentVersion = 4;
         public const int MaxPartySize = 6;
 
         public int version = CurrentVersion;

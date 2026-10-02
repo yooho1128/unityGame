@@ -149,12 +149,27 @@ namespace ShadowTheater.Save
             if (data.version < 3 || data.unlockedEndingIds == null)
                 data.unlockedEndingIds = new List<string>();
 
+            data.party ??= new List<ShadowInstance>();
+            data.storage ??= new List<ShadowInstance>();
+            if (data.version < 4)
+            {
+                foreach (var shadow in data.party) NormalizeMemoryStage(shadow);
+                foreach (var shadow in data.storage) NormalizeMemoryStage(shadow);
+            }
+
             data.flags ??= new List<FlagEntry>();
             data.clearedEncounterIds ??= new List<string>();
             data.seenShadowIds ??= new List<string>();
             data.recordedShadowIds ??= new List<string>();
             data.inventory ??= new List<ItemStack>();
             data.version = SaveData.CurrentVersion;
+        }
+
+        private static void NormalizeMemoryStage(ShadowInstance shadow)
+        {
+            if (shadow == null) return;
+            if (shadow.memoryStage != MemoryStage.TrueName) shadow.awakeningPath = AwakeningPath.None;
+            else if (shadow.awakeningPath == AwakeningPath.None) shadow.awakeningPath = AwakeningPath.Salvation;
         }
 
         #endregion
