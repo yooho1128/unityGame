@@ -297,6 +297,69 @@
         {"speaker":"각본집","text":"제2막 『왕관의 재』가 기록되었습니다.","emotion":"mystery","setFlag":"act2_complete","setFlagValue":1}
       ]
     },
+    {
+      "dialogueId":"npc_glacier_ferryman_intro",
+      "lines":[
+        {"speaker":"빙하 뱃사공","text":"마지막 배에는 자리가 없었다. 그래서 내 이름을 승객 명부에서 지우고 아이 하나를 더 태웠지.","emotion":"sad"},
+        {"speaker":"빙하 뱃사공","text":"백색 기록원으로 가라. 그곳 서기들이 금단의 서가로 들어갈 색인을 눈 속에 숨겨 두었다.","emotion":"serious","setFlag":"memory_ferry_manifest","setFlagValue":1}
+      ]
+    },
+    {"dialogueId":"npc_glacier_ferryman_repeat","lines":[{"speaker":"빙하 뱃사공","text":"명부에 없는 사람도 분명히 그날을 살았다. 기록 밖의 이름을 잊지 마라.","emotion":"calm"}]},
+    {
+      "dialogueId":"npc_snow_scribe_intro",
+      "lines":[
+        {"speaker":"눈송이 서기","text":"검열단은 책을 태웠지만 색인의 순서까지는 몰랐어. 우리는 매일 녹는 눈 위에 길을 베껴 썼지.","emotion":"serious"},
+        {"speaker":"눈송이 서기","text":"네 각본집에 색인을 옮겼어. 금단의 서가에서 책 먹는 용을 찾으면 잃어버린 장들이 돌아올 거야.","emotion":"hope","setFlag":"forbidden_index_restored","setFlagValue":1}
+      ]
+    },
+    {"dialogueId":"npc_snow_scribe_repeat","lines":[{"speaker":"눈송이 서기","text":"사라지는 기록은 약한 기록이 아니야. 누군가 다시 써 준다면 몇 번이고 돌아오니까.","emotion":"calm"}]},
+    {"dialogueId":"sign_forbidden_index","lines":[{"speaker":"얼어붙은 색인","text":"제0장: 기억을 지우면 멸망을 피할 수 있다. 저자 표기는 검은 먹으로 삭제되어 있다.","emotion":"mystery"}]},
+    {
+      "dialogueId":"boss_book_drake_pre",
+      "lines":[
+        {"speaker":"책 먹는 용","text":"태우지 않았다! 단 한 장도 넘기지 않았다! 그러니 내 배 속에서 영원히 안전하다!","emotion":"rage"},
+        {"speaker":"극단주","text":"읽을 수 없는 책은 지워진 책과 다르지 않아. 네가 지킨 문장을 독자에게 돌려주겠다.","emotion":"resolve"}
+      ]
+    },
+    {"dialogueId":"boss_book_drake_post","lines":[{"speaker":"책 먹는 용","text":"지킨다는 핑계로… 나 역시 문장들을 가두고 있었구나. 이제 한 장씩 돌려보내 다오.","emotion":"relief"}]},
+    {
+      "dialogueId":"npc_mirror_scribe_intro",
+      "lines":[
+        {"speaker":"거울 필경사","text":"거울에는 현실에서 검열된 결말들이 살아 있어. 하지만 전부 꺼내면 현재의 기억과 충돌할 거야.","emotion":"serious"},
+        {"speaker":"거울 필경사","text":"너라면 선택되지 않은 결말을 어떻게 기록하겠어?","emotion":"question"}
+      ],
+      "choices":[
+        {"text":"가능했던 모든 결말을 함께 보존한다.","nextDialogueId":"mirror_choice_preserve","setFlag":"act3_mirror_preserved","setFlagValue":1,"flagChanges":[{"flag":"choice_memory","delta":1}]},
+        {"text":"당사자가 받아들일 수 있는 결말만 보여준다.","nextDialogueId":"mirror_choice_mercy","setFlag":"act3_mirror_merciful","setFlagValue":1,"flagChanges":[{"flag":"choice_compassion","delta":1}]},
+        {"text":"혼란을 막기 위해 현실의 결말만 남긴다.","nextDialogueId":"mirror_choice_seal","setFlag":"act3_mirror_sealed","setFlagValue":1,"flagChanges":[{"flag":"choice_control","delta":1},{"flag":"choice_memory","delta":-1}]}
+      ]
+    },
+    {"dialogueId":"mirror_choice_preserve","lines":[{"speaker":"거울 필경사","text":"가능성도 기억의 일부라는 거군. 서로 모순되는 문장까지 네 각본이 감당하길 바라.","emotion":"hope","setFlag":"mirror_truth_seen","setFlagValue":1}]},
+    {"dialogueId":"mirror_choice_mercy","lines":[{"speaker":"거울 필경사","text":"진실을 건네는 방식에도 책임이 있다는 뜻이군. 그 다정함이 침묵과 달랐으면 좋겠어.","emotion":"calm","setFlag":"mirror_truth_seen","setFlagValue":1}]},
+    {"dialogueId":"mirror_choice_seal","lines":[{"speaker":"거울 필경사","text":"질서를 위해 가능성을 지운다… 검열단도 처음에는 그렇게 말했지.","emotion":"fear","setFlag":"mirror_truth_seen","setFlagValue":1}]},
+    {"dialogueId":"npc_mirror_scribe_repeat","lines":[{"speaker":"거울 필경사","text":"반전된 사서는 이 방 동쪽에서 자신이 살아 보지 못한 결말을 지키고 있어.","emotion":"serious"}]},
+    {
+      "dialogueId":"boss_inverted_librarian_pre",
+      "lines":[
+        {"speaker":"반전된 사서","text":"현실의 나는 처형되었다. 그렇다면 살아남은 나는 거짓인가? 대답해라, 기록자!","emotion":"rage"},
+        {"speaker":"극단주","text":"선택되지 않았다는 이유로 거짓이 되지는 않아. 두 결말을 모두 무대에 올리겠다.","emotion":"resolve"}
+      ]
+    },
+    {"dialogueId":"boss_inverted_librarian_post","lines":[{"speaker":"반전된 사서","text":"두 삶이 서로를 부정하지 않는구나… 이제 거울 밖의 나와 같은 책장에 서겠다.","emotion":"relief","setFlag":"truth_first_forbidden_book","setFlagValue":1}]},
+    {
+      "dialogueId":"boss_archive_dragon_pre",
+      "lines":[
+        {"speaker":"무한서고의 용","text":"최초의 금서는 미래를 예언하지 않았다. 기억을 지우면 고통도 멸망도 사라진다는 최초의 거짓이었다!","emotion":"rage"},
+        {"speaker":"극단주","text":"책을 봉인한 이유와 검열단이 숨긴 첫 문장을 모두 기록하겠다. 네 진명과 함께.","emotion":"resolve"}
+      ]
+    },
+    {
+      "dialogueId":"boss_archive_dragon_post",
+      "lines":[
+        {"speaker":"무한서고의 용","text":"나의 이름은 아르키온. 책을 소유하는 용이 아니라, 누구나 읽을 하늘을 지키는 기록룡이다.","emotion":"relief"},
+        {"speaker":"각본집","text":"제3막 『금기의 서고』가 기록되었습니다.","emotion":"mystery","setFlag":"act3_complete","setFlagValue":1}
+      ]
+    },
     {"dialogueId":"sign_ash_border","lines":[{"speaker":"그을린 표지판","text":"서쪽: 찢어진 장막길  ·  동쪽: 불씨 성도  ·  재폭풍 때는 무너진 벽 뒤로 대피할 것","emotion":"none"}]},
     {"dialogueId":"sign_cinder_city","lines":[{"speaker":"왕국 안내도","text":"북쪽: 무너진 병영  ·  동쪽: 불씨 지하묘  ·  중앙대로: 왕궁(폐쇄)","emotion":"none"}]}
   ]

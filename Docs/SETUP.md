@@ -34,22 +34,23 @@ Assets/Scripts/
 
 ## 초반 데이터 생성
 1. 메뉴 `Tools > Shadow Theater > Generate Core Content Data` 실행
-2. `Assets/Data/Generated/Skills`의 스킬 48개 확인
+2. `Assets/Data/Generated/Skills`의 스킬 68개 확인
 3. `Assets/Data/Generated/Items`의 도구 4개 확인
-4. `Assets/Data/Generated/Shadows`의 스타터·프롤로그·제2막 그림자 17종 확인
+4. `Assets/Data/Generated/Shadows`의 스타터·프롤로그·제2·3막 그림자 27종 확인
 5. `Assets/Resources/ShadowDatabase.asset` 자동 등록 결과 확인
 
 원본은 `Resources/Data/CoreContentCatalog.json`이며 같은 메뉴를 반복 실행하면 ID를 기준으로 기존
 ScriptableObject를 갱신한다. 스타터 3종과 수집 가능한 일반 그림자에는 세 단계 성장 데이터가 들어 있다.
 전용 아트가 없는 동안에는 `Assets/Art/Generated/Core`에 기능 테스트용 실루엣을 생성한다.
 
-## 플레이 가능한 프롤로그·제2막 생성
+## 플레이 가능한 프롤로그·제2·3막 생성
 1. 메뉴 `Tools > Shadow Theater > Generate Playable Prologue` 실행
 2. 현재 열려 있는 씬의 변경 사항을 저장하거나 폐기할지 선택
 3. 생성이 끝나면 자동으로 열리는 `Assets/Scenes/Prologue/Title.unity`에서 Play
 
-이 메뉴는 프롤로그 4개 필드뿐 아니라 `CurtainPass`와 제2막 5개 필드도 만들고 총 11개 씬을
-Build Settings에 등록한다. 제2막 상세 동선과 보스 구성은 `Docs/ACT2_CROWN_OF_ASH.md` 참고.
+이 메뉴는 프롤로그 4개 필드, `CurtainPass`, 제2막 5개 필드와 제3막 5개 필드를 만들고 총 16개 씬을
+Build Settings에 등록한다. 제2막은 `Docs/ACT2_CROWN_OF_ASH.md`, 제3막은
+`Docs/ACT3_FORBIDDEN_ARCHIVE.md` 참고.
 
 이 메뉴는 핵심·전설 데이터와 모든 UI 프리팹을 먼저 갱신한 뒤 아래 씬을 만든다.
 
@@ -66,15 +67,20 @@ Build Settings에 등록한다. 제2막 상세 동선과 보스 구성은 `Docs/
 | `RuinedBarracks` | 병영 던전, 무릎 꿇지 않는 대장 보스전 |
 | `EmberCatacombs` | 묘실 던전, 잿빛 사제, 목 없는 호위기사 보스전 |
 | `CrownlessThrone` | 재의 왕 전설 보스전과 제2막 완료 플래그 |
+| `FrostPort` | 제3막 관문, 빙하 뱃사공과 승객 명부 |
+| `WhiteArchive` | 눈송이 서기, 금서 색인 복원 |
+| `ForbiddenStacks` | 책 먹는 용 지역 보스전 |
+| `MirrorVault` | 엔딩 성향 선택지와 반전된 사서 보스전 |
+| `BlueAbyss` | 무한서고의 용 전설 보스전과 제3막 완료 플래그 |
 
 각 필드는 23×19 타일이며 가장자리 벽과 내부 장애물이 있는 개방형 2D 구조다. 한 줄 통로가 아니라
 장애물의 위·아래 경로를 선택할 수 있다. 지역별 타일 팔레트, 카메라 배경색, 지역명 HUD가 다르며
 필드 카메라는 플레이어의 타일 이동을 부드럽게 추적한다. 생성한 `.unity`, `.prefab`, `.asset`,
 `.png`, `.meta` 파일은 모두 Git에 커밋한다.
 
-생성기는 타일·캐릭터에 URP 2D Sprite-Lit 재질을 적용하고 각 지역에 글로벌 달빛과 3~5개의 Point
-Light 2D를 배치한다. `Environment` 아래에는 안개 6겹과 빛가루 24개가 생성되며
-`FieldAtmosphereController`가 드리프트·점멸·화면 밖 순환을 처리한다. 렌더 파이프라인 자산이 전혀
+생성기는 타일에 URP 2D Sprite-Lit 재질을 적용하고 각 지역에 글로벌 라이트와 3~5개의 Point Light 2D를
+배치한다. `Environment` 아래의 안개와 빛가루 오브젝트는 호환성을 위해 남지만 픽셀 필드에서는 비활성화되어
+Point 필터의 선명한 가장자리를 유지한다. 렌더 파이프라인 자산이 전혀
 없을 때만 `ShadowTheaterURP.asset`과 `ShadowTheater2DRenderer.asset`을 만들어 Project/Quality
 설정에 연결한다. 이미 지정된 렌더 파이프라인은 보존한다.
 
@@ -320,8 +326,8 @@ Core/Legendary JSON 값을 바꾼 뒤 각 데이터 생성 메뉴를 다시 실�
 1. 필살기별 실제 파티클·녹음 SFX 에셋 교체
 2. 자동 생성 픽셀 타일·캐릭터를 최종 수작업 픽셀 아트와 녹음 환경음으로 교체
 3. 영문 UI·대사 문자열 카탈로그와 폰트 폴백 연결
-4. 제3막 `서리 나루`부터 금기의 서고 필드·그림자 데이터 제작
+4. 제4막 `자줏빛 늪`부터 야수의 밤 필드·그림자 데이터 제작
 
-현재 `Generate Playable Prologue`는 프롤로그와 제2막의 10개 필드를 모두 32px 픽셀 규칙으로 생성한다.
+현재 `Generate Playable Prologue`는 프롤로그부터 제3막까지 15개 필드를 모두 32px 픽셀 규칙으로 생성한다.
 보이는 벽·수풀·폐허는 `Collision` 타일맵에 직접 그려져 이동 판정과 일치하며, NPC와 보스의 24×32 필드
 스프라이트도 `ShadowData`의 역할·색·등급에 따라 `Assets/Art/Generated/Characters`에 자동 생성된다.

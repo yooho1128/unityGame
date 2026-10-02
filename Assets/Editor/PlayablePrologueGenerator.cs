@@ -48,6 +48,10 @@ namespace ShadowTheater.EditorTools
         {
             if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
 
+            PixelFieldActors.Clear();
+            _pixelPlayerSprites = null;
+            _pixelEncounterSprite = null;
+            _pixelLanternKeeperSprite = null;
             GenerateDependencies();
             MissingScriptRepairUtility.RepairGeneratedPrefabs();
             EnsureFolders();
@@ -63,11 +67,16 @@ namespace ShadowTheater.EditorTools
             CreateRuinedBarracks();
             CreateEmberCatacombs();
             CreateCrownlessThrone();
+            CreateFrostPort();
+            CreateWhiteArchive();
+            CreateForbiddenStacks();
+            CreateMirrorVault();
+            CreateBlueAbyss();
             RegisterBuildScenes();
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             EditorSceneManager.OpenScene($"{SceneFolder}/Title.unity", OpenSceneMode.Single);
-            Debug.Log("[World] 프롤로그와 제2막 왕관의 재 10개 픽셀 필드 생성 완료");
+            Debug.Log("[World] 프롤로그부터 제3막 금기의 서고까지 15개 픽셀 필드 생성 완료");
         }
 
         private static void GenerateDependencies()
@@ -280,7 +289,99 @@ namespace ShadowTheater.EditorTools
                 "boss_ash_king_story_complete", "boss_ash_king_reward_claimed", 32, new Color(1f,.2f,.10f));
             CreatePortal(map.fieldRoot, "BackToCatacombs", new Vector2Int(0,-8), "EmberCatacombs",
                 new Vector2Int(0,7), FacingDir.Down);
+            CreatePortal(map.fieldRoot, "ToFrostPort", new Vector2Int(9,0), "FrostPort",
+                new Vector2Int(-8,0), FacingDir.Right, false, "act2_complete");
             FinishFieldScene(map, "CrownlessThrone");
+        }
+
+        private static void CreateFrostPort()
+        {
+            var map = BeginFieldScene("FrostPort", "서리 나루", new Vector2Int(-8,0),
+                new Color(.035f,.09f,.14f), Theme.FrostPort);
+            CreateAreaTrigger(map.fieldRoot, new Vector2Int(-8,0), "area_frost_port");
+            CreateNpc(map.fieldRoot, "GlacierFerryman", new Vector2Int(1,3), LoadShadow("glacier_ferryman"),
+                "npc_glacier_ferryman", "npc_glacier_ferryman_intro", "npc_glacier_ferryman_repeat",
+                "talked_glacier_ferryman", new Color(.48f,.84f,1f));
+            CreateEncounter(map.fieldRoot, "FrostGullA", new Vector2Int(-3,-4), LoadShadow("frost_gull"),29,32);
+            CreateEncounter(map.fieldRoot, "FrostGullB", new Vector2Int(5,-2), LoadShadow("frost_gull"),30,33);
+            CreatePortal(map.fieldRoot, "BackToThrone", new Vector2Int(-9,0), "CrownlessThrone",
+                new Vector2Int(8,0), FacingDir.Left);
+            CreatePortal(map.fieldRoot, "ToWhiteArchive", new Vector2Int(9,0), "WhiteArchive",
+                new Vector2Int(-7,0), FacingDir.Right, false, "quest_act3_01_port_complete");
+            FinishFieldScene(map, "FrostPort");
+        }
+
+        private static void CreateWhiteArchive()
+        {
+            var map = BeginFieldScene("WhiteArchive", "백색 기록원", new Vector2Int(-7,0),
+                new Color(.07f,.11f,.17f), Theme.Archive);
+            CreateAreaTrigger(map.fieldRoot, new Vector2Int(-7,0), "area_white_archive");
+            CreateNpc(map.fieldRoot, "SnowScribe", new Vector2Int(1,3), LoadShadow("snow_scribe"),
+                "npc_snow_scribe", "npc_snow_scribe_intro", "npc_snow_scribe_repeat",
+                "talked_snow_scribe", new Color(.72f,.93f,1f));
+            CreateInteractable(map.fieldRoot, "ForbiddenIndex", new Vector2Int(-2,2), "sign_forbidden_index",
+                LoadShadow("ink_fox"), new Color(.46f,.62f,1f));
+            CreateEncounter(map.fieldRoot, "InkFoxA", new Vector2Int(-4,-4), LoadShadow("ink_fox"),32,35);
+            CreateEncounter(map.fieldRoot, "SnowScribeEcho", new Vector2Int(5,-3), LoadShadow("snow_scribe"),33,36);
+            CreatePortal(map.fieldRoot, "BackToFrostPort", new Vector2Int(-9,0), "FrostPort",
+                new Vector2Int(8,0), FacingDir.Left);
+            CreatePortal(map.fieldRoot, "ToForbiddenStacks", new Vector2Int(0,8), "ForbiddenStacks",
+                new Vector2Int(0,-7), FacingDir.Up, false, "quest_act3_02_archive_complete");
+            FinishFieldScene(map, "WhiteArchive");
+        }
+
+        private static void CreateForbiddenStacks()
+        {
+            var map = BeginFieldScene("ForbiddenStacks", "금단의 서가", new Vector2Int(0,-7),
+                new Color(.035f,.045f,.12f), Theme.ForbiddenStacks);
+            CreateAreaTrigger(map.fieldRoot, new Vector2Int(0,-7), "area_forbidden_stacks");
+            CreateEncounter(map.fieldRoot, "PageBatA", new Vector2Int(-5,-2), LoadShadow("page_bat"),35,38);
+            CreateEncounter(map.fieldRoot, "PageBatB", new Vector2Int(4,5), LoadShadow("page_bat"),36,39);
+            CreateEncounter(map.fieldRoot, "InkFoxB", new Vector2Int(-4,4), LoadShadow("ink_fox"),35,38);
+            CreateBossEncounter(map.fieldRoot, "BookDrakeBoss", new Vector2Int(0,5), "book_drake",
+                "boss_book_drake", new Vector2Int(39,41), "boss_book_drake_pre", "boss_book_drake_post",
+                "boss_book_drake_story_complete", "boss_book_drake_reward_claimed", 41, new Color(.32f,.63f,1f));
+            CreatePortal(map.fieldRoot, "BackToWhiteArchive", new Vector2Int(0,-8), "WhiteArchive",
+                new Vector2Int(0,7), FacingDir.Down);
+            CreatePortal(map.fieldRoot, "ToMirrorVault", new Vector2Int(9,0), "MirrorVault",
+                new Vector2Int(-8,0), FacingDir.Right, false, "boss_book_drake_story_complete");
+            FinishFieldScene(map, "ForbiddenStacks");
+        }
+
+        private static void CreateMirrorVault()
+        {
+            var map = BeginFieldScene("MirrorVault", "거울 문고", new Vector2Int(-8,0),
+                new Color(.055f,.055f,.14f), Theme.MirrorVault);
+            CreateAreaTrigger(map.fieldRoot, new Vector2Int(-8,0), "area_mirror_vault");
+            CreateNpc(map.fieldRoot, "MirrorScribe", new Vector2Int(-2,3), LoadShadow("mirror_scribe"),
+                "npc_mirror_scribe", "npc_mirror_scribe_intro", "npc_mirror_scribe_repeat",
+                "talked_mirror_scribe", new Color(.68f,.71f,1f));
+            CreateEncounter(map.fieldRoot, "GlassOwlA", new Vector2Int(-4,-3), LoadShadow("glass_owl"),38,41);
+            CreateEncounter(map.fieldRoot, "MirrorScribeEcho", new Vector2Int(5,-3), LoadShadow("mirror_scribe"),39,42);
+            CreateBossEncounter(map.fieldRoot, "InvertedLibrarianBoss", new Vector2Int(3,4), "inverted_librarian",
+                "boss_inverted_librarian", new Vector2Int(42,44), "boss_inverted_librarian_pre",
+                "boss_inverted_librarian_post", "boss_inverted_librarian_story_complete",
+                "boss_inverted_librarian_reward_claimed", 44, new Color(.55f,.45f,1f));
+            CreatePortal(map.fieldRoot, "BackToForbiddenStacks", new Vector2Int(-9,0), "ForbiddenStacks",
+                new Vector2Int(8,0), FacingDir.Left);
+            CreatePortal(map.fieldRoot, "ToBlueAbyss", new Vector2Int(9,0), "BlueAbyss",
+                new Vector2Int(0,-6), FacingDir.Right, false, "quest_act3_04_mirror_complete");
+            FinishFieldScene(map, "MirrorVault");
+        }
+
+        private static void CreateBlueAbyss()
+        {
+            var map = BeginFieldScene("BlueAbyss", "푸른 심연 서고", new Vector2Int(0,-6),
+                new Color(.018f,.025f,.09f), Theme.BlueAbyss);
+            CreateEncounter(map.fieldRoot, "AbyssGlassOwl", new Vector2Int(-5,0), LoadShadow("glass_owl"),41,44);
+            CreateEncounter(map.fieldRoot, "AbyssPageBat", new Vector2Int(5,0), LoadShadow("page_bat"),42,45);
+            CreateBossEncounter(map.fieldRoot, "InfiniteArchiveDragonBoss", new Vector2Int(0,4),
+                "infinite_archive_dragon", "boss_archive_dragon", new Vector2Int(45,48),
+                "boss_archive_dragon_pre", "boss_archive_dragon_post", "boss_archive_dragon_story_complete",
+                "boss_archive_dragon_reward_claimed", 48, new Color(.32f,.64f,1f));
+            CreatePortal(map.fieldRoot, "BackToMirrorVault", new Vector2Int(0,-8), "MirrorVault",
+                new Vector2Int(8,0), FacingDir.Down);
+            FinishFieldScene(map, "BlueAbyss");
         }
 
         private static FieldSceneContext BeginFieldScene(string mapId, string displayName, Vector2Int startCell,
@@ -460,8 +561,21 @@ namespace ShadowTheater.EditorTools
                     blocks.Add(new RectInt(-7,2,5,2)); blocks.Add(new RectInt(3,2,5,2));
                     blocks.Add(new RectInt(-3,-5,2,5)); blocks.Add(new RectInt(2,-5,2,5));
                     blocks.Add(new RectInt(-1,5,2,2)); break;
+                case Theme.FrostPort:
+                    blocks.Add(new RectInt(-6,3,3,3)); blocks.Add(new RectInt(4,3,3,3));
+                    blocks.Add(new RectInt(-3,-6,2,2)); blocks.Add(new RectInt(5,-5,2,3)); break;
+                case Theme.Archive:
+                    blocks.Add(new RectInt(-6,3,3,3)); blocks.Add(new RectInt(4,3,3,3));
+                    blocks.Add(new RectInt(-5,-6,3,2)); blocks.Add(new RectInt(4,-6,3,2)); break;
+                case Theme.ForbiddenStacks:
+                    blocks.Add(new RectInt(-7,1,3,4)); blocks.Add(new RectInt(5,1,3,4));
+                    blocks.Add(new RectInt(-3,-4,2,5)); blocks.Add(new RectInt(2,-4,2,5)); break;
+                case Theme.MirrorVault:
+                    blocks.Add(new RectInt(-6,2,2,4)); blocks.Add(new RectInt(5,2,2,4));
+                    blocks.Add(new RectInt(-2,-5,2,3)); blocks.Add(new RectInt(2,-5,2,3)); break;
                 case Theme.Boss:
                 case Theme.AshThrone:
+                case Theme.BlueAbyss:
                     blocks.Add(new RectInt(-7, -1, 2, 5)); blocks.Add(new RectInt(6, -1, 2, 5));
                     blocks.Add(new RectInt(-4, 6, 2, 2)); blocks.Add(new RectInt(3, 6, 2, 2)); break;
             }
@@ -892,6 +1006,21 @@ namespace ShadowTheater.EditorTools
                         ambienceVolume = .31f, detailVolume = .20f, detailInterval = new Vector2(6f,10f),
                         lightPositions = new[] { new Vector2(-5f,4f), new Vector2(5f,4f), new Vector2(-5f,-4f), new Vector2(5f,-4f), new Vector2(0f,1f) }
                     };
+                case Theme.FrostPort:
+                case Theme.Archive:
+                case Theme.ForbiddenStacks:
+                case Theme.MirrorVault:
+                case Theme.BlueAbyss:
+                    return new EnvironmentProfile
+                    {
+                        globalColor = new Color(.33f,.52f,.78f), globalIntensity = .48f,
+                        pointColor = new Color(.38f,.82f,1f), secondaryLightColor = new Color(.62f,.48f,1f),
+                        pointIntensity = 1.05f, fogColor = new Color(.22f,.45f,.72f), fogAlpha = .16f,
+                        moteColor = new Color(.64f,.90f,1f), fogDrift = new Vector2(.07f,.012f),
+                        moteDrift = new Vector2(.015f,.065f), fogPulse = .11f, motePulse = .38f, pulseSpeed = .62f,
+                        ambienceVolume = .27f, detailVolume = .21f, detailInterval = new Vector2(4.5f,8f),
+                        lightPositions = new[] { new Vector2(-6f,4f), new Vector2(0f,5f), new Vector2(6f,4f), new Vector2(-4f,-4f), new Vector2(4f,-4f) }
+                    };
                 case Theme.AshThrone:
                     return new EnvironmentProfile
                     {
@@ -1060,6 +1189,26 @@ namespace ShadowTheater.EditorTools
                     _groundTile = CreateTile("Catacombs_Ground", new Color(.19f,.16f,.23f), new Color(.29f,.23f,.34f));
                     _wallTile = CreateTile("Catacombs_Wall", new Color(.045f,.03f,.065f), new Color(.14f,.08f,.18f));
                     _accentTile = CreateTile("Catacombs_Accent", new Color(.11f,.09f,.16f), new Color(.32f,.72f,.69f)); break;
+                case Theme.FrostPort:
+                    _groundTile = CreateTile("FrostPort_Ground", new Color(.18f,.35f,.46f), new Color(.37f,.69f,.78f));
+                    _wallTile = CreateTile("FrostPort_Wall", new Color(.06f,.15f,.24f), new Color(.30f,.63f,.78f));
+                    _accentTile = CreateTile("FrostPort_Accent", new Color(.12f,.29f,.39f), new Color(.58f,.88f,.94f)); break;
+                case Theme.Archive:
+                    _groundTile = CreateTile("Archive_Ground", new Color(.31f,.40f,.50f), new Color(.60f,.75f,.84f));
+                    _wallTile = CreateTile("Archive_Wall", new Color(.10f,.16f,.27f), new Color(.35f,.52f,.70f));
+                    _accentTile = CreateTile("Archive_Accent", new Color(.18f,.28f,.43f), new Color(.69f,.88f,.95f)); break;
+                case Theme.ForbiddenStacks:
+                    _groundTile = CreateTile("ForbiddenStacks_Ground", new Color(.15f,.18f,.35f), new Color(.35f,.43f,.68f));
+                    _wallTile = CreateTile("ForbiddenStacks_Wall", new Color(.04f,.05f,.13f), new Color(.21f,.27f,.50f));
+                    _accentTile = CreateTile("ForbiddenStacks_Accent", new Color(.12f,.14f,.29f), new Color(.33f,.53f,.83f)); break;
+                case Theme.MirrorVault:
+                    _groundTile = CreateTile("MirrorVault_Ground", new Color(.22f,.23f,.43f), new Color(.49f,.59f,.85f));
+                    _wallTile = CreateTile("MirrorVault_Wall", new Color(.06f,.06f,.16f), new Color(.31f,.36f,.66f));
+                    _accentTile = CreateTile("MirrorVault_Accent", new Color(.19f,.17f,.39f), new Color(.60f,.76f,1f)); break;
+                case Theme.BlueAbyss:
+                    _groundTile = CreateTile("BlueAbyss_Ground", new Color(.09f,.11f,.29f), new Color(.24f,.39f,.70f));
+                    _wallTile = CreateTile("BlueAbyss_Wall", new Color(.025f,.03f,.10f), new Color(.15f,.25f,.54f));
+                    _accentTile = CreateTile("BlueAbyss_Accent", new Color(.08f,.10f,.30f), new Color(.31f,.65f,1f)); break;
                 case Theme.AshThrone:
                     _groundTile = CreateTile("AshThrone_Ground", new Color(.25f,.10f,.09f), new Color(.42f,.15f,.10f));
                     _wallTile = CreateTile("AshThrone_Wall", new Color(.055f,.012f,.015f), new Color(.22f,.035f,.03f));
@@ -1472,7 +1621,8 @@ namespace ShadowTheater.EditorTools
         private static void RegisterBuildScenes()
         {
             string[] names = { "Title", "PrologueTheater", "EchoVillage", "MoonlitMeadow", "MoonlitBossStage",
-                "CurtainPass", "AshBorder", "CinderCity", "RuinedBarracks", "EmberCatacombs", "CrownlessThrone" };
+                "CurtainPass", "AshBorder", "CinderCity", "RuinedBarracks", "EmberCatacombs", "CrownlessThrone",
+                "FrostPort", "WhiteArchive", "ForbiddenStacks", "MirrorVault", "BlueAbyss" };
             var scenes = new List<EditorBuildSettingsScene>();
             var generatedPaths = new HashSet<string>();
             foreach (string name in names)
@@ -1530,7 +1680,11 @@ namespace ShadowTheater.EditorTools
             if (!AssetDatabase.IsValidFolder($"{parent}/{name}")) AssetDatabase.CreateFolder(parent, name);
         }
 
-        private enum Theme { Theater, Village, Meadow, Boss, AshWastes, EmberCity, Catacombs, AshThrone }
+        private enum Theme
+        {
+            Theater, Village, Meadow, Boss, AshWastes, EmberCity, Catacombs, AshThrone,
+            FrostPort, Archive, ForbiddenStacks, MirrorVault, BlueAbyss
+        }
         private enum PixelTileKind { Grass, Path, Water, Cliff, Bush }
         private class EnvironmentProfile
         {

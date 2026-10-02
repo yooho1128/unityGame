@@ -171,11 +171,51 @@
       "title": "왕관의 재",
       "summary": "왕관 없는 옥좌에서 재의 왕과 왕국 멸망의 진실을 마주하자.",
       "prerequisiteQuestId": "act2_04_catacombs",
-      "nextQuestId": "",
+      "nextQuestId": "act3_01_port",
       "autoStart": false,
       "rewardGold": 1200,
       "objectives": [
         {"objectiveId":"defeat_ash_king","type":"Defeat","targetId":"boss_ash_king","description":"재의 왕 정화하기","requiredCount":1}
+      ]
+    },
+    {
+      "questId":"act3_01_port","title":"얼어붙은 도항","summary":"서리 나루에서 마지막 뱃사공의 승객 명부를 확인하자.",
+      "prerequisiteQuestId":"act2_05_throne","nextQuestId":"act3_02_archive","autoStart":false,"rewardGold":850,
+      "objectives":[
+        {"objectiveId":"reach_frost_port","type":"Reach","targetId":"area_frost_port","description":"서리 나루 도착하기","requiredCount":1},
+        {"objectiveId":"talk_glacier_ferryman","type":"Talk","targetId":"npc_glacier_ferryman","description":"빙하 뱃사공의 명부 확인하기","requiredCount":1}
+      ]
+    },
+    {
+      "questId":"act3_02_archive","title":"녹아 사라지는 문장","summary":"백색 기록원에서 금단의 서가로 들어갈 색인을 복원하자.",
+      "prerequisiteQuestId":"act3_01_port","nextQuestId":"act3_03_stacks","autoStart":false,"rewardGold":950,
+      "objectives":[
+        {"objectiveId":"reach_white_archive","type":"Reach","targetId":"area_white_archive","description":"백색 기록원 도착하기","requiredCount":1},
+        {"objectiveId":"talk_snow_scribe","type":"Talk","targetId":"npc_snow_scribe","description":"눈송이 서기와 금서 색인 복원하기","requiredCount":1}
+      ]
+    },
+    {
+      "questId":"act3_03_stacks","title":"책을 삼킨 문지기","summary":"금단의 서가에서 책을 지키기 위해 모든 장을 삼킨 용을 정화하자.",
+      "prerequisiteQuestId":"act3_02_archive","nextQuestId":"act3_04_mirror","autoStart":false,"rewardGold":1150,
+      "objectives":[
+        {"objectiveId":"reach_forbidden_stacks","type":"Reach","targetId":"area_forbidden_stacks","description":"금단의 서가 진입하기","requiredCount":1},
+        {"objectiveId":"defeat_book_drake","type":"Defeat","targetId":"boss_book_drake","description":"책 먹는 용 정화하기","requiredCount":1}
+      ]
+    },
+    {
+      "questId":"act3_04_mirror","title":"선택하지 않은 결말","summary":"거울 문고에서 지워진 결말을 마주하고 반전된 사서를 해방하자.",
+      "prerequisiteQuestId":"act3_03_stacks","nextQuestId":"act3_05_abyss","autoStart":false,"rewardGold":1350,
+      "objectives":[
+        {"objectiveId":"reach_mirror_vault","type":"Reach","targetId":"area_mirror_vault","description":"거울 문고 도착하기","requiredCount":1},
+        {"objectiveId":"talk_mirror_scribe","type":"Talk","targetId":"npc_mirror_scribe","description":"거울 필경사의 선택 듣기","requiredCount":1},
+        {"objectiveId":"defeat_inverted_librarian","type":"Defeat","targetId":"boss_inverted_librarian","description":"반전된 사서 정화하기","requiredCount":1}
+      ]
+    },
+    {
+      "questId":"act3_05_abyss","title":"최초의 금서","summary":"푸른 심연 서고에서 검열단의 첫 교리와 무한서고의 용을 마주하자.",
+      "prerequisiteQuestId":"act3_04_mirror","nextQuestId":"","autoStart":false,"rewardGold":1800,
+      "objectives":[
+        {"objectiveId":"defeat_archive_dragon","type":"Defeat","targetId":"boss_archive_dragon","description":"무한서고의 용 정화하기","requiredCount":1}
       ]
     }
   ]

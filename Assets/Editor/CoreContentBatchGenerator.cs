@@ -15,7 +15,8 @@ namespace ShadowTheater.EditorTools
         private const string CatalogPath = "Assets/Resources/Data/CoreContentCatalog.json";
         private static readonly string[] AdditionalCatalogPaths =
         {
-            "Assets/Resources/Data/Act2ContentCatalog.json"
+            "Assets/Resources/Data/Act2ContentCatalog.json",
+            "Assets/Resources/Data/Act3ContentCatalog.json"
         };
         private const string SkillFolder = "Assets/Data/Generated/Skills";
         private const string ItemFolder = "Assets/Data/Generated/Items";

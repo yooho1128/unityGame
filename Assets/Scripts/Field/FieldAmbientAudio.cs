@@ -7,7 +7,8 @@ namespace ShadowTheater.Field
     public enum FieldAmbienceStyle
     {
         Theater, Village, Meadow, EclipseBoss,
-        AshWastes, EmberCity, Catacombs, AshThrone
+        AshWastes, EmberCity, Catacombs, AshThrone,
+        FrostPort, Archive, ForbiddenStacks, MirrorVault, BlueAbyss
     }
 
     /// <summary>지역별 지속 환경음과 간헐 원샷을 재생하며 씬/전투 전환 때 페이드한다.</summary>
@@ -182,6 +183,16 @@ namespace ShadowTheater.Field
                     return Sin(8, .34f) + Sin(55, .10f) + Sin(233, .08f) * Sin(3, .5f);
                 case FieldAmbienceStyle.AshThrone:
                     return Sin(98, .40f) + Sin(49, .24f) + Sin(5, .22f) * Sin(101, .32f);
+                case FieldAmbienceStyle.FrostPort:
+                    return Sin(14, .27f) + Sin(37, .13f) + Sin(1175, .045f) * (0.5f + Sin(4, .5f));
+                case FieldAmbienceStyle.Archive:
+                    return Sin(31, .20f) + Sin(62, .11f) + Sin(1397, .035f) * (0.5f + Sin(6, .5f));
+                case FieldAmbienceStyle.ForbiddenStacks:
+                    return Sin(10, .32f) + Sin(47, .13f) + Sin(185, .09f) * Sin(4, .5f);
+                case FieldAmbienceStyle.MirrorVault:
+                    return Sin(73, .21f) + Sin(109, .13f) + Sin(877, .045f) * Sin(5, .5f);
+                case FieldAmbienceStyle.BlueAbyss:
+                    return Sin(55, .38f) + Sin(27, .22f) + Sin(6, .20f) * Sin(110, .32f);
                 default:
                     return Sin(147, .46f) + Sin(73, .26f) + Sin(7, .20f) * Sin(151, .32f);
             }
@@ -226,6 +237,11 @@ namespace ShadowTheater.Field
                 case FieldAmbienceStyle.EmberCity: return 783.99f;
                 case FieldAmbienceStyle.Catacombs: return 146.83f;
                 case FieldAmbienceStyle.AshThrone: return 82.41f;
+                case FieldAmbienceStyle.FrostPort: return 880f;
+                case FieldAmbienceStyle.Archive: return 1174.66f;
+                case FieldAmbienceStyle.ForbiddenStacks: return 164.81f;
+                case FieldAmbienceStyle.MirrorVault: return 698.46f;
+                case FieldAmbienceStyle.BlueAbyss: return 73.42f;
                 default: return 110f;
             }
         }

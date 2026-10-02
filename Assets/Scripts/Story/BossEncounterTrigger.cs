@@ -41,7 +41,9 @@ namespace ShadowTheater.Story
         private IEnumerator Start()
         {
             if (silhouette == null) silhouette = GetComponentInChildren<SpriteRenderer>();
-            if (silhouette != null && enemyParty.Count > 0 && enemyParty[0] != null)
+            // 생성기가 지정한 필드용 픽셀 스프라이트를 유지한다. 직접 배치한 보스처럼
+            // 렌더러가 비어 있는 경우에만 고해상도 전투 실루엣을 대체 이미지로 사용한다.
+            if (silhouette != null && silhouette.sprite == null && enemyParty.Count > 0 && enemyParty[0] != null)
                 silhouette.sprite = enemyParty[0].silhouetteSprite;
 
             yield return new WaitUntil(() => SaveManager.Current != null);
