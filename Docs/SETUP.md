@@ -18,7 +18,8 @@ Assets/Scripts/
            ScriptBookController, ScriptBookEntryView, BattleUIController,
            BattleUnitPanel, BattleOptionButton, PartyStorageController, PartyStorageEntryView
   Editor/  DialogueUIPrefabGenerator, QuestHudPrefabGenerator, FrontEndPrefabGenerator,
-           ScriptBookPrefabGenerator, BattleUIPrefabGenerator, PartyStoragePrefabGenerator
+           ScriptBookPrefabGenerator, BattleUIPrefabGenerator, PartyStoragePrefabGenerator,
+           CoreContentBatchGenerator, LegendaryGrowthBatchGenerator
 ```
 
 ## 프로젝트 설정
@@ -26,13 +27,16 @@ Assets/Scripts/
 - Player Settings → Active Input Handling = **Both** (에디터 키보드 테스트용. 모바일은 가상 패드 사용)
 - Tag `Player` 추가, Layer `Obstacle`, `Unit` 추가
 
-## 에셋 만들기 (Project 창 우클릭 → Create → ShadowTheater)
-1. Skill Data: 기본 공격 3종(slash / inkshot / claw) + 스킬들
-2. Shadow Data: knight / mage / beast / puppet / crow / mask / censor
-3. Item Data: potion / tonic / ink / salve
-4. **Resources/ShadowDatabase.asset** 생성 후 위 에셋 전부 등록 (세이브 로드 시 ID로 찾음)
+## 초반 데이터 생성
+1. 메뉴 `Tools > Shadow Theater > Generate Core Content Data` 실행
+2. `Assets/Data/Generated/Skills`의 스킬 22개 확인
+3. `Assets/Data/Generated/Items`의 도구 4개 확인
+4. `Assets/Data/Generated/Shadows`의 스타터·초반 그림자 7종 확인
+5. `Assets/Resources/ShadowDatabase.asset` 자동 등록 결과 확인
 
-수치는 웹 프로토타입의 "밸런스 데이터" 탭 JSON을 그대로 옮기면 됩니다 (필드명 동일).
+원본은 `Resources/Data/CoreContentCatalog.json`이며 같은 메뉴를 반복 실행하면 ID를 기준으로 기존
+ScriptableObject를 갱신한다. 스타터 3종과 수집 가능한 일반 그림자에는 세 단계 성장 데이터가 들어 있다.
+전용 아트가 없는 동안에는 `Assets/Art/Generated/Core`에 기능 테스트용 실루엣을 생성한다.
 
 ## 씬 계층 (단일 씬 + 루트 토글)
 ```
@@ -214,7 +218,7 @@ HP·상태·FP·턴 표시와 공격, 스킬, 교체, 각본 기록, 도구, 도
 - 첫 번째 파티원이 전투의 선봉으로 사용되므로 순서 변경은 다음 인카운터부터 반영된다.
 
 ## 다음 작업 후보
-1. DOTween BattlePresenter — 돌진/피격/컷인/카메라 쉐이크
-2. 엔딩 갤러리와 회차 시작
-3. 설정/오디오/언어 메뉴
-4. 필드 미니맵과 지역명 연출
+1. 플레이 가능한 프롤로그 씬 자동 생성 — 타이틀, 잔향 마을, 달빛 초원, 보스 무대
+2. DOTween BattlePresenter — 돌진/피격/컷인/카메라 쉐이크
+3. 엔딩 갤러리와 회차 시작
+4. 설정/오디오/언어 메뉴

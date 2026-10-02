@@ -1,0 +1,393 @@
+#if UNITY_EDITOR
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using ShadowTheater.Data;
+using UnityEditor;
+using UnityEngine;
+
+namespace ShadowTheater.EditorTools
+{
+    /// <summary>초반 플레이에 필요한 스킬·아이템·그림자를 JSON에서 반복 생성한다.</summary>
+    public static class CoreContentBatchGenerator
+    {
+        private const string CatalogPath = "Assets/Resources/Data/CoreContentCatalog.json";
+        private const string SkillFolder = "Assets/Data/Generated/Skills";
+        private const string ItemFolder = "Assets/Data/Generated/Items";
+        private const string ShadowFolder = "Assets/Data/Generated/Shadows";
+        private const string ArtFolder = "Assets/Art/Generated/Core";
+        private const string DatabasePath = "Assets/Resources/ShadowDatabase.asset";
+
+        [MenuItem("Tools/Shadow Theater/Generate Core Content Data")]
+        public static void Generate()
+        {
+            if (!File.Exists(CatalogPath))
+            {
+                Debug.LogError($"[CoreContent] 카탈로그가 없습니다: {CatalogPath}");
+                return;
+            }
+
+            var catalog = JsonUtility.FromJson<CoreCatalog>(File.ReadAllText(CatalogPath));
+            if (!Validate(catalog, out string error))
+            {
+                Debug.LogError($"[CoreContent] {error}");
+                return;
+            }
+
+            EnsureFolders();
+            var skills = GenerateSkills(catalog.skills);
+            var items = GenerateItems(catalog.items);
+            var shadows = GenerateShadows(catalog.shadows, skills);
+            UpdateDatabase(skills.Values, items, shadows);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            Selection.activeObject = shadows.FirstOrDefault();
+            Debug.Log($"[CoreContent] 생성 완료: 그림자 {shadows.Count}종, 스킬 {skills.Count}개, 도구 {items.Count}개");
+        }
+
+        private static bool Validate(CoreCatalog catalog, out string error)
+        {
+            if (catalog?.skills == null || catalog.items == null || catalog.shadows == null || catalog.shadows.Length == 0)
+            {
+                error = "카탈로그 배열이 비어 있습니다.";
+                return false;
+            }
+            var skillIds = new HashSet<string>(catalog.skills.Select(x => x.skillId));
+            if (skillIds.Count != catalog.skills.Length)
+            {
+                error = "중복된 skillId가 있습니다.";
+                return false;
+            }
+            foreach (var shadow in catalog.shadows)
+            {
+                var references = new List<string> { shadow.basicAttack };
+                if (shadow.skills != null) references.AddRange(shadow.skills);
+                AddFormSkills(references, shadow.restored);
+                AddFormSkills(references, shadow.salvation);
+                AddFormSkills(references, shadow.grudge);
+                string missing = references.FirstOrDefault(x => !string.IsNullOrEmpty(x) && !skillIds.Contains(x));
+                if (missing != null)
+                {
+                    error = $"{shadow.shadowId}가 존재하지 않는 스킬을 참조합니다: {missing}";
+                    return false;
+                }
+            }
+            error = null;
+            return true;
+        }
+
+        private static void AddFormSkills(List<string> target, FormSpec form)
+        {
+            if (form?.bonusSkills != null) target.AddRange(form.bonusSkills);
+        }
+
+        private static Dictionary<string, SkillData> GenerateSkills(IEnumerable<SkillSpec> specs)
+        {
+            var result = new Dictionary<string, SkillData>();
+            foreach (var spec in specs)
+            {
+                string path = $"{SkillFolder}/{spec.skillId}.asset";
+                var skill = LoadOrCreate<SkillData>(path);
+                skill.name = skill.skillId = spec.skillId;
+                skill.displayName = spec.displayName;
+                skill.description = spec.description;
+                skill.fpCost = spec.fpCost;
+                skill.fpGain = spec.fpGain;
+                skill.damageType = Parse(spec.damageType, DamageType.None);
+                skill.element = Parse(spec.element, ShadowElement.None);
+                skill.damageMultiplier = spec.damageMultiplier;
+                skill.accuracy = spec.accuracy;
+                skill.bonusCritRate = spec.bonusCritRate;
+                skill.target = Parse(spec.target, SkillTarget.Enemy);
+                skill.healRatio = spec.healRatio;
+                skill.statusEffect = Parse(spec.statusEffect, StatusEffectType.None);
+                skill.statusChance = spec.statusChance;
+                skill.statusDuration = spec.statusDuration;
+                skill.isUltimate = spec.isUltimate;
+                skill.cameraShake = spec.cameraShake;
+                EditorUtility.SetDirty(skill);
+                result[skill.skillId] = skill;
+            }
+            return result;
+        }
+
+        private static List<ItemData> GenerateItems(IEnumerable<ItemSpec> specs)
+        {
+            var result = new List<ItemData>();
+            foreach (var spec in specs)
+            {
+                var item = LoadOrCreate<ItemData>($"{ItemFolder}/{spec.itemId}.asset");
+                item.name = item.itemId = spec.itemId;
+                item.displayName = spec.displayName;
+                item.description = spec.description;
+                item.effectType = Parse(spec.effectType, ItemEffectType.HealRatio);
+                item.value = spec.value;
+                item.usableInBattle = spec.usableInBattle;
+                EditorUtility.SetDirty(item);
+                result.Add(item);
+            }
+            return result;
+        }
+
+        private static List<ShadowData> GenerateShadows(IEnumerable<ShadowSpec> specs,
+                                                        IReadOnlyDictionary<string, SkillData> skills)
+        {
+            var result = new List<ShadowData>();
+            foreach (var spec in specs)
+            {
+                var shadow = LoadOrCreate<ShadowData>($"{ShadowFolder}/{spec.shadowId}.asset");
+                shadow.name = shadow.shadowId = spec.shadowId;
+                shadow.displayName = spec.displayName;
+                shadow.title = spec.title;
+                shadow.growthTier = Parse(spec.growthTier, GrowthTier.Standard);
+                shadow.element = Parse(spec.element, ShadowElement.None);
+                shadow.role = Parse(spec.role, ShadowRole.PhysicalDealer);
+                shadow.silhouetteSprite = GeneratePlaceholderSprite(spec.shadowId, spec.shape);
+                shadow.accentColor = ParseColor(spec.accentColor, Color.white);
+                shadow.baseHp = spec.baseHp;
+                shadow.baseAtk = spec.baseAtk;
+                shadow.baseDef = spec.baseDef;
+                shadow.baseSpd = spec.baseSpd;
+                shadow.critRate = spec.critRate;
+                shadow.evasion = spec.evasion;
+                shadow.hpGrowth = spec.hpGrowth;
+                shadow.atkGrowth = spec.atkGrowth;
+                shadow.defGrowth = spec.defGrowth;
+                shadow.spdGrowth = spec.spdGrowth;
+                shadow.basicAttack = SkillFor(skills, spec.basicAttack);
+                shadow.skills = SkillsFor(skills, spec.skills);
+                shadow.baseCaptureRate = spec.baseCaptureRate;
+                shadow.expReward = spec.expReward;
+                shadow.goldReward = spec.goldReward;
+                shadow.loreLocked = spec.loreLocked;
+                shadow.loreUnlocked = spec.loreUnlocked;
+                shadow.restoredForm ??= new MemoryFormData();
+                shadow.salvationForm ??= new MemoryFormData();
+                shadow.grudgeForm ??= new MemoryFormData();
+                ApplyForm(shadow.restoredForm, spec.restored, skills);
+                ApplyForm(shadow.salvationForm, spec.salvation, skills);
+                ApplyForm(shadow.grudgeForm, spec.grudge, skills);
+                EditorUtility.SetDirty(shadow);
+                result.Add(shadow);
+            }
+            return result;
+        }
+
+        private static void ApplyForm(MemoryFormData target, FormSpec spec,
+                                      IReadOnlyDictionary<string, SkillData> skills)
+        {
+            target.enabled = spec != null;
+            target.silhouetteSprite = null; // 전용 아트가 없으면 기본 실루엣과 포인트 컬러를 사용한다.
+            target.bonusSkills = new List<SkillData>();
+            if (spec == null) return;
+            target.formName = spec.formName;
+            target.accentColor = ParseColor(spec.accentColor, Color.white);
+            target.requiredLevel = spec.requiredLevel;
+            target.requiredFlag = spec.requiredFlag;
+            target.hpMultiplier = spec.hpMultiplier;
+            target.atkMultiplier = spec.atkMultiplier;
+            target.defMultiplier = spec.defMultiplier;
+            target.spdMultiplier = spec.spdMultiplier;
+            target.bonusCritRate = spec.bonusCritRate;
+            target.bonusEvasion = spec.bonusEvasion;
+            target.bonusSkills = SkillsFor(skills, spec.bonusSkills);
+            target.loreAppend = spec.loreAppend;
+        }
+
+        private static Sprite GeneratePlaceholderSprite(string id, string shape)
+        {
+            string path = $"{ArtFolder}/{id}_placeholder.png";
+            if (!File.Exists(path))
+            {
+                const int size = 192;
+                var texture = new Texture2D(size, size, TextureFormat.RGBA32, false);
+                var pixels = Enumerable.Repeat(Color.clear, size * size).ToArray();
+                texture.SetPixels(pixels);
+                DrawSilhouette(texture, shape);
+                texture.Apply();
+                File.WriteAllBytes(path, texture.EncodeToPNG());
+                UnityEngine.Object.DestroyImmediate(texture);
+                AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceSynchronousImport);
+            }
+
+            var importer = AssetImporter.GetAtPath(path) as TextureImporter;
+            if (importer != null && (importer.textureType != TextureImporterType.Sprite || importer.spritePixelsPerUnit != 96f))
+            {
+                importer.textureType = TextureImporterType.Sprite;
+                importer.spriteImportMode = SpriteImportMode.Single;
+                importer.spritePixelsPerUnit = 96f;
+                importer.alphaIsTransparency = true;
+                importer.mipmapEnabled = false;
+                importer.filterMode = FilterMode.Bilinear;
+                importer.SaveAndReimport();
+            }
+            return AssetDatabase.LoadAssetAtPath<Sprite>(path);
+        }
+
+        private static void DrawSilhouette(Texture2D texture, string shape)
+        {
+            Color ink = new Color(0.96f, 0.96f, 0.98f, 1f); // UI에서 검게 틴트된다.
+            switch (shape)
+            {
+                case "Knight":
+                    Circle(texture, 86, 137, 20, ink); Triangle(texture, 48, 31, 123, 31, 91, 127, ink);
+                    Rect(texture, 117, 55, 128, 145, ink); Triangle(texture, 122, 145, 135, 145, 128, 174, ink); break;
+                case "Mage":
+                    Circle(texture, 96, 127, 17, ink); Triangle(texture, 45, 28, 147, 28, 96, 125, ink);
+                    Triangle(texture, 61, 141, 133, 141, 101, 180, ink); Rect(texture, 126, 78, 151, 105, ink); break;
+                case "Beast":
+                    Circle(texture, 129, 104, 24, ink); Rect(texture, 54, 72, 132, 108, ink);
+                    Triangle(texture, 124, 125, 134, 125, 129, 151, ink); Rect(texture, 64, 31, 77, 77, ink);
+                    Rect(texture, 111, 31, 124, 77, ink); Line(texture, 55, 95, 26, 126, 13, ink); break;
+                case "Puppet":
+                    Circle(texture, 96, 139, 17, ink); Rect(texture, 76, 79, 116, 132, ink);
+                    Line(texture, 78, 117, 47, 79, 10, ink); Line(texture, 114, 117, 145, 79, 10, ink);
+                    Line(texture, 85, 80, 68, 30, 11, ink); Line(texture, 107, 80, 124, 30, 11, ink); break;
+                case "Crow":
+                    Circle(texture, 96, 103, 22, ink); Triangle(texture, 15, 77, 83, 118, 65, 55, ink);
+                    Triangle(texture, 177, 77, 109, 118, 127, 55, ink); Triangle(texture, 88, 86, 104, 86, 96, 28, ink);
+                    Triangle(texture, 114, 106, 149, 112, 118, 97, ink); break;
+                case "Mask":
+                    Ellipse(texture, 96, 103, 46, 67, ink); Triangle(texture, 50, 92, 69, 109, 53, 126, Color.clear);
+                    Triangle(texture, 142, 92, 123, 109, 139, 126, Color.clear); break;
+                default:
+                    Circle(texture, 96, 139, 18, ink); Triangle(texture, 49, 28, 143, 28, 96, 127, ink);
+                    Rect(texture, 38, 73, 55, 151, ink); Rect(texture, 137, 73, 154, 151, ink); break;
+            }
+        }
+
+        private static void Circle(Texture2D t, int cx, int cy, int radius, Color color) =>
+            Ellipse(t, cx, cy, radius, radius, color);
+
+        private static void Ellipse(Texture2D t, int cx, int cy, int rx, int ry, Color color)
+        {
+            for (int y = -ry; y <= ry; y++)
+                for (int x = -rx; x <= rx; x++)
+                    if ((x * x) / (float)(rx * rx) + (y * y) / (float)(ry * ry) <= 1f) Set(t, cx + x, cy + y, color);
+        }
+
+        private static void Rect(Texture2D t, int x0, int y0, int x1, int y1, Color color)
+        {
+            for (int y = y0; y <= y1; y++) for (int x = x0; x <= x1; x++) Set(t, x, y, color);
+        }
+
+        private static void Triangle(Texture2D t, int ax, int ay, int bx, int by, int cx, int cy, Color color)
+        {
+            int minX = Mathf.Min(ax, bx, cx), maxX = Mathf.Max(ax, bx, cx);
+            int minY = Mathf.Min(ay, by, cy), maxY = Mathf.Max(ay, by, cy);
+            float area = Edge(ax, ay, bx, by, cx, cy);
+            for (int y = minY; y <= maxY; y++)
+            for (int x = minX; x <= maxX; x++)
+            {
+                float w0 = Edge(bx, by, cx, cy, x, y), w1 = Edge(cx, cy, ax, ay, x, y), w2 = Edge(ax, ay, bx, by, x, y);
+                if (area >= 0 ? w0 >= 0 && w1 >= 0 && w2 >= 0 : w0 <= 0 && w1 <= 0 && w2 <= 0) Set(t, x, y, color);
+            }
+        }
+
+        private static float Edge(int ax, int ay, int bx, int by, int px, int py) =>
+            (px - ax) * (by - ay) - (py - ay) * (bx - ax);
+
+        private static void Line(Texture2D t, int x0, int y0, int x1, int y1, int width, Color color)
+        {
+            int steps = Mathf.Max(Mathf.Abs(x1 - x0), Mathf.Abs(y1 - y0));
+            for (int i = 0; i <= steps; i++)
+            {
+                float p = steps == 0 ? 0 : i / (float)steps;
+                Circle(t, Mathf.RoundToInt(Mathf.Lerp(x0, x1, p)), Mathf.RoundToInt(Mathf.Lerp(y0, y1, p)), width / 2, color);
+            }
+        }
+
+        private static void Set(Texture2D t, int x, int y, Color color)
+        {
+            if (x >= 0 && x < t.width && y >= 0 && y < t.height) t.SetPixel(x, y, color);
+        }
+
+        private static void UpdateDatabase(IEnumerable<SkillData> skills, IEnumerable<ItemData> items,
+                                           IEnumerable<ShadowData> shadows)
+        {
+            var database = AssetDatabase.LoadAssetAtPath<ShadowDatabase>(DatabasePath);
+            if (database == null)
+            {
+                database = ScriptableObject.CreateInstance<ShadowDatabase>();
+                AssetDatabase.CreateAsset(database, DatabasePath);
+            }
+            foreach (var skill in skills) AddOrReplace(database.skills, skill, x => x.skillId);
+            foreach (var item in items) AddOrReplace(database.items, item, x => x.itemId);
+            foreach (var shadow in shadows) AddOrReplace(database.shadows, shadow, x => x.shadowId);
+            EditorUtility.SetDirty(database);
+        }
+
+        private static void AddOrReplace<T>(List<T> list, T value, Func<T, string> id) where T : UnityEngine.Object
+        {
+            int index = list.FindIndex(x => x != null && id(x) == id(value));
+            if (index >= 0) list[index] = value; else list.Add(value);
+        }
+
+        private static T LoadOrCreate<T>(string path) where T : ScriptableObject
+        {
+            var asset = AssetDatabase.LoadAssetAtPath<T>(path);
+            if (asset != null) return asset;
+            asset = ScriptableObject.CreateInstance<T>();
+            AssetDatabase.CreateAsset(asset, path);
+            return asset;
+        }
+
+        private static SkillData SkillFor(IReadOnlyDictionary<string, SkillData> skills, string id) =>
+            !string.IsNullOrEmpty(id) && skills.TryGetValue(id, out var skill) ? skill : null;
+
+        private static List<SkillData> SkillsFor(IReadOnlyDictionary<string, SkillData> skills, string[] ids) =>
+            ids == null ? new List<SkillData>() : ids.Select(x => SkillFor(skills, x)).Where(x => x != null).ToList();
+
+        private static T Parse<T>(string value, T fallback) where T : struct =>
+            Enum.TryParse(value, true, out T result) ? result : fallback;
+
+        private static Color ParseColor(string html, Color fallback) =>
+            ColorUtility.TryParseHtmlString(html, out var color) ? color : fallback;
+
+        private static void EnsureFolders()
+        {
+            Ensure("Assets", "Data"); Ensure("Assets/Data", "Generated");
+            Ensure("Assets/Data/Generated", "Skills"); Ensure("Assets/Data/Generated", "Items");
+            Ensure("Assets/Data/Generated", "Shadows"); Ensure("Assets", "Art");
+            Ensure("Assets/Art", "Generated"); Ensure("Assets/Art/Generated", "Core");
+        }
+
+        private static void Ensure(string parent, string child)
+        {
+            if (!AssetDatabase.IsValidFolder($"{parent}/{child}")) AssetDatabase.CreateFolder(parent, child);
+        }
+
+        [Serializable] private class CoreCatalog { public SkillSpec[] skills; public ItemSpec[] items; public ShadowSpec[] shadows; }
+        [Serializable] private class SkillSpec
+        {
+            public string skillId, displayName, description, damageType, element, target, statusEffect;
+            public int fpCost, fpGain, statusDuration;
+            public float damageMultiplier, accuracy, bonusCritRate, healRatio, statusChance, cameraShake;
+            public bool isUltimate;
+        }
+        [Serializable] private class ItemSpec
+        {
+            public string itemId, displayName, description, effectType;
+            public float value;
+            public bool usableInBattle;
+        }
+        [Serializable] private class ShadowSpec
+        {
+            public string shadowId, displayName, title, growthTier, element, role, shape, accentColor;
+            public int baseHp, baseAtk, baseDef, baseSpd, expReward, goldReward;
+            public float critRate, evasion, hpGrowth, atkGrowth, defGrowth, spdGrowth, baseCaptureRate;
+            public string basicAttack, loreLocked, loreUnlocked;
+            public string[] skills;
+            public FormSpec restored, salvation, grudge;
+        }
+        [Serializable] private class FormSpec
+        {
+            public string formName, accentColor, requiredFlag, loreAppend;
+            public int requiredLevel;
+            public float hpMultiplier, atkMultiplier, defMultiplier, spdMultiplier, bonusCritRate, bonusEvasion;
+            public string[] bonusSkills;
+        }
+    }
+}
+#endif

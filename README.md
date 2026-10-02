@@ -16,11 +16,20 @@
 
 ## 집 PC에서 Unity로 열기
 1. 이 저장소를 clone
-2. Unity Hub → **Add project from disk** → clone한 폴더 선택 (Unity 2022.3 LTS 이상)
-   - `ProjectSettings/`, `Packages/`는 처음 열 때 자동 생성됩니다
-3. Package Manager에서 **Universal RP**, **2D Tilemap Extras** 설치 → URP 2D Renderer 설정
-4. Player Settings → Active Input Handling = **Both**
-5. 처음 연 뒤 생성된 `ProjectSettings/`, `Packages/`, `*.meta` 파일까지 커밋
+2. Unity Hub → **Add project from disk** → clone한 폴더 선택
+3. 기준 버전인 **Unity 2022.3.21f1** 또는 같은 2022.3 LTS 계열로 열기
+4. 첫 실행 시 `Packages/manifest.json`을 기준으로 URP 2D, Tilemap Extras, Input System 등을 자동 설치
+5. Player Settings → Active Input Handling = **Both** 확인
+6. Unity가 생성한 나머지 `ProjectSettings/`, `Packages/packages-lock.json`, `*.meta` 파일까지 커밋
+
+## 초반 콘텐츠 데이터 빠른 설치
+1. Unity 메뉴 **Tools → Shadow Theater → Generate Core Content Data** 실행
+2. `Assets/Data/Generated`에 생성된 그림자 7종, 스킬 22개, 도구 4개 확인
+3. `Resources/ShadowDatabase.asset`에 모든 데이터가 자동 등록되었는지 확인
+
+스타터 3종과 프롤로그 그림자는 기억 복원·구원·원한 성장 데이터를 포함합니다. 실제 전용 이미지가
+아직 없는 개체에는 기능 테스트용 실루엣 PNG를 자동 생성하며, 이후 완성 아트로 교체해도 ID와 세이브는
+그대로 유지됩니다. 원본 수치와 Lore는 `Assets/Resources/Data/CoreContentCatalog.json`에서 수정합니다.
 
 ## 대화 시스템 빠른 설치
 1. Unity 메뉴 **Tools → Shadow Theater → Generate Dialogue UI Prefab** 실행
