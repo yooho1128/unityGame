@@ -26,6 +26,7 @@ namespace ShadowTheater.Save
         public static event Action BeforeSave;
         public event Action OnSaved;
         public event Action OnLoaded;
+        public static event Action PartyChanged;
 
         private SaveData _current;
 
@@ -235,9 +236,11 @@ namespace ShadowTheater.Save
             if (Current.party.Count < SaveData.MaxPartySize)
             {
                 Current.party.Add(shadow);
+                PartyChanged?.Invoke();
                 return true;
             }
             Current.storage.Add(shadow);
+            PartyChanged?.Invoke();
             return false;
         }
 
@@ -249,6 +252,44 @@ namespace ShadowTheater.Save
 
         public static bool HasAliveShadow() =>
             Current != null && Current.party.Exists(s => !s.IsFainted);
+
+        public static bool MoveToStorage(string instanceId)
+        {
+            if (Current == null || Current.party.Count <= 1) return false;
+            int index = Current.party.FindIndex(x => x.instanceId == instanceId);
+            if (index < 0) return false;
+            var target = Current.party[index];
+            if (!target.IsFainted && Current.party.FindAll(x => !x.IsFainted).Count <= 1) return false;
+            Current.party.RemoveAt(index);
+            Current.storage.Add(target);
+            PartyChanged?.Invoke();
+            return true;
+        }
+
+        public static bool MoveToParty(string instanceId)
+        {
+            if (Current == null || Current.party.Count >= SaveData.MaxPartySize) return false;
+            int index = Current.storage.FindIndex(x => x.instanceId == instanceId);
+            if (index < 0) return false;
+            var target = Current.storage[index];
+            Current.storage.RemoveAt(index);
+            Current.party.Add(target);
+            PartyChanged?.Invoke();
+            return true;
+        }
+
+        public static bool MovePartySlot(string instanceId, int direction)
+        {
+            if (Current == null || direction == 0) return false;
+            int from = Current.party.FindIndex(x => x.instanceId == instanceId);
+            int to = from + Math.Sign(direction);
+            if (from < 0 || to < 0 || to >= Current.party.Count) return false;
+            var target = Current.party[from];
+            Current.party.RemoveAt(from);
+            Current.party.Insert(to, target);
+            PartyChanged?.Invoke();
+            return true;
+        }
 
         #endregion
 

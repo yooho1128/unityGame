@@ -6,10 +6,10 @@
 |---|---|
 | `Assets/Scripts/Data` | ShadowData / SkillData / ItemData (ScriptableObject), ShadowInstance, ShadowDatabase |
 | `Assets/Scripts/Battle` | BattleManager(턴 상태 머신), BattleUnit, DamageCalculator, BattleAI, IBattlePresenter |
-| `Assets/Scripts/Save` | SaveData(JSON), SaveManager |
+| `Assets/Scripts/Save` | SaveData(JSON), SaveManager, 파티·각본 서고 편성 API |
 | `Assets/Scripts/Field` | PlayerController(타일 이동), EncounterSymbol(심볼 인카운터), GameFlowController(필드↔전투) |
 | `Assets/Scripts/Story` | JSON 대사/퀘스트 저장소, 목표 추적, 누적 선택 기반 다중 엔딩 |
-| `Assets/Scripts/UI` | 모바일 대화창, 퀘스트 HUD, 스타터 선택, 각본집 도감 |
+| `Assets/Scripts/UI` | 모바일 대화창, 퀘스트 HUD, 스타터 선택, 각본집 도감, 파티·서고 편성 |
 | `Assets/Editor` | 주요 모바일 UI 프리팹 자동 생성 메뉴 |
 | `Prototype/shadow-theater.html` | 같은 전투 규칙의 브라우저 프로토타입 — 더블클릭으로 실행, 밸런스 데이터 편집 탭 포함 |
 | `Docs/` | 기획 명세서, 씬 세팅 가이드(SETUP.md) |
@@ -79,6 +79,15 @@
 
 공격·스킬·교체·각본 기록·도구·도주, 강제 교체, Auto, 1/2/3배속을 지원합니다. 스킬·파티·도구
 목록은 현재 전투 데이터에서 자동 생성됩니다.
+
+## 파티·각본 서고 빠른 설치
+1. Unity 메뉴 **Tools → Shadow Theater → Generate Party and Storage UI** 실행
+2. 생성된 `Assets/Prefabs/UI/PartyStorageCanvas.prefab`을 각 필드 씬 최상위에 배치
+3. 프리팹에 포함된 **파티** 버튼으로 편성 화면을 열어 그림자를 이동하거나 순서를 변경
+
+파티는 최대 6명이며 포획 당시 자리가 없으면 그림자는 각본 서고에 자동 보관됩니다. 서고 자체에는
+수량 제한이 없습니다. 파티가 비거나 전투 가능한 그림자가 한 명도 남는 상황을 막기 위해 마지막 생존
+그림자는 서고로 이동할 수 없으며, 편성 변경 결과는 즉시 세이브됩니다.
 
 자세한 씬 구성은 [`Docs/SETUP.md`](Docs/SETUP.md) 참고.
 

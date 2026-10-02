@@ -8,7 +8,7 @@ Assets/Scripts/
            DebugBattlePresenter, BattleManager, BattleTestBootstrap
   Save/    SaveData, SaveManager
   Field/   FieldGrid, PlayerController, EncounterSymbol, ScreenFader,
-           VirtualDPadButton, VirtualActionButton, VirtualScriptBookButton,
+           VirtualDPadButton, VirtualActionButton, VirtualScriptBookButton, VirtualPartyButton,
            GameFlowController, MapLoader, MapPortal
   Story/   DialogueData/Repository, StoryNpc, DialogueInteractable,
            QuestData/Repository/Manager, QuestAreaTrigger, BossEncounterTrigger,
@@ -16,9 +16,9 @@ Assets/Scripts/
   UI/      DialogueController, DialogueChoiceView, QuestHudController,
            TitleScreenController, StarterSelectionController, StarterCardView,
            ScriptBookController, ScriptBookEntryView, BattleUIController,
-           BattleUnitPanel, BattleOptionButton
+           BattleUnitPanel, BattleOptionButton, PartyStorageController, PartyStorageEntryView
   Editor/  DialogueUIPrefabGenerator, QuestHudPrefabGenerator, FrontEndPrefabGenerator,
-           ScriptBookPrefabGenerator, BattleUIPrefabGenerator
+           ScriptBookPrefabGenerator, BattleUIPrefabGenerator, PartyStoragePrefabGenerator
 ```
 
 ## 프로젝트 설정
@@ -188,8 +188,23 @@ HP·상태·FP·턴 표시와 공격, 스킬, 교체, 각본 기록, 도구, 도
 현재 Presenter는 패키지 의존성 없는 메시지·HUD 갱신 중심이다. 추후 DOTween을 설치하면 같은
 `IBattlePresenter` 계약을 유지한 채 돌진, 피격 플래시, 컷인, 카메라 흔들림을 교체 구현할 수 있다.
 
+## 파티 편성·각본 서고 세팅
+1. 메뉴 `Tools > Shadow Theater > Generate Party and Storage UI` 실행
+2. 생성된 `Assets/Prefabs/UI/PartyStorageCanvas.prefab`을 각 필드 씬 최상위에 배치
+3. 씬의 EventSystem은 다른 모바일 UI와 공용으로 1개만 유지
+
+프리팹에는 필드에서 편성 화면을 여는 `파티` 버튼이 포함된다. 전투나 대화 중에는 열리지 않으며,
+화면이 열려 있는 동안 플레이어 이동을 잠근다. 위에서부터 파티·각본 서고 목록을 확인하고 선택한
+그림자를 `파티로`, `서고로` 이동하거나 `위로`, `아래로` 버튼으로 출전 순서를 바꿀 수 있다.
+
+- 파티 최대 인원은 `SaveData.MaxPartySize`의 6명이다.
+- 포획 시 파티가 가득 찼으면 `SaveData.storage`에 자동 보관되며 서고 수량 제한은 없다.
+- 파티는 최소 1명을 유지하고, 전투 가능한 마지막 그림자는 서고로 이동할 수 없다.
+- 이동·순서 변경 성공 시 즉시 안전 저장하며 HP와 기억 성장 단계도 그대로 유지한다.
+- 첫 번째 파티원이 전투의 선봉으로 사용되므로 순서 변경은 다음 인카운터부터 반영된다.
+
 ## 다음 작업 후보
 1. DOTween BattlePresenter — 돌진/피격/컷인/카메라 쉐이크
-2. 파티 편성·보관함 UI
-3. 엔딩 갤러리와 회차 시작
-4. 설정/오디오/언어 메뉴
+2. 엔딩 갤러리와 회차 시작
+3. 설정/오디오/언어 메뉴
+4. 필드 미니맵과 지역명 연출
