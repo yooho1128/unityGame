@@ -77,11 +77,16 @@ namespace ShadowTheater.EditorTools
             CreateMoonfangForest();
             CreateBloodmoonRidge();
             CreateSleepingBeastDen();
+            CreateThreadMarket();
+            CreateClockworkAlley();
+            CreateMarionetteOpera();
+            CreateSeveredWorkshop();
+            CreatePuppeteerStage();
             RegisterBuildScenes();
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             EditorSceneManager.OpenScene($"{SceneFolder}/Title.unity", OpenSceneMode.Single);
-            Debug.Log("[World] 프롤로그부터 제4막 야수의 밤까지 20개 픽셀 필드 생성 완료");
+            Debug.Log("[World] 프롤로그부터 제5막 꼭두각시 도시까지 25개 픽셀 필드 생성 완료");
         }
 
         private static void GenerateDependencies()
@@ -445,7 +450,65 @@ namespace ShadowTheater.EditorTools
             CreateEncounter(map.fieldRoot, "CrescentFoxB", new Vector2Int(5,0), LoadShadow("crescent_fox"),57,60);
             CreateBossEncounter(map.fieldRoot, "NightDevouringBeastBoss", new Vector2Int(0,4), "night_devouring_beast", "boss_night_beast", new Vector2Int(60,63), "boss_night_beast_pre", "boss_night_beast_post", "boss_night_beast_story_complete", "boss_night_beast_reward_claimed", 63, new Color(.68f,.25f,.92f));
             CreatePortal(map.fieldRoot, "BackToRidge", new Vector2Int(0,-8), "BloodmoonRidge", new Vector2Int(8,0), FacingDir.Down);
+            CreatePortal(map.fieldRoot, "ToThreadMarket", new Vector2Int(9,0), "ThreadMarket", new Vector2Int(-8,0), FacingDir.Right, false, "act4_complete");
             FinishFieldScene(map, "SleepingBeastDen");
+        }
+
+        private static void CreateThreadMarket()
+        {
+            var map = BeginFieldScene("ThreadMarket", "실타래 시장", new Vector2Int(-8,0), new Color(.13f,.055f,.11f), Theme.ThreadMarket);
+            CreateAreaTrigger(map.fieldRoot, new Vector2Int(-8,0), "area_thread_market");
+            CreateNpc(map.fieldRoot, "ThreadMerchant", new Vector2Int(1,4), LoadShadow("thread_cat"), "npc_thread_merchant", "npc_thread_merchant_intro", "npc_thread_merchant_repeat", "talked_thread_merchant", new Color(1f,.55f,.72f));
+            CreateEncounter(map.fieldRoot, "ThreadCatA", new Vector2Int(-4,-3), LoadShadow("thread_cat"),59,62);
+            CreateEncounter(map.fieldRoot, "NeedleThiefA", new Vector2Int(5,-3), LoadShadow("needle_thief"),60,63);
+            CreatePortal(map.fieldRoot, "BackToBeastDen", new Vector2Int(-9,0), "SleepingBeastDen", new Vector2Int(8,0), FacingDir.Left);
+            CreatePortal(map.fieldRoot, "ToClockworkAlley", new Vector2Int(9,0), "ClockworkAlley", new Vector2Int(-8,0), FacingDir.Right, false, "quest_act5_01_market_complete");
+            FinishFieldScene(map, "ThreadMarket");
+        }
+
+        private static void CreateClockworkAlley()
+        {
+            var map = BeginFieldScene("ClockworkAlley", "태엽 골목", new Vector2Int(-8,0), new Color(.12f,.07f,.075f), Theme.ClockworkAlley);
+            CreateAreaTrigger(map.fieldRoot, new Vector2Int(-8,0), "area_clockwork_alley");
+            CreateNpc(map.fieldRoot, "SecondDancer", new Vector2Int(1,3), LoadShadow("second_dancer"), "npc_second_dancer", "npc_second_dancer_intro", "npc_second_dancer_repeat", "talked_second_dancer", new Color(.65f,.82f,1f));
+            CreateEncounter(map.fieldRoot, "ClockworkMouseA", new Vector2Int(-4,-4), LoadShadow("clockwork_mouse"),62,65);
+            CreateEncounter(map.fieldRoot, "BrassClownA", new Vector2Int(5,-2), LoadShadow("brass_clown"),63,66);
+            CreatePortal(map.fieldRoot, "BackToMarket", new Vector2Int(-9,0), "ThreadMarket", new Vector2Int(8,0), FacingDir.Left);
+            CreatePortal(map.fieldRoot, "ToOpera", new Vector2Int(0,8), "MarionetteOpera", new Vector2Int(0,-7), FacingDir.Up, false, "quest_act5_02_alley_complete");
+            FinishFieldScene(map, "ClockworkAlley");
+        }
+
+        private static void CreateMarionetteOpera()
+        {
+            var map = BeginFieldScene("MarionetteOpera", "마리오네트 오페라", new Vector2Int(0,-7), new Color(.14f,.035f,.08f), Theme.MarionetteOpera);
+            CreateEncounter(map.fieldRoot, "ChoirPuppetA", new Vector2Int(-5,0), LoadShadow("choir_puppet"),65,68);
+            CreateEncounter(map.fieldRoot, "ScissorConductorA", new Vector2Int(5,0), LoadShadow("scissor_conductor"),66,69);
+            CreateBossEncounter(map.fieldRoot, "PrimadonnaBoss", new Vector2Int(0,5), "wire_primadonna", "boss_primadonna", new Vector2Int(69,71), "boss_primadonna_pre", "boss_primadonna_post", "boss_primadonna_story_complete", "boss_primadonna_reward_claimed", 71, new Color(.95f,.31f,.58f));
+            CreatePortal(map.fieldRoot, "BackToAlley", new Vector2Int(0,-8), "ClockworkAlley", new Vector2Int(0,7), FacingDir.Down);
+            CreatePortal(map.fieldRoot, "ToWorkshop", new Vector2Int(9,0), "SeveredWorkshop", new Vector2Int(-8,0), FacingDir.Right, false, "boss_primadonna_story_complete");
+            FinishFieldScene(map, "MarionetteOpera");
+        }
+
+        private static void CreateSeveredWorkshop()
+        {
+            var map = BeginFieldScene("SeveredWorkshop", "끊어진 공방", new Vector2Int(-8,0), new Color(.09f,.055f,.09f), Theme.SeveredWorkshop);
+            CreateAreaTrigger(map.fieldRoot, new Vector2Int(-8,0), "area_severed_workshop");
+            CreateNpc(map.fieldRoot, "StitchedKnight", new Vector2Int(-1,4), LoadShadow("stitched_knight"), "npc_stitched_knight", "npc_stitched_knight_intro", "npc_stitched_knight_repeat", "talked_stitched_knight", new Color(.76f,.54f,.65f));
+            CreateEncounter(map.fieldRoot, "NeedleThiefB", new Vector2Int(-4,-3), LoadShadow("needle_thief"),68,71);
+            CreateEncounter(map.fieldRoot, "StitchedKnightEcho", new Vector2Int(5,-3), LoadShadow("stitched_knight"),69,72);
+            CreatePortal(map.fieldRoot, "BackToOpera", new Vector2Int(-9,0), "MarionetteOpera", new Vector2Int(8,0), FacingDir.Left);
+            CreatePortal(map.fieldRoot, "ToPuppeteerStage", new Vector2Int(9,0), "PuppeteerStage", new Vector2Int(0,-6), FacingDir.Right, false, "quest_act5_04_workshop_complete");
+            FinishFieldScene(map, "SeveredWorkshop");
+        }
+
+        private static void CreatePuppeteerStage()
+        {
+            var map = BeginFieldScene("PuppeteerStage", "인형사의 대무대", new Vector2Int(0,-6), new Color(.11f,.018f,.065f), Theme.PuppeteerStage);
+            CreateEncounter(map.fieldRoot, "RoyalChoirPuppet", new Vector2Int(-5,0), LoadShadow("choir_puppet"),71,74);
+            CreateEncounter(map.fieldRoot, "RoyalScissorConductor", new Vector2Int(5,0), LoadShadow("scissor_conductor"),72,75);
+            CreateBossEncounter(map.fieldRoot, "LastPuppeteerBoss", new Vector2Int(0,4), "last_puppeteer", "boss_last_puppeteer", new Vector2Int(75,78), "boss_last_puppeteer_pre", "boss_last_puppeteer_post", "boss_last_puppeteer_story_complete", "boss_last_puppeteer_reward_claimed", 78, new Color(.94f,.2f,.5f));
+            CreatePortal(map.fieldRoot, "BackToWorkshop", new Vector2Int(0,-8), "SeveredWorkshop", new Vector2Int(8,0), FacingDir.Down);
+            FinishFieldScene(map, "PuppeteerStage");
         }
 
         private static FieldSceneContext BeginFieldScene(string mapId, string displayName, Vector2Int startCell,
@@ -644,11 +707,18 @@ namespace ShadowTheater.EditorTools
                 case Theme.MoonfangForest:
                     blocks.Add(new RectInt(-7,2,3,3)); blocks.Add(new RectInt(5,3,3,3));
                     blocks.Add(new RectInt(-2,-5,2,3)); blocks.Add(new RectInt(2,-6,2,3)); break;
+                case Theme.ThreadMarket:
+                case Theme.ClockworkAlley:
+                case Theme.SeveredWorkshop:
+                    blocks.Add(new RectInt(-6,3,3,3)); blocks.Add(new RectInt(4,3,3,3));
+                    blocks.Add(new RectInt(-5,-6,3,2)); blocks.Add(new RectInt(4,-6,3,2)); break;
                 case Theme.Boss:
                 case Theme.AshThrone:
                 case Theme.BlueAbyss:
                 case Theme.BloodmoonRidge:
                 case Theme.BeastDen:
+                case Theme.MarionetteOpera:
+                case Theme.PuppeteerStage:
                     blocks.Add(new RectInt(-7, -1, 2, 5)); blocks.Add(new RectInt(6, -1, 2, 5));
                     blocks.Add(new RectInt(-4, 6, 2, 2)); blocks.Add(new RectInt(3, 6, 2, 2)); break;
             }
@@ -1109,6 +1179,21 @@ namespace ShadowTheater.EditorTools
                         ambienceVolume = .29f, detailVolume = .23f, detailInterval = new Vector2(4f,7.5f),
                         lightPositions = new[] { new Vector2(-6f,4f), new Vector2(0f,5f), new Vector2(6f,4f), new Vector2(-4f,-4f), new Vector2(4f,-4f) }
                     };
+                case Theme.ThreadMarket:
+                case Theme.ClockworkAlley:
+                case Theme.MarionetteOpera:
+                case Theme.SeveredWorkshop:
+                case Theme.PuppeteerStage:
+                    return new EnvironmentProfile
+                    {
+                        globalColor = new Color(.58f,.27f,.43f), globalIntensity = .48f,
+                        pointColor = new Color(1f,.38f,.63f), secondaryLightColor = new Color(1f,.65f,.32f),
+                        pointIntensity = 1.12f, fogColor = new Color(.45f,.12f,.31f), fogAlpha = .17f,
+                        moteColor = new Color(1f,.55f,.76f), fogDrift = new Vector2(.08f,.01f),
+                        moteDrift = new Vector2(.01f,.075f), fogPulse = .12f, motePulse = .42f, pulseSpeed = .72f,
+                        ambienceVolume = .28f, detailVolume = .23f, detailInterval = new Vector2(4f,8f),
+                        lightPositions = new[] { new Vector2(-6f,4f), new Vector2(0f,5f), new Vector2(6f,4f), new Vector2(-4f,-4f), new Vector2(4f,-4f) }
+                    };
                 case Theme.AshThrone:
                     return new EnvironmentProfile
                     {
@@ -1317,6 +1402,26 @@ namespace ShadowTheater.EditorTools
                     _groundTile = CreateTile("BeastDen_Ground", new Color(.19f,.10f,.28f), new Color(.39f,.19f,.54f));
                     _wallTile = CreateTile("BeastDen_Wall", new Color(.045f,.015f,.08f), new Color(.20f,.055f,.31f));
                     _accentTile = CreateTile("BeastDen_Accent", new Color(.15f,.045f,.24f), new Color(.67f,.26f,.88f)); break;
+                case Theme.ThreadMarket:
+                    _groundTile = CreateTile("ThreadMarket_Ground", new Color(.32f,.20f,.28f), new Color(.55f,.32f,.43f));
+                    _wallTile = CreateTile("ThreadMarket_Wall", new Color(.10f,.05f,.10f), new Color(.34f,.15f,.27f));
+                    _accentTile = CreateTile("ThreadMarket_Accent", new Color(.24f,.11f,.21f), new Color(.86f,.47f,.65f)); break;
+                case Theme.ClockworkAlley:
+                    _groundTile = CreateTile("ClockworkAlley_Ground", new Color(.34f,.25f,.19f), new Color(.56f,.40f,.27f));
+                    _wallTile = CreateTile("ClockworkAlley_Wall", new Color(.11f,.07f,.06f), new Color(.35f,.22f,.14f));
+                    _accentTile = CreateTile("ClockworkAlley_Accent", new Color(.27f,.16f,.11f), new Color(.82f,.57f,.32f)); break;
+                case Theme.MarionetteOpera:
+                    _groundTile = CreateTile("MarionetteOpera_Ground", new Color(.34f,.12f,.22f), new Color(.58f,.20f,.36f));
+                    _wallTile = CreateTile("MarionetteOpera_Wall", new Color(.10f,.02f,.06f), new Color(.34f,.07f,.16f));
+                    _accentTile = CreateTile("MarionetteOpera_Accent", new Color(.27f,.06f,.15f), new Color(.92f,.27f,.52f)); break;
+                case Theme.SeveredWorkshop:
+                    _groundTile = CreateTile("SeveredWorkshop_Ground", new Color(.27f,.20f,.25f), new Color(.48f,.33f,.43f));
+                    _wallTile = CreateTile("SeveredWorkshop_Wall", new Color(.075f,.045f,.075f), new Color(.27f,.14f,.23f));
+                    _accentTile = CreateTile("SeveredWorkshop_Accent", new Color(.20f,.11f,.19f), new Color(.68f,.38f,.57f)); break;
+                case Theme.PuppeteerStage:
+                    _groundTile = CreateTile("PuppeteerStage_Ground", new Color(.27f,.07f,.18f), new Color(.50f,.12f,.31f));
+                    _wallTile = CreateTile("PuppeteerStage_Wall", new Color(.065f,.012f,.045f), new Color(.28f,.035f,.14f));
+                    _accentTile = CreateTile("PuppeteerStage_Accent", new Color(.22f,.035f,.13f), new Color(.94f,.19f,.48f)); break;
                 case Theme.AshThrone:
                     _groundTile = CreateTile("AshThrone_Ground", new Color(.25f,.10f,.09f), new Color(.42f,.15f,.10f));
                     _wallTile = CreateTile("AshThrone_Wall", new Color(.055f,.012f,.015f), new Color(.22f,.035f,.03f));
@@ -1731,7 +1836,8 @@ namespace ShadowTheater.EditorTools
             string[] names = { "Title", "PrologueTheater", "EchoVillage", "MoonlitMeadow", "MoonlitBossStage",
                 "CurtainPass", "AshBorder", "CinderCity", "RuinedBarracks", "EmberCatacombs", "CrownlessThrone",
                 "FrostPort", "WhiteArchive", "ForbiddenStacks", "MirrorVault", "BlueAbyss",
-                "VioletMarsh", "HowlVillage", "MoonfangForest", "BloodmoonRidge", "SleepingBeastDen" };
+                "VioletMarsh", "HowlVillage", "MoonfangForest", "BloodmoonRidge", "SleepingBeastDen",
+                "ThreadMarket", "ClockworkAlley", "MarionetteOpera", "SeveredWorkshop", "PuppeteerStage" };
             var scenes = new List<EditorBuildSettingsScene>();
             var generatedPaths = new HashSet<string>();
             foreach (string name in names)
@@ -1793,7 +1899,8 @@ namespace ShadowTheater.EditorTools
         {
             Theater, Village, Meadow, Boss, AshWastes, EmberCity, Catacombs, AshThrone,
             FrostPort, Archive, ForbiddenStacks, MirrorVault, BlueAbyss,
-            VioletMarsh, HowlVillage, MoonfangForest, BloodmoonRidge, BeastDen
+            VioletMarsh, HowlVillage, MoonfangForest, BloodmoonRidge, BeastDen,
+            ThreadMarket, ClockworkAlley, MarionetteOpera, SeveredWorkshop, PuppeteerStage
         }
         private enum PixelTileKind { Grass, Path, Water, Cliff, Bush }
         private class EnvironmentProfile

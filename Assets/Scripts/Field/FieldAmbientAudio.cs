@@ -9,7 +9,8 @@ namespace ShadowTheater.Field
         Theater, Village, Meadow, EclipseBoss,
         AshWastes, EmberCity, Catacombs, AshThrone,
         FrostPort, Archive, ForbiddenStacks, MirrorVault, BlueAbyss,
-        VioletMarsh, HowlVillage, MoonfangForest, BloodmoonRidge, BeastDen
+        VioletMarsh, HowlVillage, MoonfangForest, BloodmoonRidge, BeastDen,
+        ThreadMarket, ClockworkAlley, MarionetteOpera, SeveredWorkshop, PuppeteerStage
     }
 
     /// <summary>지역별 지속 환경음과 간헐 원샷을 재생하며 씬/전투 전환 때 페이드한다.</summary>
@@ -202,6 +203,14 @@ namespace ShadowTheater.Field
                 case FieldAmbienceStyle.BloodmoonRidge:
                 case FieldAmbienceStyle.BeastDen:
                     return Sin(69, .38f) + Sin(34, .23f) + Sin(7, .21f) * Sin(138, .30f);
+                case FieldAmbienceStyle.ThreadMarket:
+                case FieldAmbienceStyle.ClockworkAlley:
+                    return Sin(24, .23f) + Sin(73, .13f) + Sin(1160, .04f) * (0.5f + Sin(8, .5f));
+                case FieldAmbienceStyle.MarionetteOpera:
+                case FieldAmbienceStyle.PuppeteerStage:
+                    return Sin(87, .36f) + Sin(43, .22f) + Sin(6, .2f) * Sin(174, .3f);
+                case FieldAmbienceStyle.SeveredWorkshop:
+                    return Sin(19, .27f) + Sin(59, .14f) + Sin(510, .05f) * Sin(5, .5f);
                 default:
                     return Sin(147, .46f) + Sin(73, .26f) + Sin(7, .20f) * Sin(151, .32f);
             }
@@ -256,6 +265,11 @@ namespace ShadowTheater.Field
                 case FieldAmbienceStyle.MoonfangForest: return 783.99f;
                 case FieldAmbienceStyle.BloodmoonRidge: return 98f;
                 case FieldAmbienceStyle.BeastDen: return 65.41f;
+                case FieldAmbienceStyle.ThreadMarket: return 659.25f;
+                case FieldAmbienceStyle.ClockworkAlley: return 523.25f;
+                case FieldAmbienceStyle.MarionetteOpera: return 246.94f;
+                case FieldAmbienceStyle.SeveredWorkshop: return 174.61f;
+                case FieldAmbienceStyle.PuppeteerStage: return 82.41f;
                 default: return 110f;
             }
         }
