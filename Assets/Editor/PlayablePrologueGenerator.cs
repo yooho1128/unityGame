@@ -87,11 +87,16 @@ namespace ShadowTheater.EditorTools
             CreateRedactionLab();
             CreateSilentCourt();
             CreateBlackArchive();
+            CreateGlassCoast();
+            CreateDrownedGallery();
+            CreateNameIslands();
+            CreateMourningLighthouse();
+            CreateWidowMoonPalace();
             RegisterBuildScenes();
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             EditorSceneManager.OpenScene($"{SceneFolder}/Title.unity", OpenSceneMode.Single);
-            Debug.Log("[World] 프롤로그부터 제6막 검은 검열단까지 30개 픽셀 필드 생성 완료");
+            Debug.Log("[World] 프롤로그부터 제7막 기억의 바다까지 35개 픽셀 필드 생성 완료");
         }
 
         private static void GenerateDependencies()
@@ -572,7 +577,45 @@ namespace ShadowTheater.EditorTools
             CreateEncounter(map.fieldRoot, "ArchiveWarden", new Vector2Int(5,0), LoadShadow("zero_warden"),87,90);
             CreateBossEncounter(map.fieldRoot, "HighCensorNoxBoss", new Vector2Int(0,4), "high_censor_nox", "boss_high_censor_nox", new Vector2Int(90,93), "boss_high_censor_nox_pre", "boss_high_censor_nox_post", "boss_high_censor_nox_story_complete", "boss_high_censor_nox_reward_claimed", 93, new Color(.28f,.20f,.34f));
             CreatePortal(map.fieldRoot, "BackToCourt", new Vector2Int(0,-8), "SilentCourt", new Vector2Int(8,0), FacingDir.Down);
+            CreatePortal(map.fieldRoot, "ToGlassCoast", new Vector2Int(9,0), "GlassCoast", new Vector2Int(-8,0), FacingDir.Right, false, "act6_complete");
             FinishFieldScene(map, "BlackArchive");
+        }
+
+        private static void CreateGlassCoast()
+        {
+            var map=BeginFieldScene("GlassCoast","유리 해안",new Vector2Int(-8,0),new Color(.025f,.10f,.14f),Theme.MemorySea);
+            CreateAreaTrigger(map.fieldRoot,new Vector2Int(-8,0),"area_glass_coast");
+            CreateNpc(map.fieldRoot,"WaveBard",new Vector2Int(1,4),LoadShadow("wave_bard"),"npc_wave_bard","npc_wave_bard_intro","npc_wave_bard_repeat","talked_wave_bard",new Color(.44f,.82f,.9f));
+            CreateEncounter(map.fieldRoot,"GlassConchA",new Vector2Int(-4,-3),LoadShadow("glass_conch"),89,92); CreateEncounter(map.fieldRoot,"StarSandCrabA",new Vector2Int(5,-3),LoadShadow("star_sand_crab"),90,93);
+            CreatePortal(map.fieldRoot,"BackToBlackArchive",new Vector2Int(-9,0),"BlackArchive",new Vector2Int(8,0),FacingDir.Left); CreatePortal(map.fieldRoot,"ToDrownedGallery",new Vector2Int(9,0),"DrownedGallery",new Vector2Int(0,-7),FacingDir.Right,false,"quest_act7_01_coast_complete"); FinishFieldScene(map,"GlassCoast");
+        }
+        private static void CreateDrownedGallery()
+        {
+            var map=BeginFieldScene("DrownedGallery","물에 잠긴 화랑",new Vector2Int(0,-7),new Color(.02f,.07f,.12f),Theme.MemorySea);
+            CreateEncounter(map.fieldRoot,"FrameJellyfishA",new Vector2Int(-5,0),LoadShadow("frame_jellyfish"),92,95); CreateEncounter(map.fieldRoot,"PigmentWraithA",new Vector2Int(5,0),LoadShadow("pigment_wraith"),93,96);
+            CreateBossEncounter(map.fieldRoot,"DrownedPainterBoss",new Vector2Int(0,5),"drowned_painter","boss_drowned_painter",new Vector2Int(96,98),"boss_drowned_painter_pre","boss_drowned_painter_post","boss_drowned_painter_story_complete","boss_drowned_painter_reward_claimed",98,new Color(.3f,.64f,.82f));
+            CreatePortal(map.fieldRoot,"BackToCoast",new Vector2Int(0,-8),"GlassCoast",new Vector2Int(8,0),FacingDir.Down); CreatePortal(map.fieldRoot,"ToNameIslands",new Vector2Int(9,0),"NameIslands",new Vector2Int(-8,0),FacingDir.Right,false,"boss_drowned_painter_story_complete"); FinishFieldScene(map,"DrownedGallery");
+        }
+        private static void CreateNameIslands()
+        {
+            var map=BeginFieldScene("NameIslands","이름의 군도",new Vector2Int(-8,0),new Color(.025f,.09f,.15f),Theme.MemorySea);
+            CreateAreaTrigger(map.fieldRoot,new Vector2Int(-8,0),"area_name_islands"); CreateNpc(map.fieldRoot,"NameKeeper",new Vector2Int(1,4),LoadShadow("nameplate_turtle"),"npc_name_keeper","npc_name_keeper_intro","npc_name_keeper_repeat","talked_name_keeper",new Color(.45f,.82f,1f));
+            CreateEncounter(map.fieldRoot,"NameBirdA",new Vector2Int(-4,-3),LoadShadow("name_bird"),95,98); CreateEncounter(map.fieldRoot,"NameplateTurtleA",new Vector2Int(5,-3),LoadShadow("nameplate_turtle"),96,99);
+            CreatePortal(map.fieldRoot,"BackToGallery",new Vector2Int(-9,0),"DrownedGallery",new Vector2Int(8,0),FacingDir.Left); CreatePortal(map.fieldRoot,"ToLighthouse",new Vector2Int(9,0),"MourningLighthouse",new Vector2Int(0,-7),FacingDir.Right,false,"quest_act7_03_islands_complete"); FinishFieldScene(map,"NameIslands");
+        }
+        private static void CreateMourningLighthouse()
+        {
+            var map=BeginFieldScene("MourningLighthouse","애도의 등대",new Vector2Int(0,-7),new Color(.025f,.055f,.11f),Theme.MemorySea);
+            CreateEncounter(map.fieldRoot,"StormSwallowA",new Vector2Int(-5,0),LoadShadow("storm_swallow"),98,101); CreateEncounter(map.fieldRoot,"StormSwallowB",new Vector2Int(5,0),LoadShadow("storm_swallow"),99,102);
+            CreateBossEncounter(map.fieldRoot,"MourningKeeperBoss",new Vector2Int(0,5),"mourning_keeper","boss_mourning_keeper",new Vector2Int(102,104),"boss_mourning_keeper_pre","boss_mourning_keeper_post","boss_mourning_keeper_story_complete","boss_mourning_keeper_reward_claimed",104,new Color(.5f,.62f,.88f));
+            CreatePortal(map.fieldRoot,"BackToIslands",new Vector2Int(0,-8),"NameIslands",new Vector2Int(8,0),FacingDir.Down); CreatePortal(map.fieldRoot,"ToMoonPalace",new Vector2Int(9,0),"WidowMoonPalace",new Vector2Int(0,-6),FacingDir.Right,false,"boss_mourning_keeper_story_complete"); FinishFieldScene(map,"MourningLighthouse");
+        }
+        private static void CreateWidowMoonPalace()
+        {
+            var map=BeginFieldScene("WidowMoonPalace","미망인의 월궁",new Vector2Int(0,-6),new Color(.035f,.025f,.10f),Theme.MoonPalace);
+            CreateEncounter(map.fieldRoot,"MoonSeaGuard",new Vector2Int(-5,0),LoadShadow("mourning_keeper"),102,105); CreateEncounter(map.fieldRoot,"NameBirdMoon",new Vector2Int(5,0),LoadShadow("name_bird"),102,105);
+            CreateBossEncounter(map.fieldRoot,"TrueNameSeleneBoss",new Vector2Int(0,4),"boss_moonlit_widow","boss_true_name_selene",new Vector2Int(105,108),"boss_true_name_selene_pre","boss_true_name_selene_post","boss_true_name_selene_story_complete","boss_true_name_selene_reward_claimed",108,new Color(.78f,.7f,1f));
+            CreatePortal(map.fieldRoot,"BackToLighthouse",new Vector2Int(0,-8),"MourningLighthouse",new Vector2Int(8,0),FacingDir.Down); FinishFieldScene(map,"WidowMoonPalace");
         }
 
         private static FieldSceneContext BeginFieldScene(string mapId, string displayName, Vector2Int startCell,
@@ -777,6 +820,7 @@ namespace ShadowTheater.EditorTools
                     blocks.Add(new RectInt(-6,3,3,3)); blocks.Add(new RectInt(4,3,3,3));
                     blocks.Add(new RectInt(-5,-6,3,2)); blocks.Add(new RectInt(4,-6,3,2)); break;
                 case Theme.Censor:
+                case Theme.MemorySea:
                     blocks.Add(new RectInt(-7,2,3,4)); blocks.Add(new RectInt(5,2,3,4));
                     blocks.Add(new RectInt(-3,-5,2,3)); blocks.Add(new RectInt(2,-5,2,3)); break;
                 case Theme.Boss:
@@ -787,6 +831,7 @@ namespace ShadowTheater.EditorTools
                 case Theme.MarionetteOpera:
                 case Theme.PuppeteerStage:
                 case Theme.BlackArchive:
+                case Theme.MoonPalace:
                     blocks.Add(new RectInt(-7, -1, 2, 5)); blocks.Add(new RectInt(6, -1, 2, 5));
                     blocks.Add(new RectInt(-4, 6, 2, 2)); blocks.Add(new RectInt(3, 6, 2, 2)); break;
             }
@@ -1274,6 +1319,9 @@ namespace ShadowTheater.EditorTools
                         ambienceVolume = .31f, detailVolume = .22f, detailInterval = new Vector2(5f,9f),
                         lightPositions = new[] { new Vector2(-6f,4f), new Vector2(0f,5f), new Vector2(6f,4f), new Vector2(-4f,-4f), new Vector2(4f,-4f) }
                     };
+                case Theme.MemorySea:
+                case Theme.MoonPalace:
+                    return new EnvironmentProfile { globalColor=new Color(.30f,.55f,.76f),globalIntensity=.48f,pointColor=new Color(.42f,.84f,1f),secondaryLightColor=new Color(.72f,.58f,1f),pointIntensity=1.05f,fogColor=new Color(.18f,.42f,.62f),fogAlpha=.16f,moteColor=new Color(.7f,.9f,1f),fogDrift=new Vector2(.08f,.01f),moteDrift=new Vector2(.02f,.07f),fogPulse=.12f,motePulse=.4f,pulseSpeed=.65f,ambienceVolume=.29f,detailVolume=.22f,detailInterval=new Vector2(4f,8f),lightPositions=new[]{new Vector2(-6f,4f),new Vector2(0f,5f),new Vector2(6f,4f),new Vector2(-4f,-4f),new Vector2(4f,-4f)} };
                 case Theme.AshThrone:
                     return new EnvironmentProfile
                     {
@@ -1510,6 +1558,10 @@ namespace ShadowTheater.EditorTools
                     _groundTile = CreateTile("BlackArchive_Ground", new Color(.12f,.09f,.15f), new Color(.25f,.18f,.30f));
                     _wallTile = CreateTile("BlackArchive_Wall", new Color(.018f,.012f,.025f), new Color(.10f,.065f,.13f));
                     _accentTile = CreateTile("BlackArchive_Accent", new Color(.08f,.045f,.10f), new Color(.35f,.22f,.42f)); break;
+                case Theme.MemorySea:
+                    _groundTile=CreateTile("MemorySea_Ground",new Color(.14f,.29f,.39f),new Color(.30f,.55f,.67f)); _wallTile=CreateTile("MemorySea_Wall",new Color(.035f,.10f,.17f),new Color(.15f,.34f,.47f)); _accentTile=CreateTile("MemorySea_Accent",new Color(.08f,.21f,.31f),new Color(.43f,.78f,.88f)); break;
+                case Theme.MoonPalace:
+                    _groundTile=CreateTile("MoonPalace_Ground",new Color(.19f,.17f,.36f),new Color(.41f,.36f,.65f)); _wallTile=CreateTile("MoonPalace_Wall",new Color(.035f,.025f,.09f),new Color(.17f,.12f,.31f)); _accentTile=CreateTile("MoonPalace_Accent",new Color(.13f,.09f,.27f),new Color(.74f,.68f,1f)); break;
                 case Theme.AshThrone:
                     _groundTile = CreateTile("AshThrone_Ground", new Color(.25f,.10f,.09f), new Color(.42f,.15f,.10f));
                     _wallTile = CreateTile("AshThrone_Wall", new Color(.055f,.012f,.015f), new Color(.22f,.035f,.03f));
@@ -1926,7 +1978,8 @@ namespace ShadowTheater.EditorTools
                 "FrostPort", "WhiteArchive", "ForbiddenStacks", "MirrorVault", "BlueAbyss",
                 "VioletMarsh", "HowlVillage", "MoonfangForest", "BloodmoonRidge", "SleepingBeastDen",
                 "ThreadMarket", "ClockworkAlley", "MarionetteOpera", "SeveredWorkshop", "PuppeteerStage",
-                "ErasedStation", "BlankPrison", "RedactionLab", "SilentCourt", "BlackArchive" };
+                "ErasedStation", "BlankPrison", "RedactionLab", "SilentCourt", "BlackArchive",
+                "GlassCoast", "DrownedGallery", "NameIslands", "MourningLighthouse", "WidowMoonPalace" };
             var scenes = new List<EditorBuildSettingsScene>();
             var generatedPaths = new HashSet<string>();
             foreach (string name in names)
@@ -1990,7 +2043,7 @@ namespace ShadowTheater.EditorTools
             FrostPort, Archive, ForbiddenStacks, MirrorVault, BlueAbyss,
             VioletMarsh, HowlVillage, MoonfangForest, BloodmoonRidge, BeastDen,
             ThreadMarket, ClockworkAlley, MarionetteOpera, SeveredWorkshop, PuppeteerStage,
-            Censor, BlackArchive
+            Censor, BlackArchive, MemorySea, MoonPalace
         }
         private enum PixelTileKind { Grass, Path, Water, Cliff, Bush }
         private class EnvironmentProfile

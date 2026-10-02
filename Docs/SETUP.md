@@ -34,21 +34,21 @@ Assets/Scripts/
 
 ## 초반 데이터 생성
 1. 메뉴 `Tools > Shadow Theater > Generate Core Content Data` 실행
-2. `Assets/Data/Generated/Skills`의 스킬 120개 확인
+2. `Assets/Data/Generated/Skills`의 스킬 130개 확인
 3. `Assets/Data/Generated/Items`의 도구 4개 확인
-4. `Assets/Data/Generated/Shadows`의 스타터·프롤로그·제2~6막 그림자 57종 확인
+4. `Assets/Data/Generated/Shadows`의 스타터·프롤로그·제2~7막 그림자 67종 확인
 5. `Assets/Resources/ShadowDatabase.asset` 자동 등록 결과 확인
 
 원본은 `Resources/Data/CoreContentCatalog.json`이며 같은 메뉴를 반복 실행하면 ID를 기준으로 기존
 ScriptableObject를 갱신한다. 스타터 3종과 수집 가능한 일반 그림자에는 세 단계 성장 데이터가 들어 있다.
 전용 아트가 없는 동안에는 `Assets/Art/Generated/Core`에 기능 테스트용 실루엣을 생성한다.
 
-## 플레이 가능한 프롤로그·제2~6막 생성
+## 플레이 가능한 프롤로그·제2~7막 생성
 1. 메뉴 `Tools > Shadow Theater > Generate Playable Prologue` 실행
 2. 현재 열려 있는 씬의 변경 사항을 저장하거나 폐기할지 선택
 3. 생성이 끝나면 자동으로 열리는 `Assets/Scenes/Prologue/Title.unity`에서 Play
 
-이 메뉴는 프롤로그 4개 필드, `CurtainPass`, 제2~6막 각 5개 필드를 만들고 총 31개 씬을
+이 메뉴는 프롤로그 4개 필드, `CurtainPass`, 제2~7막 각 5개 필드를 만들고 총 36개 씬을
 Build Settings에 등록한다. 제2막은 `Docs/ACT2_CROWN_OF_ASH.md`, 제3막은
 `Docs/ACT3_FORBIDDEN_ARCHIVE.md` 참고.
 
@@ -341,8 +341,8 @@ Core/Legendary JSON 값을 바꾼 뒤 각 데이터 생성 메뉴를 다시 실�
 1. 필살기별 실제 파티클·녹음 SFX 에셋 교체
 2. 자동 생성 픽셀 타일·캐릭터를 최종 수작업 픽셀 아트와 녹음 환경음으로 교체
 3. 영문 UI·대사 문자열 카탈로그와 폰트 폴백 연결
-4. 제7막 `유리 해안`부터 기억의 바다 필드·그림자 데이터 제작
+4. 최종막 `뒤집힌 로비`부터 마지막 장막 필드·그림자 데이터 제작
 
-현재 `Generate Playable Prologue`는 프롤로그부터 제6막까지 30개 필드를 모두 32px 픽셀 규칙으로 생성한다.
+현재 `Generate Playable Prologue`는 프롤로그부터 제7막까지 35개 필드를 모두 32px 픽셀 규칙으로 생성한다.
 보이는 벽·수풀·폐허는 `Collision` 타일맵에 직접 그려져 이동 판정과 일치하며, NPC와 보스의 24×32 필드
 스프라이트도 `ShadowData`의 역할·색·등급에 따라 `Assets/Art/Generated/Characters`에 자동 생성된다.

@@ -11,7 +11,7 @@ namespace ShadowTheater.Field
         FrostPort, Archive, ForbiddenStacks, MirrorVault, BlueAbyss,
         VioletMarsh, HowlVillage, MoonfangForest, BloodmoonRidge, BeastDen,
         ThreadMarket, ClockworkAlley, MarionetteOpera, SeveredWorkshop, PuppeteerStage,
-        Censor, BlackArchive
+        Censor, BlackArchive, MemorySea, MoonPalace
     }
 
     /// <summary>지역별 지속 환경음과 간헐 원샷을 재생하며 씬/전투 전환 때 페이드한다.</summary>
@@ -216,6 +216,10 @@ namespace ShadowTheater.Field
                     return Sin(8, .31f) + Sin(37, .13f) + Sin(180, .06f) * Sin(4, .5f);
                 case FieldAmbienceStyle.BlackArchive:
                     return Sin(49, .4f) + Sin(24, .25f) + Sin(5, .2f) * Sin(98, .3f);
+                case FieldAmbienceStyle.MemorySea:
+                    return Sin(13,.28f)+Sin(29,.16f)+Sin(1200,.035f)*(0.5f+Sin(4,.5f));
+                case FieldAmbienceStyle.MoonPalace:
+                    return Sin(66,.38f)+Sin(33,.22f)+Sin(6,.18f)*Sin(132,.3f);
                 default:
                     return Sin(147, .46f) + Sin(73, .26f) + Sin(7, .20f) * Sin(151, .32f);
             }
@@ -277,6 +281,8 @@ namespace ShadowTheater.Field
                 case FieldAmbienceStyle.PuppeteerStage: return 82.41f;
                 case FieldAmbienceStyle.Censor: return 130.81f;
                 case FieldAmbienceStyle.BlackArchive: return 61.74f;
+                case FieldAmbienceStyle.MemorySea: return 987.77f;
+                case FieldAmbienceStyle.MoonPalace: return 110f;
                 default: return 110f;
             }
         }
