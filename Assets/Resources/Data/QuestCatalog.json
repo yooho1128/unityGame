@@ -100,19 +100,82 @@
     {
       "questId": "chapter_01_departure",
       "title": "지워진 이름을 따라서",
-      "summary": "검은 검열단의 흔적을 쫓아 안개숲 입구로 향하자.",
+      "summary": "달빛의 비극을 넘어 찢어진 장막길로 향하자.",
       "prerequisiteQuestId": "prologue_05_boss",
-      "nextQuestId": "",
+      "nextQuestId": "act2_01_border",
       "autoStart": false,
       "rewardGold": 300,
       "objectives": [
         {
-          "objectiveId": "reach_fog_forest",
+          "objectiveId": "reach_curtain_pass",
           "type": "Reach",
-          "targetId": "area_fog_forest_entrance",
-          "description": "안개숲 입구에 도착하기",
+          "targetId": "area_curtain_pass",
+          "description": "찢어진 장막길에 도착하기",
           "requiredCount": 1
         }
+      ]
+    },
+    {
+      "questId": "act2_01_border",
+      "title": "재가 내리는 국경",
+      "summary": "재의 국경에서 살아남은 정찰병의 기억을 확인하자.",
+      "prerequisiteQuestId": "chapter_01_departure",
+      "nextQuestId": "act2_02_city",
+      "autoStart": false,
+      "rewardGold": 380,
+      "objectives": [
+        {"objectiveId":"reach_ash_border","type":"Reach","targetId":"area_ash_border","description":"재의 국경 도착하기","requiredCount":1},
+        {"objectiveId":"talk_ash_scout","type":"Talk","targetId":"npc_ash_scout","description":"재의 정찰병과 대화하기","requiredCount":1}
+      ]
+    },
+    {
+      "questId": "act2_02_city",
+      "title": "불씨 성도의 기록",
+      "summary": "불씨 성도에서 왕국 멸망 당일의 기록을 찾아보자.",
+      "prerequisiteQuestId": "act2_01_border",
+      "nextQuestId": "act2_03_barracks",
+      "autoStart": false,
+      "rewardGold": 450,
+      "objectives": [
+        {"objectiveId":"reach_cinder_city","type":"Reach","targetId":"area_cinder_city","description":"불씨 성도 도착하기","requiredCount":1},
+        {"objectiveId":"talk_ember_archivist","type":"Talk","targetId":"npc_ember_archivist","description":"재의 기록관에게 진실 듣기","requiredCount":1}
+      ]
+    },
+    {
+      "questId": "act2_03_barracks",
+      "title": "무릎 꿇지 않은 명령",
+      "summary": "무너진 병영에서 반역자로 기록된 대장의 마지막 명령을 정화하자.",
+      "prerequisiteQuestId": "act2_02_city",
+      "nextQuestId": "act2_04_catacombs",
+      "autoStart": false,
+      "rewardGold": 600,
+      "objectives": [
+        {"objectiveId":"defeat_barracks_captain","type":"Defeat","targetId":"boss_barracks_captain","description":"무릎 꿇지 않는 대장 정화하기","requiredCount":1}
+      ]
+    },
+    {
+      "questId": "act2_04_catacombs",
+      "title": "왕가가 지운 이름",
+      "summary": "불씨 지하묘의 처형 명부를 되찾고 호위기사의 증언을 기록하자.",
+      "prerequisiteQuestId": "act2_03_barracks",
+      "nextQuestId": "act2_05_throne",
+      "autoStart": false,
+      "rewardGold": 750,
+      "objectives": [
+        {"objectiveId":"talk_ash_priest","type":"Talk","targetId":"npc_ash_priest","description":"잿빛 사제의 명부 확인하기","requiredCount":1},
+        {"objectiveId":"defeat_headless_guard","type":"Defeat","targetId":"boss_headless_guard","description":"목 없는 호위기사 정화하기","requiredCount":1}
+      ]
+    },
+    {
+      "questId": "act2_05_throne",
+      "title": "왕관의 재",
+      "summary": "왕관 없는 옥좌에서 재의 왕과 왕국 멸망의 진실을 마주하자.",
+      "prerequisiteQuestId": "act2_04_catacombs",
+      "nextQuestId": "",
+      "autoStart": false,
+      "rewardGold": 1200,
+      "objectives": [
+        {"objectiveId":"defeat_ash_king","type":"Defeat","targetId":"boss_ash_king","description":"재의 왕 정화하기","requiredCount":1}
       ]
     }
   ]

@@ -45,11 +45,17 @@ namespace ShadowTheater.EditorTools
             CreateEchoVillage();
             CreateMoonlitMeadow();
             CreateMoonlitBossStage();
+            CreateCurtainPass();
+            CreateAshBorder();
+            CreateCinderCity();
+            CreateRuinedBarracks();
+            CreateEmberCatacombs();
+            CreateCrownlessThrone();
             RegisterBuildScenes();
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             EditorSceneManager.OpenScene($"{SceneFolder}/Title.unity", OpenSceneMode.Single);
-            Debug.Log("[Prologue] 타이틀→극장→마을→초원→보스 프롤로그 생성 완료");
+            Debug.Log("[World] 프롤로그와 제2막 왕관의 재 6개 필드 생성 완료");
         }
 
         private static void GenerateDependencies()
@@ -145,7 +151,121 @@ namespace ShadowTheater.EditorTools
             CreateBoss(map.fieldRoot, new Vector2Int(0, 3));
             CreatePortal(map.fieldRoot, "BackToMeadow", new Vector2Int(0, -8), "MoonlitMeadow",
                 new Vector2Int(0, 7), FacingDir.Down);
+            CreatePortal(map.fieldRoot, "ToCurtainPass", new Vector2Int(9, 0), "CurtainPass",
+                new Vector2Int(-8, 0), FacingDir.Right, false, "boss_moonlit_story_complete");
             FinishFieldScene(map, "MoonlitBossStage");
+        }
+
+        private static void CreateCurtainPass()
+        {
+            var map = BeginFieldScene("CurtainPass", "찢어진 장막길", new Vector2Int(-8, 0),
+                new Color(.12f,.07f,.07f), Theme.AshWastes);
+            CreateAreaTrigger(map.fieldRoot, new Vector2Int(-8,0), "area_curtain_pass");
+            CreateNpc(map.fieldRoot, "CurtainWatcher", new Vector2Int(0,3), LoadShadow("banner_spearman"),
+                "npc_curtain_watcher", "npc_curtain_watcher_intro", "npc_curtain_watcher_repeat",
+                "talked_curtain_watcher", new Color(.84f,.48f,.34f));
+            CreateEncounter(map.fieldRoot, "AshHound", new Vector2Int(-2,-4), LoadShadow("ash_hound"), 11,14);
+            CreateEncounter(map.fieldRoot, "BannerSpearman", new Vector2Int(6,1), LoadShadow("banner_spearman"), 12,15);
+            CreatePortal(map.fieldRoot, "BackToMoonStage", new Vector2Int(-9,0), "MoonlitBossStage",
+                new Vector2Int(8,0), FacingDir.Left);
+            CreatePortal(map.fieldRoot, "ToAshBorder", new Vector2Int(9,0), "AshBorder",
+                new Vector2Int(-8,0), FacingDir.Right, false, "quest_chapter_01_departure_complete");
+            FinishFieldScene(map, "CurtainPass");
+        }
+
+        private static void CreateAshBorder()
+        {
+            var map = BeginFieldScene("AshBorder", "재의 국경", new Vector2Int(-8,0),
+                new Color(.15f,.065f,.045f), Theme.AshWastes);
+            CreateAreaTrigger(map.fieldRoot, new Vector2Int(-8,0), "area_ash_border");
+            CreateNpc(map.fieldRoot, "AshScout", new Vector2Int(1,4), LoadShadow("soot_archer"),
+                "npc_ash_scout", "npc_ash_scout_intro", "npc_ash_scout_repeat", "talked_ash_scout",
+                new Color(.92f,.39f,.24f));
+            CreateInteractable(map.fieldRoot, "AshBorderSign", new Vector2Int(-3,2), "sign_ash_border",
+                LoadShadow("tomb_candle"), new Color(.9f,.52f,.3f));
+            CreateEncounter(map.fieldRoot, "AshHoundA", new Vector2Int(-7,-2), LoadShadow("ash_hound"),13,16);
+            CreateEncounter(map.fieldRoot, "AshHoundB", new Vector2Int(3,5), LoadShadow("ash_hound"),14,17);
+            CreateEncounter(map.fieldRoot, "BannerSpearman", new Vector2Int(5,-3), LoadShadow("banner_spearman"),15,18);
+            CreatePortal(map.fieldRoot, "BackToCurtainPass", new Vector2Int(-9,0), "CurtainPass",
+                new Vector2Int(8,0), FacingDir.Left);
+            CreatePortal(map.fieldRoot, "ToCinderCity", new Vector2Int(9,0), "CinderCity",
+                new Vector2Int(-7,-1), FacingDir.Right, false, "quest_act2_01_border_complete");
+            FinishFieldScene(map, "AshBorder");
+        }
+
+        private static void CreateCinderCity()
+        {
+            var map = BeginFieldScene("CinderCity", "불씨 성도", new Vector2Int(-7,-1),
+                new Color(.14f,.075f,.055f), Theme.EmberCity);
+            CreateAreaTrigger(map.fieldRoot, new Vector2Int(-7,-1), "area_cinder_city");
+            CreateNpc(map.fieldRoot, "EmberArchivist", new Vector2Int(2,2), LoadShadow("furnace_keeper"),
+                "npc_ember_archivist", "npc_ember_archivist_intro", "npc_ember_archivist_repeat",
+                "talked_ember_archivist", new Color(1f,.62f,.34f));
+            CreateInteractable(map.fieldRoot, "CitySign", new Vector2Int(-2,-2), "sign_cinder_city",
+                LoadShadow("tomb_candle"), new Color(.96f,.58f,.31f));
+            CreateEncounter(map.fieldRoot, "FurnaceKeeper", new Vector2Int(7,2), LoadShadow("furnace_keeper"),16,20);
+            CreateEncounter(map.fieldRoot, "BellKnight", new Vector2Int(3,-2), LoadShadow("bell_knight"),18,21);
+            CreateEncounter(map.fieldRoot, "SootArcher", new Vector2Int(-3,1), LoadShadow("soot_archer"),17,20);
+            CreatePortal(map.fieldRoot, "BackToAshBorder", new Vector2Int(-9,0), "AshBorder",
+                new Vector2Int(8,0), FacingDir.Left);
+            CreatePortal(map.fieldRoot, "ToRuinedBarracks", new Vector2Int(0,8), "RuinedBarracks",
+                new Vector2Int(0,-7), FacingDir.Up, false, "quest_act2_02_city_complete");
+            CreatePortal(map.fieldRoot, "ToEmberCatacombs", new Vector2Int(9,0), "EmberCatacombs",
+                new Vector2Int(-8,0), FacingDir.Right, false, "boss_barracks_story_complete");
+            FinishFieldScene(map, "CinderCity");
+        }
+
+        private static void CreateRuinedBarracks()
+        {
+            var map = BeginFieldScene("RuinedBarracks", "무너진 병영", new Vector2Int(0,-7),
+                new Color(.11f,.05f,.045f), Theme.AshWastes);
+            CreateEncounter(map.fieldRoot, "SootArcherA", new Vector2Int(-3,4), LoadShadow("soot_archer"),19,22);
+            CreateEncounter(map.fieldRoot, "BannerSpearmanA", new Vector2Int(4,-2), LoadShadow("banner_spearman"),20,23);
+            CreateEncounter(map.fieldRoot, "BellKnightA", new Vector2Int(7,2), LoadShadow("bell_knight"),21,24);
+            CreateBossEncounter(map.fieldRoot, "KneelingCaptainBoss", new Vector2Int(0,5), "kneeling_captain",
+                "boss_barracks_captain", new Vector2Int(24,26), "boss_barracks_pre", "boss_barracks_post",
+                "boss_barracks_story_complete", "boss_barracks_reward_claimed", 26, new Color(.95f,.25f,.16f));
+            CreatePortal(map.fieldRoot, "BackToCinderCity", new Vector2Int(0,-8), "CinderCity",
+                new Vector2Int(0,7), FacingDir.Down);
+            CreatePortal(map.fieldRoot, "ToEmberCatacombs", new Vector2Int(9,0), "EmberCatacombs",
+                new Vector2Int(-8,0), FacingDir.Right, false, "boss_barracks_story_complete");
+            FinishFieldScene(map, "RuinedBarracks");
+        }
+
+        private static void CreateEmberCatacombs()
+        {
+            var map = BeginFieldScene("EmberCatacombs", "불씨 지하묘", new Vector2Int(-8,0),
+                new Color(.055f,.04f,.065f), Theme.Catacombs);
+            CreateNpc(map.fieldRoot, "AshPriest", new Vector2Int(-2,4), LoadShadow("ash_priest"),
+                "npc_ash_priest", "npc_ash_priest_intro", "npc_ash_priest_repeat", "talked_ash_priest",
+                new Color(.72f,.58f,.82f));
+            CreateEncounter(map.fieldRoot, "TombCandleA", new Vector2Int(-4,-4), LoadShadow("tomb_candle"),22,25);
+            CreateEncounter(map.fieldRoot, "TombCandleB", new Vector2Int(4,4), LoadShadow("tomb_candle"),23,26);
+            CreateEncounter(map.fieldRoot, "AshPriestShadow", new Vector2Int(5,-3), LoadShadow("ash_priest"),24,27);
+            CreateBossEncounter(map.fieldRoot, "HeadlessGuardBoss", new Vector2Int(0,4), "headless_guard",
+                "boss_headless_guard", new Vector2Int(27,29), "boss_headless_pre", "boss_headless_post",
+                "boss_catacombs_story_complete", "boss_headless_reward_claimed", 29, new Color(.54f,.31f,.48f));
+            CreatePortal(map.fieldRoot, "BackToCinderCity", new Vector2Int(-9,0), "CinderCity",
+                new Vector2Int(8,0), FacingDir.Left);
+            CreatePortal(map.fieldRoot, "BackToBarracks", new Vector2Int(9,0), "RuinedBarracks",
+                new Vector2Int(8,0), FacingDir.Left);
+            CreatePortal(map.fieldRoot, "ToCrownlessThrone", new Vector2Int(0,8), "CrownlessThrone",
+                new Vector2Int(0,-6), FacingDir.Up, false, "quest_act2_04_catacombs_complete");
+            FinishFieldScene(map, "EmberCatacombs");
+        }
+
+        private static void CreateCrownlessThrone()
+        {
+            var map = BeginFieldScene("CrownlessThrone", "왕관 없는 옥좌", new Vector2Int(0,-6),
+                new Color(.12f,.025f,.025f), Theme.AshThrone);
+            CreateEncounter(map.fieldRoot, "RoyalBellKnight", new Vector2Int(-5,1), LoadShadow("bell_knight"),26,29);
+            CreateEncounter(map.fieldRoot, "RoyalGuard", new Vector2Int(5,1), LoadShadow("headless_guard"),27,30);
+            CreateBossEncounter(map.fieldRoot, "AshKingBoss", new Vector2Int(0,4), "ash_king",
+                "boss_ash_king", new Vector2Int(30,32), "boss_ash_king_pre", "boss_ash_king_post",
+                "boss_ash_king_story_complete", "boss_ash_king_reward_claimed", 32, new Color(1f,.2f,.10f));
+            CreatePortal(map.fieldRoot, "BackToCatacombs", new Vector2Int(0,-8), "EmberCatacombs",
+                new Vector2Int(0,7), FacingDir.Down);
+            FinishFieldScene(map, "CrownlessThrone");
         }
 
         private static FieldSceneContext BeginFieldScene(string mapId, string displayName, Vector2Int startCell,
@@ -282,7 +402,20 @@ namespace ShadowTheater.EditorTools
                     blocks.Add(new RectInt(-6, 4, 2, 2)); blocks.Add(new RectInt(5, 2, 2, 3));
                     blocks.Add(new RectInt(-6, -5, 3, 2)); blocks.Add(new RectInt(2, -6, 2, 2));
                     blocks.Add(new RectInt(-1, 1, 2, 2)); break;
+                case Theme.AshWastes:
+                    blocks.Add(new RectInt(-7,3,3,2)); blocks.Add(new RectInt(4,4,3,2));
+                    blocks.Add(new RectInt(-5,-5,2,3)); blocks.Add(new RectInt(3,-6,2,3));
+                    blocks.Add(new RectInt(-1,-1,2,2)); break;
+                case Theme.EmberCity:
+                    blocks.Add(new RectInt(-6,3,3,3)); blocks.Add(new RectInt(4,3,3,3));
+                    blocks.Add(new RectInt(-6,-6,3,3)); blocks.Add(new RectInt(4,-6,3,3));
+                    blocks.Add(new RectInt(-1,1,2,4)); break;
+                case Theme.Catacombs:
+                    blocks.Add(new RectInt(-7,2,5,2)); blocks.Add(new RectInt(3,2,5,2));
+                    blocks.Add(new RectInt(-3,-5,2,5)); blocks.Add(new RectInt(2,-5,2,5));
+                    blocks.Add(new RectInt(-1,5,2,2)); break;
                 case Theme.Boss:
+                case Theme.AshThrone:
                     blocks.Add(new RectInt(-7, -1, 2, 5)); blocks.Add(new RectInt(6, -1, 2, 5));
                     blocks.Add(new RectInt(-4, 6, 2, 2)); blocks.Add(new RectInt(3, 6, 2, 2)); break;
             }
@@ -349,6 +482,26 @@ namespace ShadowTheater.EditorTools
             party.GetArrayElementAtIndex(0).objectReferenceValue = boss;
             Set(so, "levelRange", new Vector2Int(10, 12)); Set(so, "silhouette", go.GetComponent<SpriteRenderer>());
             Set(so, "purificationReward", boss); Set(so, "purificationRewardLevel", 12);
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static void CreateBossEncounter(Transform parent, string objectName, Vector2Int cell,
+            string shadowId, string encounterId, Vector2Int levels, string preDialogue, string postDialogue,
+            string victoryFlag, string rewardFlag, int rewardLevel, Color accent)
+        {
+            var boss = LoadShadow(shadowId);
+            var go = CreateFieldActor(parent, objectName, cell, boss, false);
+            go.transform.localScale = Vector3.one * 1.5f;
+            var trigger = go.AddComponent<BossEncounterTrigger>();
+            var so = new SerializedObject(trigger);
+            Set(so, "encounterId", encounterId);
+            var party = so.FindProperty("enemyParty"); party.arraySize = 1;
+            party.GetArrayElementAtIndex(0).objectReferenceValue = boss;
+            Set(so, "levelRange", levels); Set(so, "preBattleDialogueId", preDialogue);
+            Set(so, "victoryDialogueId", postDialogue); Set(so, "victoryFlag", victoryFlag);
+            Set(so, "accent", accent); Set(so, "purificationReward", boss);
+            Set(so, "purificationRewardLevel", rewardLevel); Set(so, "purificationRewardFlag", rewardFlag);
+            Set(so, "silhouette", go.GetComponent<SpriteRenderer>());
             so.ApplyModifiedPropertiesWithoutUndo();
         }
 
@@ -568,6 +721,50 @@ namespace ShadowTheater.EditorTools
                         ambienceVolume = .28f, detailVolume = .2f, detailInterval = new Vector2(4f,8f),
                         lightPositions = new[] { new Vector2(-6f,5f), new Vector2(1f,5f), new Vector2(6f,2f), new Vector2(-3f,-4f), new Vector2(4f,-5f) }
                     };
+                case Theme.AshWastes:
+                    return new EnvironmentProfile
+                    {
+                        globalColor = new Color(.56f,.29f,.22f), globalIntensity = .46f,
+                        pointColor = new Color(1f,.31f,.14f), secondaryLightColor = new Color(.83f,.58f,.36f),
+                        pointIntensity = 1.05f, fogColor = new Color(.38f,.16f,.12f), fogAlpha = .20f,
+                        moteColor = new Color(.95f,.39f,.18f), fogDrift = new Vector2(.19f,.014f),
+                        moteDrift = new Vector2(-.02f,.11f), fogPulse = .12f, motePulse = .44f, pulseSpeed = .9f,
+                        ambienceVolume = .29f, detailVolume = .24f, detailInterval = new Vector2(4f,7f),
+                        lightPositions = new[] { new Vector2(-6f,4f), new Vector2(5f,4f), new Vector2(-3f,-4f), new Vector2(5f,-5f) }
+                    };
+                case Theme.EmberCity:
+                    return new EnvironmentProfile
+                    {
+                        globalColor = new Color(.62f,.34f,.20f), globalIntensity = .50f,
+                        pointColor = new Color(1f,.56f,.22f), secondaryLightColor = new Color(.78f,.20f,.14f),
+                        pointIntensity = 1.2f, fogColor = new Color(.43f,.20f,.12f), fogAlpha = .16f,
+                        moteColor = new Color(1f,.69f,.30f), fogDrift = new Vector2(.09f,.01f),
+                        moteDrift = new Vector2(.01f,.09f), fogPulse = .09f, motePulse = .38f, pulseSpeed = .75f,
+                        ambienceVolume = .26f, detailVolume = .22f, detailInterval = new Vector2(5f,9f),
+                        lightPositions = new[] { new Vector2(-6f,5f), new Vector2(0f,5f), new Vector2(6f,5f), new Vector2(-4f,-4f), new Vector2(4f,-4f) }
+                    };
+                case Theme.Catacombs:
+                    return new EnvironmentProfile
+                    {
+                        globalColor = new Color(.30f,.23f,.38f), globalIntensity = .34f,
+                        pointColor = new Color(.30f,.84f,.88f), secondaryLightColor = new Color(.76f,.42f,.72f),
+                        pointIntensity = .9f, fogColor = new Color(.19f,.13f,.25f), fogAlpha = .24f,
+                        moteColor = new Color(.42f,.94f,.91f), fogDrift = new Vector2(.045f,.006f),
+                        moteDrift = new Vector2(0f,.045f), fogPulse = .16f, motePulse = .48f, pulseSpeed = .54f,
+                        ambienceVolume = .31f, detailVolume = .20f, detailInterval = new Vector2(6f,10f),
+                        lightPositions = new[] { new Vector2(-5f,4f), new Vector2(5f,4f), new Vector2(-5f,-4f), new Vector2(5f,-4f), new Vector2(0f,1f) }
+                    };
+                case Theme.AshThrone:
+                    return new EnvironmentProfile
+                    {
+                        globalColor = new Color(.46f,.12f,.10f), globalIntensity = .38f,
+                        pointColor = new Color(1f,.17f,.08f), secondaryLightColor = new Color(1f,.66f,.20f),
+                        pointIntensity = 1.45f, fogColor = new Color(.45f,.07f,.06f), fogAlpha = .27f,
+                        moteColor = new Color(1f,.40f,.12f), fogDrift = new Vector2(.16f,-.01f),
+                        moteDrift = new Vector2(-.025f,.14f), fogPulse = .2f, motePulse = .58f, pulseSpeed = 1.12f,
+                        ambienceVolume = .36f, detailVolume = .31f, detailInterval = new Vector2(3f,6f),
+                        lightPositions = new[] { new Vector2(-6f,2f), new Vector2(6f,2f), new Vector2(-3f,6f), new Vector2(3f,6f), new Vector2(0f,0f) }
+                    };
                 default:
                     return new EnvironmentProfile
                     {
@@ -704,6 +901,22 @@ namespace ShadowTheater.EditorTools
                     _groundTile = CreateTile("Meadow_Ground", new Color(.17f,.31f,.35f), new Color(.25f,.43f,.45f));
                     _wallTile = CreateTile("Meadow_Wall", new Color(.035f,.08f,.13f), new Color(.10f,.22f,.28f));
                     _accentTile = CreateTile("Meadow_Accent", new Color(.14f,.21f,.31f), new Color(.49f,.55f,.83f)); break;
+                case Theme.AshWastes:
+                    _groundTile = CreateTile("AshWastes_Ground", new Color(.31f,.17f,.13f), new Color(.45f,.23f,.16f));
+                    _wallTile = CreateTile("AshWastes_Wall", new Color(.11f,.045f,.035f), new Color(.28f,.10f,.07f));
+                    _accentTile = CreateTile("AshWastes_Accent", new Color(.25f,.10f,.07f), new Color(.82f,.31f,.16f)); break;
+                case Theme.EmberCity:
+                    _groundTile = CreateTile("EmberCity_Ground", new Color(.34f,.21f,.16f), new Color(.50f,.31f,.20f));
+                    _wallTile = CreateTile("EmberCity_Wall", new Color(.12f,.06f,.045f), new Color(.34f,.14f,.09f));
+                    _accentTile = CreateTile("EmberCity_Accent", new Color(.30f,.13f,.08f), new Color(.95f,.50f,.20f)); break;
+                case Theme.Catacombs:
+                    _groundTile = CreateTile("Catacombs_Ground", new Color(.19f,.16f,.23f), new Color(.29f,.23f,.34f));
+                    _wallTile = CreateTile("Catacombs_Wall", new Color(.045f,.03f,.065f), new Color(.14f,.08f,.18f));
+                    _accentTile = CreateTile("Catacombs_Accent", new Color(.11f,.09f,.16f), new Color(.32f,.72f,.69f)); break;
+                case Theme.AshThrone:
+                    _groundTile = CreateTile("AshThrone_Ground", new Color(.25f,.10f,.09f), new Color(.42f,.15f,.10f));
+                    _wallTile = CreateTile("AshThrone_Wall", new Color(.055f,.012f,.015f), new Color(.22f,.035f,.03f));
+                    _accentTile = CreateTile("AshThrone_Accent", new Color(.28f,.055f,.035f), new Color(1f,.36f,.10f)); break;
                 default:
                     _groundTile = CreateTile("Boss_Ground", new Color(.22f,.20f,.34f), new Color(.36f,.34f,.51f));
                     _wallTile = CreateTile("Boss_Wall", new Color(.025f,.018f,.055f), new Color(.15f,.10f,.24f));
@@ -735,7 +948,8 @@ namespace ShadowTheater.EditorTools
 
         private static void RegisterBuildScenes()
         {
-            string[] names = { "Title", "PrologueTheater", "EchoVillage", "MoonlitMeadow", "MoonlitBossStage" };
+            string[] names = { "Title", "PrologueTheater", "EchoVillage", "MoonlitMeadow", "MoonlitBossStage",
+                "CurtainPass", "AshBorder", "CinderCity", "RuinedBarracks", "EmberCatacombs", "CrownlessThrone" };
             var scenes = new List<EditorBuildSettingsScene>();
             var generatedPaths = new HashSet<string>();
             foreach (string name in names)
@@ -787,7 +1001,7 @@ namespace ShadowTheater.EditorTools
             if (!AssetDatabase.IsValidFolder($"{parent}/{name}")) AssetDatabase.CreateFolder(parent, name);
         }
 
-        private enum Theme { Theater, Village, Meadow, Boss }
+        private enum Theme { Theater, Village, Meadow, Boss, AshWastes, EmberCity, Catacombs, AshThrone }
         private class EnvironmentProfile
         {
             public Color globalColor, pointColor, secondaryLightColor, fogColor, moteColor;

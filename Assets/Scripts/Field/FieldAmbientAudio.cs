@@ -4,7 +4,11 @@ using UnityEngine;
 
 namespace ShadowTheater.Field
 {
-    public enum FieldAmbienceStyle { Theater, Village, Meadow, EclipseBoss }
+    public enum FieldAmbienceStyle
+    {
+        Theater, Village, Meadow, EclipseBoss,
+        AshWastes, EmberCity, Catacombs, AshThrone
+    }
 
     /// <summary>지역별 지속 환경음과 간헐 원샷을 재생하며 씬/전투 전환 때 페이드한다.</summary>
     public class FieldAmbientAudio : MonoBehaviour
@@ -170,6 +174,14 @@ namespace ShadowTheater.Field
                     return Sin(17, .24f) + Sin(29, .16f) + Sin(880, .06f) * (0.5f + Sin(3, .5f));
                 case FieldAmbienceStyle.Meadow:
                     return Sin(11, .28f) + Sin(23, .16f) + Sin(1320, .045f) * (0.5f + Sin(5, .5f));
+                case FieldAmbienceStyle.AshWastes:
+                    return Sin(9, .30f) + Sin(41, .13f) + Sin(730, .04f) * (0.5f + Sin(4, .5f));
+                case FieldAmbienceStyle.EmberCity:
+                    return Sin(21, .25f) + Sin(63, .12f) + Sin(980, .055f) * (0.5f + Sin(7, .5f));
+                case FieldAmbienceStyle.Catacombs:
+                    return Sin(8, .34f) + Sin(55, .10f) + Sin(233, .08f) * Sin(3, .5f);
+                case FieldAmbienceStyle.AshThrone:
+                    return Sin(98, .40f) + Sin(49, .24f) + Sin(5, .22f) * Sin(101, .32f);
                 default:
                     return Sin(147, .46f) + Sin(73, .26f) + Sin(7, .20f) * Sin(151, .32f);
             }
@@ -178,7 +190,8 @@ namespace ShadowTheater.Field
         private static AudioClip GenerateDetail(FieldAmbienceStyle ambienceStyle)
         {
             const int rate = 22050;
-            float duration = ambienceStyle == FieldAmbienceStyle.EclipseBoss ? 1.2f : 0.72f;
+            float duration = ambienceStyle == FieldAmbienceStyle.EclipseBoss ||
+                             ambienceStyle == FieldAmbienceStyle.AshThrone ? 1.2f : 0.72f;
             int count = Mathf.RoundToInt(rate * duration);
             var samples = new float[count];
             float frequency = DetailFrequency(ambienceStyle);
@@ -192,7 +205,8 @@ namespace ShadowTheater.Field
                 float hiss = ((noise >> 9) / 8388607f * 2f - 1f);
                 float tone = Mathf.Sin(Mathf.PI * 2f * frequency * t * (1f + p * .08f));
                 float mix = ambienceStyle == FieldAmbienceStyle.Meadow ? tone * .72f + hiss * .10f
-                    : ambienceStyle == FieldAmbienceStyle.EclipseBoss ? tone * .58f + hiss * .26f
+                    : ambienceStyle == FieldAmbienceStyle.EclipseBoss || ambienceStyle == FieldAmbienceStyle.AshThrone
+                        ? tone * .58f + hiss * .26f
                     : tone * .82f + hiss * .06f;
                 samples[i] = Mathf.Clamp(mix * envelope, -.9f, .9f);
             }
@@ -208,6 +222,10 @@ namespace ShadowTheater.Field
                 case FieldAmbienceStyle.Theater: return 523.25f;
                 case FieldAmbienceStyle.Village: return 659.25f;
                 case FieldAmbienceStyle.Meadow: return 1046.5f;
+                case FieldAmbienceStyle.AshWastes: return 196f;
+                case FieldAmbienceStyle.EmberCity: return 783.99f;
+                case FieldAmbienceStyle.Catacombs: return 146.83f;
+                case FieldAmbienceStyle.AshThrone: return 82.41f;
                 default: return 110f;
             }
         }

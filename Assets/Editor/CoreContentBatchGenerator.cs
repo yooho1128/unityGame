@@ -13,6 +13,10 @@ namespace ShadowTheater.EditorTools
     public static class CoreContentBatchGenerator
     {
         private const string CatalogPath = "Assets/Resources/Data/CoreContentCatalog.json";
+        private static readonly string[] AdditionalCatalogPaths =
+        {
+            "Assets/Resources/Data/Act2ContentCatalog.json"
+        };
         private const string SkillFolder = "Assets/Data/Generated/Skills";
         private const string ItemFolder = "Assets/Data/Generated/Items";
         private const string ShadowFolder = "Assets/Data/Generated/Shadows";
@@ -28,7 +32,13 @@ namespace ShadowTheater.EditorTools
                 return;
             }
 
-            var catalog = JsonUtility.FromJson<CoreCatalog>(File.ReadAllText(CatalogPath));
+            var catalogs = new List<CoreCatalog>
+            {
+                JsonUtility.FromJson<CoreCatalog>(File.ReadAllText(CatalogPath))
+            };
+            foreach (string path in AdditionalCatalogPaths)
+                if (File.Exists(path)) catalogs.Add(JsonUtility.FromJson<CoreCatalog>(File.ReadAllText(path)));
+            var catalog = Merge(catalogs);
             if (!Validate(catalog, out string error))
             {
                 Debug.LogError($"[CoreContent] {error}");
@@ -59,6 +69,12 @@ namespace ShadowTheater.EditorTools
                 error = "중복된 skillId가 있습니다.";
                 return false;
             }
+            var shadowIds = new HashSet<string>(catalog.shadows.Select(x => x.shadowId));
+            if (shadowIds.Count != catalog.shadows.Length)
+            {
+                error = "중복된 shadowId가 있습니다.";
+                return false;
+            }
             foreach (var shadow in catalog.shadows)
             {
                 var references = new List<string> { shadow.basicAttack };
@@ -75,6 +91,17 @@ namespace ShadowTheater.EditorTools
             }
             error = null;
             return true;
+        }
+
+        private static CoreCatalog Merge(IEnumerable<CoreCatalog> catalogs)
+        {
+            var valid = catalogs.Where(x => x != null).ToList();
+            return new CoreCatalog
+            {
+                skills = valid.SelectMany(x => x.skills ?? Array.Empty<SkillSpec>()).ToArray(),
+                items = valid.SelectMany(x => x.items ?? Array.Empty<ItemSpec>()).ToArray(),
+                shadows = valid.SelectMany(x => x.shadows ?? Array.Empty<ShadowSpec>()).ToArray()
+            };
         }
 
         private static void AddFormSkills(List<string> target, FormSpec form)

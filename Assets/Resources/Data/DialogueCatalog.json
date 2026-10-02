@@ -226,6 +226,78 @@
         { "speaker": "검은 검열단", "text": "마침내 모든 소음이 사라졌다. 슬픔도, 이름도, 다시 시작할 이유도.", "emotion": "cold" },
         { "speaker": "막", "text": "배드 엔딩 ― 텅 빈 막", "emotion": "ending" }
       ]
-    }
+    },
+    {
+      "dialogueId":"npc_curtain_watcher_intro",
+      "lines":[
+        {"speaker":"장막 파수꾼","text":"달의 무대가 끝났군. 저 너머부터는 왕관의 재가 길을 덮고 있다.","emotion":"serious"},
+        {"speaker":"장막 파수꾼","text":"불길보다 오래 남는 것은 명령이다. 아직도 그 명령에 묶인 그림자를 조심해.","emotion":"warning"}
+      ]
+    },
+    {"dialogueId":"npc_curtain_watcher_repeat","lines":[{"speaker":"장막 파수꾼","text":"돌아갈 길도 기억해 둬. 앞으로 나아가는 것만이 용기는 아니니까.","emotion":"calm"}]},
+    {
+      "dialogueId":"npc_ash_scout_intro",
+      "lines":[
+        {"speaker":"재의 정찰병","text":"국경은 무너지지 않았다. 왕이 안쪽에서 성문을 닫았을 뿐이다.","emotion":"bitter"},
+        {"speaker":"재의 정찰병","text":"불씨 성도로 가라. 기록관이라면 그날의 진짜 명령서를 아직 숨기고 있을 거다.","emotion":"serious"}
+      ]
+    },
+    {"dialogueId":"npc_ash_scout_repeat","lines":[{"speaker":"재의 정찰병","text":"불씨 사냥개는 적이 아니야. 돌아오지 않는 주인을 기다리고 있을 뿐이지.","emotion":"sad"}]},
+    {
+      "dialogueId":"npc_ember_archivist_intro",
+      "lines":[
+        {"speaker":"재의 기록관","text":"공식 기록에는 왕이 백성을 구하려 했다고 적혀 있어. 하지만 원본 명령서는 달라.","emotion":"serious"},
+        {"speaker":"재의 기록관","text":"왕은 성문을 봉쇄하고, 멸망의 증거와 함께 바깥 사람들을 태우라 명령했어.","emotion":"sad"}
+      ],
+      "choices":[
+        {"text":"죄까지 포함해 원본을 보존한다.","nextDialogueId":"npc_ember_record_keep","setFlag":"act2_record_preserved","setFlagValue":1,"flagChanges":[{"flag":"choice_memory","delta":1}]},
+        {"text":"생존자에게 공개할 때를 기다린다.","nextDialogueId":"npc_ember_record_wait","setFlag":"act2_record_delayed","setFlagValue":1,"flagChanges":[{"flag":"choice_compassion","delta":1}]},
+        {"text":"또 다른 전쟁을 막기 위해 태운다.","nextDialogueId":"npc_ember_record_burn","setFlag":"act2_record_burned","setFlagValue":1,"flagChanges":[{"flag":"choice_control","delta":1},{"flag":"choice_memory","delta":-1}]}
+      ]
+    },
+    {"dialogueId":"npc_ember_record_keep","lines":[{"speaker":"재의 기록관","text":"왕의 선의만 기억하는 것도, 악의만 기억하는 것도 진실은 아니겠지. 전부 맡기겠어.","emotion":"relief"}]},
+    {"dialogueId":"npc_ember_record_wait","lines":[{"speaker":"재의 기록관","text":"기억의 주인이 받아들일 준비도 중요하다는 말이군. 원본을 네 각본집에 봉인해 줘.","emotion":"calm"}]},
+    {"dialogueId":"npc_ember_record_burn","lines":[{"speaker":"재의 기록관","text":"그 선택이 왕의 선택과 얼마나 다른지… 언젠가 네가 직접 답해야 할 거야.","emotion":"fear"}]},
+    {"dialogueId":"npc_ember_archivist_repeat","lines":[{"speaker":"재의 기록관","text":"무너진 병영의 대장은 왕명을 거역했기에 반역자가 되었어. 그의 마지막 장면을 찾아 줘.","emotion":"serious"}]},
+    {
+      "dialogueId":"boss_barracks_pre",
+      "lines":[
+        {"speaker":"무릎 꿇지 않는 대장","text":"성문을 닫으라는 왕명은 백성을 죽이라는 명령이었다. 나는 아직 그 명령을 거부한다!","emotion":"rage"},
+        {"speaker":"극단주","text":"당신의 반역이 무엇을 지키려 했는지 각본에 남기겠다.","emotion":"resolve"}
+      ]
+    },
+    {"dialogueId":"boss_barracks_post","lines":[{"speaker":"무릎 꿇지 않는 대장","text":"반역자라는 이름 아래… 살아남은 이들이 있었음을 기억해 다오.","emotion":"relief","setFlag":"memory_bell_knight_restored","setFlagValue":1}]},
+    {
+      "dialogueId":"npc_ash_priest_intro",
+      "lines":[
+        {"speaker":"잿빛 사제","text":"왕가가 지운 처형 명부를 내 몸에 옮겨 적었다. 하지만 호위기사가 마지막 장을 가져갔다.","emotion":"serious"},
+        {"speaker":"잿빛 사제","text":"그의 목은 왕이 베었지만, 갑옷은 아직 진실을 지키고 있다.","emotion":"sad","setFlag":"memory_catacombs_names","setFlagValue":1}
+      ]
+    },
+    {"dialogueId":"npc_ash_priest_repeat","lines":[{"speaker":"잿빛 사제","text":"이름을 읽어 줘. 소리 내어 부르는 동안 그들은 완전히 사라지지 않아.","emotion":"calm"}]},
+    {
+      "dialogueId":"boss_headless_pre",
+      "lines":[
+        {"speaker":"목 없는 호위기사","text":"……왕명을 전달한다. 기록을 넘겨라. 목격자를 남기지 마라.","emotion":"cold"},
+        {"speaker":"각본집","text":"갑옷 안쪽에서 정반대의 문장이 울린다. 『진실을 지켜라.』","emotion":"mystery"}
+      ]
+    },
+    {"dialogueId":"boss_headless_post","lines":[{"speaker":"목 없는 호위기사","text":"충성은 왕의 거짓을 따르는 일이 아니었다… 이제 마지막 장을 돌려주겠다.","emotion":"relief","setFlag":"truth_ash_king_revealed","setFlagValue":1}]},
+    {
+      "dialogueId":"boss_ash_king_pre",
+      "lines":[
+        {"speaker":"재의 왕","text":"나는 왕국을 살리기 위해 감염된 기억을 태웠다. 왕이라면 같은 선택을 해야 한다!","emotion":"rage"},
+        {"speaker":"극단주","text":"선의로 시작한 명령도 타인의 이름을 지웠다면 비극이다. 마지막 장면을 함께 보자.","emotion":"resolve"}
+      ]
+    },
+    {
+      "dialogueId":"boss_ash_king_post",
+      "lines":[
+        {"speaker":"재의 왕","text":"백성을 구한 왕으로 기억되고 싶었다… 그래서 백성의 목소리부터 지워 버렸구나.","emotion":"sad"},
+        {"speaker":"각본집","text":"제2막 『왕관의 재』가 기록되었습니다.","emotion":"mystery","setFlag":"act2_complete","setFlagValue":1}
+      ]
+    },
+    {"dialogueId":"sign_ash_border","lines":[{"speaker":"그을린 표지판","text":"서쪽: 찢어진 장막길  ·  동쪽: 불씨 성도  ·  재폭풍 때는 무너진 벽 뒤로 대피할 것","emotion":"none"}]},
+    {"dialogueId":"sign_cinder_city","lines":[{"speaker":"왕국 안내도","text":"북쪽: 무너진 병영  ·  동쪽: 불씨 지하묘  ·  중앙대로: 왕궁(폐쇄)","emotion":"none"}]}
   ]
 }

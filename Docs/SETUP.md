@@ -34,19 +34,22 @@ Assets/Scripts/
 
 ## 초반 데이터 생성
 1. 메뉴 `Tools > Shadow Theater > Generate Core Content Data` 실행
-2. `Assets/Data/Generated/Skills`의 스킬 28개 확인
+2. `Assets/Data/Generated/Skills`의 스킬 48개 확인
 3. `Assets/Data/Generated/Items`의 도구 4개 확인
-4. `Assets/Data/Generated/Shadows`의 스타터·초반 그림자 7종 확인
+4. `Assets/Data/Generated/Shadows`의 스타터·프롤로그·제2막 그림자 17종 확인
 5. `Assets/Resources/ShadowDatabase.asset` 자동 등록 결과 확인
 
 원본은 `Resources/Data/CoreContentCatalog.json`이며 같은 메뉴를 반복 실행하면 ID를 기준으로 기존
 ScriptableObject를 갱신한다. 스타터 3종과 수집 가능한 일반 그림자에는 세 단계 성장 데이터가 들어 있다.
 전용 아트가 없는 동안에는 `Assets/Art/Generated/Core`에 기능 테스트용 실루엣을 생성한다.
 
-## 플레이 가능한 프롤로그 생성
+## 플레이 가능한 프롤로그·제2막 생성
 1. 메뉴 `Tools > Shadow Theater > Generate Playable Prologue` 실행
 2. 현재 열려 있는 씬의 변경 사항을 저장하거나 폐기할지 선택
 3. 생성이 끝나면 자동으로 열리는 `Assets/Scenes/Prologue/Title.unity`에서 Play
+
+이 메뉴는 프롤로그 4개 필드뿐 아니라 `CurtainPass`와 제2막 5개 필드도 만들고 총 11개 씬을
+Build Settings에 등록한다. 제2막 상세 동선과 보스 구성은 `Docs/ACT2_CROWN_OF_ASH.md` 참고.
 
 이 메뉴는 핵심·전설 데이터와 모든 UI 프리팹을 먼저 갱신한 뒤 아래 씬을 만든다.
 
@@ -57,6 +60,12 @@ ScriptableObject를 갱신한다. 스타터 3종과 수집 가능한 일반 그�
 | `EchoVillage` | 개방형 마을 필드, 표지판, 양방향 포털 |
 | `MoonlitMeadow` | 도착 목표, 등불지기, 야생 심볼 4종, 보스 입구 |
 | `MoonlitBossStage` | 달빛의 미망인 보스전과 정화 보상 |
+| `CurtainPass` | 프롤로그 이후 전환 퀘스트와 제2막 관문 |
+| `AshBorder` | 재 황무지 사냥터, 정찰병, 불씨 사냥개·창병 |
+| `CinderCity` | 제2막 거점, 기록관 선택지, 병영/지하묘 분기 |
+| `RuinedBarracks` | 병영 던전, 무릎 꿇지 않는 대장 보스전 |
+| `EmberCatacombs` | 묘실 던전, 잿빛 사제, 목 없는 호위기사 보스전 |
+| `CrownlessThrone` | 재의 왕 전설 보스전과 제2막 완료 플래그 |
 
 각 필드는 23×19 타일이며 가장자리 벽과 내부 장애물이 있는 개방형 2D 구조다. 한 줄 통로가 아니라
 장애물의 위·아래 경로를 선택할 수 있다. 지역별 타일 팔레트, 카메라 배경색, 지역명 HUD가 다르며
@@ -70,7 +79,8 @@ Light 2D를 배치한다. `Environment` 아래에는 안개 6겹과 빛가루 24
 설정에 연결한다. 이미 지정된 렌더 파이프라인은 보존한다.
 
 같은 `Environment`에는 `FieldAmbientAudio`가 포함된다. 지역별 6초 무봉제 지속음과 간헐 원샷을
-런타임에 생성하며 극장·마을·초원·월식 보스의 파형과 음역이 다르다. `ambienceClip`과 `detailClip`을
+런타임에 생성하며 극장·마을·초원·월식 보스·재 황무지·불씨 성도·지하묘·재의 왕좌의 파형과 음역이
+다르다. `ambienceClip`과 `detailClip`을
 지정하면 완성 음원으로 자동 교체되고, `ambienceVolume`, `detailVolume`, `detailInterval`로 지역별
 밀도를 조절한다. `MapLoader`와 `GameFlowController`가 맵 이동·전투 진입 전에 환경음 페이드를
 시작하며 필드 복귀 시 자동으로 다시 페이드 인한다.
@@ -81,6 +91,9 @@ Light 2D를 배치한다. `Environment` 아래에는 안개 6겹과 빛가루 24
 3. 야생 그림자를 기록하고 등불지기와 대화
 4. `prologue_04_echoes` 완료 후 북쪽 보스 입구 개방
 5. 달빛의 미망인을 정화해 파티 또는 각본 서고에 합류
+6. 찢어진 장막길과 재의 국경을 지나 불씨 성도 도착
+7. 병영과 지하묘의 두 증언을 모아 왕관 없는 옥좌 개방
+8. 재의 왕을 정화하고 `act2_complete` 플래그 획득
 
 달빛 초원 진입 포털은 초원 서쪽 입구를 체크포인트로 지정한다. 보스 무대처럼 다른 씬에서 패배한
 경우에도 `GameFlowController`가 달빛 초원 씬을 다시 로드하고 파티를 회복한다.
@@ -307,4 +320,4 @@ Core/Legendary JSON 값을 바꾼 뒤 각 데이터 생성 메뉴를 다시 실�
 1. 필살기별 실제 파티클·녹음 SFX 에셋 교체
 2. 프롤로그 실제 타일·캐릭터 아트와 녹음 환경음 교체
 3. 영문 UI·대사 문자열 카탈로그와 폰트 폴백 연결
-4. 제2막 `재의 국경`부터 실제 필드 씬·NPC·그림자 데이터 제작
+4. 제3막 `서리 나루`부터 금기의 서고 필드·그림자 데이터 제작
