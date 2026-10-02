@@ -31,6 +31,12 @@ namespace ShadowTheater.Field
             Current = this;
         }
 
+        private void OnEnable()
+        {
+            if (_grid == null) _grid = GetComponent<Grid>();
+            Current = this;
+        }
+
         private void OnDestroy()
         {
             if (Current == this) Current = null;

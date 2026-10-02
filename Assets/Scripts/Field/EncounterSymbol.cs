@@ -84,11 +84,19 @@ namespace ShadowTheater.Field
         private void OnEnable()
         {
             if (!_started) return;
-            transform.position = FieldGrid.Current.CellToWorld(_cell);
-            if (_ai == null) _ai = StartCoroutine(AIRoutine());
+            if (_ai == null) _ai = StartCoroutine(ResumeAfterFieldEnable());
         }
 
         private void OnDisable() => _ai = null;
+
+        private IEnumerator ResumeAfterFieldEnable()
+        {
+            // Re-enabling FieldRoot invokes sibling OnEnable callbacks in an unspecified
+            // order. Wait until FieldGrid has restored its static reference before using it.
+            while (FieldGrid.Current == null) yield return null;
+            transform.position = FieldGrid.Current.CellToWorld(_cell);
+            _ai = StartCoroutine(AIRoutine());
+        }
 
         private void OnTriggerEnter2D(Collider2D other)
         {
