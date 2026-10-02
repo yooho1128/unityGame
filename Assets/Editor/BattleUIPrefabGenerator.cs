@@ -25,6 +25,7 @@ namespace ShadowTheater.EditorTools
             bg.color = new Color(0.025f, 0.018f, 0.06f, 1f);
             var fxRoot = Rect("BattleFx", root.transform, Vector2.zero, Vector2.one);
             var fxDirector = root.AddComponent<BattleFxDirector>();
+            var sfxPlayer = root.AddComponent<BattleSfxPlayer>();
             var enemy = UnitPanel("Enemy", root.transform, new Vector2(0.08f, 0.57f), new Vector2(0.92f, 0.91f), true);
             var player = UnitPanel("Player", root.transform, new Vector2(0.08f, 0.30f), new Vector2(0.92f, 0.58f), false);
             var turn = Text("Turn", root.transform, new Vector2(0.04f, 0.94f), new Vector2(0.25f, 0.99f), 24, TextAnchor.MiddleLeft);
@@ -56,7 +57,7 @@ namespace ShadowTheater.EditorTools
             Set(so,"optionTemplate",template); Set(so,"messageText",message); Set(so,"fpText",fp); Set(so,"turnText",turn);
             Set(so,"autoText",auto.GetComponentInChildren<Text>()); Set(so,"speedText",speed.GetComponentInChildren<Text>());
             Set(so,"recordButton",record); Set(so,"escapeButton",escape); so.ApplyModifiedPropertiesWithoutUndo();
-            var fx = new SerializedObject(fxDirector); Set(fx,"fxRoot",fxRoot); Set(fx,"stageRoot",root.GetComponent<RectTransform>()); fx.ApplyModifiedPropertiesWithoutUndo();
+            var fx = new SerializedObject(fxDirector); Set(fx,"fxRoot",fxRoot); Set(fx,"stageRoot",root.GetComponent<RectTransform>()); Set(fx,"sfxPlayer",sfxPlayer); fx.ApplyModifiedPropertiesWithoutUndo();
             var bm = new SerializedObject(root.GetComponent<BattleManager>()); Set(bm,"presenterComponent",ui); bm.ApplyModifiedPropertiesWithoutUndo();
             UnityEditor.Events.UnityEventTools.AddPersistentListener(attack.onClick, ui.Attack);
             UnityEditor.Events.UnityEventTools.AddPersistentListener(skills.onClick, ui.OpenSkills);

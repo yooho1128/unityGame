@@ -11,16 +11,21 @@ namespace ShadowTheater.UI
     {
         [SerializeField] private RectTransform fxRoot;
         [SerializeField] private RectTransform stageRoot;
+        [SerializeField] private BattleSfxPlayer sfxPlayer;
+        [SerializeField] private Camera battleCamera;
 
         public IEnumerator Play(BattleUnitPanel attacker, BattleUnitPanel defender, SkillData skill,
                                 HitResult hit, float playbackSpeed)
         {
             if (attacker == null || skill == null) yield break;
             float speed = Mathf.Max(0.1f, playbackSpeed);
+            if (sfxPlayer == null) sfxPlayer = GetComponent<BattleSfxPlayer>();
+            if (battleCamera == null || !battleCamera.isActiveAndEnabled) battleCamera = Camera.main;
+            if (sfxPlayer != null) sfxPlayer.PlaySkill(skill);
             if (!skill.isUltimate)
             {
-                if (skill.target == SkillTarget.Self) yield return Pulse(attacker, 0.18f / speed);
-                else yield return Lunge(attacker, defender, hit, 0.18f / speed, skill.cameraShake);
+                if (skill.target == SkillTarget.Self) yield return Pulse(attacker, skill, 0.18f / speed, speed);
+                else yield return Lunge(attacker, defender, skill, hit, 0.18f / speed, skill.cameraShake, speed);
                 yield break;
             }
 
@@ -52,12 +57,13 @@ namespace ShadowTheater.UI
                 yield return null;
             }
 
-            if (skill.target == SkillTarget.Self) yield return Pulse(attacker, 0.24f / speed);
-            else yield return Lunge(attacker, defender, hit, 0.24f / speed, skill.cameraShake + 0.5f);
+            if (skill.target == SkillTarget.Self) yield return Pulse(attacker, skill, 0.24f / speed, speed);
+            else yield return Lunge(attacker, defender, skill, hit, 0.24f / speed, skill.cameraShake + 0.5f, speed);
 
             t = 0f;
             float burst = 0.22f / speed;
             Vector2 stagePosition = stageRoot != null ? stageRoot.anchoredPosition : Vector2.zero;
+            Vector3 cameraPosition = battleCamera != null ? battleCamera.transform.localPosition : Vector3.zero;
             while (t < burst)
             {
                 t += Time.unscaledDeltaTime;
@@ -67,6 +73,8 @@ namespace ShadowTheater.UI
                 AnimateMotif(layer, 1f + p, skill);
                 if (stageRoot != null)
                     stageRoot.anchoredPosition = stagePosition + Random.insideUnitCircle * (skill.cameraShake * 8f * (1f - p));
+                if (battleCamera != null)
+                    battleCamera.transform.localPosition = cameraPosition + (Vector3)(Random.insideUnitCircle * (skill.cameraShake * 0.1f * (1f - p)));
                 yield return null;
             }
 
@@ -74,44 +82,85 @@ namespace ShadowTheater.UI
             attacker.MotionRoot.localPosition = originalPosition;
             if (attacker.Portrait != null) attacker.Portrait.color = originalPortrait;
             if (stageRoot != null) stageRoot.anchoredPosition = stagePosition;
+            if (battleCamera != null) battleCamera.transform.localPosition = cameraPosition;
             Object.Destroy(layer.gameObject);
         }
 
-        private static IEnumerator Pulse(BattleUnitPanel panel, float duration)
+        private static IEnumerator HitStop(float duration)
+        {
+            if (duration <= 0f) yield break;
+            float previousScale = Time.timeScale;
+            if (previousScale <= 0f)
+            {
+                yield return new WaitForSecondsRealtime(duration);
+                yield break;
+            }
+            Time.timeScale = 0f;
+            try
+            {
+                yield return new WaitForSecondsRealtime(duration);
+            }
+            finally
+            {
+                if (Mathf.Approximately(Time.timeScale, 0f)) Time.timeScale = previousScale;
+            }
+        }
+
+        private IEnumerator Pulse(BattleUnitPanel panel, SkillData skill, float duration, float speed)
         {
             Vector3 start = panel.MotionRoot.localScale;
             float t = 0f;
+            bool impacted = false;
             while (t < duration)
             {
                 t += Time.unscaledDeltaTime;
                 float p = Mathf.Clamp01(t / duration);
                 panel.MotionRoot.localScale = start * (1f + Mathf.Sin(p * Mathf.PI) * 0.16f);
+                if (!impacted && p >= 0.5f)
+                {
+                    impacted = true;
+                    if (sfxPlayer != null) sfxPlayer.PlayImpact(skill);
+                    yield return HitStop(skill.hitStopDuration / Mathf.Sqrt(speed));
+                }
                 yield return null;
             }
             panel.MotionRoot.localScale = start;
         }
 
-        private IEnumerator Lunge(BattleUnitPanel attacker, BattleUnitPanel defender, HitResult hit,
-                                  float duration, float shakePower)
+        private IEnumerator Lunge(BattleUnitPanel attacker, BattleUnitPanel defender, SkillData skill, HitResult hit,
+                                  float duration, float shakePower, float speed)
         {
             RectTransform a = attacker.MotionRoot;
             Vector3 start = a.localPosition;
+            Vector3 cameraPosition = battleCamera != null ? battleCamera.transform.localPosition : Vector3.zero;
             Vector3 target = defender != null
                 ? start + (defender.MotionRoot.position - a.position) * 0.14f
                 : start + Vector3.right * 70f;
             float half = Mathf.Max(0.03f, duration * 0.5f);
             float t = 0f;
+            bool impacted = false;
             while (t < duration)
             {
                 t += Time.unscaledDeltaTime;
                 float p = Mathf.Clamp01(t / half);
                 a.localPosition = t < half ? Vector3.Lerp(start, target, EaseOut(p)) : Vector3.Lerp(target, start, EaseOut((t - half) / half));
                 if (t >= half && !hit.missed && defender != null)
+                {
                     defender.MotionRoot.localPosition += (Vector3)Random.insideUnitCircle * (shakePower * 4f);
+                    if (battleCamera != null)
+                        battleCamera.transform.localPosition = cameraPosition + (Vector3)(Random.insideUnitCircle * shakePower * 0.035f);
+                    if (!impacted)
+                    {
+                        impacted = true;
+                        if (sfxPlayer != null) sfxPlayer.PlayImpact(skill);
+                        yield return HitStop(skill.hitStopDuration / Mathf.Sqrt(speed));
+                    }
+                }
                 yield return null;
             }
             a.localPosition = start;
             if (defender != null) defender.ResetMotion();
+            if (battleCamera != null) battleCamera.transform.localPosition = cameraPosition;
         }
 
         private void BuildMotif(RectTransform layer, SkillData skill)

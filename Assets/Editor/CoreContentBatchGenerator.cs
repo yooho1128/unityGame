@@ -109,6 +109,9 @@ namespace ShadowTheater.EditorTools
                 skill.primaryFxColor = ParseColor(spec.primaryFxColor, Color.white);
                 skill.secondaryFxColor = ParseColor(spec.secondaryFxColor, skill.primaryFxColor);
                 skill.ultimateBurstCount = spec.ultimateBurstCount > 0 ? spec.ultimateBurstCount : 18;
+                skill.sfxVolume = spec.sfxVolume > 0f ? spec.sfxVolume : (spec.isUltimate ? 0.9f : 0.65f);
+                skill.sfxPitch = spec.sfxPitch > 0f ? spec.sfxPitch : 1f;
+                skill.hitStopDuration = spec.hitStopDuration > 0f ? spec.hitStopDuration : (spec.isUltimate ? 0.08f : 0.025f);
                 skill.cameraShake = spec.cameraShake;
                 EditorUtility.SetDirty(skill);
                 result[skill.skillId] = skill;
@@ -370,6 +373,7 @@ namespace ShadowTheater.EditorTools
             public int fpCost, fpGain, statusDuration;
             public int ultimateBurstCount;
             public float damageMultiplier, accuracy, bonusCritRate, healRatio, statusChance, cameraShake;
+            public float sfxVolume, sfxPitch, hitStopDuration;
             public bool isUltimate;
         }
         [Serializable] private class ItemSpec

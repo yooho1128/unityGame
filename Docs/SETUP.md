@@ -16,6 +16,7 @@ Assets/Scripts/
   UI/      DialogueController, DialogueChoiceView, QuestHudController,
            TitleScreenController, StarterSelectionController, StarterCardView,
            ScriptBookController, ScriptBookEntryView, BattleUIController, BattleFxDirector,
+           BattleSfxPlayer,
            BattleUnitPanel, BattleOptionButton, PartyStorageController, PartyStorageEntryView
   Editor/  DialogueUIPrefabGenerator, QuestHudPrefabGenerator, FrontEndPrefabGenerator,
            ScriptBookPrefabGenerator, BattleUIPrefabGenerator, PartyStoragePrefabGenerator,
@@ -234,6 +235,11 @@ HP·상태·FP·턴 표시와 공격, 스킬, 교체, 각본 기록, 도구, 도
 Core/Legendary JSON 값을 바꾼 뒤 각 데이터 생성 메뉴를 다시 실행하면 된다. 수집 가능한 9종의
 구원·원한 진명에는 각각 전용 필살기 1개, 총 18개가 연결되어 있다.
 
+전투 프리팹에는 `BattleSfxPlayer`도 자동 포함된다. `SkillData.sfxClip`이 비어 있으면 연출 테마별
+합성음을 런타임에 한 번 생성해 캐시하고, 음원이 지정되면 실제 음원을 우선 재생한다. `sfxVolume`,
+`sfxPitch`, `hitStopDuration`, `cameraShake`로 각 스킬의 감각을 조정할 수 있다. 카메라는 전투 시작 시
+활성 `MainCamera`를 자동 탐색하므로 별도 프리팹 참조가 필요 없다.
+
 ## 파티 편성·각본 서고 세팅
 1. 메뉴 `Tools > Shadow Theater > Generate Party and Storage UI` 실행
 2. 생성된 `Assets/Prefabs/UI/PartyStorageCanvas.prefab`을 각 필드 씬 최상위에 배치
@@ -250,7 +256,7 @@ Core/Legendary JSON 값을 바꾼 뒤 각 데이터 생성 메뉴를 다시 실�
 - 첫 번째 파티원이 전투의 선봉으로 사용되므로 순서 변경은 다음 인카운터부터 반영된다.
 
 ## 다음 작업 후보
-1. 필살기별 실제 파티클·SFX·카메라 임펄스 에셋 교체
+1. 필살기별 실제 파티클·녹음 SFX 에셋 교체
 2. 프롤로그 실제 아트·URP 2D 조명·환경음 교체
 3. 엔딩 갤러리와 회차 시작
 4. 설정/오디오/언어 메뉴
