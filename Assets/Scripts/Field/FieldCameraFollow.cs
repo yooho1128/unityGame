@@ -10,6 +10,8 @@ namespace ShadowTheater.Field
         [SerializeField] private bool clampToBounds = true;
         [SerializeField] private Vector2 minBounds = new Vector2(-10f, -8f);
         [SerializeField] private Vector2 maxBounds = new Vector2(10f, 8f);
+        [SerializeField] private bool pixelSnap;
+        [SerializeField, Min(1f)] private float pixelsPerUnit = 32f;
         private Vector3 _velocity;
 
         private void Start()
@@ -27,6 +29,13 @@ namespace ShadowTheater.Field
             }
             Vector3 desired = TargetPosition();
             transform.position = Vector3.SmoothDamp(transform.position, desired, ref _velocity, smoothTime);
+            if (pixelSnap)
+            {
+                Vector3 snapped = transform.position;
+                snapped.x = Mathf.Round(snapped.x * pixelsPerUnit) / pixelsPerUnit;
+                snapped.y = Mathf.Round(snapped.y * pixelsPerUnit) / pixelsPerUnit;
+                transform.position = snapped;
+            }
         }
 
         public void Snap()

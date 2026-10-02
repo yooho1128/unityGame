@@ -26,15 +26,21 @@ namespace ShadowTheater.EditorTools
         private const string SceneFolder = "Assets/Scenes/Prologue";
         private const string TileFolder = "Assets/Data/Generated/Tiles";
         private const string TileArtFolder = "Assets/Art/Generated/Tiles";
-        private const string MoonlitBackdropPath = "Assets/Art/Environment/MoonlitMeadow/MoonlitMeadow_Backdrop.png";
-        private const string PlayerFieldSpritePath = "Assets/Art/Characters/Player/TheaterDirector_Field.png";
+        private const string PixelCharacterFolder = "Assets/Art/Generated/Characters";
         private static Tile _groundTile;
         private static Tile _wallTile;
         private static Tile _accentTile;
+        private static Tile _meadowGrassTile;
+        private static Tile _meadowPathTile;
+        private static Tile _meadowWaterTile;
+        private static Tile _meadowCliffTile;
+        private static Tile _meadowBushTile;
         private static Material _litMaterial;
         private static Sprite _fogSprite;
         private static Sprite _moteSprite;
-        private static Sprite _playerFieldSprite;
+        private static Sprite _pixelEncounterSprite;
+        private static Sprite _pixelLanternKeeperSprite;
+        private static PlayerSpriteSet _pixelPlayerSprites;
 
         [MenuItem("Tools/Shadow Theater/Generate Playable Prologue")]
         public static void Generate()
@@ -134,11 +140,14 @@ namespace ShadowTheater.EditorTools
         {
             var map = BeginFieldScene("MoonlitMeadow", "달빛 초원", new Vector2Int(-8, 0),
                 new Color(0.035f, 0.065f, 0.11f), Theme.Meadow);
-            ApplyMoonlitMeadowVisualPass(map.fieldRoot);
+            ApplyMoonlitPixelPass(map.fieldRoot);
             CreateAreaTrigger(map.fieldRoot, new Vector2Int(-8, 0), "area_moonlit_meadow");
-            CreateNpc(map.fieldRoot, "LanternKeeperMoen", new Vector2Int(1, 5), LoadShadow("crow"),
+            var lanternKeeper = CreateNpc(map.fieldRoot, "LanternKeeperMoen", new Vector2Int(1, 5), LoadShadow("crow"),
                 "npc_lantern_keeper", "npc_lantern_keeper_intro", "npc_lantern_keeper_repeat",
                 "talked_npc_lantern_keeper", new Color(1f, 0.70f, 0.38f));
+            var keeperRenderer = lanternKeeper.GetComponent<SpriteRenderer>();
+            keeperRenderer.sprite = CreatePixelLanternKeeperSprite();
+            keeperRenderer.color = Color.white;
             CreateEncounter(map.fieldRoot, "PuppetSymbol", new Vector2Int(-3, 3), LoadShadow("puppet"), 3, 5);
             CreateEncounter(map.fieldRoot, "CrowSymbol", new Vector2Int(4, 4), LoadShadow("crow"), 3, 6);
             CreateEncounter(map.fieldRoot, "MaskSymbol", new Vector2Int(4, -3), LoadShadow("mask"), 4, 6);
@@ -334,57 +343,44 @@ namespace ShadowTheater.EditorTools
             go.transform.position = Cell(cell);
             go.tag = "Player";
             var renderer = go.GetComponent<SpriteRenderer>();
-            renderer.sprite = LoadPlayerFieldSprite();
-            if (renderer.sprite == null) renderer.sprite = LoadShadow("knight")?.silhouetteSprite;
-            renderer.color = _playerFieldSprite != null
-                ? new Color(.92f, .96f, 1f, 1f)
-                : new Color(0.10f, 0.055f, 0.16f, 1f);
+            var sprites = LoadPixelPlayerSprites();
+            renderer.sprite = sprites != null && sprites.down != null && sprites.down.Length > 0
+                ? sprites.down[0]
+                : LoadShadow("knight")?.silhouetteSprite;
+            renderer.color = Color.white;
             renderer.sortingOrder = 10;
-            if (_playerFieldSprite == null) ApplyLit(renderer);
-
-            EnsureEnvironmentAssets();
-            var shadow = new GameObject("GroundShadow", typeof(SpriteRenderer));
-            shadow.transform.SetParent(go.transform, false);
-            shadow.transform.localPosition = new Vector3(0f, .05f, 0f);
-            shadow.transform.localScale = new Vector3(.72f, .24f, 1f);
-            var shadowRenderer = shadow.GetComponent<SpriteRenderer>();
-            shadowRenderer.sprite = _moteSprite;
-            shadowRenderer.color = new Color(.015f, .02f, .055f, .48f);
-            shadowRenderer.sortingOrder = 9;
             go.GetComponent<Rigidbody2D>().gravityScale = 0f;
             go.GetComponent<CapsuleCollider2D>().size = new Vector2(0.55f, 0.75f);
             var so = new SerializedObject(go.GetComponent<PlayerController>());
             Set(so, "silhouette", renderer);
             so.ApplyModifiedPropertiesWithoutUndo();
+            if (sprites != null)
+            {
+                var pixelAnimator = go.AddComponent<PixelFieldAnimator>();
+                var animatorSo = new SerializedObject(pixelAnimator);
+                Set(animatorSo, "controller", go.GetComponent<PlayerController>());
+                Set(animatorSo, "target", renderer);
+                SetSpriteArray(animatorSo.FindProperty("downFrames"), sprites.down);
+                SetSpriteArray(animatorSo.FindProperty("upFrames"), sprites.up);
+                SetSpriteArray(animatorSo.FindProperty("sideFrames"), sprites.side);
+                animatorSo.ApplyModifiedPropertiesWithoutUndo();
+            }
             return go.GetComponent<PlayerController>();
         }
 
-        private static Sprite LoadPlayerFieldSprite()
+        private static PlayerSpriteSet LoadPixelPlayerSprites()
         {
-            if (_playerFieldSprite != null) return _playerFieldSprite;
-            var importer = AssetImporter.GetAtPath(PlayerFieldSpritePath) as TextureImporter;
-            if (importer == null)
+            if (_pixelPlayerSprites != null) return _pixelPlayerSprites;
+            _pixelPlayerSprites = new PlayerSpriteSet
             {
-                Debug.LogWarning($"[Prologue] 극단주 필드 스프라이트가 없습니다: {PlayerFieldSpritePath}");
-                return null;
-            }
-            importer.textureType = TextureImporterType.Sprite;
-            importer.spriteImportMode = SpriteImportMode.Single;
-            importer.spritePixelsPerUnit = 950f;
-            var textureSettings = new TextureImporterSettings();
-            importer.ReadTextureSettings(textureSettings);
-            textureSettings.spriteAlignment = (int)SpriteAlignment.Custom;
-            textureSettings.spritePivot = new Vector2(.5f, .035f);
-            importer.SetTextureSettings(textureSettings);
-            importer.alphaIsTransparency = true;
-            importer.mipmapEnabled = false;
-            importer.filterMode = FilterMode.Bilinear;
-            importer.wrapMode = TextureWrapMode.Clamp;
-            importer.maxTextureSize = 2048;
-            importer.textureCompression = TextureImporterCompression.CompressedHQ;
-            importer.SaveAndReimport();
-            _playerFieldSprite = AssetDatabase.LoadAssetAtPath<Sprite>(PlayerFieldSpritePath);
-            return _playerFieldSprite;
+                down = new[] { CreatePixelPlayerSprite("Director_Down_0", FacingDir.Down, 0),
+                               CreatePixelPlayerSprite("Director_Down_1", FacingDir.Down, 1) },
+                up = new[] { CreatePixelPlayerSprite("Director_Up_0", FacingDir.Up, 0),
+                             CreatePixelPlayerSprite("Director_Up_1", FacingDir.Up, 1) },
+                side = new[] { CreatePixelPlayerSprite("Director_Side_0", FacingDir.Right, 0),
+                               CreatePixelPlayerSprite("Director_Side_1", FacingDir.Right, 1) }
+            };
+            return _pixelPlayerSprites;
         }
 
         private static Camera CreateCamera(string name, Color background, Transform target, bool follow)
@@ -423,6 +419,12 @@ namespace ShadowTheater.EditorTools
 
         private static void PaintMap(Tilemap ground, Tilemap collision, Theme theme)
         {
+            if (theme == Theme.Meadow)
+            {
+                PaintMoonlitPixelMap(ground, collision);
+                return;
+            }
+
             for (int y = -9; y <= 9; y++)
             for (int x = -11; x <= 11; x++) ground.SetTile(new Vector3Int(x, y, 0), _groundTile);
             for (int x = -11; x <= 11; x++)
@@ -434,12 +436,6 @@ namespace ShadowTheater.EditorTools
             {
                 collision.SetTile(new Vector3Int(-11, y, 0), _wallTile);
                 collision.SetTile(new Vector3Int(11, y, 0), _wallTile);
-            }
-
-            if (theme == Theme.Meadow)
-            {
-                PaintMoonlitMeadowCollision(collision);
-                return;
             }
 
             var blocks = new List<RectInt>();
@@ -473,33 +469,51 @@ namespace ShadowTheater.EditorTools
                 for (int x = block.xMin; x < block.xMax; x++) collision.SetTile(new Vector3Int(x, y, 0), _accentTile);
         }
 
-        private static void PaintMoonlitMeadowCollision(Tilemap collision)
+        private static void PaintMoonlitPixelMap(Tilemap ground, Tilemap collision)
         {
-            for (int y = -8; y <= 8; y++)
-            for (int x = -10; x <= 10; x++)
+            for (int y = -9; y <= 9; y++)
+            for (int x = -11; x <= 11; x++)
             {
-                bool westEntrance = x >= -10 && x <= -6 && y >= -1 && y <= 1;
-                bool centralClearing = x >= -8 && x <= 5 && y >= -4 && y <= 2;
-                bool northernTrail = x >= -4 && x <= -2 && y >= 2 && y <= 8;
-                bool upperLoop = x >= -5 && x <= 4 && y >= 3 && y <= 5;
-                bool southernLoop = x >= -7 && x <= 5 && y >= -6 && y <= -3;
-                bool eastConnector = x >= 3 && x <= 5 && y >= -5 && y <= 4;
-                bool walkable = westEntrance || centralClearing || northernTrail || upperLoop ||
-                                southernLoop || eastConnector;
+                var cell = new Vector3Int(x, y, 0);
+                bool walkable = IsMoonlitWalkable(x, y);
+                bool path = IsMoonlitPath(x, y);
+                ground.SetTile(cell, path ? _meadowPathTile : _meadowGrassTile);
+                if (walkable) continue;
 
-                // Major painted landmarks get matching collision instead of allowing the
-                // player to walk over cliffs, the central grove, water, and lower ruins.
-                bool centralGrove = x >= -1 && x <= 1 && y >= 2 && y <= 4;
-                bool westernCliff = x <= -6 && y >= 2;
-                bool easternWater = x >= 6 && y >= -2;
-                bool lowerRuin = x >= -1 && x <= 1 && y <= -5;
-                if (!walkable || centralGrove || westernCliff || easternWater || lowerRuin)
-                    collision.SetTile(new Vector3Int(x, y, 0), _wallTile);
+                bool border = x == -11 || x == 11 || y == -9 || y == 9;
+                bool water = x >= 6 && y >= -2 && !border;
+                bool cliff = border || (x <= -6 && y >= 2) || (x >= -1 && x <= 1 && y <= -5);
+                collision.SetTile(cell, water ? _meadowWaterTile : cliff ? _meadowCliffTile : _meadowBushTile);
             }
         }
 
-        private static void CreateNpc(Transform parent, string name, Vector2Int cell, ShadowData visual,
-                                      string npcId, string first, string repeat, string flag, Color accent)
+        private static bool IsMoonlitWalkable(int x, int y)
+        {
+            bool westEntrance = x >= -10 && x <= -6 && y >= -1 && y <= 1;
+            bool centralClearing = x >= -8 && x <= 5 && y >= -4 && y <= 2;
+            bool northernTrail = x >= -4 && x <= -2 && y >= 2 && y <= 8;
+            bool upperLoop = x >= -5 && x <= 4 && y >= 3 && y <= 5;
+            bool southernLoop = x >= -7 && x <= 5 && y >= -6 && y <= -3;
+            bool eastConnector = x >= 3 && x <= 5 && y >= -5 && y <= 4;
+            bool centralGrove = x >= -1 && x <= 1 && y >= 2 && y <= 4;
+            bool westernCliff = x <= -6 && y >= 2;
+            bool easternWater = x >= 6 && y >= -2;
+            bool lowerRuin = x >= -1 && x <= 1 && y <= -5;
+            return (westEntrance || centralClearing || northernTrail || upperLoop || southernLoop || eastConnector)
+                   && !centralGrove && !westernCliff && !easternWater && !lowerRuin;
+        }
+
+        private static bool IsMoonlitPath(int x, int y)
+        {
+            bool westRoad = x <= -4 && y >= -1 && y <= 1;
+            bool northRoad = x >= -4 && x <= -2 && y >= 0;
+            bool southRoad = y >= -5 && y <= -3 && x >= -5 && x <= 4;
+            bool eastRoad = x >= 3 && x <= 4 && y >= -4 && y <= 4;
+            return IsMoonlitWalkable(x, y) && (westRoad || northRoad || southRoad || eastRoad);
+        }
+
+        private static GameObject CreateNpc(Transform parent, string name, Vector2Int cell, ShadowData visual,
+                                            string npcId, string first, string repeat, string flag, Color accent)
         {
             var go = CreateFieldActor(parent, name, cell, visual, false);
             var npc = go.AddComponent<StoryNpc>();
@@ -507,6 +521,7 @@ namespace ShadowTheater.EditorTools
             Set(so, "npcId", npcId); Set(so, "firstDialogueId", first); Set(so, "repeatDialogueId", repeat);
             Set(so, "completionFlag", flag); Set(so, "dialogueAccent", accent);
             so.ApplyModifiedPropertiesWithoutUndo();
+            return go;
         }
 
         private static void CreateInteractable(Transform parent, string name, Vector2Int cell, string dialogueId,
@@ -536,9 +551,9 @@ namespace ShadowTheater.EditorTools
         {
             var go = new GameObject(name, typeof(SpriteRenderer), typeof(CircleCollider2D), typeof(EncounterSymbol));
             go.transform.SetParent(parent); go.transform.position = Cell(cell);
-            var renderer = go.GetComponent<SpriteRenderer>(); renderer.sprite = shadow?.silhouetteSprite;
-            renderer.color = shadow != null ? shadow.accentColor * 0.72f : Color.black; renderer.sortingOrder = 7;
-            ApplyLit(renderer);
+            var renderer = go.GetComponent<SpriteRenderer>(); renderer.sprite = CreatePixelEncounterSprite();
+            renderer.color = shadow != null ? Color.Lerp(shadow.accentColor, Color.white, .22f) : Color.white;
+            renderer.sortingOrder = 7;
             go.GetComponent<CircleCollider2D>().radius = 0.38f;
             var so = new SerializedObject(go.GetComponent<EncounterSymbol>());
             Set(so, "leadShadow", shadow); Set(so, "levelRange", new Vector2Int(minLevel, maxLevel));
@@ -758,97 +773,50 @@ namespace ShadowTheater.EditorTools
             audioSo.ApplyModifiedPropertiesWithoutUndo();
         }
 
-        private static void ApplyMoonlitMeadowVisualPass(Transform fieldRoot)
+        private static void ApplyMoonlitPixelPass(Transform fieldRoot)
         {
-            var importer = AssetImporter.GetAtPath(MoonlitBackdropPath) as TextureImporter;
-            if (importer == null)
-            {
-                Debug.LogError($"[MoonlitMeadow] 배경 이미지가 없습니다: {MoonlitBackdropPath}");
-                return;
-            }
-
-            importer.textureType = TextureImporterType.Sprite;
-            importer.spriteImportMode = SpriteImportMode.Single;
-            importer.spritePixelsPerUnit = 64f;
-            importer.alphaIsTransparency = false;
-            importer.mipmapEnabled = false;
-            importer.filterMode = FilterMode.Bilinear;
-            importer.wrapMode = TextureWrapMode.Clamp;
-            importer.maxTextureSize = 2048;
-            importer.textureCompression = TextureImporterCompression.CompressedHQ;
-            importer.SaveAndReimport();
-
-            var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(MoonlitBackdropPath);
-            if (sprite == null)
-            {
-                Debug.LogError("[MoonlitMeadow] 배경 스프라이트 임포트에 실패했습니다.");
-                return;
-            }
-
             Transform grid = fieldRoot.Find("Grid");
             if (grid != null)
             {
                 var groundRenderer = grid.Find("Ground")?.GetComponent<TilemapRenderer>();
                 var collisionRenderer = grid.Find("Collision")?.GetComponent<TilemapRenderer>();
-                if (groundRenderer != null) groundRenderer.enabled = false;
-                if (collisionRenderer != null) collisionRenderer.enabled = false;
+                if (groundRenderer != null)
+                {
+                    groundRenderer.enabled = true;
+                    groundRenderer.mode = TilemapRenderer.Mode.Chunk;
+                }
+                if (collisionRenderer != null)
+                {
+                    collisionRenderer.enabled = true;
+                    collisionRenderer.mode = TilemapRenderer.Mode.Individual;
+                }
             }
-
-            var backdrop = new GameObject("MoonlitMeadowBackdrop", typeof(SpriteRenderer));
-            backdrop.transform.SetParent(fieldRoot, false);
-            backdrop.transform.localPosition = new Vector3(0f, 0f, 0f);
-            // 1672x941 at 64 PPU is 26.1x14.7 world units. Stretch only vertically
-            // to cover the 23x19 exploration grid while preserving horizontal detail.
-            backdrop.transform.localScale = new Vector3(1f, 1.3f, 1f);
-            var backdropRenderer = backdrop.GetComponent<SpriteRenderer>();
-            backdropRenderer.sprite = sprite;
-            backdropRenderer.color = new Color(.88f, .94f, 1f, 1f);
-            backdropRenderer.sortingOrder = -20;
 
             var camera = fieldRoot.GetComponentInChildren<Camera>();
             if (camera != null)
             {
-                camera.backgroundColor = new Color(.008f, .018f, .045f, 1f);
+                camera.backgroundColor = new Color(.025f, .035f, .085f, 1f);
+                camera.orthographicSize = 5.5f;
+                var follow = camera.GetComponent<FieldCameraFollow>();
+                if (follow != null)
+                {
+                    var followSo = new SerializedObject(follow);
+                    Set(followSo, "pixelSnap", true);
+                    Set(followSo, "pixelsPerUnit", 32f);
+                    followSo.ApplyModifiedPropertiesWithoutUndo();
+                }
                 var cameraData = camera.GetComponent<UniversalAdditionalCameraData>();
-                if (cameraData == null) cameraData = camera.gameObject.AddComponent<UniversalAdditionalCameraData>();
-                cameraData.renderPostProcessing = true;
+                if (cameraData != null) cameraData.renderPostProcessing = false;
             }
 
+            // Pixel tiles must stay crisp. The painterly fog and post-processing used by
+            // other regions are intentionally disabled for this classic handheld map.
+            Transform environment = fieldRoot.Find("Environment");
+            environment?.Find("FogLayers")?.gameObject.SetActive(false);
+            environment?.Find("Motes")?.gameObject.SetActive(false);
+
             const string profilePath = "Assets/Data/Generated/Materials/MoonlitMeadowVolume.asset";
-            var profile = AssetDatabase.LoadAssetAtPath<VolumeProfile>(profilePath);
-            // Volume components are sub-assets. A package reload can leave null/missing
-            // sub-assets that hierarchy-only Missing Script scans cannot see, so this
-            // generated profile is rebuilt atomically every time.
-            if (profile != null) AssetDatabase.DeleteAsset(profilePath);
-            profile = ScriptableObject.CreateInstance<VolumeProfile>();
-            profile.name = "MoonlitMeadowVolume";
-            AssetDatabase.CreateAsset(profile, profilePath);
-
-            if (!profile.TryGet(out Bloom bloom)) bloom = profile.Add<Bloom>();
-            bloom.active = true;
-            bloom.intensity.Override(.38f);
-            bloom.threshold.Override(.72f);
-            bloom.scatter.Override(.62f);
-
-            if (!profile.TryGet(out ColorAdjustments color)) color = profile.Add<ColorAdjustments>();
-            color.active = true;
-            color.postExposure.Override(-.08f);
-            color.contrast.Override(9f);
-            color.saturation.Override(-4f);
-
-            if (!profile.TryGet(out Vignette vignette)) vignette = profile.Add<Vignette>();
-            vignette.active = true;
-            vignette.color.Override(new Color(.015f, .025f, .085f));
-            vignette.intensity.Override(.27f);
-            vignette.smoothness.Override(.72f);
-            EditorUtility.SetDirty(profile);
-
-            var volumeObject = new GameObject("MoonlitMeadowPostFX", typeof(Volume));
-            volumeObject.transform.SetParent(fieldRoot, false);
-            var volume = volumeObject.GetComponent<Volume>();
-            volume.isGlobal = true;
-            volume.priority = 10f;
-            volume.sharedProfile = profile;
+            if (AssetDatabase.LoadMainAssetAtPath(profilePath) != null) AssetDatabase.DeleteAsset(profilePath);
         }
 
         private static EnvironmentProfile ProfileFor(Theme theme)
@@ -1051,6 +1019,12 @@ namespace ShadowTheater.EditorTools
             for (int i = 0; i < values.Length; i++) property.GetArrayElementAtIndex(i).objectReferenceValue = values[i];
         }
 
+        private static void SetSpriteArray(SerializedProperty property, Sprite[] values)
+        {
+            property.arraySize = values.Length;
+            for (int i = 0; i < values.Length; i++) property.GetArrayElementAtIndex(i).objectReferenceValue = values[i];
+        }
+
         private static void CreateThemeTiles(Theme theme)
         {
             EnsureEnvironmentAssets();
@@ -1065,9 +1039,12 @@ namespace ShadowTheater.EditorTools
                     _wallTile = CreateTile("Village_Wall", new Color(.05f,.09f,.15f), new Color(.13f,.25f,.34f));
                     _accentTile = CreateTile("Village_Accent", new Color(.10f,.22f,.29f), new Color(.38f,.72f,.78f)); break;
                 case Theme.Meadow:
-                    _groundTile = CreateTile("Meadow_Ground", new Color(.17f,.31f,.35f), new Color(.25f,.43f,.45f));
-                    _wallTile = CreateTile("Meadow_Wall", new Color(.035f,.08f,.13f), new Color(.10f,.22f,.28f));
-                    _accentTile = CreateTile("Meadow_Accent", new Color(.14f,.21f,.31f), new Color(.49f,.55f,.83f)); break;
+                    _meadowGrassTile = CreatePixelMeadowTile("MeadowPixel_Grass", PixelTileKind.Grass);
+                    _meadowPathTile = CreatePixelMeadowTile("MeadowPixel_Path", PixelTileKind.Path);
+                    _meadowWaterTile = CreatePixelMeadowTile("MeadowPixel_Water", PixelTileKind.Water);
+                    _meadowCliffTile = CreatePixelMeadowTile("MeadowPixel_Cliff", PixelTileKind.Cliff);
+                    _meadowBushTile = CreatePixelMeadowTile("MeadowPixel_Bush", PixelTileKind.Bush);
+                    _groundTile = _meadowGrassTile; _wallTile = _meadowCliffTile; _accentTile = _meadowBushTile; break;
                 case Theme.AshWastes:
                     _groundTile = CreateTile("AshWastes_Ground", new Color(.31f,.17f,.13f), new Color(.45f,.23f,.16f));
                     _wallTile = CreateTile("AshWastes_Wall", new Color(.11f,.045f,.035f), new Color(.28f,.10f,.07f));
@@ -1111,6 +1088,258 @@ namespace ShadowTheater.EditorTools
             var tile = AssetDatabase.LoadAssetAtPath<Tile>(tilePath);
             if (tile == null) { tile = ScriptableObject.CreateInstance<Tile>(); AssetDatabase.CreateAsset(tile, tilePath); }
             tile.sprite = AssetDatabase.LoadAssetAtPath<Sprite>(texturePath); EditorUtility.SetDirty(tile); return tile;
+        }
+
+        private static Tile CreatePixelMeadowTile(string name, PixelTileKind kind)
+        {
+            string texturePath = $"{TileArtFolder}/{name}.png";
+            var texture = new Texture2D(32, 32, TextureFormat.RGBA32, false);
+            Color grassDark = new Color32(37, 67, 83, 255);
+            Color grass = new Color32(50, 88, 98, 255);
+            Color grassLight = new Color32(68, 119, 119, 255);
+            Color pathDark = new Color32(74, 71, 104, 255);
+            Color path = new Color32(105, 96, 137, 255);
+            Color pathLight = new Color32(139, 125, 163, 255);
+            Color navy = new Color32(14, 31, 68, 255);
+            Color blue = new Color32(24, 63, 105, 255);
+            Color cyan = new Color32(55, 126, 151, 255);
+            Color rock = new Color32(41, 43, 70, 255);
+            Color rockLight = new Color32(92, 87, 126, 255);
+            Color outline = new Color32(17, 24, 48, 255);
+
+            for (int y = 0; y < 32; y++)
+            for (int x = 0; x < 32; x++)
+            {
+                Color color;
+                switch (kind)
+                {
+                    case PixelTileKind.Path:
+                        color = ((x / 4 + y / 4) & 1) == 0 ? path : pathDark;
+                        if ((x * 11 + y * 7) % 43 < 2) color = pathLight;
+                        break;
+                    case PixelTileKind.Water:
+                        color = (y / 3 & 1) == 0 ? navy : blue;
+                        if ((y == 7 || y == 21) && x % 8 >= 2 && x % 8 <= 5) color = cyan;
+                        break;
+                    case PixelTileKind.Cliff:
+                        color = rock;
+                        if (y >= 26) color = rockLight;
+                        if (y == 25 || x < 2 || x > 29) color = outline;
+                        if (y < 24 && (x == 8 || x == 21) && y % 9 < 5) color = rockLight;
+                        break;
+                    case PixelTileKind.Bush:
+                        color = grass;
+                        int dx = x - 16;
+                        int dy = y - 15;
+                        int distance = dx * dx + dy * dy;
+                        if (distance < 205) color = grassDark;
+                        if (distance < 145 && ((x / 4 + y / 3) & 1) == 0) color = new Color32(20, 58, 68, 255);
+                        if ((distance > 95 && distance < 155) && (x + y) % 5 < 2) color = grassLight;
+                        if (distance >= 205) color.a = 0f;
+                        break;
+                    default:
+                        color = ((x / 8 + y / 8) & 1) == 0 ? grass : new Color32(46, 82, 94, 255);
+                        if ((x * 7 + y * 13) % 97 < 2) color = grassLight;
+                        break;
+                }
+                texture.SetPixel(x, y, color);
+            }
+
+            texture.Apply(false, false);
+            File.WriteAllBytes(texturePath, texture.EncodeToPNG());
+            Object.DestroyImmediate(texture);
+            AssetDatabase.ImportAsset(texturePath, ImportAssetOptions.ForceSynchronousImport);
+            var importer = AssetImporter.GetAtPath(texturePath) as TextureImporter;
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.spritePixelsPerUnit = 32f;
+            importer.alphaIsTransparency = kind == PixelTileKind.Bush;
+            importer.mipmapEnabled = false;
+            importer.filterMode = FilterMode.Point;
+            importer.textureCompression = TextureImporterCompression.Uncompressed;
+            importer.SaveAndReimport();
+
+            string tilePath = $"{TileFolder}/{name}.asset";
+            var tile = AssetDatabase.LoadAssetAtPath<Tile>(tilePath);
+            if (tile == null)
+            {
+                tile = ScriptableObject.CreateInstance<Tile>();
+                AssetDatabase.CreateAsset(tile, tilePath);
+            }
+            tile.sprite = AssetDatabase.LoadAssetAtPath<Sprite>(texturePath);
+            tile.colliderType = Tile.ColliderType.Grid;
+            EditorUtility.SetDirty(tile);
+            return tile;
+        }
+
+        private static Sprite CreatePixelPlayerSprite(string name, FacingDir facing, int frame)
+        {
+            string path = $"{PixelCharacterFolder}/{name}.png";
+            var texture = new Texture2D(24, 32, TextureFormat.RGBA32, false);
+            var clear = new Color(0f, 0f, 0f, 0f);
+            for (int y = 0; y < 32; y++)
+            for (int x = 0; x < 24; x++) texture.SetPixel(x, y, clear);
+
+            Color outline = new Color32(19, 18, 39, 255);
+            Color hair = new Color32(31, 34, 63, 255);
+            Color hairLight = new Color32(63, 70, 119, 255);
+            Color coat = new Color32(42, 35, 74, 255);
+            Color coatLight = new Color32(78, 59, 119, 255);
+            Color skin = new Color32(224, 190, 181, 255);
+            Color cyan = new Color32(75, 211, 222, 255);
+            Color pale = new Color32(211, 218, 224, 255);
+
+            int leftStep = frame == 0 ? 1 : 0;
+            int rightStep = frame == 0 ? 0 : 1;
+            FillPixelRect(texture, 7, 2 + leftStep, 4, 7, outline);
+            FillPixelRect(texture, 13, 2 + rightStep, 4, 7, outline);
+            FillPixelRect(texture, 8, 3 + leftStep, 2, 5, coatLight);
+            FillPixelRect(texture, 14, 3 + rightStep, 2, 5, coatLight);
+            FillPixelRect(texture, 4, 9, 16, 10, outline);
+            FillPixelRect(texture, 6, 10, 12, 10, coat);
+            FillPixelRect(texture, 5, 10, 3, 7, coatLight);
+            FillPixelRect(texture, 16, 10, 3, 7, coatLight);
+            FillPixelRect(texture, 10, 10, 4, 8, new Color32(28, 25, 52, 255));
+            FillPixelRect(texture, 10, 17, 4, 2, pale);
+
+            if (facing == FacingDir.Up)
+            {
+                FillPixelRect(texture, 6, 19, 12, 10, outline);
+                FillPixelRect(texture, 7, 20, 10, 9, hair);
+                FillPixelRect(texture, 8, 27, 8, 3, hairLight);
+                FillPixelRect(texture, 6, 21, 2, 5, hairLight);
+                FillPixelRect(texture, 16, 21, 2, 5, hairLight);
+            }
+            else if (facing == FacingDir.Right)
+            {
+                FillPixelRect(texture, 6, 19, 12, 10, outline);
+                FillPixelRect(texture, 7, 20, 10, 9, hair);
+                FillPixelRect(texture, 13, 21, 5, 5, skin);
+                FillPixelRect(texture, 16, 23, 2, 1, cyan);
+                FillPixelRect(texture, 8, 27, 8, 3, hairLight);
+                FillPixelRect(texture, 5, 11, 4, 6, outline);
+                FillPixelRect(texture, 6, 12, 3, 4, cyan);
+            }
+            else
+            {
+                FillPixelRect(texture, 6, 19, 12, 10, outline);
+                FillPixelRect(texture, 7, 20, 10, 8, skin);
+                FillPixelRect(texture, 7, 25, 10, 5, hair);
+                FillPixelRect(texture, 6, 22, 3, 6, hair);
+                FillPixelRect(texture, 15, 22, 3, 6, hair);
+                FillPixelRect(texture, 9, 23, 2, 1, cyan);
+                FillPixelRect(texture, 13, 23, 2, 1, cyan);
+                FillPixelRect(texture, 5, 11, 4, 6, outline);
+                FillPixelRect(texture, 6, 12, 3, 4, cyan);
+            }
+
+            texture.Apply(false, false);
+            File.WriteAllBytes(path, texture.EncodeToPNG());
+            Object.DestroyImmediate(texture);
+            AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceSynchronousImport);
+            var importer = AssetImporter.GetAtPath(path) as TextureImporter;
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.spritePixelsPerUnit = 24f;
+            var settings = new TextureImporterSettings();
+            importer.ReadTextureSettings(settings);
+            settings.spriteAlignment = (int)SpriteAlignment.Custom;
+            settings.spritePivot = new Vector2(.5f, 0f);
+            importer.SetTextureSettings(settings);
+            importer.alphaIsTransparency = true;
+            importer.mipmapEnabled = false;
+            importer.filterMode = FilterMode.Point;
+            importer.textureCompression = TextureImporterCompression.Uncompressed;
+            importer.SaveAndReimport();
+            return AssetDatabase.LoadAssetAtPath<Sprite>(path);
+        }
+
+        private static void FillPixelRect(Texture2D texture, int x, int y, int width, int height, Color color)
+        {
+            for (int py = y; py < y + height; py++)
+            for (int px = x; px < x + width; px++) texture.SetPixel(px, py, color);
+        }
+
+        private static Sprite CreatePixelEncounterSprite()
+        {
+            if (_pixelEncounterSprite != null) return _pixelEncounterSprite;
+            const string path = PixelCharacterFolder + "/ShadowSymbol.png";
+            var texture = NewClearTexture(24, 24);
+            Color outline = new Color32(18, 16, 42, 255);
+            Color body = new Color32(76, 57, 116, 255);
+            Color light = new Color32(132, 91, 174, 255);
+            Color eye = new Color32(130, 241, 232, 255);
+            FillPixelRect(texture, 8, 5, 8, 13, outline);
+            FillPixelRect(texture, 9, 7, 6, 10, body);
+            for (int i = 0; i < 7; i++)
+            {
+                FillPixelRect(texture, 3 + i, 8 + i / 2, 1, 7 - i, i < 2 ? outline : body);
+                FillPixelRect(texture, 20 - i, 8 + i / 2, 1, 7 - i, i < 2 ? outline : body);
+            }
+            FillPixelRect(texture, 7, 17, 3, 3, outline);
+            FillPixelRect(texture, 14, 17, 3, 3, outline);
+            FillPixelRect(texture, 9, 14, 2, 2, eye);
+            FillPixelRect(texture, 13, 14, 2, 2, eye);
+            FillPixelRect(texture, 10, 8, 4, 2, light);
+            _pixelEncounterSprite = SavePixelSprite(texture, path, 24f);
+            return _pixelEncounterSprite;
+        }
+
+        private static Sprite CreatePixelLanternKeeperSprite()
+        {
+            if (_pixelLanternKeeperSprite != null) return _pixelLanternKeeperSprite;
+            const string path = PixelCharacterFolder + "/LanternKeeper.png";
+            var texture = NewClearTexture(24, 32);
+            Color outline = new Color32(20, 22, 45, 255);
+            Color cloak = new Color32(37, 73, 83, 255);
+            Color cloakLight = new Color32(63, 116, 116, 255);
+            Color amber = new Color32(255, 181, 76, 255);
+            Color flame = new Color32(255, 232, 139, 255);
+            FillPixelRect(texture, 7, 3, 10, 17, outline);
+            FillPixelRect(texture, 8, 4, 8, 15, cloak);
+            FillPixelRect(texture, 5, 16, 14, 11, outline);
+            FillPixelRect(texture, 7, 17, 10, 9, cloak);
+            FillPixelRect(texture, 9, 19, 6, 5, new Color32(13, 35, 43, 255));
+            FillPixelRect(texture, 10, 21, 1, 1, amber);
+            FillPixelRect(texture, 13, 21, 1, 1, amber);
+            FillPixelRect(texture, 8, 26, 8, 3, cloakLight);
+            FillPixelRect(texture, 17, 8, 4, 7, outline);
+            FillPixelRect(texture, 18, 9, 2, 5, amber);
+            FillPixelRect(texture, 18, 11, 2, 2, flame);
+            _pixelLanternKeeperSprite = SavePixelSprite(texture, path, 24f);
+            return _pixelLanternKeeperSprite;
+        }
+
+        private static Texture2D NewClearTexture(int width, int height)
+        {
+            var texture = new Texture2D(width, height, TextureFormat.RGBA32, false);
+            var clear = new Color(0f, 0f, 0f, 0f);
+            for (int y = 0; y < height; y++)
+            for (int x = 0; x < width; x++) texture.SetPixel(x, y, clear);
+            return texture;
+        }
+
+        private static Sprite SavePixelSprite(Texture2D texture, string path, float pixelsPerUnit)
+        {
+            texture.Apply(false, false);
+            File.WriteAllBytes(path, texture.EncodeToPNG());
+            Object.DestroyImmediate(texture);
+            AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceSynchronousImport);
+            var importer = AssetImporter.GetAtPath(path) as TextureImporter;
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.spritePixelsPerUnit = pixelsPerUnit;
+            var settings = new TextureImporterSettings();
+            importer.ReadTextureSettings(settings);
+            settings.spriteAlignment = (int)SpriteAlignment.Custom;
+            settings.spritePivot = new Vector2(.5f, 0f);
+            importer.SetTextureSettings(settings);
+            importer.alphaIsTransparency = true;
+            importer.mipmapEnabled = false;
+            importer.filterMode = FilterMode.Point;
+            importer.textureCompression = TextureImporterCompression.Uncompressed;
+            importer.SaveAndReimport();
+            return AssetDatabase.LoadAssetAtPath<Sprite>(path);
         }
 
         private static void RegisterBuildScenes()
@@ -1167,6 +1396,7 @@ namespace ShadowTheater.EditorTools
             Ensure("Assets", "Scenes"); Ensure("Assets/Scenes", "Prologue");
             Ensure("Assets/Data/Generated", "Tiles"); Ensure("Assets/Art/Generated", "Tiles");
             Ensure("Assets/Data/Generated", "Materials"); Ensure("Assets/Art/Generated", "Atmosphere");
+            Ensure("Assets/Art/Generated", "Characters");
         }
         private static void Ensure(string parent, string name)
         {
@@ -1174,6 +1404,7 @@ namespace ShadowTheater.EditorTools
         }
 
         private enum Theme { Theater, Village, Meadow, Boss, AshWastes, EmberCity, Catacombs, AshThrone }
+        private enum PixelTileKind { Grass, Path, Water, Cliff, Bush }
         private class EnvironmentProfile
         {
             public Color globalColor, pointColor, secondaryLightColor, fogColor, moteColor;
@@ -1182,6 +1413,7 @@ namespace ShadowTheater.EditorTools
             public Vector2 fogDrift, moteDrift, detailInterval;
             public Vector2[] lightPositions;
         }
+        private class PlayerSpriteSet { public Sprite[] down, up, side; }
         private class FieldSceneContext { public Scene scene; public Transform fieldRoot; }
     }
 }
