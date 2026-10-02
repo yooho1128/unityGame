@@ -184,26 +184,45 @@ namespace ShadowTheater.EditorTools
             importer.mipmapEnabled = false;
             importer.filterMode = FilterMode.Bilinear;
             importer.spritePixelsPerUnit = 256f;
-            var source = AssetDatabase.LoadAssetAtPath<Texture2D>(spec.sheetPath);
-            if (source == null) return;
-            int width = source.width;
-            int height = source.height;
-            float cellWidth = width / 4f;
+            importer.npotScale = TextureImporterNPOTScale.None;
+
+            // Texture2D.width can report the platform-resized import size (for example,
+            // a 2172 px source imported at the default 2048 px maximum). SpriteMetaData
+            // rects, however, are expressed in source-image pixels. Mixing the two makes
+            // the final slice cross the PNG boundary on some Unity/editor settings.
+            importer.GetSourceTextureWidthAndHeight(out int sourceWidth, out int sourceHeight);
+            if (sourceWidth < FormKeys.Length || sourceHeight < 1)
+            {
+                Debug.LogError($"[GrowthBatch] 이미지 크기가 올바르지 않습니다: {spec.sheetPath} ({sourceWidth}x{sourceHeight})");
+                return;
+            }
+
             var metadata = new SpriteMetaData[4];
             for (int i = 0; i < metadata.Length; i++)
             {
+                // Integer boundaries also support sheets whose width is not divisible by four.
+                int left = sourceWidth * i / metadata.Length;
+                int right = sourceWidth * (i + 1) / metadata.Length;
                 metadata[i] = new SpriteMetaData
                 {
                     name = $"{spec.shadowId}_{FormKeys[i]}",
                     alignment = (int)SpriteAlignment.BottomCenter,
                     pivot = new Vector2(0.5f, 0f),
-                    rect = new Rect(cellWidth * i, 0, cellWidth, height)
+                    rect = new Rect(left, 0, right - left, sourceHeight)
                 };
             }
 #pragma warning disable 0618
             importer.spritesheet = metadata;
 #pragma warning restore 0618
             importer.SaveAndReimport();
+
+            var generatedNames = new HashSet<string>(
+                AssetDatabase.LoadAllAssetsAtPath(spec.sheetPath).OfType<Sprite>().Select(sprite => sprite.name));
+            var missingForms = FormKeys.Where(form => !generatedNames.Contains($"{spec.shadowId}_{form}")).ToArray();
+            if (missingForms.Length > 0)
+            {
+                Debug.LogError($"[GrowthBatch] 스프라이트 분할 실패: {spec.sheetPath} / {string.Join(", ", missingForms)}");
+            }
         }
 
         private static void UpdateDatabase(IEnumerable<SkillData> skills, IEnumerable<ShadowData> shadows)
