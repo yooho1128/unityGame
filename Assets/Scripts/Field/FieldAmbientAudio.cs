@@ -8,7 +8,8 @@ namespace ShadowTheater.Field
     {
         Theater, Village, Meadow, EclipseBoss,
         AshWastes, EmberCity, Catacombs, AshThrone,
-        FrostPort, Archive, ForbiddenStacks, MirrorVault, BlueAbyss
+        FrostPort, Archive, ForbiddenStacks, MirrorVault, BlueAbyss,
+        VioletMarsh, HowlVillage, MoonfangForest, BloodmoonRidge, BeastDen
     }
 
     /// <summary>지역별 지속 환경음과 간헐 원샷을 재생하며 씬/전투 전환 때 페이드한다.</summary>
@@ -193,6 +194,14 @@ namespace ShadowTheater.Field
                     return Sin(73, .21f) + Sin(109, .13f) + Sin(877, .045f) * Sin(5, .5f);
                 case FieldAmbienceStyle.BlueAbyss:
                     return Sin(55, .38f) + Sin(27, .22f) + Sin(6, .20f) * Sin(110, .32f);
+                case FieldAmbienceStyle.VioletMarsh:
+                case FieldAmbienceStyle.HowlVillage:
+                    return Sin(12, .29f) + Sin(43, .15f) + Sin(620, .04f) * Sin(5, .5f);
+                case FieldAmbienceStyle.MoonfangForest:
+                    return Sin(16, .25f) + Sin(31, .15f) + Sin(930, .04f) * (0.5f + Sin(5, .5f));
+                case FieldAmbienceStyle.BloodmoonRidge:
+                case FieldAmbienceStyle.BeastDen:
+                    return Sin(69, .38f) + Sin(34, .23f) + Sin(7, .21f) * Sin(138, .30f);
                 default:
                     return Sin(147, .46f) + Sin(73, .26f) + Sin(7, .20f) * Sin(151, .32f);
             }
@@ -242,6 +251,11 @@ namespace ShadowTheater.Field
                 case FieldAmbienceStyle.ForbiddenStacks: return 164.81f;
                 case FieldAmbienceStyle.MirrorVault: return 698.46f;
                 case FieldAmbienceStyle.BlueAbyss: return 73.42f;
+                case FieldAmbienceStyle.VioletMarsh: return 220f;
+                case FieldAmbienceStyle.HowlVillage: return 293.66f;
+                case FieldAmbienceStyle.MoonfangForest: return 783.99f;
+                case FieldAmbienceStyle.BloodmoonRidge: return 98f;
+                case FieldAmbienceStyle.BeastDen: return 65.41f;
                 default: return 110f;
             }
         }

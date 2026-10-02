@@ -72,11 +72,16 @@ namespace ShadowTheater.EditorTools
             CreateForbiddenStacks();
             CreateMirrorVault();
             CreateBlueAbyss();
+            CreateVioletMarsh();
+            CreateHowlVillage();
+            CreateMoonfangForest();
+            CreateBloodmoonRidge();
+            CreateSleepingBeastDen();
             RegisterBuildScenes();
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             EditorSceneManager.OpenScene($"{SceneFolder}/Title.unity", OpenSceneMode.Single);
-            Debug.Log("[World] 프롤로그부터 제3막 금기의 서고까지 15개 픽셀 필드 생성 완료");
+            Debug.Log("[World] 프롤로그부터 제4막 야수의 밤까지 20개 픽셀 필드 생성 완료");
         }
 
         private static void GenerateDependencies()
@@ -381,7 +386,66 @@ namespace ShadowTheater.EditorTools
                 "boss_archive_dragon_reward_claimed", 48, new Color(.32f,.64f,1f));
             CreatePortal(map.fieldRoot, "BackToMirrorVault", new Vector2Int(0,-8), "MirrorVault",
                 new Vector2Int(8,0), FacingDir.Down);
+            CreatePortal(map.fieldRoot, "ToVioletMarsh", new Vector2Int(9,0), "VioletMarsh",
+                new Vector2Int(-8,0), FacingDir.Right, false, "act3_complete");
             FinishFieldScene(map, "BlueAbyss");
+        }
+
+        private static void CreateVioletMarsh()
+        {
+            var map = BeginFieldScene("VioletMarsh", "자줏빛 늪", new Vector2Int(-8,0), new Color(.08f,.035f,.12f), Theme.VioletMarsh);
+            CreateAreaTrigger(map.fieldRoot, new Vector2Int(-8,0), "area_violet_marsh");
+            CreateNpc(map.fieldRoot, "MarshGuide", new Vector2Int(1,4), LoadShadow("lantern_toad"), "npc_marsh_guide", "npc_marsh_guide_intro", "npc_marsh_guide_repeat", "talked_marsh_guide", new Color(.8f,.5f,1f));
+            CreateEncounter(map.fieldRoot, "MarshSerpentA", new Vector2Int(-4,-3), LoadShadow("marsh_serpent"),44,47);
+            CreateEncounter(map.fieldRoot, "LanternToadA", new Vector2Int(5,-3), LoadShadow("lantern_toad"),44,48);
+            CreatePortal(map.fieldRoot, "BackToBlueAbyss", new Vector2Int(-9,0), "BlueAbyss", new Vector2Int(8,0), FacingDir.Left);
+            CreatePortal(map.fieldRoot, "ToHowlVillage", new Vector2Int(9,0), "HowlVillage", new Vector2Int(-7,0), FacingDir.Right, false, "quest_act4_01_marsh_complete");
+            FinishFieldScene(map, "VioletMarsh");
+        }
+
+        private static void CreateHowlVillage()
+        {
+            var map = BeginFieldScene("HowlVillage", "울음 마을", new Vector2Int(-7,0), new Color(.095f,.045f,.13f), Theme.HowlVillage);
+            CreateAreaTrigger(map.fieldRoot, new Vector2Int(-7,0), "area_howl_village");
+            CreateNpc(map.fieldRoot, "MoonShaman", new Vector2Int(1,3), LoadShadow("moon_shaman"), "npc_moon_shaman", "npc_moon_shaman_intro", "npc_moon_shaman_repeat", "talked_moon_shaman", new Color(.75f,.62f,1f));
+            CreateEncounter(map.fieldRoot, "MaskHunterA", new Vector2Int(-3,-4), LoadShadow("mask_hunter"),47,50);
+            CreateEncounter(map.fieldRoot, "MoonShamanEcho", new Vector2Int(5,-2), LoadShadow("moon_shaman"),47,51);
+            CreatePortal(map.fieldRoot, "BackToMarsh", new Vector2Int(-9,0), "VioletMarsh", new Vector2Int(8,0), FacingDir.Left);
+            CreatePortal(map.fieldRoot, "ToMoonfangForest", new Vector2Int(9,0), "MoonfangForest", new Vector2Int(-8,-2), FacingDir.Right, false, "quest_act4_02_village_complete");
+            FinishFieldScene(map, "HowlVillage");
+        }
+
+        private static void CreateMoonfangForest()
+        {
+            var map = BeginFieldScene("MoonfangForest", "월아 숲", new Vector2Int(-8,-2), new Color(.045f,.055f,.11f), Theme.MoonfangForest);
+            CreateAreaTrigger(map.fieldRoot, new Vector2Int(-8,-2), "area_moonfang_forest");
+            CreateEncounter(map.fieldRoot, "CrescentFoxA", new Vector2Int(-3,3), LoadShadow("crescent_fox"),50,53);
+            CreateEncounter(map.fieldRoot, "ShadowStagA", new Vector2Int(4,4), LoadShadow("shadow_stag"),51,54);
+            CreateEncounter(map.fieldRoot, "MaskHunterB", new Vector2Int(4,-4), LoadShadow("mask_hunter"),50,54);
+            CreatePortal(map.fieldRoot, "BackToVillage", new Vector2Int(-9,-2), "HowlVillage", new Vector2Int(8,0), FacingDir.Left);
+            CreatePortal(map.fieldRoot, "ToBloodmoonRidge", new Vector2Int(0,8), "BloodmoonRidge", new Vector2Int(0,-7), FacingDir.Up, false, "quest_act4_03_forest_complete");
+            FinishFieldScene(map, "MoonfangForest");
+        }
+
+        private static void CreateBloodmoonRidge()
+        {
+            var map = BeginFieldScene("BloodmoonRidge", "핏빛 달고개", new Vector2Int(0,-7), new Color(.13f,.025f,.075f), Theme.BloodmoonRidge);
+            CreateEncounter(map.fieldRoot, "CliffBatA", new Vector2Int(-5,0), LoadShadow("cliff_bat"),53,56);
+            CreateEncounter(map.fieldRoot, "CliffBatB", new Vector2Int(5,0), LoadShadow("cliff_bat"),54,57);
+            CreateBossEncounter(map.fieldRoot, "BloodmaneBoss", new Vector2Int(0,5), "bloodmane_stalker", "boss_bloodmane", new Vector2Int(57,59), "boss_bloodmane_pre", "boss_bloodmane_post", "boss_bloodmane_story_complete", "boss_bloodmane_reward_claimed", 59, new Color(.92f,.25f,.48f));
+            CreatePortal(map.fieldRoot, "BackToForest", new Vector2Int(0,-8), "MoonfangForest", new Vector2Int(0,7), FacingDir.Down);
+            CreatePortal(map.fieldRoot, "ToBeastDen", new Vector2Int(9,0), "SleepingBeastDen", new Vector2Int(0,-6), FacingDir.Right, false, "boss_bloodmane_story_complete");
+            FinishFieldScene(map, "BloodmoonRidge");
+        }
+
+        private static void CreateSleepingBeastDen()
+        {
+            var map = BeginFieldScene("SleepingBeastDen", "잠든 야수의 굴", new Vector2Int(0,-6), new Color(.055f,.018f,.09f), Theme.BeastDen);
+            CreateEncounter(map.fieldRoot, "MoonHeartA", new Vector2Int(-5,0), LoadShadow("moon_heart"),57,60);
+            CreateEncounter(map.fieldRoot, "CrescentFoxB", new Vector2Int(5,0), LoadShadow("crescent_fox"),57,60);
+            CreateBossEncounter(map.fieldRoot, "NightDevouringBeastBoss", new Vector2Int(0,4), "night_devouring_beast", "boss_night_beast", new Vector2Int(60,63), "boss_night_beast_pre", "boss_night_beast_post", "boss_night_beast_story_complete", "boss_night_beast_reward_claimed", 63, new Color(.68f,.25f,.92f));
+            CreatePortal(map.fieldRoot, "BackToRidge", new Vector2Int(0,-8), "BloodmoonRidge", new Vector2Int(8,0), FacingDir.Down);
+            FinishFieldScene(map, "SleepingBeastDen");
         }
 
         private static FieldSceneContext BeginFieldScene(string mapId, string displayName, Vector2Int startCell,
@@ -573,9 +637,18 @@ namespace ShadowTheater.EditorTools
                 case Theme.MirrorVault:
                     blocks.Add(new RectInt(-6,2,2,4)); blocks.Add(new RectInt(5,2,2,4));
                     blocks.Add(new RectInt(-2,-5,2,3)); blocks.Add(new RectInt(2,-5,2,3)); break;
+                case Theme.VioletMarsh:
+                case Theme.HowlVillage:
+                    blocks.Add(new RectInt(-6,3,3,3)); blocks.Add(new RectInt(4,3,3,3));
+                    blocks.Add(new RectInt(-5,-6,2,3)); blocks.Add(new RectInt(4,-5,2,2)); break;
+                case Theme.MoonfangForest:
+                    blocks.Add(new RectInt(-7,2,3,3)); blocks.Add(new RectInt(5,3,3,3));
+                    blocks.Add(new RectInt(-2,-5,2,3)); blocks.Add(new RectInt(2,-6,2,3)); break;
                 case Theme.Boss:
                 case Theme.AshThrone:
                 case Theme.BlueAbyss:
+                case Theme.BloodmoonRidge:
+                case Theme.BeastDen:
                     blocks.Add(new RectInt(-7, -1, 2, 5)); blocks.Add(new RectInt(6, -1, 2, 5));
                     blocks.Add(new RectInt(-4, 6, 2, 2)); blocks.Add(new RectInt(3, 6, 2, 2)); break;
             }
@@ -1021,6 +1094,21 @@ namespace ShadowTheater.EditorTools
                         ambienceVolume = .27f, detailVolume = .21f, detailInterval = new Vector2(4.5f,8f),
                         lightPositions = new[] { new Vector2(-6f,4f), new Vector2(0f,5f), new Vector2(6f,4f), new Vector2(-4f,-4f), new Vector2(4f,-4f) }
                     };
+                case Theme.VioletMarsh:
+                case Theme.HowlVillage:
+                case Theme.MoonfangForest:
+                case Theme.BloodmoonRidge:
+                case Theme.BeastDen:
+                    return new EnvironmentProfile
+                    {
+                        globalColor = new Color(.48f,.27f,.62f), globalIntensity = .46f,
+                        pointColor = new Color(.72f,.34f,1f), secondaryLightColor = new Color(1f,.28f,.52f),
+                        pointIntensity = 1.08f, fogColor = new Color(.38f,.12f,.49f), fogAlpha = .17f,
+                        moteColor = new Color(.83f,.48f,1f), fogDrift = new Vector2(.11f,.01f),
+                        moteDrift = new Vector2(.02f,.08f), fogPulse = .14f, motePulse = .44f, pulseSpeed = .78f,
+                        ambienceVolume = .29f, detailVolume = .23f, detailInterval = new Vector2(4f,7.5f),
+                        lightPositions = new[] { new Vector2(-6f,4f), new Vector2(0f,5f), new Vector2(6f,4f), new Vector2(-4f,-4f), new Vector2(4f,-4f) }
+                    };
                 case Theme.AshThrone:
                     return new EnvironmentProfile
                     {
@@ -1209,6 +1297,26 @@ namespace ShadowTheater.EditorTools
                     _groundTile = CreateTile("BlueAbyss_Ground", new Color(.09f,.11f,.29f), new Color(.24f,.39f,.70f));
                     _wallTile = CreateTile("BlueAbyss_Wall", new Color(.025f,.03f,.10f), new Color(.15f,.25f,.54f));
                     _accentTile = CreateTile("BlueAbyss_Accent", new Color(.08f,.10f,.30f), new Color(.31f,.65f,1f)); break;
+                case Theme.VioletMarsh:
+                    _groundTile = CreateTile("VioletMarsh_Ground", new Color(.22f,.18f,.32f), new Color(.42f,.31f,.52f));
+                    _wallTile = CreateTile("VioletMarsh_Wall", new Color(.06f,.04f,.12f), new Color(.25f,.12f,.34f));
+                    _accentTile = CreateTile("VioletMarsh_Accent", new Color(.15f,.10f,.25f), new Color(.61f,.34f,.72f)); break;
+                case Theme.HowlVillage:
+                    _groundTile = CreateTile("HowlVillage_Ground", new Color(.27f,.20f,.34f), new Color(.48f,.33f,.55f));
+                    _wallTile = CreateTile("HowlVillage_Wall", new Color(.08f,.05f,.13f), new Color(.29f,.16f,.35f));
+                    _accentTile = CreateTile("HowlVillage_Accent", new Color(.18f,.11f,.27f), new Color(.70f,.43f,.75f)); break;
+                case Theme.MoonfangForest:
+                    _groundTile = CreateTile("MoonfangForest_Ground", new Color(.15f,.22f,.29f), new Color(.30f,.42f,.48f));
+                    _wallTile = CreateTile("MoonfangForest_Wall", new Color(.035f,.07f,.11f), new Color(.13f,.27f,.32f));
+                    _accentTile = CreateTile("MoonfangForest_Accent", new Color(.09f,.18f,.22f), new Color(.42f,.38f,.72f)); break;
+                case Theme.BloodmoonRidge:
+                    _groundTile = CreateTile("BloodmoonRidge_Ground", new Color(.31f,.13f,.23f), new Color(.54f,.22f,.37f));
+                    _wallTile = CreateTile("BloodmoonRidge_Wall", new Color(.10f,.025f,.07f), new Color(.34f,.08f,.18f));
+                    _accentTile = CreateTile("BloodmoonRidge_Accent", new Color(.25f,.07f,.16f), new Color(.88f,.25f,.46f)); break;
+                case Theme.BeastDen:
+                    _groundTile = CreateTile("BeastDen_Ground", new Color(.19f,.10f,.28f), new Color(.39f,.19f,.54f));
+                    _wallTile = CreateTile("BeastDen_Wall", new Color(.045f,.015f,.08f), new Color(.20f,.055f,.31f));
+                    _accentTile = CreateTile("BeastDen_Accent", new Color(.15f,.045f,.24f), new Color(.67f,.26f,.88f)); break;
                 case Theme.AshThrone:
                     _groundTile = CreateTile("AshThrone_Ground", new Color(.25f,.10f,.09f), new Color(.42f,.15f,.10f));
                     _wallTile = CreateTile("AshThrone_Wall", new Color(.055f,.012f,.015f), new Color(.22f,.035f,.03f));
@@ -1622,7 +1730,8 @@ namespace ShadowTheater.EditorTools
         {
             string[] names = { "Title", "PrologueTheater", "EchoVillage", "MoonlitMeadow", "MoonlitBossStage",
                 "CurtainPass", "AshBorder", "CinderCity", "RuinedBarracks", "EmberCatacombs", "CrownlessThrone",
-                "FrostPort", "WhiteArchive", "ForbiddenStacks", "MirrorVault", "BlueAbyss" };
+                "FrostPort", "WhiteArchive", "ForbiddenStacks", "MirrorVault", "BlueAbyss",
+                "VioletMarsh", "HowlVillage", "MoonfangForest", "BloodmoonRidge", "SleepingBeastDen" };
             var scenes = new List<EditorBuildSettingsScene>();
             var generatedPaths = new HashSet<string>();
             foreach (string name in names)
@@ -1683,7 +1792,8 @@ namespace ShadowTheater.EditorTools
         private enum Theme
         {
             Theater, Village, Meadow, Boss, AshWastes, EmberCity, Catacombs, AshThrone,
-            FrostPort, Archive, ForbiddenStacks, MirrorVault, BlueAbyss
+            FrostPort, Archive, ForbiddenStacks, MirrorVault, BlueAbyss,
+            VioletMarsh, HowlVillage, MoonfangForest, BloodmoonRidge, BeastDen
         }
         private enum PixelTileKind { Grass, Path, Water, Cliff, Bush }
         private class EnvironmentProfile

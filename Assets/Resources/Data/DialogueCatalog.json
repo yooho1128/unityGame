@@ -360,6 +360,17 @@
         {"speaker":"각본집","text":"제3막 『금기의 서고』가 기록되었습니다.","emotion":"mystery","setFlag":"act3_complete","setFlagValue":1}
       ]
     },
+    {"dialogueId":"npc_marsh_guide_intro","lines":[{"speaker":"늪의 안내자","text":"독안개가 짙은 곳일수록 늪뱀이 남긴 돌자국을 따라가. 그들은 사람을 습격한 적이 없어.","emotion":"serious"},{"speaker":"늪의 안내자","text":"동쪽 울음 마을에선 모두 야수 가면을 써. 얼굴을 감춘 이유부터 물어봐 줘.","emotion":"sad"}]},
+    {"dialogueId":"npc_marsh_guide_repeat","lines":[{"speaker":"늪의 안내자","text":"괴물처럼 보인다는 것과 괴물로 행동했다는 것은 전혀 다른 이야기야.","emotion":"calm"}]},
+    {"dialogueId":"npc_moon_shaman_intro","lines":[{"speaker":"달술사","text":"우리는 야수로 변한 적이 없어. 검열단의 사냥을 피하려 가면을 썼고, 오래 쓰다 보니 서로의 얼굴을 잊었지.","emotion":"sad","setFlag":"howl_village_truth","setFlagValue":1},{"speaker":"달술사","text":"이제 가면과 그 아래 얼굴 중 무엇을 기억해야 할까?","emotion":"question"}],"choices":[{"text":"가면도 살아남기 위한 이름으로 보존한다.","nextDialogueId":"beast_choice_preserve","setFlag":"act4_masks_preserved","setFlagValue":1,"flagChanges":[{"flag":"choice_memory","delta":1}]},{"text":"원하는 이부터 천천히 가면을 벗게 한다.","nextDialogueId":"beast_choice_mercy","setFlag":"act4_masks_optional","setFlagValue":1,"flagChanges":[{"flag":"choice_compassion","delta":1}]},{"text":"모두의 가면을 벗겨 진짜 얼굴을 확인한다.","nextDialogueId":"beast_choice_control","setFlag":"act4_masks_removed","setFlagValue":1,"flagChanges":[{"flag":"choice_control","delta":1}]}]},
+    {"dialogueId":"beast_choice_preserve","lines":[{"speaker":"달술사","text":"가면 아래 얼굴만 진짜라는 생각도 또 다른 검열일지 모르겠군.","emotion":"hope"}]},
+    {"dialogueId":"beast_choice_mercy","lines":[{"speaker":"달술사","text":"기억을 되찾는 속도도 각자의 것이어야 한다는 뜻이구나.","emotion":"calm"}]},
+    {"dialogueId":"beast_choice_control","lines":[{"speaker":"달술사","text":"진실을 강제로 드러내는 일도 폭력이 될 수 있어. 그 책임을 잊지 마.","emotion":"fear"}]},
+    {"dialogueId":"npc_moon_shaman_repeat","lines":[{"speaker":"달술사","text":"월아 숲을 지나 핏빛 달고개로 가. 사냥 명령을 끝내지 못한 추격자가 기다리고 있어.","emotion":"serious"}]},
+    {"dialogueId":"boss_bloodmane_pre","lines":[{"speaker":"붉은 뿔의 추격자","text":"야수를 찾아라! 가면을 벗겨라! 명령이 끝날 때까지 사냥은 멈추지 않는다!","emotion":"rage"},{"speaker":"극단주","text":"사냥할 야수는 없었다. 네가 따르던 명령부터 이 무대에서 끝내겠다.","emotion":"resolve"}]},
+    {"dialogueId":"boss_bloodmane_post","lines":[{"speaker":"붉은 뿔의 추격자","text":"내가 쫓은 것은 야수가 아니라 두려움에 떠는 사람들이었구나… 이제 뿔을 내려놓겠다.","emotion":"relief","setFlag":"truth_first_howl","setFlagValue":1}]},
+    {"dialogueId":"boss_night_beast_pre","lines":[{"speaker":"밤을 삼킨 짐승","text":"내게 공포를 넘겨라! 너희는 밝은 곳으로 도망쳐라! 밤은 내가 전부 삼키겠다!","emotion":"rage"},{"speaker":"극단주","text":"혼자 삼킨 공포가 너를 짐승으로 만들었다. 이번에는 모두가 그 울음을 함께 듣겠다.","emotion":"resolve"}]},
+    {"dialogueId":"boss_night_beast_post","lines":[{"speaker":"밤을 삼킨 짐승","text":"루페온… 그것이 짐승이 되기 전 나의 이름이었다. 이제 울음을 혼자 품지 않겠다.","emotion":"relief"},{"speaker":"각본집","text":"제4막 『야수의 밤』이 기록되었습니다.","emotion":"mystery","setFlag":"act4_complete","setFlagValue":1}]},
     {"dialogueId":"sign_ash_border","lines":[{"speaker":"그을린 표지판","text":"서쪽: 찢어진 장막길  ·  동쪽: 불씨 성도  ·  재폭풍 때는 무너진 벽 뒤로 대피할 것","emotion":"none"}]},
     {"dialogueId":"sign_cinder_city","lines":[{"speaker":"왕국 안내도","text":"북쪽: 무너진 병영  ·  동쪽: 불씨 지하묘  ·  중앙대로: 왕궁(폐쇄)","emotion":"none"}]}
   ]

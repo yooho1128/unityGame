@@ -213,10 +213,15 @@
     },
     {
       "questId":"act3_05_abyss","title":"최초의 금서","summary":"푸른 심연 서고에서 검열단의 첫 교리와 무한서고의 용을 마주하자.",
-      "prerequisiteQuestId":"act3_04_mirror","nextQuestId":"","autoStart":false,"rewardGold":1800,
+      "prerequisiteQuestId":"act3_04_mirror","nextQuestId":"act4_01_marsh","autoStart":false,"rewardGold":1800,
       "objectives":[
         {"objectiveId":"defeat_archive_dragon","type":"Defeat","targetId":"boss_archive_dragon","description":"무한서고의 용 정화하기","requiredCount":1}
       ]
-    }
+    },
+    {"questId":"act4_01_marsh","title":"독안개 속의 길","summary":"자줏빛 늪의 안전한 길과 야수들의 흔적을 찾자.","prerequisiteQuestId":"act3_05_abyss","nextQuestId":"act4_02_village","autoStart":false,"rewardGold":1500,"objectives":[{"objectiveId":"reach_violet_marsh","type":"Reach","targetId":"area_violet_marsh","description":"자줏빛 늪 도착하기","requiredCount":1},{"objectiveId":"talk_marsh_guide","type":"Talk","targetId":"npc_marsh_guide","description":"늪의 안내자와 대화하기","requiredCount":1}]},
+    {"questId":"act4_02_village","title":"가면 아래의 울음","summary":"울음 마을 사람들이 야수 가면을 쓰게 된 이유를 듣자.","prerequisiteQuestId":"act4_01_marsh","nextQuestId":"act4_03_forest","autoStart":false,"rewardGold":1650,"objectives":[{"objectiveId":"reach_howl_village","type":"Reach","targetId":"area_howl_village","description":"울음 마을 도착하기","requiredCount":1},{"objectiveId":"talk_moon_shaman","type":"Talk","targetId":"npc_moon_shaman","description":"달술사의 진실 듣기","requiredCount":1}]},
+    {"questId":"act4_03_forest","title":"야수의 발자국","summary":"월아 숲에서 사냥당한 그림자들의 피난로를 확인하자.","prerequisiteQuestId":"act4_02_village","nextQuestId":"act4_04_ridge","autoStart":false,"rewardGold":1800,"objectives":[{"objectiveId":"reach_moonfang_forest","type":"Reach","targetId":"area_moonfang_forest","description":"월아 숲 탐색하기","requiredCount":1}]},
+    {"questId":"act4_04_ridge","title":"사냥을 끝내는 자","summary":"핏빛 달고개에서 붉은 뿔의 추격자를 정화하자.","prerequisiteQuestId":"act4_03_forest","nextQuestId":"act4_05_den","autoStart":false,"rewardGold":2100,"objectives":[{"objectiveId":"defeat_bloodmane","type":"Defeat","targetId":"boss_bloodmane","description":"붉은 뿔의 추격자 정화하기","requiredCount":1}]},
+    {"questId":"act4_05_den","title":"최초의 울음","summary":"잠든 야수의 굴에서 밤을 삼킨 짐승의 진명을 되찾자.","prerequisiteQuestId":"act4_04_ridge","nextQuestId":"","autoStart":false,"rewardGold":2600,"objectives":[{"objectiveId":"defeat_night_beast","type":"Defeat","targetId":"boss_night_beast","description":"밤을 삼킨 짐승 정화하기","requiredCount":1}]}
   ]
 }
