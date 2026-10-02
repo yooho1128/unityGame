@@ -22,6 +22,11 @@
 5. Player Settings → Active Input Handling = **Both** 확인
 6. Unity가 생성한 나머지 `ProjectSettings/`, `Packages/packages-lock.json`, `*.meta` 파일까지 커밋
 
+처음 열 때 Safe Mode가 표시되면 진입해 Console의 첫 오류부터 확인합니다. `ENOSPC`가 보이면 코드
+문제가 아니라 디스크 용량 부족이므로 Unity를 종료하고 프로젝트의 `Library`와 로컬 Unity 패키지
+캐시를 지운 뒤 충분한 공간에서 다시 가져옵니다. URP가 제공하는 동명 타입과 게임의 `ShadowData`가
+충돌하지 않도록 에디터 생성기는 게임 데이터 타입 별칭을 명시합니다.
+
 ## 초반 콘텐츠 데이터 빠른 설치
 1. Unity 메뉴 **Tools → Shadow Theater → Generate Core Content Data** 실행
 2. `Assets/Data/Generated`에 생성된 그림자 17종, 스킬 48개, 도구 4개 확인

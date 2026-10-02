@@ -16,6 +16,7 @@ using UnityEngine.Tilemaps;
 using UnityEngine.UI;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.Rendering;
+using ShadowData = ShadowTheater.Data.ShadowData;
 
 namespace ShadowTheater.EditorTools
 {
