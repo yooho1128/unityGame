@@ -15,6 +15,13 @@ namespace ShadowTheater.UI
         [SerializeField] private Text hpText;
         [SerializeField] private Text statusText;
 
+        private Vector3 _restPosition;
+        public RectTransform MotionRoot => (RectTransform)transform;
+        public Image Portrait => portrait;
+
+        private void Awake() => _restPosition = MotionRoot.localPosition;
+        public void ResetMotion() => MotionRoot.localPosition = _restPosition;
+
         public void Bind(BattleUnit unit)
         {
             if (unit == null) return;

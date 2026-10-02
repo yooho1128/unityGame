@@ -42,6 +42,10 @@ namespace ShadowTheater.Data
 
         [Header("연출")]
         public bool isUltimate;              // 필살기면 컷인 연출
+        public UltimateFxStyle ultimateFxStyle;
+        [ColorUsage(true, true)] public Color primaryFxColor = Color.white;
+        [ColorUsage(true, true)] public Color secondaryFxColor = Color.white;
+        [Range(6, 36)] public int ultimateBurstCount = 18;
         public GameObject fxPrefab;
         public AudioClip sfxClip;
         [Tooltip("타격 시 카메라 흔들림 강도")]

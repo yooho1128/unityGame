@@ -89,6 +89,10 @@ namespace ShadowTheater.EditorTools
                 skill.statusChance = spec.statusChance;
                 skill.statusDuration = spec.statusDuration;
                 skill.isUltimate = spec.isUltimate;
+                skill.ultimateFxStyle = Parse(spec.ultimateFxStyle, UltimateFxStyle.None);
+                skill.primaryFxColor = ParseColor(spec.primaryFxColor, Color.white);
+                skill.secondaryFxColor = ParseColor(spec.secondaryFxColor, skill.primaryFxColor);
+                skill.ultimateBurstCount = spec.ultimateBurstCount > 0 ? spec.ultimateBurstCount : 18;
                 skill.cameraShake = spec.cameraShake;
                 EditorUtility.SetDirty(skill);
                 result[skill.skillId] = skill;
@@ -233,7 +237,7 @@ namespace ShadowTheater.EditorTools
             Enum.TryParse(value, true, out T result) ? result : fallback;
 
         private static Color ParseColor(string html, Color fallback) =>
-            ColorUtility.TryParseHtmlString(html, out var color) ? color : fallback;
+            !string.IsNullOrEmpty(html) && ColorUtility.TryParseHtmlString(html, out var color) ? color : fallback;
 
         private static void EnsureFolder(string parent, string child)
         {
@@ -244,7 +248,9 @@ namespace ShadowTheater.EditorTools
         [Serializable] private class SkillSpec
         {
             public string skillId, displayName, description, damageType, element, target, statusEffect;
+            public string ultimateFxStyle, primaryFxColor, secondaryFxColor;
             public int fpCost, fpGain, statusDuration;
+            public int ultimateBurstCount;
             public float damageMultiplier, accuracy, bonusCritRate, healRatio, statusChance, cameraShake;
             public bool isUltimate;
         }

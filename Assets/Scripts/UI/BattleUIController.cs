@@ -13,6 +13,7 @@ namespace ShadowTheater.UI
         [SerializeField] private BattleManager manager;
         [SerializeField] private BattleUnitPanel playerPanel;
         [SerializeField] private BattleUnitPanel enemyPanel;
+        [SerializeField] private BattleFxDirector fxDirector;
         [SerializeField] private GameObject actionRoot;
         [SerializeField] private GameObject optionRoot;
         [SerializeField] private Transform optionContent;
@@ -193,7 +194,12 @@ namespace ShadowTheater.UI
         public IEnumerator PlaySendOut(BattleUnit unit) { yield return Say($"{unit.Name}, 무대로!"); }
         public IEnumerator PlayWithdraw(BattleUnit unit) { yield return Say($"{unit.Name}, 각본집으로 돌아와!"); }
         public IEnumerator PlaySkill(BattleUnit a, BattleUnit d, SkillData s, HitResult hit)
-        { yield return Say(hit.missed ? $"{a.Name}의 {s.displayName}! 빗나갔다." : $"{a.Name}의 {s.displayName}!" ); }
+        {
+            BattleUnitPanel attacker = a.Side == BattleSide.Player ? playerPanel : enemyPanel;
+            BattleUnitPanel defender = d.Side == BattleSide.Player ? playerPanel : enemyPanel;
+            if (fxDirector != null) yield return fxDirector.Play(attacker, defender, s, hit, _speed);
+            yield return Say(hit.missed ? $"{a.Name}의 {s.displayName}! 빗나갔다." : $"{a.Name}의 {s.displayName}!" );
+        }
         public IEnumerator PlayHeal(BattleUnit unit, int amount) { yield return Say($"{unit.Name}의 HP가 {amount} 회복됐다."); }
         public IEnumerator PlayStatusApplied(BattleUnit unit, StatusEffectType status) { yield return Say($"{unit.Name}에게 {status} 상태가 걸렸다."); }
         public IEnumerator PlayStatusDamage(BattleUnit unit, StatusEffectType status, int damage) { yield return Say($"{unit.Name}은(는) {status}로 {damage} 피해!"); }

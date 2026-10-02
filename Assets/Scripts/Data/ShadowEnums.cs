@@ -55,6 +55,21 @@ namespace ShadowTheater.Data
         Self
     }
 
+    /// <summary>진명 필살기의 공용 UI 연출 테마.</summary>
+    public enum UltimateFxStyle
+    {
+        None,
+        FlameCrown,
+        FrozenArchive,
+        MoonBeast,
+        PuppetThreads,
+        AshBird,
+        FrozenMask,
+        MoonPetals,
+        LivingScript,
+        CosmicAudience
+    }
+
     public enum StatusEffectType
     {
         None,

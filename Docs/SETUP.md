@@ -15,7 +15,7 @@ Assets/Scripts/
            EndingData/Repository/Manager, EndingTrigger
   UI/      DialogueController, DialogueChoiceView, QuestHudController,
            TitleScreenController, StarterSelectionController, StarterCardView,
-           ScriptBookController, ScriptBookEntryView, BattleUIController,
+           ScriptBookController, ScriptBookEntryView, BattleUIController, BattleFxDirector,
            BattleUnitPanel, BattleOptionButton, PartyStorageController, PartyStorageEntryView
   Editor/  DialogueUIPrefabGenerator, QuestHudPrefabGenerator, FrontEndPrefabGenerator,
            ScriptBookPrefabGenerator, BattleUIPrefabGenerator, PartyStoragePrefabGenerator,
@@ -29,7 +29,7 @@ Assets/Scripts/
 
 ## 초반 데이터 생성
 1. 메뉴 `Tools > Shadow Theater > Generate Core Content Data` 실행
-2. `Assets/Data/Generated/Skills`의 스킬 22개 확인
+2. `Assets/Data/Generated/Skills`의 스킬 28개 확인
 3. `Assets/Data/Generated/Items`의 도구 4개 확인
 4. `Assets/Data/Generated/Shadows`의 스타터·초반 그림자 7종 확인
 5. `Assets/Resources/ShadowDatabase.asset` 자동 등록 결과 확인
@@ -229,8 +229,10 @@ Sprite로 4등분한다. 같은 메뉴를 다시 실행하면 기존 ID의 에�
 HP·상태·FP·턴 표시와 공격, 스킬, 교체, 각본 기록, 도구, 도주 버튼을 제공한다. 스킬/교체/도구는
 동적 스크롤 목록이며 기절 시 강제 교체 화면으로 자동 전환한다. Auto와 1/2/3배속도 상단에서 조작한다.
 
-현재 Presenter는 패키지 의존성 없는 메시지·HUD 갱신 중심이다. 추후 DOTween을 설치하면 같은
-`IBattlePresenter` 계약을 유지한 채 돌진, 피격 플래시, 컷인, 카메라 흔들림을 교체 구현할 수 있다.
+`BattleFxDirector`는 패키지 의존성 없이 일반 스킬의 돌진·피격 흔들림과 진명 필살기의 전용 컷인,
+화면 섬광, 테마 문양을 재생한다. `SkillData`의 `ultimateFxStyle`, 두 FX 색상, 파편 수로 조정하며
+Core/Legendary JSON 값을 바꾼 뒤 각 데이터 생성 메뉴를 다시 실행하면 된다. 수집 가능한 9종의
+구원·원한 진명에는 각각 전용 필살기 1개, 총 18개가 연결되어 있다.
 
 ## 파티 편성·각본 서고 세팅
 1. 메뉴 `Tools > Shadow Theater > Generate Party and Storage UI` 실행
@@ -248,7 +250,7 @@ HP·상태·FP·턴 표시와 공격, 스킬, 교체, 각본 기록, 도구, 도
 - 첫 번째 파티원이 전투의 선봉으로 사용되므로 순서 변경은 다음 인카운터부터 반영된다.
 
 ## 다음 작업 후보
-1. DOTween BattlePresenter — 돌진/피격/컷인/카메라 쉐이크
+1. 필살기별 실제 파티클·SFX·카메라 임펄스 에셋 교체
 2. 프롤로그 실제 아트·URP 2D 조명·환경음 교체
 3. 엔딩 갤러리와 회차 시작
 4. 설정/오디오/언어 메뉴
