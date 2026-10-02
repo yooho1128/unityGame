@@ -136,6 +136,7 @@ namespace ShadowTheater.Field
             foreach (var e in ctx.enemyParty) SaveManager.MarkSeen(e.shadowId);
 
             // ── 진입 ──
+            FieldAmbientAudio.Instance?.BeginFadeOut();
             yield return new WaitForSeconds(encounterFlashTime);
             yield return ScreenFader.Instance.FadeOut();
 

@@ -9,7 +9,8 @@ Assets/Scripts/
   Save/    SaveData, SaveManager
   Field/   FieldGrid, PlayerController, EncounterSymbol, ScreenFader,
            VirtualDPadButton, VirtualActionButton, VirtualScriptBookButton, VirtualPartyButton,
-           GameFlowController, MapLoader, MapPortal, FieldCameraFollow, FieldAtmosphereController
+           GameFlowController, MapLoader, MapPortal, FieldCameraFollow, FieldAtmosphereController,
+           FieldAmbientAudio
   Story/   DialogueData/Repository, StoryNpc, DialogueInteractable,
            QuestData/Repository/Manager, QuestAreaTrigger, BossEncounterTrigger,
            EndingData/Repository/Manager, EndingTrigger
@@ -65,6 +66,12 @@ Light 2D를 배치한다. `Environment` 아래에는 안개 6겹과 빛가루 24
 없을 때만 `ShadowTheaterURP.asset`과 `ShadowTheater2DRenderer.asset`을 만들어 Project/Quality
 설정에 연결한다. 이미 지정된 렌더 파이프라인은 보존한다.
 
+같은 `Environment`에는 `FieldAmbientAudio`가 포함된다. 지역별 6초 무봉제 지속음과 간헐 원샷을
+런타임에 생성하며 극장·마을·초원·월식 보스의 파형과 음역이 다르다. `ambienceClip`과 `detailClip`을
+지정하면 완성 음원으로 자동 교체되고, `ambienceVolume`, `detailVolume`, `detailInterval`로 지역별
+밀도를 조절한다. `MapLoader`와 `GameFlowController`가 맵 이동·전투 진입 전에 환경음 페이드를
+시작하며 필드 복귀 시 자동으로 다시 페이드 인한다.
+
 기본 진행 순서:
 1. 잔향 극장에서 아리아와 대화
 2. 잔향 마을을 지나 달빛 초원 도착
@@ -85,7 +92,7 @@ Light 2D를 배치한다. `Environment` 아래에는 안개 6겹과 빛가루 24
    Player  (SpriteRenderer, Rigidbody2D Kinematic, BoxCollider2D, Tag=Player, PlayerController)
    Symbol_* (SpriteRenderer, CircleCollider2D isTrigger, EncounterSymbol)
    FieldCamera
-   Environment (+FieldAtmosphereController)
+   Environment (+FieldAtmosphereController, FieldAmbientAudio)
       GlobalMoonlight (Global Light 2D), LocalLight_* (Point Light 2D)
       FogLayers (6), Motes (24)
    FieldUI (Canvas) → 방향 버튼 4개(VirtualDPadButton), A 버튼(VirtualActionButton)
@@ -266,6 +273,6 @@ Core/Legendary JSON 값을 바꾼 뒤 각 데이터 생성 메뉴를 다시 실�
 
 ## 다음 작업 후보
 1. 필살기별 실제 파티클·녹음 SFX 에셋 교체
-2. 프롤로그 실제 타일·캐릭터 아트와 지역 환경음 교체
+2. 프롤로그 실제 타일·캐릭터 아트와 녹음 환경음 교체
 3. 엔딩 갤러리와 회차 시작
 4. 설정/오디오/언어 메뉴

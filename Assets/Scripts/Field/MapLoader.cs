@@ -64,6 +64,7 @@ namespace ShadowTheater.Field
             }
 
             var oldFader = ScreenFader.Instance;
+            FieldAmbientAudio.Instance?.BeginFadeOut();
             if (oldFader != null) yield return oldFader.FadeOut();
 
             var save = SaveManager.Current;

@@ -518,6 +518,15 @@ namespace ShadowTheater.EditorTools
             Set(so, "fogPulse", profile.fogPulse); Set(so, "motePulse", profile.motePulse);
             Set(so, "pulseSpeed", profile.pulseSpeed);
             so.ApplyModifiedPropertiesWithoutUndo();
+
+            var ambience = root.AddComponent<FieldAmbientAudio>();
+            var audioSo = new SerializedObject(ambience);
+            Set(audioSo, "style", (int)theme);
+            Set(audioSo, "ambienceVolume", profile.ambienceVolume);
+            Set(audioSo, "detailVolume", profile.detailVolume);
+            Set(audioSo, "fadeDuration", .4f);
+            Set(audioSo, "detailInterval", profile.detailInterval);
+            audioSo.ApplyModifiedPropertiesWithoutUndo();
         }
 
         private static EnvironmentProfile ProfileFor(Theme theme)
@@ -532,6 +541,7 @@ namespace ShadowTheater.EditorTools
                         pointIntensity = 1.15f, fogColor = new Color(.37f,.16f,.54f), fogAlpha = .18f,
                         moteColor = new Color(1f,.72f,.35f), fogDrift = new Vector2(.10f,.008f),
                         moteDrift = new Vector2(.025f,.07f), fogPulse = .10f, motePulse = .35f, pulseSpeed = .68f,
+                        ambienceVolume = .26f, detailVolume = .22f, detailInterval = new Vector2(5f,9f),
                         lightPositions = new[] { new Vector2(-5.5f,3.5f), new Vector2(5.5f,3.5f), new Vector2(0f,-1f) }
                     };
                 case Theme.Village:
@@ -542,6 +552,7 @@ namespace ShadowTheater.EditorTools
                         pointIntensity = .95f, fogColor = new Color(.20f,.47f,.58f), fogAlpha = .14f,
                         moteColor = new Color(.48f,1f,.92f), fogDrift = new Vector2(.075f,.012f),
                         moteDrift = new Vector2(.02f,.055f), fogPulse = .08f, motePulse = .28f, pulseSpeed = .58f,
+                        ambienceVolume = .23f, detailVolume = .18f, detailInterval = new Vector2(6f,11f),
                         lightPositions = new[] { new Vector2(-5f,4f), new Vector2(4.5f,4f), new Vector2(-3f,-4f), new Vector2(6f,-3f) }
                     };
                 case Theme.Meadow:
@@ -552,6 +563,7 @@ namespace ShadowTheater.EditorTools
                         pointIntensity = 1.05f, fogColor = new Color(.27f,.60f,.64f), fogAlpha = .16f,
                         moteColor = new Color(.71f,.75f,1f), fogDrift = new Vector2(.14f,.018f),
                         moteDrift = new Vector2(.035f,.09f), fogPulse = .13f, motePulse = .42f, pulseSpeed = .82f,
+                        ambienceVolume = .28f, detailVolume = .2f, detailInterval = new Vector2(4f,8f),
                         lightPositions = new[] { new Vector2(-6f,5f), new Vector2(1f,5f), new Vector2(6f,2f), new Vector2(-3f,-4f), new Vector2(4f,-5f) }
                     };
                 default:
@@ -562,6 +574,7 @@ namespace ShadowTheater.EditorTools
                         pointIntensity = 1.35f, fogColor = new Color(.42f,.15f,.59f), fogAlpha = .24f,
                         moteColor = new Color(.88f,.77f,1f), fogDrift = new Vector2(.18f,-.012f),
                         moteDrift = new Vector2(-.03f,.12f), fogPulse = .18f, motePulse = .52f, pulseSpeed = 1.05f,
+                        ambienceVolume = .34f, detailVolume = .3f, detailInterval = new Vector2(3.5f,6.5f),
                         lightPositions = new[] { new Vector2(-6f,2f), new Vector2(6f,2f), new Vector2(-3f,6f), new Vector2(3f,6f), new Vector2(0f,1f) }
                     };
             }
@@ -777,7 +790,8 @@ namespace ShadowTheater.EditorTools
         {
             public Color globalColor, pointColor, secondaryLightColor, fogColor, moteColor;
             public float globalIntensity, pointIntensity, fogAlpha, fogPulse, motePulse, pulseSpeed;
-            public Vector2 fogDrift, moteDrift;
+            public float ambienceVolume, detailVolume;
+            public Vector2 fogDrift, moteDrift, detailInterval;
             public Vector2[] lightPositions;
         }
         private class FieldSceneContext { public Scene scene; public Transform fieldRoot; }
