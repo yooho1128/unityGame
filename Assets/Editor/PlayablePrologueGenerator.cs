@@ -41,6 +41,7 @@ namespace ShadowTheater.EditorTools
         private static Sprite _pixelEncounterSprite;
         private static Sprite _pixelLanternKeeperSprite;
         private static PlayerSpriteSet _pixelPlayerSprites;
+        private static readonly Dictionary<string, Sprite> PixelFieldActors = new Dictionary<string, Sprite>();
 
         [MenuItem("Tools/Shadow Theater/Generate Playable Prologue")]
         public static void Generate()
@@ -66,7 +67,7 @@ namespace ShadowTheater.EditorTools
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             EditorSceneManager.OpenScene($"{SceneFolder}/Title.unity", OpenSceneMode.Single);
-            Debug.Log("[World] 프롤로그와 제2막 왕관의 재 6개 필드 생성 완료");
+            Debug.Log("[World] 프롤로그와 제2막 왕관의 재 10개 픽셀 필드 생성 완료");
         }
 
         private static void GenerateDependencies()
@@ -140,7 +141,6 @@ namespace ShadowTheater.EditorTools
         {
             var map = BeginFieldScene("MoonlitMeadow", "달빛 초원", new Vector2Int(-8, 0),
                 new Color(0.035f, 0.065f, 0.11f), Theme.Meadow);
-            ApplyMoonlitPixelPass(map.fieldRoot);
             CreateAreaTrigger(map.fieldRoot, new Vector2Int(-8, 0), "area_moonlit_meadow");
             var lanternKeeper = CreateNpc(map.fieldRoot, "LanternKeeperMoen", new Vector2Int(1, 5), LoadShadow("crow"),
                 "npc_lantern_keeper", "npc_lantern_keeper_intro", "npc_lantern_keeper_repeat",
@@ -305,6 +305,7 @@ namespace ShadowTheater.EditorTools
             var player = CreatePlayer(fieldRoot.transform, startCell);
             CreateCamera("FieldCamera", cameraColor, player.transform, true).transform.SetParent(fieldRoot.transform);
             CreateEnvironment(fieldRoot.transform, theme);
+            ApplyPixelFieldPass(fieldRoot.transform, theme);
             CreateFieldUi(fieldRoot.transform);
             CreateRegionLabel(fieldRoot.transform, displayName);
 
@@ -539,9 +540,11 @@ namespace ShadowTheater.EditorTools
         {
             var go = new GameObject(name, typeof(SpriteRenderer), typeof(BoxCollider2D));
             go.transform.SetParent(parent); go.transform.position = Cell(cell);
-            var renderer = go.GetComponent<SpriteRenderer>(); renderer.sprite = visual?.silhouetteSprite;
-            renderer.color = visual != null ? visual.accentColor * 0.8f : Color.white; renderer.sortingOrder = 8;
-            ApplyLit(renderer);
+            var renderer = go.GetComponent<SpriteRenderer>();
+            renderer.sprite = CreatePixelFieldActorSprite(visual);
+            if (renderer.sprite == null) renderer.sprite = visual?.silhouetteSprite;
+            renderer.color = Color.white;
+            renderer.sortingOrder = 8;
             var box = go.GetComponent<BoxCollider2D>(); box.size = new Vector2(0.72f, 0.82f); box.isTrigger = trigger;
             return go;
         }
@@ -773,7 +776,7 @@ namespace ShadowTheater.EditorTools
             audioSo.ApplyModifiedPropertiesWithoutUndo();
         }
 
-        private static void ApplyMoonlitPixelPass(Transform fieldRoot)
+        private static void ApplyPixelFieldPass(Transform fieldRoot, Theme theme)
         {
             Transform grid = fieldRoot.Find("Grid");
             if (grid != null)
@@ -795,7 +798,7 @@ namespace ShadowTheater.EditorTools
             var camera = fieldRoot.GetComponentInChildren<Camera>();
             if (camera != null)
             {
-                camera.backgroundColor = new Color(.025f, .035f, .085f, 1f);
+                if (theme == Theme.Meadow) camera.backgroundColor = new Color(.025f, .035f, .085f, 1f);
                 camera.orthographicSize = 5.5f;
                 var follow = camera.GetComponent<FieldCameraFollow>();
                 if (follow != null)
@@ -809,13 +812,13 @@ namespace ShadowTheater.EditorTools
                 if (cameraData != null) cameraData.renderPostProcessing = false;
             }
 
-            // Pixel tiles must stay crisp. The painterly fog and post-processing used by
-            // other regions are intentionally disabled for this classic handheld map.
+            // Pixel tiles must stay crisp. Fog quads and post-processing blur their edges,
+            // so every playable field now uses the same handheld-style rendering rules.
             Transform environment = fieldRoot.Find("Environment");
             environment?.Find("FogLayers")?.gameObject.SetActive(false);
             environment?.Find("Motes")?.gameObject.SetActive(false);
 
-            const string profilePath = "Assets/Data/Generated/Materials/MoonlitMeadowVolume.asset";
+            string profilePath = $"Assets/Data/Generated/Materials/{theme}Volume.asset";
             if (AssetDatabase.LoadMainAssetAtPath(profilePath) != null) AssetDatabase.DeleteAsset(profilePath);
         }
 
@@ -1072,22 +1075,53 @@ namespace ShadowTheater.EditorTools
         {
             string texturePath = $"{TileArtFolder}/{name}.png";
             var texture = new Texture2D(32, 32, TextureFormat.RGBA32, false);
+            bool ground = name.EndsWith("_Ground");
+            bool wall = name.EndsWith("_Wall");
+            bool accent = name.EndsWith("_Accent");
+            Color dark = Color.Lerp(baseColor, Color.black, .38f);
+            Color transparent = new Color(0f, 0f, 0f, 0f);
             for (int y = 0; y < 32; y++)
             for (int x = 0; x < 32; x++)
             {
-                bool edge = x < 2 || y < 2 || x > 29 || y > 29;
-                bool fleck = (x * 13 + y * 7 + name.Length) % 37 == 0;
-                texture.SetPixel(x, y, edge || fleck ? detailColor : baseColor);
+                Color color = baseColor;
+                if (ground)
+                {
+                    bool patch = ((x / 8 + y / 8) & 1) == 0;
+                    bool fleck = (x * 13 + y * 7 + name.Length) % 53 < 2;
+                    color = fleck ? detailColor : patch ? baseColor : Color.Lerp(baseColor, dark, .10f);
+                }
+                else if (wall)
+                {
+                    bool mortar = y % 8 < 2 || ((x + (y / 8 % 2) * 8) % 16) < 2;
+                    bool rim = y > 27;
+                    color = rim ? detailColor : mortar ? dark : baseColor;
+                }
+                else if (accent)
+                {
+                    int dx = x - 16;
+                    int dy = y - 14;
+                    int radius = dx * dx + dy * dy;
+                    bool trunk = x >= 13 && x <= 18 && y < 10;
+                    if (!trunk && radius > 205) color = transparent;
+                    else if (trunk) color = dark;
+                    else if (radius < 115 && ((x / 4 + y / 3) & 1) == 0) color = dark;
+                    else color = detailColor;
+                }
+                texture.SetPixel(x, y, color);
             }
             texture.Apply(); File.WriteAllBytes(texturePath, texture.EncodeToPNG());
             UnityEngine.Object.DestroyImmediate(texture); AssetDatabase.ImportAsset(texturePath, ImportAssetOptions.ForceSynchronousImport);
             var importer = AssetImporter.GetAtPath(texturePath) as TextureImporter;
             importer.textureType = TextureImporterType.Sprite; importer.spriteImportMode = SpriteImportMode.Single;
-            importer.spritePixelsPerUnit = 32; importer.filterMode = FilterMode.Point; importer.mipmapEnabled = false; importer.SaveAndReimport();
+            importer.spritePixelsPerUnit = 32; importer.filterMode = FilterMode.Point; importer.mipmapEnabled = false;
+            importer.alphaIsTransparency = accent; importer.textureCompression = TextureImporterCompression.Uncompressed;
+            importer.SaveAndReimport();
             string tilePath = $"{TileFolder}/{name}.asset";
             var tile = AssetDatabase.LoadAssetAtPath<Tile>(tilePath);
             if (tile == null) { tile = ScriptableObject.CreateInstance<Tile>(); AssetDatabase.CreateAsset(tile, tilePath); }
-            tile.sprite = AssetDatabase.LoadAssetAtPath<Sprite>(texturePath); EditorUtility.SetDirty(tile); return tile;
+            tile.sprite = AssetDatabase.LoadAssetAtPath<Sprite>(texturePath);
+            tile.colliderType = Tile.ColliderType.Grid;
+            EditorUtility.SetDirty(tile); return tile;
         }
 
         private static Tile CreatePixelMeadowTile(string name, PixelTileKind kind)
@@ -1309,6 +1343,99 @@ namespace ShadowTheater.EditorTools
             _pixelLanternKeeperSprite = SavePixelSprite(texture, path, 24f);
             return _pixelLanternKeeperSprite;
         }
+
+        private static Sprite CreatePixelFieldActorSprite(ShadowData shadow)
+        {
+            if (shadow == null || string.IsNullOrEmpty(shadow.shadowId)) return null;
+            if (PixelFieldActors.TryGetValue(shadow.shadowId, out Sprite cached) && cached != null) return cached;
+
+            string safeId = shadow.shadowId.Replace("/", "_").Replace("\\", "_");
+            string path = $"{PixelCharacterFolder}/Field_{safeId}.png";
+            var texture = NewClearTexture(24, 32);
+            Color accent = ClampColor(shadow.accentColor);
+            Color light = Color.Lerp(accent, Color.white, .42f);
+            Color dark = Color.Lerp(accent, new Color(.025f, .02f, .07f), .68f);
+            Color body = Color.Lerp(accent, new Color(.08f, .07f, .14f), .48f);
+            Color outline = new Color32(16, 15, 34, 255);
+
+            // Feet and lower cloak. A one-pixel asymmetry keeps each generated actor from
+            // looking like a scaled battle silhouette when viewed on the field grid.
+            int seed = StableHash(shadow.shadowId);
+            int footShift = (seed & 1);
+            FillPixelRect(texture, 7, 2 + footShift, 4, 6, outline);
+            FillPixelRect(texture, 13, 3 - footShift, 4, 5, outline);
+            FillPixelRect(texture, 8, 3 + footShift, 2, 4, dark);
+            FillPixelRect(texture, 14, 4 - footShift, 2, 3, dark);
+
+            int shoulder = shadow.role == ShadowRole.Tank ? 3 : shadow.role == ShadowRole.SpeedUtility ? 5 : 4;
+            int width = 24 - shoulder * 2;
+            FillPixelRect(texture, shoulder, 8, width, 12, outline);
+            FillPixelRect(texture, shoulder + 2, 9, width - 4, 10, body);
+            FillPixelRect(texture, shoulder + 1, 10, 2, 7, accent);
+            FillPixelRect(texture, 21 - shoulder, 10, 2, 7, accent);
+
+            // Head silhouette varies by combat role, creating readable NPC/boss families.
+            if (shadow.role == ShadowRole.MagicNuker || shadow.role == ShadowRole.Support)
+            {
+                FillPixelRect(texture, 5, 20, 14, 4, outline);
+                FillPixelRect(texture, 7, 23, 10, 6, outline);
+                FillPixelRect(texture, 8, 21, 8, 7, dark);
+                if (shadow.role == ShadowRole.MagicNuker) FillPixelRect(texture, 10, 29, 4, 2, accent);
+            }
+            else if (shadow.role == ShadowRole.SpeedUtility)
+            {
+                FillPixelRect(texture, 6, 20, 12, 9, outline);
+                FillPixelRect(texture, 7, 21, 10, 7, dark);
+                FillPixelRect(texture, 5, 27, 4, 4, outline);
+                FillPixelRect(texture, 15, 27, 4, 4, outline);
+                FillPixelRect(texture, 6, 28, 2, 2, accent);
+                FillPixelRect(texture, 16, 28, 2, 2, accent);
+            }
+            else
+            {
+                FillPixelRect(texture, 6, 20, 12, 9, outline);
+                FillPixelRect(texture, 7, 21, 10, 7, dark);
+                if (shadow.role == ShadowRole.Tank)
+                {
+                    FillPixelRect(texture, 4, 23, 3, 5, outline);
+                    FillPixelRect(texture, 17, 23, 3, 5, outline);
+                }
+            }
+
+            int eyeY = 23 + ((seed >> 2) & 1);
+            FillPixelRect(texture, 9, eyeY, 2, 2, light);
+            FillPixelRect(texture, 13, eyeY, 2, 2, light);
+
+            // Physical attackers carry a small side weapon; legendary actors gain a crown flare.
+            if (shadow.role == ShadowRole.PhysicalDealer)
+            {
+                FillPixelRect(texture, 19, 8, 2, 13, outline);
+                FillPixelRect(texture, 20, 10, 1, 10, light);
+            }
+            if (shadow.growthTier == GrowthTier.Legendary || shadow.growthTier == GrowthTier.RegionalBoss)
+            {
+                FillPixelRect(texture, 8, 29, 2, 2, light);
+                FillPixelRect(texture, 11, 30, 2, 2, accent);
+                FillPixelRect(texture, 14, 29, 2, 2, light);
+            }
+
+            Sprite sprite = SavePixelSprite(texture, path, 24f);
+            PixelFieldActors[shadow.shadowId] = sprite;
+            return sprite;
+        }
+
+        private static int StableHash(string value)
+        {
+            unchecked
+            {
+                int hash = 17;
+                for (int i = 0; i < value.Length; i++) hash = hash * 31 + value[i];
+                return hash & int.MaxValue;
+            }
+        }
+
+        private static Color ClampColor(Color color) => new Color(
+            Mathf.Clamp01(color.r), Mathf.Clamp01(color.g), Mathf.Clamp01(color.b), 1f);
 
         private static Texture2D NewClearTexture(int width, int height)
         {
