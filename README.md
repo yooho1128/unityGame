@@ -43,6 +43,13 @@
 3. 전투 전/승리 대화 ID를 `DialogueCatalog.json`의 ID와 연결
 4. 보스는 Unit 레이어의 비 Trigger Collider로 두어 플레이어가 정면에서 상호작용하게 설정
 
+## 타이틀·스타터·맵 이동 빠른 설치
+1. Unity 메뉴 **Tools → Shadow Theater → Generate Title and Starter UI** 실행
+2. 타이틀 씬에 `CoreSystems.prefab`, `TitleCanvas.prefab`, EventSystem 배치
+3. `TitleCanvas`의 StarterSelectionController에 붉은 불꽃/푸른 서리/자줏빛 그림자 SO를 순서대로 등록
+4. 모든 지역 씬을 Build Settings에 추가하고 씬 이름을 `mapId`로 사용
+5. 맵 출구에 Trigger Collider2D와 `MapPortal`을 붙여 목표 씬·좌표·방향 지정
+
 자세한 씬 구성은 [`Docs/SETUP.md`](Docs/SETUP.md) 참고.
 
 ## Unity 없이 작업할 때

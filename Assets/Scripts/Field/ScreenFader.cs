@@ -25,6 +25,8 @@ namespace ShadowTheater.Field
 
         public IEnumerator FadeOut(float duration = -1f) => Fade(1f, duration < 0 ? defaultDuration : duration);
         public IEnumerator FadeIn(float duration = -1f) => Fade(0f, duration < 0 ? defaultDuration : duration);
+        public void SetOpaque() => SetAlpha(1f);
+        public void SetClear() => SetAlpha(0f);
 
         private IEnumerator Fade(float target, float duration)
         {

@@ -79,12 +79,12 @@ namespace ShadowTheater.Save
             return _current;
         }
 
-        public void Save()
+        public void Save(bool captureRuntimeState = true)
         {
             if (_current == null) return;
             try
             {
-                BeforeSave?.Invoke();
+                if (captureRuntimeState) BeforeSave?.Invoke();
                 _current.version = SaveData.CurrentVersion;
                 _current.savedAtUtcTicks = DateTime.UtcNow.Ticks;
                 string json = JsonUtility.ToJson(_current, prettyPrint);

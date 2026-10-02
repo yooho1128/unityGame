@@ -8,11 +8,12 @@ Assets/Scripts/
            DebugBattlePresenter, BattleManager, BattleTestBootstrap
   Save/    SaveData, SaveManager
   Field/   FieldGrid, PlayerController, EncounterSymbol, ScreenFader,
-           VirtualDPadButton, VirtualActionButton, GameFlowController
+           VirtualDPadButton, VirtualActionButton, GameFlowController, MapLoader, MapPortal
   Story/   DialogueData/Repository, StoryNpc, DialogueInteractable,
            QuestData/Repository/Manager, QuestAreaTrigger, BossEncounterTrigger
-  UI/      DialogueController, DialogueChoiceView, QuestHudController
-  Editor/  DialogueUIPrefabGenerator, QuestHudPrefabGenerator
+  UI/      DialogueController, DialogueChoiceView, QuestHudController,
+           TitleScreenController, StarterSelectionController, StarterCardView
+  Editor/  DialogueUIPrefabGenerator, QuestHudPrefabGenerator, FrontEndPrefabGenerator
 ```
 
 ## 프로젝트 설정
@@ -89,6 +90,30 @@ Assets/Scripts/
 플레이어가 정면에서 상호작용하면 전투 전 대사가 재생되고 보스전으로 전환된다. 승리하면 필드 복귀 후
 정화 대사를 재생하고 `victoryFlag`와 고정 인카운터 클리어를 저장한다. 패배하면 보스는 남아 재도전할 수 있다.
 
+## 타이틀과 스타터 선택
+1. 메뉴 `Tools > Shadow Theater > Generate Title and Starter UI` 실행
+2. 생성된 `Assets/Prefabs/Systems/CoreSystems.prefab`과 `Assets/Prefabs/UI/TitleCanvas.prefab`을 타이틀 씬에 배치
+3. EventSystem을 1개 배치
+4. `TitleCanvas > StarterSelectionController > Starters`에 아래 3개 ShadowData를 순서대로 등록
+   - 붉은 불꽃: 멸망한 왕국의 기사
+   - 푸른 서리: 금기된 책의 마도사
+   - 자줏빛 그림자: 밤의 방랑 야수
+5. `TitleScreenController`의 `firstScene`, `firstCell`, 시작 아이템을 설정
+
+이어하기 버튼은 정상 세이브가 있을 때만 활성화된다. 새 게임은 스타터 선택 직후 세이브를 만들고
+첫 씬의 지정 좌표로 이동한다. `CoreSystems`는 씬 전환 후에도 유지되며 저장과 맵 이동을 담당한다.
+
+## 지역 간 맵 이동
+1. 이동 대상이 되는 모든 씬을 `File > Build Settings > Scenes In Build`에 추가
+2. 길 끝/문 타일에 Collider2D와 `MapPortal`을 추가
+3. 자동 출구는 `activateOnTouch=true` + Trigger Collider, 문은 false + 비 Trigger Collider로 설정
+4. `targetScene`, `arrivalCell`, `arrivalFacing`을 반대편 입구의 안전한 타일로 지정
+5. 여관/극장 입구처럼 부활 지점도 갱신할 곳은 `setCheckpoint` 활성화
+
+맵 이동 시 화면이 페이드되고 목표 씬/좌표/방향이 먼저 안전 저장된다. 도착 직후 0.65초 동안
+포털 재진입을 막아 양방향 출구 사이에서 즉시 되돌아가는 현상을 방지한다. `requiredFlag`와
+`blockedFlag`로 스토리 진행에 따른 출구 잠금도 가능하다.
+
 ## 전투만 먼저 확인할 때
 빈 씬 → GameObject에 BattleManager + BattleTestBootstrap → ShadowData 연결 → Play.
 화면 좌상단 OnGUI 버튼으로 조작, 로그는 Console.
@@ -96,6 +121,6 @@ Assets/Scripts/
 ## 다음 작업 후보
 1. BattleUI (uGUI) — BattleManager 이벤트 바인딩 (HP바, FP 구슬, 행동 메뉴)
 2. DOTween BattlePresenter — 돌진/피격/컷인/카메라 쉐이크 (웹 프로토타입 연출 그대로)
-3. 타이틀 / 스타터 선택 / 맵 이동(MapLoader)
-4. 무한의 훈련소 (TrainingTower: 층 루프 + 배속/오토)
-5. 도감 UI와 그림자 상세 Lore 화면
+3. 무한의 훈련소 (TrainingTower: 층 루프 + 배속/오토)
+4. 도감 UI와 그림자 상세 Lore 화면
+5. 설정/오디오/언어 메뉴
