@@ -42,6 +42,7 @@ namespace ShadowTheater.EditorTools
             if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
 
             GenerateDependencies();
+            MissingScriptRepairUtility.RepairGeneratedPrefabs();
             EnsureFolders();
             EnsureUrp2DRenderer();
             CreateTitleScene();
@@ -815,12 +816,13 @@ namespace ShadowTheater.EditorTools
 
             const string profilePath = "Assets/Data/Generated/Materials/MoonlitMeadowVolume.asset";
             var profile = AssetDatabase.LoadAssetAtPath<VolumeProfile>(profilePath);
-            if (profile == null)
-            {
-                profile = ScriptableObject.CreateInstance<VolumeProfile>();
-                profile.name = "MoonlitMeadowVolume";
-                AssetDatabase.CreateAsset(profile, profilePath);
-            }
+            // Volume components are sub-assets. A package reload can leave null/missing
+            // sub-assets that hierarchy-only Missing Script scans cannot see, so this
+            // generated profile is rebuilt atomically every time.
+            if (profile != null) AssetDatabase.DeleteAsset(profilePath);
+            profile = ScriptableObject.CreateInstance<VolumeProfile>();
+            profile.name = "MoonlitMeadowVolume";
+            AssetDatabase.CreateAsset(profile, profilePath);
 
             if (!profile.TryGet(out Bloom bloom)) bloom = profile.Add<Bloom>();
             bloom.active = true;
@@ -1131,15 +1133,7 @@ namespace ShadowTheater.EditorTools
         private static Scene NewScene() => EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
         private static void Save(Scene scene, string name)
         {
-            int removed = 0;
-            foreach (var root in scene.GetRootGameObjects())
-            foreach (var child in root.GetComponentsInChildren<Transform>(true))
-            {
-                int missing = GameObjectUtility.GetMonoBehavioursWithMissingScriptCount(child.gameObject);
-                if (missing <= 0) continue;
-                GameObjectUtility.RemoveMonoBehavioursWithMissingScript(child.gameObject);
-                removed += missing;
-            }
+            int removed = MissingScriptRepairUtility.RemoveFromScene(scene, name);
             if (removed > 0) Debug.LogWarning($"[Prologue] {name} 씬에서 Missing Script {removed}개를 정리했습니다.");
             EditorSceneManager.SaveScene(scene, $"{SceneFolder}/{name}.unity");
         }

@@ -196,4 +196,7 @@ Bloom·색 보정·비네트, 이동 안개와 반딧불을 결합합니다. 배
 
 필드 전투에서 복귀할 때는 `FieldGrid`가 다시 활성화될 때까지 심볼 AI가 대기한 후 위치와 배회를
 복원합니다. 따라서 필드 루트 활성화 순서에 따른 `EncounterSymbol.OnEnable` null 오류가 발생하지
-않습니다. 씬 생성기는 저장 전에 계층 전체의 오래된 `Missing Script` 컴포넌트도 자동 제거합니다.
+않습니다. 씬 생성기는 저장 전에 계층 전체의 오래된 `Missing Script` 컴포넌트를 자동 제거하고,
+`Assets/Prefabs`의 생성 프리팹도 다시 검사합니다. URP 후처리의 하위 컴포넌트가 누락되는 경우까지
+없애기 위해 `MoonlitMeadowVolume.asset`은 생성할 때마다 새로 구성합니다. 별도 검사는 Unity 메뉴
+**Tools → Shadow Theater → Repair Missing Scripts**에서 실행할 수 있습니다.
