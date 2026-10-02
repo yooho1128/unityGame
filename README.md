@@ -176,3 +176,15 @@
 ## Unity 없이 작업할 때
 - `Prototype/shadow-theater.html`을 브라우저로 열어 전투/포획/밸런스 테스트
 - "밸런스 데이터" 탭의 필드명 = SO 필드명 → 확정한 수치를 SO에 그대로 입력
+
+## 달빛 초원 비주얼 패스
+
+`MoonlitMeadow`는 단색 개발 타일 대신 실제 탑다운 배경 아트, 비가시 충돌 타일맵, URP 2D 조명,
+Bloom·색 보정·비네트, 이동 안개와 반딧불을 결합합니다. 배경 원본은
+`Assets/Art/Environment/MoonlitMeadow/MoonlitMeadow_Backdrop.png`이며 **Generate Playable Prologue**를
+다시 실행하면 씬과 후처리 프로필에 자동 연결됩니다. 충돌과 포털은 기존 그리드 시스템을 사용하므로
+좌우·상하 이동과 분기형 탐색 구조는 그대로 유지됩니다.
+
+필드 플레이어는 임시 스타터 실루엣 대신 `Assets/Art/Characters/Player/TheaterDirector_Field.png`의
+극단주 전용 스프라이트를 사용합니다. 프레임 애니메이션 없이도 이동 보간, 좌우 반전과 바운스로
+걷는 느낌을 유지합니다.

@@ -26,12 +26,15 @@ namespace ShadowTheater.EditorTools
         private const string SceneFolder = "Assets/Scenes/Prologue";
         private const string TileFolder = "Assets/Data/Generated/Tiles";
         private const string TileArtFolder = "Assets/Art/Generated/Tiles";
+        private const string MoonlitBackdropPath = "Assets/Art/Environment/MoonlitMeadow/MoonlitMeadow_Backdrop.png";
+        private const string PlayerFieldSpritePath = "Assets/Art/Characters/Player/TheaterDirector_Field.png";
         private static Tile _groundTile;
         private static Tile _wallTile;
         private static Tile _accentTile;
         private static Material _litMaterial;
         private static Sprite _fogSprite;
         private static Sprite _moteSprite;
+        private static Sprite _playerFieldSprite;
 
         [MenuItem("Tools/Shadow Theater/Generate Playable Prologue")]
         public static void Generate()
@@ -130,6 +133,7 @@ namespace ShadowTheater.EditorTools
         {
             var map = BeginFieldScene("MoonlitMeadow", "달빛 초원", new Vector2Int(-8, 0),
                 new Color(0.035f, 0.065f, 0.11f), Theme.Meadow);
+            ApplyMoonlitMeadowVisualPass(map.fieldRoot);
             CreateAreaTrigger(map.fieldRoot, new Vector2Int(-8, 0), "area_moonlit_meadow");
             CreateNpc(map.fieldRoot, "LanternKeeperMoen", new Vector2Int(1, 5), LoadShadow("crow"),
                 "npc_lantern_keeper", "npc_lantern_keeper_intro", "npc_lantern_keeper_repeat",
@@ -329,16 +333,42 @@ namespace ShadowTheater.EditorTools
             go.transform.position = Cell(cell);
             go.tag = "Player";
             var renderer = go.GetComponent<SpriteRenderer>();
-            renderer.sprite = LoadShadow("knight")?.silhouetteSprite;
-            renderer.color = new Color(0.10f, 0.055f, 0.16f, 1f);
+            renderer.sprite = LoadPlayerFieldSprite();
+            if (renderer.sprite == null) renderer.sprite = LoadShadow("knight")?.silhouetteSprite;
+            renderer.color = _playerFieldSprite != null ? Color.white : new Color(0.10f, 0.055f, 0.16f, 1f);
             renderer.sortingOrder = 10;
-            ApplyLit(renderer);
+            if (_playerFieldSprite == null) ApplyLit(renderer);
             go.GetComponent<Rigidbody2D>().gravityScale = 0f;
             go.GetComponent<CapsuleCollider2D>().size = new Vector2(0.55f, 0.75f);
             var so = new SerializedObject(go.GetComponent<PlayerController>());
             Set(so, "silhouette", renderer);
             so.ApplyModifiedPropertiesWithoutUndo();
             return go.GetComponent<PlayerController>();
+        }
+
+        private static Sprite LoadPlayerFieldSprite()
+        {
+            if (_playerFieldSprite != null) return _playerFieldSprite;
+            var importer = AssetImporter.GetAtPath(PlayerFieldSpritePath) as TextureImporter;
+            if (importer == null)
+            {
+                Debug.LogWarning($"[Prologue] 극단주 필드 스프라이트가 없습니다: {PlayerFieldSpritePath}");
+                return null;
+            }
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.spritePixelsPerUnit = 820f;
+            importer.spriteAlignment = (int)SpriteAlignment.Custom;
+            importer.spritePivot = new Vector2(.5f, .035f);
+            importer.alphaIsTransparency = true;
+            importer.mipmapEnabled = false;
+            importer.filterMode = FilterMode.Bilinear;
+            importer.wrapMode = TextureWrapMode.Clamp;
+            importer.maxTextureSize = 2048;
+            importer.textureCompression = TextureImporterCompression.CompressedHQ;
+            importer.SaveAndReimport();
+            _playerFieldSprite = AssetDatabase.LoadAssetAtPath<Sprite>(PlayerFieldSpritePath);
+            return _playerFieldSprite;
         }
 
         private static Camera CreateCamera(string name, Color background, Transform target, bool follow)
@@ -402,7 +432,7 @@ namespace ShadowTheater.EditorTools
                 case Theme.Meadow:
                     blocks.Add(new RectInt(-6, 4, 2, 2)); blocks.Add(new RectInt(5, 2, 2, 3));
                     blocks.Add(new RectInt(-6, -5, 3, 2)); blocks.Add(new RectInt(2, -6, 2, 2));
-                    blocks.Add(new RectInt(-1, 1, 2, 2)); break;
+                    blocks.Add(new RectInt(-9, 6, 3, 2)); blocks.Add(new RectInt(7, -6, 2, 3)); break;
                 case Theme.AshWastes:
                     blocks.Add(new RectInt(-7,3,3,2)); blocks.Add(new RectInt(4,4,3,2));
                     blocks.Add(new RectInt(-5,-5,2,3)); blocks.Add(new RectInt(3,-6,2,3));
@@ -683,6 +713,98 @@ namespace ShadowTheater.EditorTools
             Set(audioSo, "fadeDuration", .4f);
             Set(audioSo, "detailInterval", profile.detailInterval);
             audioSo.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static void ApplyMoonlitMeadowVisualPass(Transform fieldRoot)
+        {
+            var importer = AssetImporter.GetAtPath(MoonlitBackdropPath) as TextureImporter;
+            if (importer == null)
+            {
+                Debug.LogError($"[MoonlitMeadow] 배경 이미지가 없습니다: {MoonlitBackdropPath}");
+                return;
+            }
+
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.spritePixelsPerUnit = 64f;
+            importer.alphaIsTransparency = false;
+            importer.mipmapEnabled = false;
+            importer.filterMode = FilterMode.Bilinear;
+            importer.wrapMode = TextureWrapMode.Clamp;
+            importer.maxTextureSize = 2048;
+            importer.textureCompression = TextureImporterCompression.CompressedHQ;
+            importer.SaveAndReimport();
+
+            var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(MoonlitBackdropPath);
+            if (sprite == null)
+            {
+                Debug.LogError("[MoonlitMeadow] 배경 스프라이트 임포트에 실패했습니다.");
+                return;
+            }
+
+            Transform grid = fieldRoot.Find("Grid");
+            if (grid != null)
+            {
+                var groundRenderer = grid.Find("Ground")?.GetComponent<TilemapRenderer>();
+                var collisionRenderer = grid.Find("Collision")?.GetComponent<TilemapRenderer>();
+                if (groundRenderer != null) groundRenderer.enabled = false;
+                if (collisionRenderer != null) collisionRenderer.enabled = false;
+            }
+
+            var backdrop = new GameObject("MoonlitMeadowBackdrop", typeof(SpriteRenderer));
+            backdrop.transform.SetParent(fieldRoot, false);
+            backdrop.transform.localPosition = new Vector3(0f, 0f, 0f);
+            // 1672x941 at 64 PPU is 26.1x14.7 world units. Stretch only vertically
+            // to cover the 23x19 exploration grid while preserving horizontal detail.
+            backdrop.transform.localScale = new Vector3(1f, 1.3f, 1f);
+            var backdropRenderer = backdrop.GetComponent<SpriteRenderer>();
+            backdropRenderer.sprite = sprite;
+            backdropRenderer.color = new Color(.88f, .94f, 1f, 1f);
+            backdropRenderer.sortingOrder = -20;
+
+            var camera = fieldRoot.GetComponentInChildren<Camera>();
+            if (camera != null)
+            {
+                camera.backgroundColor = new Color(.008f, .018f, .045f, 1f);
+                var cameraData = camera.GetComponent<UniversalAdditionalCameraData>();
+                if (cameraData == null) cameraData = camera.gameObject.AddComponent<UniversalAdditionalCameraData>();
+                cameraData.renderPostProcessing = true;
+            }
+
+            const string profilePath = "Assets/Data/Generated/Materials/MoonlitMeadowVolume.asset";
+            var profile = AssetDatabase.LoadAssetAtPath<VolumeProfile>(profilePath);
+            if (profile == null)
+            {
+                profile = ScriptableObject.CreateInstance<VolumeProfile>();
+                profile.name = "MoonlitMeadowVolume";
+                AssetDatabase.CreateAsset(profile, profilePath);
+            }
+
+            if (!profile.TryGet(out Bloom bloom)) bloom = profile.Add<Bloom>();
+            bloom.active = true;
+            bloom.intensity.Override(.38f);
+            bloom.threshold.Override(.72f);
+            bloom.scatter.Override(.62f);
+
+            if (!profile.TryGet(out ColorAdjustments color)) color = profile.Add<ColorAdjustments>();
+            color.active = true;
+            color.postExposure.Override(-.08f);
+            color.contrast.Override(9f);
+            color.saturation.Override(-4f);
+
+            if (!profile.TryGet(out Vignette vignette)) vignette = profile.Add<Vignette>();
+            vignette.active = true;
+            vignette.color.Override(new Color(.015f, .025f, .085f));
+            vignette.intensity.Override(.27f);
+            vignette.smoothness.Override(.72f);
+            EditorUtility.SetDirty(profile);
+
+            var volumeObject = new GameObject("MoonlitMeadowPostFX", typeof(Volume));
+            volumeObject.transform.SetParent(fieldRoot, false);
+            var volume = volumeObject.GetComponent<Volume>();
+            volume.isGlobal = true;
+            volume.priority = 10f;
+            volume.sharedProfile = profile;
         }
 
         private static EnvironmentProfile ProfileFor(Theme theme)
