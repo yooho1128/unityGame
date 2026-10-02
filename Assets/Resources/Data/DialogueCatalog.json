@@ -77,13 +77,20 @@
           "text": "기억은 아파도 지켜야 해.",
           "nextDialogueId": "npc_censor_choice_preserve",
           "setFlag": "belief_preserve_memory",
-          "setFlagValue": 1
+          "setFlagValue": 1,
+          "flagChanges": [
+            { "flag": "choice_memory", "delta": 1 }
+          ]
         },
         {
           "text": "때로는 잊는 것도 구원일 수 있어.",
           "nextDialogueId": "npc_censor_choice_mercy",
           "setFlag": "belief_merciful_oblivion",
-          "setFlagValue": 1
+          "setFlagValue": 1,
+          "flagChanges": [
+            { "flag": "choice_memory", "delta": -1 },
+            { "flag": "choice_compassion", "delta": 1 }
+          ]
         }
       ]
     },
@@ -134,6 +141,90 @@
         { "speaker": "달빛의 미망인", "text": "아… 나는 복수를 원한 게 아니었어. 누군가 마지막 장면을 기억해 주길 바랐을 뿐.", "emotion": "sad" },
         { "speaker": "각본집", "text": "새로운 비극이 기록되었습니다. 『달이 지지 않던 밤』", "emotion": "mystery", "setFlag": "memory_moonlit_restored", "setFlagValue": 1 },
         { "speaker": "아리아", "text": "멀리서 검은 종소리가 들려와요. 검열단도 이 기억이 돌아온 걸 알아챈 것 같아요.", "emotion": "warning" }
+      ]
+    },
+    {
+      "dialogueId": "finale_director_choice",
+      "lines": [
+        { "speaker": "마지막 무대", "text": "모든 기억이 한 권의 각본으로 모였다. 이제 세계의 마지막 장면을 정해야 한다.", "emotion": "mystery" },
+        { "speaker": "아리아", "text": "극단주님. 어떤 결말이든, 지금까지의 선택이 그 장면에 함께할 거예요.", "emotion": "calm" }
+      ],
+      "choices": [
+        {
+          "text": "고통까지 포함해 모든 기억을 남긴다.",
+          "nextDialogueId": "finale_choice_preserve",
+          "setFlag": "final_choice_preserve",
+          "setFlagValue": 1,
+          "flagChanges": [
+            { "flag": "choice_memory", "delta": 2 }
+          ]
+        },
+        {
+          "text": "상처 입은 이들이 놓아줄 기억을 직접 고르게 한다.",
+          "nextDialogueId": "finale_choice_release",
+          "setFlag": "final_choice_release",
+          "setFlagValue": 1,
+          "flagChanges": [
+            { "flag": "choice_memory", "delta": -2 },
+            { "flag": "choice_compassion", "delta": 2 }
+          ]
+        },
+        {
+          "text": "각본집을 검은 검열단에게 넘긴다.",
+          "nextDialogueId": "finale_choice_submit",
+          "setFlag": "final_choice_submit",
+          "setFlagValue": 1,
+          "flagChanges": [
+            { "flag": "choice_control", "delta": 3 }
+          ]
+        }
+      ]
+    },
+    {
+      "dialogueId": "finale_choice_preserve",
+      "lines": [
+        { "speaker": "극단주", "text": "아픔을 없던 일로 만들지는 않겠다. 우리는 기억하고, 그 다음 장면을 살아갈 것이다.", "emotion": "resolve" }
+      ]
+    },
+    {
+      "dialogueId": "finale_choice_release",
+      "lines": [
+        { "speaker": "극단주", "text": "기억은 감옥이 아니다. 남길지 놓아줄지는 그 기억의 주인이 선택해야 한다.", "emotion": "resolve" }
+      ]
+    },
+    {
+      "dialogueId": "finale_choice_submit",
+      "lines": [
+        { "speaker": "극단주", "text": "이 이야기는 너무 오래 아팠다. 이제 모든 막을 내릴 시간이다.", "emotion": "cold" }
+      ]
+    },
+    {
+      "dialogueId": "ending_true_archive",
+      "lines": [
+        { "speaker": "각본집", "text": "기억은 보존되었고, 누구도 타인의 장면을 강요하지 않았다.", "emotion": "hope" },
+        { "speaker": "아리아", "text": "새벽이 왔어요. 그림자들이 처음으로 자신의 이름을 직접 말하고 있어요.", "emotion": "joy" },
+        { "speaker": "막", "text": "진엔딩 ― 이름을 되찾은 극장", "emotion": "ending" }
+      ]
+    },
+    {
+      "dialogueId": "ending_eternal_stage",
+      "lines": [
+        { "speaker": "각본집", "text": "모든 기억은 완벽히 보존되었다. 기쁨도, 견딜 수 없는 비극도 영원히.", "emotion": "solemn" },
+        { "speaker": "막", "text": "엔딩 ― 끝나지 않는 공연", "emotion": "ending" }
+      ]
+    },
+    {
+      "dialogueId": "ending_merciful_dawn",
+      "lines": [
+        { "speaker": "각본집", "text": "놓아주기로 선택한 기억은 빛이 되어 사라지고, 남은 이들은 가벼운 발로 새벽을 걸었다.", "emotion": "hope" },
+        { "speaker": "막", "text": "엔딩 ― 다정한 망각의 새벽", "emotion": "ending" }
+      ]
+    },
+    {
+      "dialogueId": "ending_hollow_curtain",
+      "lines": [
+        { "speaker": "검은 검열단", "text": "마침내 모든 소음이 사라졌다. 슬픔도, 이름도, 다시 시작할 이유도.", "emotion": "cold" },
+        { "speaker": "막", "text": "배드 엔딩 ― 텅 빈 막", "emotion": "ending" }
       ]
     }
   ]

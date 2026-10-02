@@ -124,6 +124,12 @@ namespace ShadowTheater.UI
 
             if (!string.IsNullOrEmpty(choice.setFlag))
                 SaveManager.SetFlag(choice.setFlag, choice.setFlagValue);
+            if (choice.flagChanges != null)
+            {
+                foreach (var change in choice.flagChanges)
+                    if (change != null && !string.IsNullOrEmpty(change.flag) && change.delta != 0)
+                        SaveManager.SetFlag(change.flag, SaveManager.GetFlag(change.flag) + change.delta);
+            }
             if (!string.IsNullOrEmpty(choice.startQuestId))
                 QuestManager.Instance?.TryStartQuest(choice.startQuestId, false);
 

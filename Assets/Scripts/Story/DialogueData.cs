@@ -45,5 +45,13 @@ namespace ShadowTheater.Story
         public string setFlag;
         public int setFlagValue = 1;
         public string startQuestId;
+        public List<DialogueFlagChange> flagChanges = new List<DialogueFlagChange>();
+    }
+
+    [Serializable]
+    public class DialogueFlagChange
+    {
+        public string flag;
+        public int delta;
     }
 }

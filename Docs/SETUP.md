@@ -10,7 +10,8 @@ Assets/Scripts/
   Field/   FieldGrid, PlayerController, EncounterSymbol, ScreenFader,
            VirtualDPadButton, VirtualActionButton, GameFlowController, MapLoader, MapPortal
   Story/   DialogueData/Repository, StoryNpc, DialogueInteractable,
-           QuestData/Repository/Manager, QuestAreaTrigger, BossEncounterTrigger
+           QuestData/Repository/Manager, QuestAreaTrigger, BossEncounterTrigger,
+           EndingData/Repository/Manager, EndingTrigger
   UI/      DialogueController, DialogueChoiceView, QuestHudController,
            TitleScreenController, StarterSelectionController, StarterCardView
   Editor/  DialogueUIPrefabGenerator, QuestHudPrefabGenerator, FrontEndPrefabGenerator
@@ -114,6 +115,20 @@ Assets/Scripts/
 포털 재진입을 막아 양방향 출구 사이에서 즉시 되돌아가는 현상을 방지한다. `requiredFlag`와
 `blockedFlag`로 스토리 진행에 따른 출구 잠금도 가능하다.
 
+## 다중 엔딩 세팅
+`CoreSystems.prefab`에는 `EndingManager`가 포함된다. 최종 무대의 상호작용 오브젝트에 Collider2D와
+`EndingTrigger`를 붙이고, 최종장 진입 시 `story_finale_unlocked` 플래그를 설정한다. 플레이어가
+상호작용하면 마지막 선택 대사 후 `Resources/Data/EndingCatalog.json`의 조건을 우선순위순으로 판정한다.
+
+선택지의 `flagChanges`에는 누적할 플래그와 증감값을 여러 개 지정할 수 있다. 기본 성향은 다음과 같다.
+- `choice_memory`: 양수는 기억 보존, 음수는 기억 놓아주기
+- `choice_compassion`: 당사자의 선택과 연민을 존중
+- `choice_control`: 검열과 강제 통제를 선택
+
+현재 샘플 엔딩은 `이름을 되찾은 극장`, `끝나지 않는 공연`, `다정한 망각의 새벽`, `텅 빈 막`의
+4종이다. 해금된 엔딩 ID와 마지막 엔딩 ID는 세이브 버전 3에 보존된다. 한 세이브에서 마지막 선택을
+되돌려 점수를 반복 누적하지 않도록 `EndingTrigger.allowReplay`의 기본값은 false다.
+
 ## 전투만 먼저 확인할 때
 빈 씬 → GameObject에 BattleManager + BattleTestBootstrap → ShadowData 연결 → Play.
 화면 좌상단 OnGUI 버튼으로 조작, 로그는 Console.
@@ -121,6 +136,6 @@ Assets/Scripts/
 ## 다음 작업 후보
 1. BattleUI (uGUI) — BattleManager 이벤트 바인딩 (HP바, FP 구슬, 행동 메뉴)
 2. DOTween BattlePresenter — 돌진/피격/컷인/카메라 쉐이크 (웹 프로토타입 연출 그대로)
-3. 무한의 훈련소 (TrainingTower: 층 루프 + 배속/오토)
-4. 도감 UI와 그림자 상세 Lore 화면
+3. 도감 UI와 그림자 상세 Lore 화면
+4. 엔딩 갤러리와 회차 시작
 5. 설정/오디오/언어 메뉴

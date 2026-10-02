@@ -1,0 +1,50 @@
+{
+  "endings": [
+    {
+      "endingId": "hollow_curtain",
+      "title": "텅 빈 막",
+      "subtitle": "고통과 함께 모든 이름이 지워진 세계",
+      "dialogueId": "ending_hollow_curtain",
+      "priority": 100,
+      "requirements": [
+        { "flag": "story_finale_unlocked", "minValue": 1, "maxValue": 0 },
+        { "flag": "choice_control", "minValue": 3, "maxValue": 0 }
+      ]
+    },
+    {
+      "endingId": "true_archive",
+      "title": "이름을 되찾은 극장",
+      "subtitle": "기억과 선택이 함께 남은 진정한 새벽",
+      "dialogueId": "ending_true_archive",
+      "priority": 90,
+      "requirements": [
+        { "flag": "story_finale_unlocked", "minValue": 1, "maxValue": 0 },
+        { "flag": "choice_memory", "minValue": 1, "maxValue": 0 },
+        { "flag": "choice_compassion", "minValue": 1, "maxValue": 0 }
+      ]
+    },
+    {
+      "endingId": "eternal_stage",
+      "title": "끝나지 않는 공연",
+      "subtitle": "모든 비극을 영원히 보존한 세계",
+      "dialogueId": "ending_eternal_stage",
+      "priority": 80,
+      "requirements": [
+        { "flag": "story_finale_unlocked", "minValue": 1, "maxValue": 0 },
+        { "flag": "choice_memory", "minValue": 2, "maxValue": 0 }
+      ]
+    },
+    {
+      "endingId": "merciful_dawn",
+      "title": "다정한 망각의 새벽",
+      "subtitle": "기억의 주인이 놓아줄 장면을 선택한 세계",
+      "dialogueId": "ending_merciful_dawn",
+      "priority": 80,
+      "requirements": [
+        { "flag": "story_finale_unlocked", "minValue": 1, "maxValue": 0 },
+        { "flag": "choice_memory", "minValue": -99, "maxValue": -1 },
+        { "flag": "choice_compassion", "minValue": 1, "maxValue": 0 }
+      ]
+    }
+  ]
+}

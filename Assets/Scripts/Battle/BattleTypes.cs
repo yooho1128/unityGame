@@ -9,8 +9,7 @@ namespace ShadowTheater.Battle
     {
         Wild,       // 필드 심볼 인카운터 - 포획 가능
         Rival,      // 라이벌/검열단 - 포획 불가, 도주 불가
-        Boss,       // 지역 보스(비극의 연극) - 승리 시 정화 이벤트
-        Training    // 무한의 훈련소 - 웨이브 연속
+        Boss        // 지역 보스(비극의 연극) - 승리 시 정화 이벤트
     }
 
     public enum BattleState
@@ -28,7 +27,7 @@ namespace ShadowTheater.Battle
 
     public enum BattleResult { None, Victory, Defeat, Captured, Escaped }
 
-    /// <summary>명세서 5종 + 도주(야생/훈련소 전용)</summary>
+    /// <summary>명세서 5종 + 도주(야생 전투 전용)</summary>
     public enum ActionType { Attack, Skill, Switch, Record, Item, Escape }
 
     /// <summary>한 턴에 한 진영이 선택한 행동</summary>
@@ -74,7 +73,7 @@ namespace ShadowTheater.Battle
     }
 
     /// <summary>
-    /// 전투 진입 시 주입되는 정보. EncounterTrigger / TrainingTower가 만들어서 BattleManager.StartBattle()에 전달.
+    /// 전투 진입 시 주입되는 정보. EncounterTrigger가 만들어서 BattleManager.StartBattle()에 전달.
     /// </summary>
     public class BattleContext
     {
@@ -84,10 +83,10 @@ namespace ShadowTheater.Battle
         public Dictionary<ItemData, int> inventory; // 전투 중 사용할 도구 (null 가능)
         public string encounterId;                 // 퀘스트 플래그/심볼 제거용
         public bool autoBattle;
-        public float timeScale = 1f;               // 배속 (훈련소 x2, x3)
+        public float timeScale = 1f;               // 접근성/연출 배속 옵션
 
         public bool CanCapture => mode == BattleMode.Wild;
-        public bool CanEscape => mode == BattleMode.Wild || mode == BattleMode.Training;
+        public bool CanEscape => mode == BattleMode.Wild;
     }
 
     /// <summary>전투 결과 → 필드/세이브 쪽으로 넘겨줌</summary>

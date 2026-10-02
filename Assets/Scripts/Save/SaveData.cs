@@ -12,7 +12,7 @@ namespace ShadowTheater.Save
     [Serializable]
     public class SaveData
     {
-        public const int CurrentVersion = 2;
+        public const int CurrentVersion = 3;
         public const int MaxPartySize = 6;
 
         public int version = CurrentVersion;
@@ -41,13 +41,12 @@ namespace ShadowTheater.Save
         public List<FlagEntry> flags = new List<FlagEntry>();
         public List<string> clearedEncounterIds = new List<string>(); // 보스/고정 심볼 처치 기록
         public List<QuestProgressData> quests = new List<QuestProgressData>();
+        public string lastEndingId;
+        public List<string> unlockedEndingIds = new List<string>();
 
         // ── 재화 / 도구 ──
         public int gold;
         public List<ItemStack> inventory = new List<ItemStack>();
-
-        // ── 무한의 훈련소 ──
-        public int trainingBestFloor;
 
         // ── 옵션 ──
         public float battleSpeed = 1f;

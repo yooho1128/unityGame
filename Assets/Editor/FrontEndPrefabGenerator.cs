@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using ShadowTheater.Field;
 using ShadowTheater.Save;
+using ShadowTheater.Story;
 using ShadowTheater.UI;
 using UnityEditor;
 using UnityEngine;
@@ -29,7 +30,8 @@ namespace ShadowTheater.EditorTools
 
         private static void GenerateCoreSystems()
         {
-            var systems = new GameObject("CoreSystems", typeof(SaveManager), typeof(MapLoader));
+            var systems = new GameObject("CoreSystems", typeof(SaveManager), typeof(MapLoader),
+                typeof(EndingManager));
             PrefabUtility.SaveAsPrefabAsset(systems, SystemsFolder + "/CoreSystems.prefab");
             Object.DestroyImmediate(systems);
         }

@@ -8,7 +8,7 @@
 | `Assets/Scripts/Battle` | BattleManager(턴 상태 머신), BattleUnit, DamageCalculator, BattleAI, IBattlePresenter |
 | `Assets/Scripts/Save` | SaveData(JSON), SaveManager |
 | `Assets/Scripts/Field` | PlayerController(타일 이동), EncounterSymbol(심볼 인카운터), GameFlowController(필드↔전투) |
-| `Assets/Scripts/Story` | JSON 대사/퀘스트 저장소, NPC·지역·전투 목표 추적 |
+| `Assets/Scripts/Story` | JSON 대사/퀘스트 저장소, 목표 추적, 누적 선택 기반 다중 엔딩 |
 | `Assets/Scripts/UI` | 모바일 대화창과 현재 퀘스트 HUD |
 | `Assets/Editor` | 대화 UI/퀘스트 HUD 프리팹 자동 생성 메뉴 |
 | `Prototype/shadow-theater.html` | 같은 전투 규칙의 브라우저 프로토타입 — 더블클릭으로 실행, 밸런스 데이터 편집 탭 포함 |
@@ -49,6 +49,12 @@
 3. `TitleCanvas`의 StarterSelectionController에 붉은 불꽃/푸른 서리/자줏빛 그림자 SO를 순서대로 등록
 4. 모든 지역 씬을 Build Settings에 추가하고 씬 이름을 `mapId`로 사용
 5. 맵 출구에 Trigger Collider2D와 `MapPortal`을 붙여 목표 씬·좌표·방향 지정
+
+## 다중 엔딩
+- 대화 선택의 `flagChanges`가 기억 보존·연민·통제 성향을 누적
+- 최종 무대의 `EndingTrigger`가 마지막 선택 후 `EndingCatalog.json` 조건을 판정
+- 진엔딩, 기억 보존 엔딩, 자비로운 망각 엔딩, 검열단 배드 엔딩 제공
+- 해금 엔딩과 마지막 엔딩은 세이브에 기록
 
 자세한 씬 구성은 [`Docs/SETUP.md`](Docs/SETUP.md) 참고.
 

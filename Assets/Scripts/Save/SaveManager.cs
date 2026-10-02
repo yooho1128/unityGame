@@ -146,6 +146,8 @@ namespace ShadowTheater.Save
         {
             if (data.version < 2 || data.quests == null)
                 data.quests = new List<QuestProgressData>();
+            if (data.version < 3 || data.unlockedEndingIds == null)
+                data.unlockedEndingIds = new List<string>();
 
             data.flags ??= new List<FlagEntry>();
             data.clearedEncounterIds ??= new List<string>();
