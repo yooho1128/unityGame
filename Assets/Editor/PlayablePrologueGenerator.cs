@@ -144,7 +144,7 @@ namespace ShadowTheater.EditorTools
             CreateEncounter(map.fieldRoot, "WanderingBeast", new Vector2Int(-2, -4), LoadShadow("beast"), 5, 7);
             CreatePortal(map.fieldRoot, "ToEchoVillage", new Vector2Int(-9, 0), "EchoVillage",
                 new Vector2Int(8, 0), FacingDir.Left);
-            CreatePortal(map.fieldRoot, "ToMoonlitBoss", new Vector2Int(0, 8), "MoonlitBossStage",
+            CreatePortal(map.fieldRoot, "ToMoonlitBoss", new Vector2Int(-3, 8), "MoonlitBossStage",
                 new Vector2Int(0, -6), FacingDir.Up, false, "quest_prologue_04_echoes_complete");
             FinishFieldScene(map, "MoonlitMeadow");
         }
@@ -155,7 +155,7 @@ namespace ShadowTheater.EditorTools
                 new Color(0.045f, 0.035f, 0.09f), Theme.Boss);
             CreateBoss(map.fieldRoot, new Vector2Int(0, 3));
             CreatePortal(map.fieldRoot, "BackToMeadow", new Vector2Int(0, -8), "MoonlitMeadow",
-                new Vector2Int(0, 7), FacingDir.Down);
+                new Vector2Int(-3, 7), FacingDir.Down);
             CreatePortal(map.fieldRoot, "ToCurtainPass", new Vector2Int(9, 0), "CurtainPass",
                 new Vector2Int(-8, 0), FacingDir.Right, false, "boss_moonlit_story_complete");
             FinishFieldScene(map, "MoonlitBossStage");
@@ -335,9 +335,21 @@ namespace ShadowTheater.EditorTools
             var renderer = go.GetComponent<SpriteRenderer>();
             renderer.sprite = LoadPlayerFieldSprite();
             if (renderer.sprite == null) renderer.sprite = LoadShadow("knight")?.silhouetteSprite;
-            renderer.color = _playerFieldSprite != null ? Color.white : new Color(0.10f, 0.055f, 0.16f, 1f);
+            renderer.color = _playerFieldSprite != null
+                ? new Color(.92f, .96f, 1f, 1f)
+                : new Color(0.10f, 0.055f, 0.16f, 1f);
             renderer.sortingOrder = 10;
             if (_playerFieldSprite == null) ApplyLit(renderer);
+
+            EnsureEnvironmentAssets();
+            var shadow = new GameObject("GroundShadow", typeof(SpriteRenderer));
+            shadow.transform.SetParent(go.transform, false);
+            shadow.transform.localPosition = new Vector3(0f, .05f, 0f);
+            shadow.transform.localScale = new Vector3(.72f, .24f, 1f);
+            var shadowRenderer = shadow.GetComponent<SpriteRenderer>();
+            shadowRenderer.sprite = _moteSprite;
+            shadowRenderer.color = new Color(.015f, .02f, .055f, .48f);
+            shadowRenderer.sortingOrder = 9;
             go.GetComponent<Rigidbody2D>().gravityScale = 0f;
             go.GetComponent<CapsuleCollider2D>().size = new Vector2(0.55f, 0.75f);
             var so = new SerializedObject(go.GetComponent<PlayerController>());
@@ -357,7 +369,7 @@ namespace ShadowTheater.EditorTools
             }
             importer.textureType = TextureImporterType.Sprite;
             importer.spriteImportMode = SpriteImportMode.Single;
-            importer.spritePixelsPerUnit = 820f;
+            importer.spritePixelsPerUnit = 950f;
             var textureSettings = new TextureImporterSettings();
             importer.ReadTextureSettings(textureSettings);
             textureSettings.spriteAlignment = (int)SpriteAlignment.Custom;
@@ -423,6 +435,12 @@ namespace ShadowTheater.EditorTools
                 collision.SetTile(new Vector3Int(11, y, 0), _wallTile);
             }
 
+            if (theme == Theme.Meadow)
+            {
+                PaintMoonlitMeadowCollision(collision);
+                return;
+            }
+
             var blocks = new List<RectInt>();
             switch (theme)
             {
@@ -432,10 +450,6 @@ namespace ShadowTheater.EditorTools
                 case Theme.Village:
                     blocks.Add(new RectInt(-5, 3, 3, 3)); blocks.Add(new RectInt(3, 3, 3, 3));
                     blocks.Add(new RectInt(-4, -6, 2, 3)); blocks.Add(new RectInt(5, -5, 2, 2)); break;
-                case Theme.Meadow:
-                    blocks.Add(new RectInt(-6, 4, 2, 2)); blocks.Add(new RectInt(5, 2, 2, 3));
-                    blocks.Add(new RectInt(-6, -5, 3, 2)); blocks.Add(new RectInt(2, -6, 2, 2));
-                    blocks.Add(new RectInt(-9, 6, 3, 2)); blocks.Add(new RectInt(7, -6, 2, 3)); break;
                 case Theme.AshWastes:
                     blocks.Add(new RectInt(-7,3,3,2)); blocks.Add(new RectInt(4,4,3,2));
                     blocks.Add(new RectInt(-5,-5,2,3)); blocks.Add(new RectInt(3,-6,2,3));
@@ -456,6 +470,31 @@ namespace ShadowTheater.EditorTools
             foreach (var block in blocks)
                 for (int y = block.yMin; y < block.yMax; y++)
                 for (int x = block.xMin; x < block.xMax; x++) collision.SetTile(new Vector3Int(x, y, 0), _accentTile);
+        }
+
+        private static void PaintMoonlitMeadowCollision(Tilemap collision)
+        {
+            for (int y = -8; y <= 8; y++)
+            for (int x = -10; x <= 10; x++)
+            {
+                bool westEntrance = x >= -10 && x <= -6 && y >= -1 && y <= 1;
+                bool centralClearing = x >= -8 && x <= 5 && y >= -4 && y <= 2;
+                bool northernTrail = x >= -4 && x <= -2 && y >= 2 && y <= 8;
+                bool upperLoop = x >= -5 && x <= 4 && y >= 3 && y <= 5;
+                bool southernLoop = x >= -7 && x <= 5 && y >= -6 && y <= -3;
+                bool eastConnector = x >= 3 && x <= 5 && y >= -5 && y <= 4;
+                bool walkable = westEntrance || centralClearing || northernTrail || upperLoop ||
+                                southernLoop || eastConnector;
+
+                // Major painted landmarks get matching collision instead of allowing the
+                // player to walk over cliffs, the central grove, water, and lower ruins.
+                bool centralGrove = x >= -1 && x <= 1 && y >= 2 && y <= 4;
+                bool westernCliff = x <= -6 && y >= 2;
+                bool easternWater = x >= 6 && y >= -2;
+                bool lowerRuin = x >= -1 && x <= 1 && y <= -5;
+                if (!walkable || centralGrove || westernCliff || easternWater || lowerRuin)
+                    collision.SetTile(new Vector3Int(x, y, 0), _wallTile);
+            }
         }
 
         private static void CreateNpc(Transform parent, string name, Vector2Int cell, ShadowData visual,
