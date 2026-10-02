@@ -8,13 +8,16 @@ Assets/Scripts/
            DebugBattlePresenter, BattleManager, BattleTestBootstrap
   Save/    SaveData, SaveManager
   Field/   FieldGrid, PlayerController, EncounterSymbol, ScreenFader,
-           VirtualDPadButton, VirtualActionButton, GameFlowController, MapLoader, MapPortal
+           VirtualDPadButton, VirtualActionButton, VirtualScriptBookButton,
+           GameFlowController, MapLoader, MapPortal
   Story/   DialogueData/Repository, StoryNpc, DialogueInteractable,
            QuestData/Repository/Manager, QuestAreaTrigger, BossEncounterTrigger,
            EndingData/Repository/Manager, EndingTrigger
   UI/      DialogueController, DialogueChoiceView, QuestHudController,
-           TitleScreenController, StarterSelectionController, StarterCardView
-  Editor/  DialogueUIPrefabGenerator, QuestHudPrefabGenerator, FrontEndPrefabGenerator
+           TitleScreenController, StarterSelectionController, StarterCardView,
+           ScriptBookController, ScriptBookEntryView
+  Editor/  DialogueUIPrefabGenerator, QuestHudPrefabGenerator, FrontEndPrefabGenerator,
+           ScriptBookPrefabGenerator
 ```
 
 ## 프로젝트 설정
@@ -129,6 +132,21 @@ Assets/Scripts/
 4종이다. 해금된 엔딩 ID와 마지막 엔딩 ID는 세이브 버전 3에 보존된다. 한 세이브에서 마지막 선택을
 되돌려 점수를 반복 누적하지 않도록 `EndingTrigger.allowReplay`의 기본값은 false다.
 
+## 각본집 도감 세팅
+1. 메뉴 `Tools > Shadow Theater > Generate Script Book UI` 실행
+2. 생성된 `Assets/Prefabs/UI/ScriptBookCanvas.prefab`을 각 필드 씬 최상위에 배치
+3. `Resources/ShadowDatabase.asset > Shadows`에 전체 ShadowData를 원하는 도감 번호 순서로 등록
+4. 각 ShadowData의 `loreLocked`, `loreUnlocked`, 실루엣, 포인트 컬러를 입력
+
+프리팹에는 필드용 `각본집` 버튼이 포함된다. 에디터에서는 Tab으로 열고 Escape/X로 닫을 수 있다.
+각본집이 열리면 플레이어 이동이 잠기며 전투·대화 중에는 열리지 않는다. 공개 단계는 다음과 같다.
+- 미조우: 번호와 `???`만 표시
+- 조우: 이름과 검은 실루엣, `loreLocked` 표시
+- 기록 완료: 포인트 컬러, 속성/역할, 기본 능력치, `loreUnlocked` 전체 표시
+
+전체·조우·기록 완료 필터와 `기록 수 / 전체 수` 진행률을 지원한다. 신규 기록은 기존
+`SaveManager.MarkRecorded()` 및 전투 포획 흐름을 그대로 사용하므로 별도 세이브 설정이 필요 없다.
+
 ## 전투만 먼저 확인할 때
 빈 씬 → GameObject에 BattleManager + BattleTestBootstrap → ShadowData 연결 → Play.
 화면 좌상단 OnGUI 버튼으로 조작, 로그는 Console.
@@ -136,6 +154,6 @@ Assets/Scripts/
 ## 다음 작업 후보
 1. BattleUI (uGUI) — BattleManager 이벤트 바인딩 (HP바, FP 구슬, 행동 메뉴)
 2. DOTween BattlePresenter — 돌진/피격/컷인/카메라 쉐이크 (웹 프로토타입 연출 그대로)
-3. 도감 UI와 그림자 상세 Lore 화면
-4. 엔딩 갤러리와 회차 시작
+3. 엔딩 갤러리와 회차 시작
+4. 파티 편성·보관함 UI
 5. 설정/오디오/언어 메뉴

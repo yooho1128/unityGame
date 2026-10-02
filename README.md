@@ -9,8 +9,8 @@
 | `Assets/Scripts/Save` | SaveData(JSON), SaveManager |
 | `Assets/Scripts/Field` | PlayerController(타일 이동), EncounterSymbol(심볼 인카운터), GameFlowController(필드↔전투) |
 | `Assets/Scripts/Story` | JSON 대사/퀘스트 저장소, 목표 추적, 누적 선택 기반 다중 엔딩 |
-| `Assets/Scripts/UI` | 모바일 대화창과 현재 퀘스트 HUD |
-| `Assets/Editor` | 대화 UI/퀘스트 HUD 프리팹 자동 생성 메뉴 |
+| `Assets/Scripts/UI` | 모바일 대화창, 퀘스트 HUD, 스타터 선택, 각본집 도감 |
+| `Assets/Editor` | 주요 모바일 UI 프리팹 자동 생성 메뉴 |
 | `Prototype/shadow-theater.html` | 같은 전투 규칙의 브라우저 프로토타입 — 더블클릭으로 실행, 밸런스 데이터 편집 탭 포함 |
 | `Docs/` | 기획 명세서, 씬 세팅 가이드(SETUP.md) |
 
@@ -55,6 +55,14 @@
 - 최종 무대의 `EndingTrigger`가 마지막 선택 후 `EndingCatalog.json` 조건을 판정
 - 진엔딩, 기억 보존 엔딩, 자비로운 망각 엔딩, 검열단 배드 엔딩 제공
 - 해금 엔딩과 마지막 엔딩은 세이브에 기록
+
+## 각본집 도감 빠른 설치
+1. Unity 메뉴 **Tools → Shadow Theater → Generate Script Book UI** 실행
+2. 생성된 `Assets/Prefabs/UI/ScriptBookCanvas.prefab`을 필드 씬 최상위에 배치
+3. `Resources/ShadowDatabase.asset`의 Shadows 목록에 전체 ShadowData를 도감 순서대로 등록
+4. 내장된 `각본집` 버튼 또는 에디터의 Tab 키로 열기
+
+도감은 미조우·조우·기록 완료 상태를 구분하며 기록 완료 시 능력치와 `loreUnlocked`를 공개합니다.
 
 자세한 씬 구성은 [`Docs/SETUP.md`](Docs/SETUP.md) 참고.
 
