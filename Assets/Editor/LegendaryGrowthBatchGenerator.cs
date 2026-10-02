@@ -18,6 +18,7 @@ namespace ShadowTheater.EditorTools
         private const string CatalogPath = "Assets/Resources/Data/LegendaryGrowthCatalog.json";
         private const string SkillFolder = "Assets/Data/Generated/Skills";
         private const string ShadowFolder = "Assets/Data/Generated/Shadows";
+        private const string GrowthSpriteFolder = "Assets/Art/Generated/Growth";
         private const string DatabasePath = "Assets/Resources/ShadowDatabase.asset";
         private static readonly string[] FormKeys = { "echo", "restored", "salvation", "grudge" };
 
@@ -41,13 +42,20 @@ namespace ShadowTheater.EditorTools
             EnsureFolder("Assets/Data", "Generated");
             EnsureFolder("Assets/Data/Generated", "Skills");
             EnsureFolder("Assets/Data/Generated", "Shadows");
+            EnsureFolder("Assets/Art", "Generated");
+            EnsureFolder("Assets/Art/Generated", "Growth");
 
             var skills = GenerateSkills(catalog.skills);
             var shadows = new List<ShadowData>();
             foreach (var spec in catalog.shadows)
             {
-                SliceGrowthSheet(spec);
-                var shadow = GenerateShadow(spec, skills);
+                var sprites = GenerateGrowthSprites(spec);
+                if (sprites.Count != FormKeys.Length)
+                {
+                    Debug.LogError($"[GrowthBatch] {spec.shadowId} 데이터 생성을 중단했습니다. 스프라이트를 먼저 확인하세요.");
+                    continue;
+                }
+                var shadow = GenerateShadow(spec, skills, sprites);
                 if (shadow != null) shadows.Add(shadow);
             }
 
@@ -103,7 +111,8 @@ namespace ShadowTheater.EditorTools
             return result;
         }
 
-        private static ShadowData GenerateShadow(ShadowSpec spec, IReadOnlyDictionary<string, SkillData> skills)
+        private static ShadowData GenerateShadow(ShadowSpec spec, IReadOnlyDictionary<string, SkillData> skills,
+                                                 IReadOnlyDictionary<string, Sprite> sprites)
         {
             if (string.IsNullOrWhiteSpace(spec.shadowId)) return null;
             string path = $"{ShadowFolder}/{spec.shadowId}.asset";
@@ -113,10 +122,7 @@ namespace ShadowTheater.EditorTools
                 shadow = ScriptableObject.CreateInstance<ShadowData>();
                 AssetDatabase.CreateAsset(shadow, path);
             }
-
             shadow.name = spec.shadowId;
-            var sprites = AssetDatabase.LoadAllAssetsAtPath(spec.sheetPath).OfType<Sprite>()
-                .ToDictionary(x => x.name, x => x);
             shadow.shadowId = spec.shadowId;
             shadow.displayName = spec.displayName;
             shadow.title = spec.title;
@@ -169,70 +175,82 @@ namespace ShadowTheater.EditorTools
             target.loreAppend = spec.loreAppend;
         }
 
-        private static void SliceGrowthSheet(ShadowSpec spec)
+        private static Dictionary<string, Sprite> GenerateGrowthSprites(ShadowSpec spec)
         {
+            var result = new Dictionary<string, Sprite>();
             var importer = AssetImporter.GetAtPath(spec.sheetPath) as TextureImporter;
-            if (importer == null)
+            if (importer == null || !File.Exists(spec.sheetPath))
             {
                 Debug.LogError($"[GrowthBatch] 이미지가 없습니다: {spec.sheetPath}");
-                return;
+                return result;
             }
 
-            importer.textureType = TextureImporterType.Sprite;
-            importer.spriteImportMode = SpriteImportMode.Multiple;
-            importer.alphaIsTransparency = true;
+            // Clear any legacy Multiple-Sprite metadata first. Certain Unity 2022 patch
+            // releases reject an otherwise valid final rect at the right texture edge.
+            // The source sheet remains a concept texture; gameplay uses the four generated
+            // Single-Sprite PNGs below, which avoids that importer code path entirely.
+            importer.textureType = TextureImporterType.Default;
             importer.mipmapEnabled = false;
-            importer.filterMode = FilterMode.Bilinear;
-            importer.spritePixelsPerUnit = 256f;
             importer.npotScale = TextureImporterNPOTScale.None;
-
-            // Unity 2022 validates legacy SpriteMetaData against the currently imported
-            // texture size. That size can be lower than the PNG source size because of a
-            // platform/max-size setting, so use the imported texture as the authority.
-            var importedTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(spec.sheetPath);
-            if (importedTexture == null)
-            {
-                Debug.LogError($"[GrowthBatch] 이미지를 불러올 수 없습니다: {spec.sheetPath}");
-                return;
-            }
-
-            int importedWidth = importedTexture.width;
-            int importedHeight = importedTexture.height;
-            if (importedWidth <= FormKeys.Length || importedHeight < 1)
-            {
-                Debug.LogError($"[GrowthBatch] 이미지 크기가 올바르지 않습니다: {spec.sheetPath} ({importedWidth}x{importedHeight})");
-                return;
-            }
-
-            var metadata = new SpriteMetaData[4];
-            for (int i = 0; i < metadata.Length; i++)
-            {
-                // Integer boundaries also support sheets whose width is not divisible by four.
-                int left = importedWidth * i / metadata.Length;
-                int right = importedWidth * (i + 1) / metadata.Length;
-                // Some Unity 2022 patch releases reject a final rect whose right edge is
-                // exactly equal to texture.width. One transparent edge pixel is expendable.
-                if (i == metadata.Length - 1) right = Mathf.Min(right, importedWidth - 1);
-                metadata[i] = new SpriteMetaData
-                {
-                    name = $"{spec.shadowId}_{FormKeys[i]}",
-                    alignment = (int)SpriteAlignment.BottomCenter,
-                    pivot = new Vector2(0.5f, 0f),
-                    rect = new Rect(left, 0, right - left, importedHeight)
-                };
-            }
-#pragma warning disable 0618
-            importer.spritesheet = metadata;
-#pragma warning restore 0618
             importer.SaveAndReimport();
 
-            var generatedNames = new HashSet<string>(
-                AssetDatabase.LoadAllAssetsAtPath(spec.sheetPath).OfType<Sprite>().Select(sprite => sprite.name));
-            var missingForms = FormKeys.Where(form => !generatedNames.Contains($"{spec.shadowId}_{form}")).ToArray();
+            var source = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+            if (!ImageConversion.LoadImage(source, File.ReadAllBytes(spec.sheetPath), false))
+            {
+                UnityEngine.Object.DestroyImmediate(source);
+                Debug.LogError($"[GrowthBatch] PNG 디코딩에 실패했습니다: {spec.sheetPath}");
+                return result;
+            }
+
+            if (source.width < FormKeys.Length || source.height < 1)
+            {
+                Debug.LogError($"[GrowthBatch] 이미지 크기가 올바르지 않습니다: {spec.sheetPath} ({source.width}x{source.height})");
+                UnityEngine.Object.DestroyImmediate(source);
+                return result;
+            }
+
+            try
+            {
+                for (int i = 0; i < FormKeys.Length; i++)
+                {
+                    int left = source.width * i / FormKeys.Length;
+                    int right = source.width * (i + 1) / FormKeys.Length;
+                    int sliceWidth = right - left;
+                    string spriteName = $"{spec.shadowId}_{FormKeys[i]}";
+                    string spritePath = $"{GrowthSpriteFolder}/{spriteName}.png";
+
+                    var slice = new Texture2D(sliceWidth, source.height, TextureFormat.RGBA32, false);
+                    slice.SetPixels(source.GetPixels(left, 0, sliceWidth, source.height));
+                    slice.Apply(false, false);
+                    File.WriteAllBytes(spritePath, ImageConversion.EncodeToPNG(slice));
+                    UnityEngine.Object.DestroyImmediate(slice);
+
+                    AssetDatabase.ImportAsset(spritePath, ImportAssetOptions.ForceUpdate);
+                    var sliceImporter = AssetImporter.GetAtPath(spritePath) as TextureImporter;
+                    if (sliceImporter == null) continue;
+                    sliceImporter.textureType = TextureImporterType.Sprite;
+                    sliceImporter.spriteImportMode = SpriteImportMode.Single;
+                    sliceImporter.alphaIsTransparency = true;
+                    sliceImporter.mipmapEnabled = false;
+                    sliceImporter.filterMode = FilterMode.Bilinear;
+                    sliceImporter.spritePixelsPerUnit = 256f;
+                    sliceImporter.SaveAndReimport();
+
+                    var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(spritePath);
+                    if (sprite != null) result[spriteName] = sprite;
+                }
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(source);
+            }
+
+            var missingForms = FormKeys.Where(form => !result.ContainsKey($"{spec.shadowId}_{form}")).ToArray();
             if (missingForms.Length > 0)
             {
                 Debug.LogError($"[GrowthBatch] 스프라이트 분할 실패: {spec.sheetPath} / {string.Join(", ", missingForms)}");
             }
+            return result;
         }
 
         private static void UpdateDatabase(IEnumerable<SkillData> skills, IEnumerable<ShadowData> shadows)

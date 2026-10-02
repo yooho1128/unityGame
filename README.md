@@ -145,8 +145,9 @@
 달빛의 미망인, 최초의 배우, 마지막 관객의 4형태 콘셉트 시트와 전용 성장·스킬·Lore 데이터가
 포함되어 있습니다. Unity 메뉴 **Tools → Shadow Theater → Generate Legendary Growth Batch**를
 실행하면 시트 분할, SkillData/ShadowData 생성, ShadowDatabase 등록이 자동으로 처리됩니다.
-분할기는 Unity가 실제로 임포트한 해상도를 기준으로 네 형태의 정수 경계를 계산하고 마지막 경계를
-안전하게 제한하므로 최대 텍스처 크기 설정과 관계없이 `grudge` 스프라이트까지 생성합니다.
+분할기는 원본 시트를 네 장의 독립 PNG로 만든 뒤 각각 `Single Sprite`로 임포트합니다. Unity 2022의
+레거시 다중 스프라이트 경계 판정에 영향을 받지 않으며 생성 결과는 `Assets/Art/Generated/Growth`에
+저장됩니다.
 
 형태별 이미지와 상세 설계는 [`Docs/LEGENDARY_GROWTH_BATCH_01.md`](Docs/LEGENDARY_GROWTH_BATCH_01.md)를 참고하세요.
 
