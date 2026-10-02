@@ -9,7 +9,7 @@ Assets/Scripts/
   Save/    SaveData, SaveManager
   Field/   FieldGrid, PlayerController, EncounterSymbol, ScreenFader,
            VirtualDPadButton, VirtualActionButton, VirtualScriptBookButton, VirtualPartyButton,
-           GameFlowController, MapLoader, MapPortal, FieldCameraFollow
+           GameFlowController, MapLoader, MapPortal, FieldCameraFollow, FieldAtmosphereController
   Story/   DialogueData/Repository, StoryNpc, DialogueInteractable,
            QuestData/Repository/Manager, QuestAreaTrigger, BossEncounterTrigger,
            EndingData/Repository/Manager, EndingTrigger
@@ -59,6 +59,12 @@ ScriptableObject를 갱신한다. 스타터 3종과 수집 가능한 일반 그�
 필드 카메라는 플레이어의 타일 이동을 부드럽게 추적한다. 생성한 `.unity`, `.prefab`, `.asset`,
 `.png`, `.meta` 파일은 모두 Git에 커밋한다.
 
+생성기는 타일·캐릭터에 URP 2D Sprite-Lit 재질을 적용하고 각 지역에 글로벌 달빛과 3~5개의 Point
+Light 2D를 배치한다. `Environment` 아래에는 안개 6겹과 빛가루 24개가 생성되며
+`FieldAtmosphereController`가 드리프트·점멸·화면 밖 순환을 처리한다. 렌더 파이프라인 자산이 전혀
+없을 때만 `ShadowTheaterURP.asset`과 `ShadowTheater2DRenderer.asset`을 만들어 Project/Quality
+설정에 연결한다. 이미 지정된 렌더 파이프라인은 보존한다.
+
 기본 진행 순서:
 1. 잔향 극장에서 아리아와 대화
 2. 잔향 마을을 지나 달빛 초원 도착
@@ -78,7 +84,10 @@ ScriptableObject를 갱신한다. 스타터 3종과 수집 가능한 일반 그�
       Collision (Tilemap, 렌더러 꺼도 됨) → FieldGrid.collisionTilemap
    Player  (SpriteRenderer, Rigidbody2D Kinematic, BoxCollider2D, Tag=Player, PlayerController)
    Symbol_* (SpriteRenderer, CircleCollider2D isTrigger, EncounterSymbol)
-   FieldCamera, Global Light 2D, Point Light 2D들
+   FieldCamera
+   Environment (+FieldAtmosphereController)
+      GlobalMoonlight (Global Light 2D), LocalLight_* (Point Light 2D)
+      FogLayers (6), Motes (24)
    FieldUI (Canvas) → 방향 버튼 4개(VirtualDPadButton), A 버튼(VirtualActionButton)
 [BattleRoot] (비활성)
    BattleManager (+DebugBattlePresenter 또는 추후 DOTween Presenter)
@@ -257,6 +266,6 @@ Core/Legendary JSON 값을 바꾼 뒤 각 데이터 생성 메뉴를 다시 실�
 
 ## 다음 작업 후보
 1. 필살기별 실제 파티클·녹음 SFX 에셋 교체
-2. 프롤로그 실제 아트·URP 2D 조명·환경음 교체
+2. 프롤로그 실제 타일·캐릭터 아트와 지역 환경음 교체
 3. 엔딩 갤러리와 회차 시작
 4. 설정/오디오/언어 메뉴

@@ -24,7 +24,7 @@
 
 ## 초반 콘텐츠 데이터 빠른 설치
 1. Unity 메뉴 **Tools → Shadow Theater → Generate Core Content Data** 실행
-2. `Assets/Data/Generated`에 생성된 그림자 7종, 스킬 22개, 도구 4개 확인
+2. `Assets/Data/Generated`에 생성된 그림자 7종, 스킬 28개, 도구 4개 확인
 3. `Resources/ShadowDatabase.asset`에 모든 데이터가 자동 등록되었는지 확인
 
 스타터 3종과 프롤로그 그림자는 기억 복원·구원·원한 성장 데이터를 포함합니다. 실제 전용 이미지가
@@ -40,6 +40,11 @@
 23×19 타일의 개방형 구조이며 상하좌우 탐색, 장애물 우회, 모바일 방향키/A 버튼, NPC 대화, 퀘스트,
 심볼 인카운터, 각본 기록, 지역 보스 정화까지 한 흐름으로 확인할 수 있습니다. 5개 씬은 Build Settings에
 자동 등록됩니다.
+
+각 필드에는 지역별 Sprite-Lit 재질, 글로벌 달빛, 3~5개의 포인트 조명, 이동하는 안개 6겹과
+빛가루 24개가 함께 생성됩니다. 잔향 극장은 보라색 무대 안개, 잔향 마을은 청록 등불, 달빛 초원은
+푸른 달빛과 반딧불, 보스 무대는 자홍색 월식 조명을 사용합니다. 렌더 파이프라인이 비어 있는 새
+프로젝트에서는 전용 URP 2D Renderer 자산을 자동 생성하며 기존 설정은 덮어쓰지 않습니다.
 
 ## 대화 시스템 빠른 설치
 1. Unity 메뉴 **Tools → Shadow Theater → Generate Dialogue UI Prefab** 실행

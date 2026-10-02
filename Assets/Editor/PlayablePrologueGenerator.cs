@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using ShadowTheater.Battle;
 using ShadowTheater.Data;
 using ShadowTheater.Field;
@@ -13,6 +14,8 @@ using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
+using UnityEngine.Rendering.Universal;
+using UnityEngine.Rendering;
 
 namespace ShadowTheater.EditorTools
 {
@@ -25,6 +28,9 @@ namespace ShadowTheater.EditorTools
         private static Tile _groundTile;
         private static Tile _wallTile;
         private static Tile _accentTile;
+        private static Material _litMaterial;
+        private static Sprite _fogSprite;
+        private static Sprite _moteSprite;
 
         [MenuItem("Tools/Shadow Theater/Generate Playable Prologue")]
         public static void Generate()
@@ -33,6 +39,7 @@ namespace ShadowTheater.EditorTools
 
             GenerateDependencies();
             EnsureFolders();
+            EnsureUrp2DRenderer();
             CreateTitleScene();
             CreatePrologueTheater();
             CreateEchoVillage();
@@ -161,6 +168,7 @@ namespace ShadowTheater.EditorTools
 
             var player = CreatePlayer(fieldRoot.transform, startCell);
             CreateCamera("FieldCamera", cameraColor, player.transform, true).transform.SetParent(fieldRoot.transform);
+            CreateEnvironment(fieldRoot.transform, theme);
             CreateFieldUi(fieldRoot.transform);
             CreateRegionLabel(fieldRoot.transform, displayName);
 
@@ -201,6 +209,7 @@ namespace ShadowTheater.EditorTools
             renderer.sprite = LoadShadow("knight")?.silhouetteSprite;
             renderer.color = new Color(0.10f, 0.055f, 0.16f, 1f);
             renderer.sortingOrder = 10;
+            ApplyLit(renderer);
             go.GetComponent<Rigidbody2D>().gravityScale = 0f;
             go.GetComponent<CapsuleCollider2D>().size = new Vector2(0.55f, 0.75f);
             var so = new SerializedObject(go.GetComponent<PlayerController>());
@@ -236,7 +245,9 @@ namespace ShadowTheater.EditorTools
         {
             var go = new GameObject(name, typeof(Tilemap), typeof(TilemapRenderer));
             go.transform.SetParent(parent, false);
-            go.GetComponent<TilemapRenderer>().sortingOrder = sortingOrder;
+            var renderer = go.GetComponent<TilemapRenderer>();
+            renderer.sortingOrder = sortingOrder;
+            if (_litMaterial != null) renderer.sharedMaterial = _litMaterial;
             if (collider) go.AddComponent<TilemapCollider2D>();
             return go.GetComponent<Tilemap>();
         }
@@ -306,6 +317,7 @@ namespace ShadowTheater.EditorTools
             go.transform.SetParent(parent); go.transform.position = Cell(cell);
             var renderer = go.GetComponent<SpriteRenderer>(); renderer.sprite = visual?.silhouetteSprite;
             renderer.color = visual != null ? visual.accentColor * 0.8f : Color.white; renderer.sortingOrder = 8;
+            ApplyLit(renderer);
             var box = go.GetComponent<BoxCollider2D>(); box.size = new Vector2(0.72f, 0.82f); box.isTrigger = trigger;
             return go;
         }
@@ -317,6 +329,7 @@ namespace ShadowTheater.EditorTools
             go.transform.SetParent(parent); go.transform.position = Cell(cell);
             var renderer = go.GetComponent<SpriteRenderer>(); renderer.sprite = shadow?.silhouetteSprite;
             renderer.color = shadow != null ? shadow.accentColor * 0.72f : Color.black; renderer.sortingOrder = 7;
+            ApplyLit(renderer);
             go.GetComponent<CircleCollider2D>().radius = 0.38f;
             var so = new SerializedObject(go.GetComponent<EncounterSymbol>());
             Set(so, "leadShadow", shadow); Set(so, "levelRange", new Vector2Int(minLevel, maxLevel));
@@ -354,6 +367,7 @@ namespace ShadowTheater.EditorTools
             go.transform.SetParent(parent); go.transform.position = Cell(cell);
             var renderer = go.GetComponent<SpriteRenderer>(); renderer.sprite = _accentTile.sprite;
             renderer.color = new Color(0.55f, 0.38f, 0.92f, 0.75f); renderer.sortingOrder = 5;
+            ApplyLit(renderer);
             go.transform.localScale = new Vector3(0.7f, 0.9f, 1f);
             var box = go.GetComponent<BoxCollider2D>(); box.isTrigger = true; box.size = Vector2.one;
             var so = new SerializedObject(go.GetComponent<MapPortal>());
@@ -431,8 +445,236 @@ namespace ShadowTheater.EditorTools
             text.alignment = anchor; text.color = Color.white; text.raycastTarget = false; return text;
         }
 
+        private static void CreateEnvironment(Transform parent, Theme theme)
+        {
+            EnsureEnvironmentAssets();
+            EnvironmentProfile profile = ProfileFor(theme);
+            var root = new GameObject("Environment");
+            root.transform.SetParent(parent, false);
+
+            var globalObject = new GameObject("GlobalMoonlight", typeof(Light2D));
+            globalObject.transform.SetParent(root.transform, false);
+            var global = globalObject.GetComponent<Light2D>();
+            global.lightType = Light2D.LightType.Global;
+            global.color = profile.globalColor;
+            global.intensity = profile.globalIntensity;
+
+            for (int i = 0; i < profile.lightPositions.Length; i++)
+            {
+                var lightObject = new GameObject($"LocalLight_{i + 1:00}", typeof(Light2D));
+                lightObject.transform.SetParent(root.transform, false);
+                lightObject.transform.localPosition = (Vector3)profile.lightPositions[i];
+                var light = lightObject.GetComponent<Light2D>();
+                light.lightType = Light2D.LightType.Point;
+                light.color = i % 2 == 0 ? profile.pointColor : profile.secondaryLightColor;
+                light.intensity = profile.pointIntensity * (i % 3 == 0 ? 1.15f : 1f);
+                light.pointLightInnerRadius = 0.65f;
+                light.pointLightOuterRadius = 3.4f + i % 2 * 0.8f;
+                light.falloffIntensity = 0.7f;
+            }
+
+            var fogRoot = new GameObject("FogLayers");
+            fogRoot.transform.SetParent(root.transform, false);
+            var fogs = new Transform[6];
+            for (int i = 0; i < fogs.Length; i++)
+            {
+                var fogObject = new GameObject($"Fog_{i + 1:00}", typeof(SpriteRenderer));
+                fogObject.transform.SetParent(fogRoot.transform, false);
+                fogObject.transform.localPosition = new Vector3(-10f + i * 4.2f, -6.5f + i % 3 * 5.5f, 0f);
+                fogObject.transform.localScale = new Vector3(2.6f + i % 2 * 0.7f, 1.25f + i % 3 * 0.18f, 1f);
+                var renderer = fogObject.GetComponent<SpriteRenderer>();
+                renderer.sprite = _fogSprite;
+                renderer.color = WithAlpha(profile.fogColor, profile.fogAlpha * (0.75f + i % 3 * 0.12f));
+                renderer.sortingOrder = i % 3 == 0 ? 11 : 3;
+                fogs[i] = fogObject.transform;
+            }
+
+            var moteRoot = new GameObject("Motes");
+            moteRoot.transform.SetParent(root.transform, false);
+            var motes = new Transform[24];
+            for (int i = 0; i < motes.Length; i++)
+            {
+                var moteObject = new GameObject($"Mote_{i + 1:00}", typeof(SpriteRenderer));
+                moteObject.transform.SetParent(moteRoot.transform, false);
+                float x = -10f + ((i * 37) % 211) / 10f;
+                float y = -8f + ((i * 53) % 161) / 10f;
+                moteObject.transform.localPosition = new Vector3(x, y, 0f);
+                float size = 0.18f + (i % 5) * 0.065f;
+                moteObject.transform.localScale = Vector3.one * size;
+                var renderer = moteObject.GetComponent<SpriteRenderer>();
+                renderer.sprite = _moteSprite;
+                renderer.color = WithAlpha(i % 4 == 0 ? profile.secondaryLightColor : profile.moteColor,
+                    0.38f + i % 4 * 0.1f);
+                renderer.sortingOrder = i % 5 == 0 ? 12 : 4;
+                motes[i] = moteObject.transform;
+            }
+
+            var atmosphere = root.AddComponent<FieldAtmosphereController>();
+            var so = new SerializedObject(atmosphere);
+            SetArray(so.FindProperty("fogLayers"), fogs);
+            SetArray(so.FindProperty("motes"), motes);
+            Set(so, "fogDrift", profile.fogDrift); Set(so, "moteDrift", profile.moteDrift);
+            Set(so, "boundsMin", new Vector2(-13f, -11f)); Set(so, "boundsMax", new Vector2(13f, 11f));
+            Set(so, "fogPulse", profile.fogPulse); Set(so, "motePulse", profile.motePulse);
+            Set(so, "pulseSpeed", profile.pulseSpeed);
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static EnvironmentProfile ProfileFor(Theme theme)
+        {
+            switch (theme)
+            {
+                case Theme.Theater:
+                    return new EnvironmentProfile
+                    {
+                        globalColor = new Color(.48f,.34f,.67f), globalIntensity = .48f,
+                        pointColor = new Color(1f,.58f,.27f), secondaryLightColor = new Color(.72f,.36f,1f),
+                        pointIntensity = 1.15f, fogColor = new Color(.37f,.16f,.54f), fogAlpha = .18f,
+                        moteColor = new Color(1f,.72f,.35f), fogDrift = new Vector2(.10f,.008f),
+                        moteDrift = new Vector2(.025f,.07f), fogPulse = .10f, motePulse = .35f, pulseSpeed = .68f,
+                        lightPositions = new[] { new Vector2(-5.5f,3.5f), new Vector2(5.5f,3.5f), new Vector2(0f,-1f) }
+                    };
+                case Theme.Village:
+                    return new EnvironmentProfile
+                    {
+                        globalColor = new Color(.40f,.57f,.73f), globalIntensity = .58f,
+                        pointColor = new Color(.35f,.92f,1f), secondaryLightColor = new Color(1f,.66f,.32f),
+                        pointIntensity = .95f, fogColor = new Color(.20f,.47f,.58f), fogAlpha = .14f,
+                        moteColor = new Color(.48f,1f,.92f), fogDrift = new Vector2(.075f,.012f),
+                        moteDrift = new Vector2(.02f,.055f), fogPulse = .08f, motePulse = .28f, pulseSpeed = .58f,
+                        lightPositions = new[] { new Vector2(-5f,4f), new Vector2(4.5f,4f), new Vector2(-3f,-4f), new Vector2(6f,-3f) }
+                    };
+                case Theme.Meadow:
+                    return new EnvironmentProfile
+                    {
+                        globalColor = new Color(.42f,.62f,.82f), globalIntensity = .62f,
+                        pointColor = new Color(.56f,.64f,1f), secondaryLightColor = new Color(1f,.71f,.34f),
+                        pointIntensity = 1.05f, fogColor = new Color(.27f,.60f,.64f), fogAlpha = .16f,
+                        moteColor = new Color(.71f,.75f,1f), fogDrift = new Vector2(.14f,.018f),
+                        moteDrift = new Vector2(.035f,.09f), fogPulse = .13f, motePulse = .42f, pulseSpeed = .82f,
+                        lightPositions = new[] { new Vector2(-6f,5f), new Vector2(1f,5f), new Vector2(6f,2f), new Vector2(-3f,-4f), new Vector2(4f,-5f) }
+                    };
+                default:
+                    return new EnvironmentProfile
+                    {
+                        globalColor = new Color(.38f,.28f,.67f), globalIntensity = .38f,
+                        pointColor = new Color(.82f,.40f,1f), secondaryLightColor = new Color(1f,.28f,.55f),
+                        pointIntensity = 1.35f, fogColor = new Color(.42f,.15f,.59f), fogAlpha = .24f,
+                        moteColor = new Color(.88f,.77f,1f), fogDrift = new Vector2(.18f,-.012f),
+                        moteDrift = new Vector2(-.03f,.12f), fogPulse = .18f, motePulse = .52f, pulseSpeed = 1.05f,
+                        lightPositions = new[] { new Vector2(-6f,2f), new Vector2(6f,2f), new Vector2(-3f,6f), new Vector2(3f,6f), new Vector2(0f,1f) }
+                    };
+            }
+        }
+
+        private static void EnsureEnvironmentAssets()
+        {
+            if (_litMaterial == null)
+            {
+                const string materialPath = "Assets/Data/Generated/Materials/FieldSpriteLit.mat";
+                _litMaterial = AssetDatabase.LoadAssetAtPath<Material>(materialPath);
+                Shader shader = Shader.Find("Universal Render Pipeline/2D/Sprite-Lit-Default");
+                if (shader == null) shader = Shader.Find("Sprites/Default");
+                if (_litMaterial == null && shader != null)
+                {
+                    _litMaterial = new Material(shader) { name = "FieldSpriteLit" };
+                    AssetDatabase.CreateAsset(_litMaterial, materialPath);
+                }
+                else if (_litMaterial != null && shader != null) _litMaterial.shader = shader;
+            }
+            if (_fogSprite == null) _fogSprite = CreateAtmosphereSprite("SoftFog", 128, 64, false);
+            if (_moteSprite == null) _moteSprite = CreateAtmosphereSprite("LightMote", 32, 32, true);
+        }
+
+        private static void EnsureUrp2DRenderer()
+        {
+            RenderPipelineAsset configured = QualitySettings.renderPipeline != null
+                ? QualitySettings.renderPipeline : GraphicsSettings.defaultRenderPipeline;
+            if (configured != null) return;
+
+            const string rendererPath = "Assets/Data/Generated/Materials/ShadowTheater2DRenderer.asset";
+            const string pipelinePath = "Assets/Data/Generated/Materials/ShadowTheaterURP.asset";
+            var renderer = AssetDatabase.LoadAssetAtPath<Renderer2DData>(rendererPath);
+            if (renderer == null)
+            {
+                renderer = ScriptableObject.CreateInstance<Renderer2DData>();
+                renderer.name = "ShadowTheater2DRenderer";
+                AssetDatabase.CreateAsset(renderer, rendererPath);
+            }
+
+            var pipeline = AssetDatabase.LoadAssetAtPath<UniversalRenderPipelineAsset>(pipelinePath);
+            if (pipeline == null)
+            {
+                MethodInfo factory = typeof(UniversalRenderPipelineAsset).GetMethod("Create",
+                    BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(Renderer2DData) }, null);
+                pipeline = factory?.Invoke(null, new object[] { renderer }) as UniversalRenderPipelineAsset;
+                if (pipeline == null)
+                {
+                    pipeline = ScriptableObject.CreateInstance<UniversalRenderPipelineAsset>();
+                    var serialized = new SerializedObject(pipeline);
+                    SerializedProperty list = serialized.FindProperty("m_RendererDataList");
+                    if (list == null)
+                    {
+                        Object.DestroyImmediate(pipeline);
+                        Debug.LogError("[Prologue] URP 2D Renderer 연결 필드를 찾지 못했습니다. Project Settings에서 2D Renderer를 직접 지정하세요.");
+                        return;
+                    }
+                    list.arraySize = 1;
+                    list.GetArrayElementAtIndex(0).objectReferenceValue = renderer;
+                    SerializedProperty defaultIndex = serialized.FindProperty("m_DefaultRendererIndex");
+                    if (defaultIndex != null) defaultIndex.intValue = 0;
+                    serialized.ApplyModifiedPropertiesWithoutUndo();
+                }
+                pipeline.name = "ShadowTheaterURP";
+                AssetDatabase.CreateAsset(pipeline, pipelinePath);
+            }
+
+            GraphicsSettings.defaultRenderPipeline = pipeline;
+            QualitySettings.renderPipeline = pipeline;
+            EditorUtility.SetDirty(pipeline);
+            Debug.Log("[Prologue] URP 2D Renderer 자산을 생성하고 프로젝트에 연결했습니다.");
+        }
+
+        private static Sprite CreateAtmosphereSprite(string name, int width, int height, bool circular)
+        {
+            string path = $"Assets/Art/Generated/Atmosphere/{name}.png";
+            var texture = new Texture2D(width, height, TextureFormat.RGBA32, false);
+            for (int y = 0; y < height; y++)
+            for (int x = 0; x < width; x++)
+            {
+                float nx = (x + .5f) / width * 2f - 1f;
+                float ny = (y + .5f) / height * 2f - 1f;
+                float distance = circular ? Mathf.Sqrt(nx * nx + ny * ny) : Mathf.Sqrt(nx * nx * .55f + ny * ny);
+                float alpha = Mathf.Clamp01(1f - distance);
+                alpha = alpha * alpha * (circular ? 1f : .72f + .12f * Mathf.Sin((x * 7 + y * 13) * .08f));
+                texture.SetPixel(x, y, new Color(1f, 1f, 1f, alpha));
+            }
+            texture.Apply(); File.WriteAllBytes(path, texture.EncodeToPNG());
+            UnityEngine.Object.DestroyImmediate(texture); AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceSynchronousImport);
+            var importer = AssetImporter.GetAtPath(path) as TextureImporter;
+            importer.textureType = TextureImporterType.Sprite; importer.spriteImportMode = SpriteImportMode.Single;
+            importer.spritePixelsPerUnit = 32; importer.alphaIsTransparency = true; importer.mipmapEnabled = false;
+            importer.filterMode = FilterMode.Bilinear; importer.SaveAndReimport();
+            return AssetDatabase.LoadAssetAtPath<Sprite>(path);
+        }
+
+        private static void ApplyLit(SpriteRenderer renderer)
+        {
+            EnsureEnvironmentAssets();
+            if (renderer != null && _litMaterial != null) renderer.sharedMaterial = _litMaterial;
+        }
+
+        private static Color WithAlpha(Color color, float alpha) { color.a = alpha; return color; }
+
+        private static void SetArray(SerializedProperty property, Transform[] values)
+        {
+            property.arraySize = values.Length;
+            for (int i = 0; i < values.Length; i++) property.GetArrayElementAtIndex(i).objectReferenceValue = values[i];
+        }
+
         private static void CreateThemeTiles(Theme theme)
         {
+            EnsureEnvironmentAssets();
             switch (theme)
             {
                 case Theme.Theater:
@@ -514,6 +756,7 @@ namespace ShadowTheater.EditorTools
         private static void Set(SerializedObject so, string name, string value) => so.FindProperty(name).stringValue = value;
         private static void Set(SerializedObject so, string name, bool value) => so.FindProperty(name).boolValue = value;
         private static void Set(SerializedObject so, string name, int value) => so.FindProperty(name).intValue = value;
+        private static void Set(SerializedObject so, string name, float value) => so.FindProperty(name).floatValue = value;
         private static void Set(SerializedObject so, string name, Vector2 value) => so.FindProperty(name).vector2Value = value;
         private static void Set(SerializedObject so, string name, Vector2Int value) => so.FindProperty(name).vector2IntValue = value;
         private static void Set(SerializedObject so, string name, Color value) => so.FindProperty(name).colorValue = value;
@@ -522,6 +765,7 @@ namespace ShadowTheater.EditorTools
         {
             Ensure("Assets", "Scenes"); Ensure("Assets/Scenes", "Prologue");
             Ensure("Assets/Data/Generated", "Tiles"); Ensure("Assets/Art/Generated", "Tiles");
+            Ensure("Assets/Data/Generated", "Materials"); Ensure("Assets/Art/Generated", "Atmosphere");
         }
         private static void Ensure(string parent, string name)
         {
@@ -529,6 +773,13 @@ namespace ShadowTheater.EditorTools
         }
 
         private enum Theme { Theater, Village, Meadow, Boss }
+        private class EnvironmentProfile
+        {
+            public Color globalColor, pointColor, secondaryLightColor, fogColor, moteColor;
+            public float globalIntensity, pointIntensity, fogAlpha, fogPulse, motePulse, pulseSpeed;
+            public Vector2 fogDrift, moteDrift;
+            public Vector2[] lightPositions;
+        }
         private class FieldSceneContext { public Scene scene; public Transform fieldRoot; }
     }
 }
