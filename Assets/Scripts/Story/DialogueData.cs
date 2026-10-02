@@ -18,6 +18,7 @@ namespace ShadowTheater.Story
     {
         public string dialogueId;
         public List<DialogueLine> lines = new List<DialogueLine>();
+        public List<DialogueChoice> choices = new List<DialogueChoice>();
     }
 
     [Serializable]
@@ -26,5 +27,23 @@ namespace ShadowTheater.Story
         public string speaker;
         public string text;
         public string emotion;
+        public string requiredFlag;
+        public int requiredFlagValue = 1;
+        public string blockedFlag;
+        public string setFlag;
+        public int setFlagValue = 1;
+    }
+
+    [Serializable]
+    public class DialogueChoice
+    {
+        public string text;
+        public string nextDialogueId;
+        public string requiredFlag;
+        public int requiredFlagValue = 1;
+        public string blockedFlag;
+        public string setFlag;
+        public int setFlagValue = 1;
+        public string startQuestId;
     }
 }

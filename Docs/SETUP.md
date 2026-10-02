@@ -10,8 +10,8 @@ Assets/Scripts/
   Field/   FieldGrid, PlayerController, EncounterSymbol, ScreenFader,
            VirtualDPadButton, VirtualActionButton, GameFlowController
   Story/   DialogueData/Repository, StoryNpc, DialogueInteractable,
-           QuestData/Repository/Manager, QuestAreaTrigger
-  UI/      DialogueController, QuestHudController
+           QuestData/Repository/Manager, QuestAreaTrigger, BossEncounterTrigger
+  UI/      DialogueController, DialogueChoiceView, QuestHudController
   Editor/  DialogueUIPrefabGenerator, QuestHudPrefabGenerator
 ```
 
@@ -63,6 +63,16 @@ Assets/Scripts/
 첫 탭은 타자 효과를 완성하고 다음 탭은 다음 줄로 이동한다. 첫 대화를 끝내면 `completionFlag`가
 세이브되어 이후 상호작용부터 반복 대사가 출력된다. ID는 추후 Ink를 도입할 때 knot 이름으로 유지한다.
 
+### 대화 조건과 선택지
+- 줄의 `requiredFlag`: 해당 플래그가 지정 값 이상일 때만 출력
+- 줄의 `blockedFlag`: 해당 플래그가 없을 때만 출력
+- 줄/선택지의 `setFlag`: 해당 지점에 도달하거나 선택했을 때 진행 플래그 기록
+- 선택지의 `nextDialogueId`: 선택 후 이어질 대화 시퀀스
+- 선택지의 `startQuestId`: 선택과 동시에 시작할 선택 퀘스트
+
+선택지는 모바일 버튼으로 최대 3개 표시되며 에디터에서는 숫자키 1~3으로도 고를 수 있다.
+기존 `lines`만 가진 JSON은 변경 없이 계속 사용할 수 있다.
+
 ## 퀘스트 세팅
 1. Unity 메뉴 `Tools > Shadow Theater > Generate Quest HUD Prefab` 실행
 2. 생성된 `Assets/Prefabs/UI/QuestHUDCanvas.prefab`을 씬 최상위에 1개 배치
@@ -73,6 +83,12 @@ Assets/Scripts/
 전투 승리는 각각 기존 런타임에 연결되어 자동 집계된다. `targetId`를 `*`로 지정하면 종류가 맞는
 모든 이벤트를 집계한다. 진행도와 보상 수령 여부는 세이브 버전 2에 저장된다.
 
+## 보스 컷신 세팅
+보스 오브젝트에 비 Trigger `Collider2D`와 `BossEncounterTrigger`를 붙이고 Unit 레이어로 지정한다.
+`enemyParty`에 보스/부하 ShadowData, `encounterId`, 레벨 범위, 전투 전/승리 대화 ID를 입력한다.
+플레이어가 정면에서 상호작용하면 전투 전 대사가 재생되고 보스전으로 전환된다. 승리하면 필드 복귀 후
+정화 대사를 재생하고 `victoryFlag`와 고정 인카운터 클리어를 저장한다. 패배하면 보스는 남아 재도전할 수 있다.
+
 ## 전투만 먼저 확인할 때
 빈 씬 → GameObject에 BattleManager + BattleTestBootstrap → ShadowData 연결 → Play.
 화면 좌상단 OnGUI 버튼으로 조작, 로그는 Console.
@@ -80,6 +96,6 @@ Assets/Scripts/
 ## 다음 작업 후보
 1. BattleUI (uGUI) — BattleManager 이벤트 바인딩 (HP바, FP 구슬, 행동 메뉴)
 2. DOTween BattlePresenter — 돌진/피격/컷인/카메라 쉐이크 (웹 프로토타입 연출 그대로)
-3. 대화 선택지와 조건 분기(퀘스트 목표 추적/HUD는 완료)
-4. 타이틀 / 스타터 선택 / 맵 이동(MapLoader)
-5. 무한의 훈련소 (TrainingTower: 층 루프 + 배속/오토)
+3. 타이틀 / 스타터 선택 / 맵 이동(MapLoader)
+4. 무한의 훈련소 (TrainingTower: 층 루프 + 배속/오토)
+5. 도감 UI와 그림자 상세 Lore 화면

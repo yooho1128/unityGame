@@ -28,11 +28,20 @@
 3. NPC 오브젝트에 Collider2D와 `StoryNpc`를 추가하고 대화 ID 지정
 4. 대사는 `Assets/Resources/Data/DialogueCatalog.json`에서 수정
 
+대화 데이터는 조건부 줄(`requiredFlag`, `blockedFlag`), 진행 플래그(`setFlag`), 최대 3개의
+선택지와 `nextDialogueId` 분기를 지원합니다. 기존 단순 `lines` 대사는 수정 없이 그대로 동작합니다.
+
 ## 퀘스트 시스템 빠른 설치
 1. Unity 메뉴 **Tools → Shadow Theater → Generate Quest HUD Prefab** 실행
 2. 생성된 `Assets/Prefabs/UI/QuestHUDCanvas.prefab`을 필드 씬 최상위에 배치
 3. 지역 도착 목표 지점에는 Trigger Collider2D와 `QuestAreaTrigger`를 추가
 4. 퀘스트 정의/연결/보상은 `Assets/Resources/Data/QuestCatalog.json`에서 편집
+
+## 보스 컷신 빠른 설치
+1. 보스 오브젝트에 Collider2D와 `BossEncounterTrigger` 추가
+2. `encounterId`, 적 ShadowData 목록, 레벨 범위를 지정
+3. 전투 전/승리 대화 ID를 `DialogueCatalog.json`의 ID와 연결
+4. 보스는 Unit 레이어의 비 Trigger Collider로 두어 플레이어가 정면에서 상호작용하게 설정
 
 자세한 씬 구성은 [`Docs/SETUP.md`](Docs/SETUP.md) 참고.
 

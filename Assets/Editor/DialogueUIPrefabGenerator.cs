@@ -2,7 +2,6 @@
 using ShadowTheater.UI;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace ShadowTheater.EditorTools
@@ -64,6 +63,18 @@ namespace ShadowTheater.EditorTools
             next.text = "▼  계속";
             next.color = new Color(0.72f, 0.63f, 0.95f, 1f);
 
+            var choices = CreateRect("Choices", panel, new Vector2(0.09f, 0.31f),
+                new Vector2(0.91f, 0.61f), Vector2.zero, Vector2.zero);
+            var choiceViews = new DialogueChoiceView[3];
+            for (int i = 0; i < choiceViews.Length; i++)
+            {
+                float top = 1f - i * 0.34f;
+                float bottom = top - 0.28f;
+                choiceViews[i] = CreateChoice($"Choice_{i + 1}", choices,
+                    new Vector2(0f, bottom), new Vector2(1f, top));
+            }
+            choices.gameObject.SetActive(false);
+
             var tap = panel.gameObject.AddComponent<Button>();
             tap.transition = Selectable.Transition.None;
 
@@ -75,6 +86,11 @@ namespace ShadowTheater.EditorTools
             serialized.FindProperty("bodyText").objectReferenceValue = body;
             serialized.FindProperty("continueText").objectReferenceValue = next;
             serialized.FindProperty("accentBar").objectReferenceValue = accent;
+            serialized.FindProperty("choiceRoot").objectReferenceValue = choices.gameObject;
+            var viewsProperty = serialized.FindProperty("choiceViews");
+            viewsProperty.arraySize = choiceViews.Length;
+            for (int i = 0; i < choiceViews.Length; i++)
+                viewsProperty.GetArrayElementAtIndex(i).objectReferenceValue = choiceViews[i];
             serialized.ApplyModifiedPropertiesWithoutUndo();
 
             UnityEditor.Events.UnityEventTools.AddPersistentListener(tap.onClick, controller.Advance);
@@ -85,6 +101,31 @@ namespace ShadowTheater.EditorTools
             AssetDatabase.Refresh();
             EditorGUIUtility.PingObject(AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath));
             Debug.Log($"[Shadow Theater] 대화 UI 생성 완료: {PrefabPath}");
+        }
+
+        private static DialogueChoiceView CreateChoice(string name, Transform parent, Vector2 min, Vector2 max)
+        {
+            var rect = CreateRect(name, parent, min, max, Vector2.zero, Vector2.zero);
+            var image = rect.gameObject.AddComponent<Image>();
+            image.color = new Color(0.08f, 0.055f, 0.15f, 0.97f);
+            var button = rect.gameObject.AddComponent<Button>();
+            button.targetGraphic = image;
+            var colors = button.colors;
+            colors.normalColor = Color.white;
+            colors.highlightedColor = new Color(1.15f, 1.08f, 1.25f, 1f);
+            colors.pressedColor = new Color(0.72f, 0.62f, 0.9f, 1f);
+            button.colors = colors;
+
+            var label = CreateText("Label", rect, new Vector2(0.045f, 0f), new Vector2(0.955f, 1f),
+                29, FontStyle.Normal, TextAnchor.MiddleLeft);
+            label.color = new Color(0.96f, 0.93f, 1f, 1f);
+
+            var view = rect.gameObject.AddComponent<DialogueChoiceView>();
+            var serialized = new SerializedObject(view);
+            serialized.FindProperty("button").objectReferenceValue = button;
+            serialized.FindProperty("label").objectReferenceValue = label;
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+            return view;
         }
 
         private static RectTransform CreateRect(string name, Transform parent, Vector2 anchorMin,

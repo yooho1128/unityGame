@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using ShadowTheater.Field;
+using ShadowTheater.Save;
 using ShadowTheater.Story;
 using UnityEngine;
 using UnityEngine.UI;
@@ -21,6 +23,8 @@ namespace ShadowTheater.UI
         [SerializeField] private Text bodyText;
         [SerializeField] private Text continueText;
         [SerializeField] private Image accentBar;
+        [SerializeField] private GameObject choiceRoot;
+        [SerializeField] private List<DialogueChoiceView> choiceViews = new List<DialogueChoiceView>();
         [SerializeField, Min(1f)] private float charactersPerSecond = 42f;
 
         public bool IsPlaying { get; private set; }
@@ -32,6 +36,8 @@ namespace ShadowTheater.UI
         private bool _lockedPlayer;
         private string _fullLine;
         private Action _onComplete;
+        private readonly List<DialogueChoice> _visibleChoices = new List<DialogueChoice>();
+        private bool _awaitingChoice;
 
         private void Awake()
         {
@@ -61,14 +67,16 @@ namespace ShadowTheater.UI
             if (IsPlaying && (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Z) ||
                               Input.GetKeyDown(KeyCode.Return)))
                 Advance();
+            if (_awaitingChoice && Input.GetKeyDown(KeyCode.Alpha1)) SelectChoice(0);
+            if (_awaitingChoice && Input.GetKeyDown(KeyCode.Alpha2)) SelectChoice(1);
+            if (_awaitingChoice && Input.GetKeyDown(KeyCode.Alpha3)) SelectChoice(2);
 #endif
         }
 
         public bool Play(string dialogueId, Color accent, Action onComplete = null)
         {
             if (IsPlaying) return false;
-            if (!DialogueRepository.TryGet(dialogueId, out var sequence) ||
-                sequence.lines == null || sequence.lines.Count == 0)
+            if (!DialogueRepository.TryGet(dialogueId, out var sequence) || !HasContent(sequence))
             {
                 Debug.LogWarning($"[Dialogue] 비어 있거나 존재하지 않는 대화: {dialogueId}");
                 onComplete?.Invoke();
@@ -89,7 +97,8 @@ namespace ShadowTheater.UI
             }
 
             SetVisible(true);
-            ShowCurrentLine();
+            HideChoices();
+            ShowNextAvailableLine();
             return true;
         }
 
@@ -97,6 +106,7 @@ namespace ShadowTheater.UI
         public void Advance()
         {
             if (!IsPlaying) return;
+            if (_awaitingChoice) return;
             if (_isTyping)
             {
                 FinishTypingImmediately();
@@ -104,12 +114,29 @@ namespace ShadowTheater.UI
             }
 
             _lineIndex++;
-            if (_lineIndex >= _sequence.lines.Count)
+            ShowNextAvailableLine();
+        }
+
+        public void SelectChoice(int visibleIndex)
+        {
+            if (!_awaitingChoice || visibleIndex < 0 || visibleIndex >= _visibleChoices.Count) return;
+            var choice = _visibleChoices[visibleIndex];
+
+            if (!string.IsNullOrEmpty(choice.setFlag))
+                SaveManager.SetFlag(choice.setFlag, choice.setFlagValue);
+            if (!string.IsNullOrEmpty(choice.startQuestId))
+                QuestManager.Instance?.TryStartQuest(choice.startQuestId, false);
+
+            HideChoices();
+            if (!string.IsNullOrEmpty(choice.nextDialogueId) &&
+                DialogueRepository.TryGet(choice.nextDialogueId, out var next) && HasContent(next))
             {
-                Finish();
+                _sequence = next;
+                _lineIndex = 0;
+                ShowNextAvailableLine();
                 return;
             }
-            ShowCurrentLine();
+            Finish();
         }
 
         public void Cancel(bool invokeCompletion = false)
@@ -120,13 +147,60 @@ namespace ShadowTheater.UI
             callback?.Invoke();
         }
 
+        private void ShowNextAvailableLine()
+        {
+            var lines = _sequence.lines;
+            while (lines != null && _lineIndex < lines.Count && !ConditionsPass(
+                       lines[_lineIndex].requiredFlag, lines[_lineIndex].requiredFlagValue,
+                       lines[_lineIndex].blockedFlag))
+                _lineIndex++;
+
+            if (lines == null || _lineIndex >= lines.Count)
+            {
+                ShowChoicesOrFinish();
+                return;
+            }
+            ShowCurrentLine();
+        }
+
         private void ShowCurrentLine()
         {
             var line = _sequence.lines[_lineIndex];
+            if (!string.IsNullOrEmpty(line.setFlag)) SaveManager.SetFlag(line.setFlag, line.setFlagValue);
             if (speakerText != null) speakerText.text = line.speaker ?? string.Empty;
             _fullLine = line.text ?? string.Empty;
             if (_typingRoutine != null) StopCoroutine(_typingRoutine);
             _typingRoutine = StartCoroutine(TypeLine());
+        }
+
+        private void ShowChoicesOrFinish()
+        {
+            _visibleChoices.Clear();
+            if (_sequence.choices != null)
+            {
+                foreach (var choice in _sequence.choices)
+                    if (choice != null && ConditionsPass(choice.requiredFlag, choice.requiredFlagValue,
+                            choice.blockedFlag))
+                        _visibleChoices.Add(choice);
+            }
+
+            if (_visibleChoices.Count == 0)
+            {
+                Finish();
+                return;
+            }
+
+            _awaitingChoice = true;
+            if (choiceRoot != null) choiceRoot.SetActive(true);
+            if (continueText != null) continueText.gameObject.SetActive(false);
+            for (int i = 0; i < choiceViews.Count; i++)
+            {
+                if (i < _visibleChoices.Count) choiceViews[i].Bind(i, _visibleChoices[i].text, SelectChoice);
+                else choiceViews[i].Clear();
+            }
+            if (_visibleChoices.Count > choiceViews.Count)
+                Debug.LogWarning($"[Dialogue] 선택지 UI가 부족합니다: {_sequence.dialogueId} " +
+                                 $"({_visibleChoices.Count}/{choiceViews.Count})");
         }
 
         private IEnumerator TypeLine()
@@ -174,9 +248,30 @@ namespace ShadowTheater.UI
             IsPlaying = false;
             _sequence = null;
             _onComplete = null;
+            HideChoices();
             SetVisible(false);
             ReleasePlayerLock();
         }
+
+        private void HideChoices()
+        {
+            _awaitingChoice = false;
+            _visibleChoices.Clear();
+            foreach (var view in choiceViews)
+                if (view != null) view.Clear();
+            if (choiceRoot != null) choiceRoot.SetActive(false);
+        }
+
+        private static bool ConditionsPass(string requiredFlag, int requiredValue, string blockedFlag)
+        {
+            if (!string.IsNullOrEmpty(requiredFlag) &&
+                SaveManager.GetFlag(requiredFlag) < Mathf.Max(1, requiredValue)) return false;
+            return string.IsNullOrEmpty(blockedFlag) || !SaveManager.HasFlag(blockedFlag);
+        }
+
+        private static bool HasContent(DialogueSequence sequence) =>
+            sequence != null && ((sequence.lines != null && sequence.lines.Count > 0) ||
+                                 (sequence.choices != null && sequence.choices.Count > 0));
 
         private void ReleasePlayerLock()
         {
