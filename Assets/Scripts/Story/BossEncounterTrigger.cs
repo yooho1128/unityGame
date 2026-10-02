@@ -27,6 +27,12 @@ namespace ShadowTheater.Story
         [SerializeField] private string victoryFlag = "boss_moonlit_story_complete";
         [SerializeField] private Color accent = new Color(0.62f, 0.70f, 1f, 1f);
 
+        [Header("정화 보상 (선택)")]
+        [Tooltip("승리 후 각본집에 합류할 보스 그림자. 비우면 보상하지 않음")]
+        [SerializeField] private ShadowData purificationReward;
+        [SerializeField, Min(1)] private int purificationRewardLevel = 12;
+        [SerializeField] private string purificationRewardFlag = "boss_moonlit_reward_claimed";
+
         [Header("표현")]
         [SerializeField] private SpriteRenderer silhouette;
 
@@ -88,11 +94,27 @@ namespace ShadowTheater.Story
                 return;
             }
 
+            GrantPurificationReward();
+
             var dialogue = DialogueController.Instance;
             if (dialogue != null && !string.IsNullOrEmpty(victoryDialogueId))
                 dialogue.Play(victoryDialogueId, accent, FinishStory);
             else
                 FinishStory();
+        }
+
+        private void GrantPurificationReward()
+        {
+            if (purificationReward == null ||
+                (!string.IsNullOrEmpty(purificationRewardFlag) && SaveManager.HasFlag(purificationRewardFlag))) return;
+
+            var instance = new ShadowInstance(purificationReward, purificationRewardLevel);
+            bool joinedParty = SaveManager.AddCapturedShadow(instance);
+            QuestManager.Instance?.Notify(QuestObjectiveType.Record, purificationReward.shadowId);
+            if (!string.IsNullOrEmpty(purificationRewardFlag)) SaveManager.SetFlag(purificationRewardFlag);
+            SaveManager.Instance.Save();
+            Debug.Log($"[Boss:{encounterId}] {purificationReward.displayName} 정화 완료 → " +
+                      (joinedParty ? "파티" : "각본 서고"));
         }
 
         private void FinishStory()

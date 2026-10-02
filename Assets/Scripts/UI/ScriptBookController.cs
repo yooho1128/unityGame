@@ -177,7 +177,7 @@ namespace ShadowTheater.UI
                 : "기록되지 않은 그림자";
             if (titleText != null) titleText.text = recorded ? data.title : "???";
             if (typeText != null) typeText.text = recorded
-                ? $"{ElementName(data.element)} · {RoleName(data.role)}"
+                ? $"{GrowthTierName(data.growthTier)} · {ElementName(data.element)} · {RoleName(data.role)}"
                 : "속성 미상";
             if (statsText != null) statsText.text = recorded
                 ? (_selectedInstance != null
@@ -313,6 +313,17 @@ namespace ShadowTheater.UI
                 case ShadowRole.SpeedUtility: return "속도·유틸";
                 case ShadowRole.Tank: return "수호";
                 default: return "지원";
+            }
+        }
+
+        private static string GrowthTierName(GrowthTier tier)
+        {
+            switch (tier)
+            {
+                case GrowthTier.Rare: return "희귀";
+                case GrowthTier.RegionalBoss: return "지역 보스";
+                case GrowthTier.Legendary: return "전설";
+                default: return "일반";
             }
         }
     }

@@ -19,6 +19,15 @@ namespace ShadowTheater.Data
         Support
     }
 
+    /// <summary>기억 성장 연출/아트 제작 등급. 상위 등급일수록 형태별 실루엣 변화가 크다.</summary>
+    public enum GrowthTier
+    {
+        Standard,
+        Rare,
+        RegionalBoss,
+        Legendary
+    }
+
     public enum MemoryStage
     {
         Echo = 0,       // 잔영

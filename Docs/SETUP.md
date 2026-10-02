@@ -171,6 +171,16 @@ Assets/Scripts/
 `기억 복원`, `구원 각성`, `원한 각성` 버튼에서 조건을 확인하고 성장을 실행한다. 성장 단계와 분기,
 해금된 형태는 `ShadowInstance`에 저장되며 구버전 세이브는 버전 4로 자동 이관된다.
 
+### 전설·보스 1차 데이터 생성
+1. 메뉴 `Tools > Shadow Theater > Generate Legendary Growth Batch` 실행
+2. 생성된 `Assets/Data/Generated/Shadows`의 3개 ShadowData와 전용 스킬을 확인
+3. 달빛 초원 보스의 `BossEncounterTrigger.purificationReward`에 `boss_moonlit_widow`를 연결
+4. 보상 레벨과 `purificationRewardFlag`를 지정해 중복 지급을 방지
+
+생성기는 `LegendaryGrowthCatalog.json`의 수치와 Lore를 읽고 성장 시트를 잔영·복원·구원·원한
+Sprite로 4등분한다. 같은 메뉴를 다시 실행하면 기존 ID의 에셋을 갱신하며 ShadowDatabase에도
+중복 등록하지 않는다. 지역 보스 보상은 파티가 6명이면 자동으로 각본 서고에 들어간다.
+
 ## 전투만 먼저 확인할 때
 빈 씬 → GameObject에 BattleManager + BattleTestBootstrap → ShadowData 연결 → Play.
 화면 좌상단 OnGUI 버튼으로 조작, 로그는 Console.

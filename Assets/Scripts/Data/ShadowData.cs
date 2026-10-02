@@ -37,6 +37,7 @@ namespace ShadowTheater.Data
         public string title;                 // 예: "멸망한 왕국의 기사"
         public ShadowElement element;
         public ShadowRole role;
+        public GrowthTier growthTier;
 
         [Header("비주얼 (실루엣 + 포인트 컬러)")]
         public Sprite silhouetteSprite;
