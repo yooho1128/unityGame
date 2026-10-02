@@ -69,10 +69,31 @@ namespace ShadowTheater.Save
         /// <summary>새 게임: 스타팅 그림자 1마리 + 기본 도구 지급</summary>
         public SaveData NewGame(ShadowData starter, int starterLevel = 5)
         {
+            return CreateGame(starter, starterLevel, 1, 0, null);
+        }
+
+        /// <summary>엔딩 도감과 완료 횟수만 계승하고 진행/파티/선택 플래그는 초기화한다.</summary>
+        public SaveData NewCycle(ShadowData starter, int starterLevel = 5)
+        {
+            if (_current == null || !_current.cycleCompleted || starter == null) return null;
+            int nextCycle = Mathf.Max(1, _current.cycle) + 1;
+            int completed = Mathf.Max(1, _current.completedCycles);
+            var endings = new List<string>(_current.unlockedEndingIds ?? new List<string>());
+            return CreateGame(starter, starterLevel, nextCycle, completed, endings);
+        }
+
+        public bool CanStartNewCycle => _current != null && _current.cycleCompleted;
+
+        private SaveData CreateGame(ShadowData starter, int starterLevel, int cycle, int completedCycles,
+                                    List<string> inheritedEndings)
+        {
             _current = new SaveData
             {
                 starterShadowId = starter.shadowId,
-                gold = 100
+                gold = 100,
+                cycle = cycle,
+                completedCycles = completedCycles,
+                unlockedEndingIds = inheritedEndings ?? new List<string>()
             };
             var inst = new ShadowInstance(starter, starterLevel);
             _current.party.Add(inst);
@@ -157,12 +178,20 @@ namespace ShadowTheater.Save
                 foreach (var shadow in data.party) NormalizeMemoryStage(shadow);
                 foreach (var shadow in data.storage) NormalizeMemoryStage(shadow);
             }
+            if (data.version < 5)
+            {
+                data.cycle = Mathf.Max(1, data.cycle);
+                data.cycleCompleted = !string.IsNullOrEmpty(data.lastEndingId);
+                data.completedCycles = data.cycleCompleted ? Mathf.Max(1, data.completedCycles) : 0;
+            }
 
             data.flags ??= new List<FlagEntry>();
             data.clearedEncounterIds ??= new List<string>();
             data.seenShadowIds ??= new List<string>();
             data.recordedShadowIds ??= new List<string>();
             data.inventory ??= new List<ItemStack>();
+            data.unlockedEndingIds ??= new List<string>();
+            data.cycle = Mathf.Max(1, data.cycle);
             data.version = SaveData.CurrentVersion;
         }
 

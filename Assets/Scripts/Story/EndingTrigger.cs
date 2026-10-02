@@ -1,7 +1,9 @@
+using System.Collections;
 using ShadowTheater.Field;
 using ShadowTheater.Save;
 using ShadowTheater.UI;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace ShadowTheater.Story
 {
@@ -12,6 +14,9 @@ namespace ShadowTheater.Story
         [SerializeField] private string decisionDialogueId = "finale_director_choice";
         [SerializeField] private Color decisionAccent = new Color(0.74f, 0.56f, 1f, 1f);
         [SerializeField] private bool allowReplay;
+        [SerializeField] private bool returnToTitleAfterEnding = true;
+        [SerializeField] private string titleScene = "Title";
+        [SerializeField, Min(0f)] private float returnDelay = 1.2f;
 
         private bool _busy;
 
@@ -25,8 +30,22 @@ namespace ShadowTheater.Story
             _busy = true;
             DialogueController.Instance.Play(decisionDialogueId, decisionAccent, () =>
             {
-                if (!EndingManager.Instance.PlayResolvedEnding(_ => _busy = false)) _busy = false;
+                if (!EndingManager.Instance.PlayResolvedEnding(_ => OnEndingComplete())) _busy = false;
             });
+        }
+
+        private void OnEndingComplete()
+        {
+            _busy = false;
+            if (returnToTitleAfterEnding && !string.IsNullOrEmpty(titleScene))
+                StartCoroutine(ReturnToTitle());
+        }
+
+        private IEnumerator ReturnToTitle()
+        {
+            yield return new WaitForSecondsRealtime(returnDelay);
+            if (ScreenFader.Instance != null) yield return ScreenFader.Instance.FadeOut();
+            SceneManager.LoadScene(titleScene, LoadSceneMode.Single);
         }
     }
 }

@@ -16,6 +16,7 @@ Assets/Scripts/
            EndingData/Repository/Manager, EndingTrigger
   UI/      DialogueController, DialogueChoiceView, QuestHudController,
            TitleScreenController, StarterSelectionController, StarterCardView,
+           EndingGalleryController, EndingGalleryEntryView,
            ScriptBookController, ScriptBookEntryView, BattleUIController, BattleFxDirector,
            BattleSfxPlayer,
            BattleUnitPanel, BattleOptionButton, PartyStorageController, PartyStorageEntryView
@@ -181,8 +182,14 @@ Light 2D를 배치한다. `Environment` 아래에는 안개 6겹과 빛가루 24
 - `choice_control`: 검열과 강제 통제를 선택
 
 현재 샘플 엔딩은 `이름을 되찾은 극장`, `끝나지 않는 공연`, `다정한 망각의 새벽`, `텅 빈 막`의
-4종이다. 해금된 엔딩 ID와 마지막 엔딩 ID는 세이브 버전 3에 보존된다. 한 세이브에서 마지막 선택을
-되돌려 점수를 반복 누적하지 않도록 `EndingTrigger.allowReplay`의 기본값은 false다.
+4종이다. 해금된 엔딩 ID, 현재 회차, 완주 횟수는 세이브 버전 5에 보존된다. 한 세이브에서 마지막
+선택을 되돌려 점수를 반복 누적하지 않도록 `EndingTrigger.allowReplay`의 기본값은 false다. 결말
+재생 후에는 기본적으로 `Title` 씬으로 돌아가며 `returnToTitleAfterEnding`으로 이 동작을 끌 수 있다.
+
+타이틀의 `엔딩 기록관`은 잠긴 결말의 제목·내용을 숨기고 해금된 결말만 상세 표시한다. 엔딩을 한 번
+이상 본 세이브에는 `다음 회차 시작` 버튼이 나타난다. 새 회차는 스타터를 다시 선택하며 엔딩 도감과
+완주 횟수만 유지하고 파티, 서고, 퀘스트, 선택 성향, 재화, 도구는 초기화한다. 완전히 처음부터
+시작하려면 기존 `새로운 기억`을 사용한다.
 
 ## 각본집 도감 세팅
 1. 메뉴 `Tools > Shadow Theater > Generate Script Book UI` 실행
@@ -274,5 +281,5 @@ Core/Legendary JSON 값을 바꾼 뒤 각 데이터 생성 메뉴를 다시 실�
 ## 다음 작업 후보
 1. 필살기별 실제 파티클·녹음 SFX 에셋 교체
 2. 프롤로그 실제 타일·캐릭터 아트와 녹음 환경음 교체
-3. 엔딩 갤러리와 회차 시작
-4. 설정/오디오/언어 메뉴
+3. 설정/오디오/언어 메뉴
+4. 전체 40개 지역의 월드맵·진행 데이터 확장

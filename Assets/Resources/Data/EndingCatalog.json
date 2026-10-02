@@ -4,6 +4,7 @@
       "endingId": "hollow_curtain",
       "title": "텅 빈 막",
       "subtitle": "고통과 함께 모든 이름이 지워진 세계",
+      "archiveText": "검열단의 침묵이 마지막 대사까지 삼켰다. 고통은 사라졌지만, 누구도 서로를 기억하지 못하는 빈 무대만 남았다.",
       "dialogueId": "ending_hollow_curtain",
       "priority": 100,
       "requirements": [
@@ -15,6 +16,7 @@
       "endingId": "true_archive",
       "title": "이름을 되찾은 극장",
       "subtitle": "기억과 선택이 함께 남은 진정한 새벽",
+      "archiveText": "그림자들은 비극을 지우지 않고 자신의 이름으로 받아들였다. 새벽의 극장에는 슬픔과 기쁨을 함께 연기할 다음 공연이 시작된다.",
       "dialogueId": "ending_true_archive",
       "priority": 90,
       "requirements": [
@@ -27,6 +29,7 @@
       "endingId": "eternal_stage",
       "title": "끝나지 않는 공연",
       "subtitle": "모든 비극을 영원히 보존한 세계",
+      "archiveText": "단 하나의 장면도 잊히지 않도록 모든 기억이 무대에 묶였다. 배우들은 완벽히 보존되었지만 영원히 막을 내릴 수 없게 되었다.",
       "dialogueId": "ending_eternal_stage",
       "priority": 80,
       "requirements": [
@@ -38,6 +41,7 @@
       "endingId": "merciful_dawn",
       "title": "다정한 망각의 새벽",
       "subtitle": "기억의 주인이 놓아줄 장면을 선택한 세계",
+      "archiveText": "붙잡아야 할 이름과 놓아주어야 할 고통을 그림자 스스로 선택했다. 사라진 장면의 자리에는 조용하고 다정한 새벽이 찾아왔다.",
       "dialogueId": "ending_merciful_dawn",
       "priority": 80,
       "requirements": [

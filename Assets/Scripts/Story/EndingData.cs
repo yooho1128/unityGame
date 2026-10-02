@@ -15,6 +15,7 @@ namespace ShadowTheater.Story
         public string endingId;
         public string title;
         public string subtitle;
+        public string archiveText;
         public string dialogueId;
         public int priority;
         public List<EndingFlagRequirement> requirements = new List<EndingFlagRequirement>();

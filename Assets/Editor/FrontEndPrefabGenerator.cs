@@ -40,7 +40,7 @@ namespace ShadowTheater.EditorTools
         {
             var root = new GameObject("TitleCanvas", typeof(RectTransform), typeof(Canvas),
                 typeof(CanvasScaler), typeof(GraphicRaycaster), typeof(StarterSelectionController),
-                typeof(TitleScreenController));
+                typeof(TitleScreenController), typeof(EndingGalleryController));
             var canvas = root.GetComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 10;
@@ -67,10 +67,50 @@ namespace ShadowTheater.EditorTools
             subtitle.text = "잊힌 비극의 마지막 장면을 기록하라";
             subtitle.color = new Color(0.66f, 0.62f, 0.76f, 1f);
 
-            var newButton = CreateButton("NewGameButton", titleRoot, new Vector2(0.19f, 0.30f),
-                new Vector2(0.81f, 0.38f), "새로운 기억", new Color(0.38f, 0.20f, 0.65f, 1f));
-            var continueButton = CreateButton("ContinueButton", titleRoot, new Vector2(0.19f, 0.20f),
-                new Vector2(0.81f, 0.28f), "이어하기", new Color(0.10f, 0.08f, 0.18f, 1f));
+            var newButton = CreateButton("NewGameButton", titleRoot, new Vector2(0.19f, 0.34f),
+                new Vector2(0.81f, 0.41f), "새로운 기억", new Color(0.38f, 0.20f, 0.65f, 1f));
+            var continueButton = CreateButton("ContinueButton", titleRoot, new Vector2(0.19f, 0.25f),
+                new Vector2(0.81f, 0.32f), "이어하기", new Color(0.10f, 0.08f, 0.18f, 1f));
+            var cycleButton = CreateButton("NewCycleButton", titleRoot, new Vector2(0.19f, 0.16f),
+                new Vector2(0.81f, 0.23f), "다음 회차 시작", new Color(0.17f, 0.35f, 0.34f, 1f));
+            var galleryButton = CreateButton("EndingGalleryButton", titleRoot, new Vector2(0.19f, 0.07f),
+                new Vector2(0.81f, 0.14f), "엔딩 기록관", new Color(0.10f, 0.08f, 0.18f, 1f));
+
+            var galleryRoot = CreateRect("EndingGalleryRoot", root.transform, Vector2.zero, Vector2.one);
+            galleryRoot.gameObject.AddComponent<Image>().color = new Color(.018f,.012f,.045f,.98f);
+            var galleryTitle = CreateText("Header", galleryRoot, new Vector2(.07f,.88f), new Vector2(.93f,.96f),
+                48, FontStyle.Bold, TextAnchor.MiddleCenter);
+            galleryTitle.text = "엔딩 기록관";
+            var progress = CreateText("Progress", galleryRoot, new Vector2(.07f,.82f), new Vector2(.50f,.87f),
+                23, FontStyle.Bold, TextAnchor.MiddleLeft);
+            progress.color = new Color(.78f,.66f,1f,1f);
+            var cycle = CreateText("Cycle", galleryRoot, new Vector2(.50f,.82f), new Vector2(.93f,.87f),
+                23, FontStyle.Normal, TextAnchor.MiddleRight);
+            cycle.color = new Color(.68f,.65f,.76f,1f);
+
+            var listPanel = CreateRect("ListPanel", galleryRoot, new Vector2(.05f,.18f), new Vector2(.49f,.80f));
+            listPanel.gameObject.AddComponent<Image>().color = new Color(.04f,.028f,.075f,.96f);
+            var content = CreateRect("Content", listPanel, new Vector2(.04f,.04f), new Vector2(.96f,.96f));
+            var layout = content.gameObject.AddComponent<VerticalLayoutGroup>();
+            layout.spacing = 10f; layout.childControlHeight = true; layout.childForceExpandHeight = false;
+            var entryTemplate = CreateEndingEntry("EndingEntryTemplate", content);
+            entryTemplate.gameObject.SetActive(false);
+
+            var detailPanel = CreateRect("DetailPanel", galleryRoot, new Vector2(.52f,.28f), new Vector2(.95f,.80f));
+            detailPanel.gameObject.AddComponent<Image>().color = new Color(.055f,.038f,.10f,.98f);
+            var detailEyebrow = CreateText("Eyebrow", detailPanel, new Vector2(.08f,.78f), new Vector2(.92f,.93f),
+                20, FontStyle.Bold, TextAnchor.MiddleCenter);
+            detailEyebrow.text = "FINAL CURTAIN"; detailEyebrow.color = new Color(.64f,.46f,.94f,1f);
+            var detailTitle = CreateText("Title", detailPanel, new Vector2(.08f,.53f), new Vector2(.92f,.79f),
+                38, FontStyle.Bold, TextAnchor.MiddleCenter);
+            var detailSubtitle = CreateText("Subtitle", detailPanel, new Vector2(.10f,.24f), new Vector2(.90f,.54f),
+                24, FontStyle.Normal, TextAnchor.MiddleCenter);
+            detailSubtitle.color = new Color(.74f,.70f,.82f,1f);
+            var detailState = CreateText("State", detailPanel, new Vector2(.08f,.08f), new Vector2(.92f,.22f),
+                19, FontStyle.Bold, TextAnchor.MiddleCenter);
+            detailState.color = new Color(.48f,.88f,.78f,1f);
+            var galleryBack = CreateButton("BackButton", galleryRoot, new Vector2(.30f,.07f),
+                new Vector2(.70f,.13f), "돌아가기", new Color(.08f,.065f,.14f,1f));
 
             var starterRoot = CreateRect("StarterRoot", root.transform, Vector2.zero, Vector2.one);
             var starterTitle = CreateText("Header", starterRoot, new Vector2(0.08f, 0.86f),
@@ -105,17 +145,63 @@ namespace ShadowTheater.EditorTools
             var controllerSo = new SerializedObject(controller);
             controllerSo.FindProperty("titleRoot").objectReferenceValue = titleRoot.gameObject;
             controllerSo.FindProperty("continueButton").objectReferenceValue = continueButton;
+            controllerSo.FindProperty("newCycleButton").objectReferenceValue = cycleButton;
             controllerSo.FindProperty("starterSelection").objectReferenceValue = selection;
+            controllerSo.FindProperty("endingGallery").objectReferenceValue = root.GetComponent<EndingGalleryController>();
             controllerSo.ApplyModifiedPropertiesWithoutUndo();
+
+            var gallery = root.GetComponent<EndingGalleryController>();
+            var gallerySo = new SerializedObject(gallery);
+            gallerySo.FindProperty("root").objectReferenceValue = galleryRoot.gameObject;
+            gallerySo.FindProperty("titleRoot").objectReferenceValue = titleRoot.gameObject;
+            gallerySo.FindProperty("content").objectReferenceValue = content;
+            gallerySo.FindProperty("entryTemplate").objectReferenceValue = entryTemplate;
+            gallerySo.FindProperty("progressText").objectReferenceValue = progress;
+            gallerySo.FindProperty("cycleText").objectReferenceValue = cycle;
+            gallerySo.FindProperty("detailTitle").objectReferenceValue = detailTitle;
+            gallerySo.FindProperty("detailSubtitle").objectReferenceValue = detailSubtitle;
+            gallerySo.FindProperty("detailState").objectReferenceValue = detailState;
+            gallerySo.ApplyModifiedPropertiesWithoutUndo();
 
             UnityEditor.Events.UnityEventTools.AddPersistentListener(newButton.onClick, controller.NewGame);
             UnityEditor.Events.UnityEventTools.AddPersistentListener(continueButton.onClick, controller.ContinueGame);
+            UnityEditor.Events.UnityEventTools.AddPersistentListener(cycleButton.onClick, controller.NewCycle);
+            UnityEditor.Events.UnityEventTools.AddPersistentListener(galleryButton.onClick, gallery.Open);
+            UnityEditor.Events.UnityEventTools.AddPersistentListener(galleryBack.onClick, gallery.Close);
             UnityEditor.Events.UnityEventTools.AddPersistentListener(backButton.onClick,
                 controller.CancelStarterSelection);
             starterRoot.gameObject.SetActive(false);
+            galleryRoot.gameObject.SetActive(false);
 
             PrefabUtility.SaveAsPrefabAsset(root, UiFolder + "/TitleCanvas.prefab");
             Object.DestroyImmediate(root);
+        }
+
+        private static EndingGalleryEntryView CreateEndingEntry(string name, Transform parent)
+        {
+            var rect = CreateRect(name, parent, Vector2.zero, Vector2.one);
+            rect.gameObject.AddComponent<LayoutElement>().preferredHeight = 118f;
+            var image = rect.gameObject.AddComponent<Image>(); image.color = new Color(.075f,.052f,.13f,1f);
+            var button = rect.gameObject.AddComponent<Button>(); button.targetGraphic = image;
+            var accent = CreateRect("Accent", rect, Vector2.zero, new Vector2(.018f,1f)).gameObject.AddComponent<Image>();
+            var number = CreateText("Number", rect, new Vector2(.05f,.63f), new Vector2(.32f,.94f), 17,
+                FontStyle.Bold, TextAnchor.MiddleLeft); number.color = new Color(.65f,.52f,.88f,1f);
+            var title = CreateText("Title", rect, new Vector2(.05f,.28f), new Vector2(.78f,.68f), 26,
+                FontStyle.Bold, TextAnchor.MiddleLeft);
+            var subtitle = CreateText("Subtitle", rect, new Vector2(.05f,.04f), new Vector2(.86f,.31f), 17,
+                FontStyle.Normal, TextAnchor.MiddleLeft); subtitle.color = new Color(.68f,.64f,.75f,1f);
+            var lockText = CreateText("Lock", rect, new Vector2(.76f,.56f), new Vector2(.96f,.91f), 17,
+                FontStyle.Bold, TextAnchor.MiddleRight);
+            var view = rect.gameObject.AddComponent<EndingGalleryEntryView>();
+            var so = new SerializedObject(view);
+            so.FindProperty("button").objectReferenceValue = button;
+            so.FindProperty("accent").objectReferenceValue = accent;
+            so.FindProperty("numberText").objectReferenceValue = number;
+            so.FindProperty("titleText").objectReferenceValue = title;
+            so.FindProperty("subtitleText").objectReferenceValue = subtitle;
+            so.FindProperty("lockText").objectReferenceValue = lockText;
+            so.ApplyModifiedPropertiesWithoutUndo();
+            return view;
         }
 
         private static StarterCardView CreateStarterCard(string name, Transform parent, Vector2 min, Vector2 max)

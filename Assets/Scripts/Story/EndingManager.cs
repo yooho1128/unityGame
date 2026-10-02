@@ -75,6 +75,11 @@ namespace ShadowTheater.Story
             var save = SaveManager.Current;
             if (save == null) return;
             save.lastEndingId = ending.endingId;
+            if (!save.cycleCompleted)
+            {
+                save.cycleCompleted = true;
+                save.completedCycles++;
+            }
             if (!save.unlockedEndingIds.Contains(ending.endingId))
                 save.unlockedEndingIds.Add(ending.endingId);
             SaveManager.SetFlag($"ending_{ending.endingId}_seen");

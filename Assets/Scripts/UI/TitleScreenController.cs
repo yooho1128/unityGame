@@ -12,7 +12,9 @@ namespace ShadowTheater.UI
     {
         [SerializeField] private GameObject titleRoot;
         [SerializeField] private Button continueButton;
+        [SerializeField] private Button newCycleButton;
         [SerializeField] private StarterSelectionController starterSelection;
+        [SerializeField] private EndingGalleryController endingGallery;
         [Header("새 게임 시작 위치")]
         [SerializeField] private string firstScene = "Prologue";
         [SerializeField] private Vector2Int firstCell = new Vector2Int(0, -7);
@@ -20,16 +22,28 @@ namespace ShadowTheater.UI
         [SerializeField, Min(1)] private int starterLevel = 5;
         [SerializeField] private ItemData startingItem;
         [SerializeField, Min(0)] private int startingItemCount = 3;
+        private bool _startingNewCycle;
 
         private IEnumerator Start()
         {
             yield return new WaitUntil(() => SaveManager.Instance != null && MapLoader.Instance != null);
+            if (SaveManager.Current == null && SaveManager.Instance.HasSave()) SaveManager.Instance.Load();
             ShowTitle();
         }
 
         public void NewGame()
         {
             if (starterSelection == null) return;
+            _startingNewCycle = false;
+            if (titleRoot != null) titleRoot.SetActive(false);
+            starterSelection.Show(StartWithStarter);
+        }
+
+        public void NewCycle()
+        {
+            if (SaveManager.Current == null && SaveManager.Instance.HasSave()) SaveManager.Instance.Load();
+            if (!SaveManager.Instance.CanStartNewCycle || starterSelection == null) return;
+            _startingNewCycle = true;
             if (titleRoot != null) titleRoot.SetActive(false);
             starterSelection.Show(StartWithStarter);
         }
@@ -48,6 +62,7 @@ namespace ShadowTheater.UI
 
         public void CancelStarterSelection()
         {
+            _startingNewCycle = false;
             starterSelection?.Hide();
             ShowTitle();
         }
@@ -55,7 +70,11 @@ namespace ShadowTheater.UI
         private void StartWithStarter(ShadowData starter)
         {
             if (starter == null) { ShowTitle(); return; }
-            var save = SaveManager.Instance.NewGame(starter, starterLevel);
+            var save = _startingNewCycle
+                ? SaveManager.Instance.NewCycle(starter, starterLevel)
+                : SaveManager.Instance.NewGame(starter, starterLevel);
+            _startingNewCycle = false;
+            if (save == null) { ShowTitle(); return; }
             save.mapId = firstScene;
             save.tileX = save.checkpointX = firstCell.x;
             save.tileY = save.checkpointY = firstCell.y;
@@ -71,6 +90,7 @@ namespace ShadowTheater.UI
         private void ShowTitle()
         {
             starterSelection?.Hide();
+            endingGallery?.Close();
             if (titleRoot != null) titleRoot.SetActive(true);
             RefreshContinue();
         }
@@ -79,6 +99,12 @@ namespace ShadowTheater.UI
         {
             if (continueButton != null) continueButton.interactable = SaveManager.Instance != null &&
                                                                       SaveManager.Instance.HasSave();
+            if (newCycleButton != null)
+            {
+                bool available = SaveManager.Instance != null && SaveManager.Instance.CanStartNewCycle;
+                newCycleButton.gameObject.SetActive(available);
+                newCycleButton.interactable = available;
+            }
         }
     }
 }

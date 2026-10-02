@@ -12,7 +12,7 @@ namespace ShadowTheater.Save
     [Serializable]
     public class SaveData
     {
-        public const int CurrentVersion = 4;
+        public const int CurrentVersion = 5;
         public const int MaxPartySize = 6;
 
         public int version = CurrentVersion;
@@ -43,6 +43,9 @@ namespace ShadowTheater.Save
         public List<QuestProgressData> quests = new List<QuestProgressData>();
         public string lastEndingId;
         public List<string> unlockedEndingIds = new List<string>();
+        public int cycle = 1;
+        public int completedCycles;
+        public bool cycleCompleted;
 
         // ── 재화 / 도구 ──
         public int gold;
