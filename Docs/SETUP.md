@@ -15,9 +15,10 @@ Assets/Scripts/
            EndingData/Repository/Manager, EndingTrigger
   UI/      DialogueController, DialogueChoiceView, QuestHudController,
            TitleScreenController, StarterSelectionController, StarterCardView,
-           ScriptBookController, ScriptBookEntryView
+           ScriptBookController, ScriptBookEntryView, BattleUIController,
+           BattleUnitPanel, BattleOptionButton
   Editor/  DialogueUIPrefabGenerator, QuestHudPrefabGenerator, FrontEndPrefabGenerator,
-           ScriptBookPrefabGenerator
+           ScriptBookPrefabGenerator, BattleUIPrefabGenerator
 ```
 
 ## 프로젝트 설정
@@ -174,9 +175,21 @@ Assets/Scripts/
 빈 씬 → GameObject에 BattleManager + BattleTestBootstrap → ShadowData 연결 → Play.
 화면 좌상단 OnGUI 버튼으로 조작, 로그는 Console.
 
+## 모바일 전투 UI 세팅
+1. 메뉴 `Tools > Shadow Theater > Generate Battle UI` 실행
+2. `Assets/Prefabs/UI/BattleCanvas.prefab`을 BattleRoot로 배치하고 초기 비활성화
+3. `GameFlowController.battleRoot`에 프리팹 루트, `battleManager`에 내부 BattleManager 연결
+4. 씬의 EventSystem은 필드 UI와 공용으로 1개만 유지
+
+생성 프리팹은 BattleManager와 `IBattlePresenter` 구현체를 함께 포함한다. 플레이어/적 실루엣,
+HP·상태·FP·턴 표시와 공격, 스킬, 교체, 각본 기록, 도구, 도주 버튼을 제공한다. 스킬/교체/도구는
+동적 스크롤 목록이며 기절 시 강제 교체 화면으로 자동 전환한다. Auto와 1/2/3배속도 상단에서 조작한다.
+
+현재 Presenter는 패키지 의존성 없는 메시지·HUD 갱신 중심이다. 추후 DOTween을 설치하면 같은
+`IBattlePresenter` 계약을 유지한 채 돌진, 피격 플래시, 컷인, 카메라 흔들림을 교체 구현할 수 있다.
+
 ## 다음 작업 후보
-1. BattleUI (uGUI) — BattleManager 이벤트 바인딩 (HP바, FP 구슬, 행동 메뉴)
-2. DOTween BattlePresenter — 돌진/피격/컷인/카메라 쉐이크 (웹 프로토타입 연출 그대로)
-3. 파티 편성·보관함 UI
-4. 엔딩 갤러리와 회차 시작
-5. 설정/오디오/언어 메뉴
+1. DOTween BattlePresenter — 돌진/피격/컷인/카메라 쉐이크
+2. 파티 편성·보관함 UI
+3. 엔딩 갤러리와 회차 시작
+4. 설정/오디오/언어 메뉴

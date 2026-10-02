@@ -72,6 +72,14 @@
 각 형태는 실루엣, 포인트 컬러, 능력치 배율, 추가 스킬, Lore를 독립적으로 가집니다. 각본집 상세
 화면에서 조건 확인과 복원/각성을 실행하며 결과는 세이브 버전 4에 저장됩니다.
 
+## 모바일 전투 UI 빠른 설치
+1. Unity 메뉴 **Tools → Shadow Theater → Generate Battle UI** 실행
+2. 생성된 `Assets/Prefabs/UI/BattleCanvas.prefab`을 씬의 BattleRoot로 배치
+3. `GameFlowController`의 `battleRoot`, `battleManager`에 생성된 오브젝트를 연결
+
+공격·스킬·교체·각본 기록·도구·도주, 강제 교체, Auto, 1/2/3배속을 지원합니다. 스킬·파티·도구
+목록은 현재 전투 데이터에서 자동 생성됩니다.
+
 자세한 씬 구성은 [`Docs/SETUP.md`](Docs/SETUP.md) 참고.
 
 ## Unity 없이 작업할 때
