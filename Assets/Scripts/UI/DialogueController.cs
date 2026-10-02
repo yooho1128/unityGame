@@ -218,7 +218,8 @@ namespace ShadowTheater.UI
             float visibleCharacters = 0f;
             while (visibleCharacters < _fullLine.Length)
             {
-                visibleCharacters += charactersPerSecond * Time.unscaledDeltaTime;
+                float speed = GameSettings.Instance != null ? GameSettings.TextSpeed : charactersPerSecond;
+                visibleCharacters += speed * Time.unscaledDeltaTime;
                 int count = Mathf.Min(_fullLine.Length, Mathf.FloorToInt(visibleCharacters));
                 if (bodyText != null) bodyText.text = _fullLine.Substring(0, count);
                 yield return null;

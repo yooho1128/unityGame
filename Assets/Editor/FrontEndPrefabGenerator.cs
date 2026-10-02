@@ -31,7 +31,7 @@ namespace ShadowTheater.EditorTools
         private static void GenerateCoreSystems()
         {
             var systems = new GameObject("CoreSystems", typeof(SaveManager), typeof(MapLoader),
-                typeof(EndingManager));
+                typeof(EndingManager), typeof(GameSettings));
             PrefabUtility.SaveAsPrefabAsset(systems, SystemsFolder + "/CoreSystems.prefab");
             Object.DestroyImmediate(systems);
         }
@@ -40,7 +40,7 @@ namespace ShadowTheater.EditorTools
         {
             var root = new GameObject("TitleCanvas", typeof(RectTransform), typeof(Canvas),
                 typeof(CanvasScaler), typeof(GraphicRaycaster), typeof(StarterSelectionController),
-                typeof(TitleScreenController), typeof(EndingGalleryController));
+                typeof(TitleScreenController), typeof(EndingGalleryController), typeof(SettingsPanelController));
             var canvas = root.GetComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 10;
@@ -74,7 +74,9 @@ namespace ShadowTheater.EditorTools
             var cycleButton = CreateButton("NewCycleButton", titleRoot, new Vector2(0.19f, 0.16f),
                 new Vector2(0.81f, 0.23f), "다음 회차 시작", new Color(0.17f, 0.35f, 0.34f, 1f));
             var galleryButton = CreateButton("EndingGalleryButton", titleRoot, new Vector2(0.19f, 0.07f),
-                new Vector2(0.81f, 0.14f), "엔딩 기록관", new Color(0.10f, 0.08f, 0.18f, 1f));
+                new Vector2(0.49f, 0.14f), "엔딩 기록관", new Color(0.10f, 0.08f, 0.18f, 1f));
+            var settingsButton = CreateButton("SettingsButton", titleRoot, new Vector2(0.51f, 0.07f),
+                new Vector2(0.81f, 0.14f), "설정", new Color(0.10f, 0.08f, 0.18f, 1f));
 
             var galleryRoot = CreateRect("EndingGalleryRoot", root.transform, Vector2.zero, Vector2.one);
             galleryRoot.gameObject.AddComponent<Image>().color = new Color(.018f,.012f,.045f,.98f);
@@ -110,6 +112,29 @@ namespace ShadowTheater.EditorTools
                 19, FontStyle.Bold, TextAnchor.MiddleCenter);
             detailState.color = new Color(.48f,.88f,.78f,1f);
             var galleryBack = CreateButton("BackButton", galleryRoot, new Vector2(.30f,.07f),
+                new Vector2(.70f,.13f), "돌아가기", new Color(.08f,.065f,.14f,1f));
+
+            var settingsRoot = CreateRect("SettingsRoot", root.transform, Vector2.zero, Vector2.one);
+            settingsRoot.gameObject.AddComponent<Image>().color = new Color(.018f,.012f,.045f,.98f);
+            var settingsTitle = CreateText("Header", settingsRoot, new Vector2(.07f,.88f),
+                new Vector2(.93f,.96f), 48, FontStyle.Bold, TextAnchor.MiddleCenter);
+            settingsTitle.text = "설정";
+            var settingsHint = CreateText("Hint", settingsRoot, new Vector2(.08f,.82f),
+                new Vector2(.92f,.87f), 21, FontStyle.Normal, TextAnchor.MiddleCenter);
+            settingsHint.text = "공연 환경은 모든 저장 데이터에 공통으로 적용됩니다";
+            settingsHint.color = new Color(.68f,.64f,.76f,1f);
+            var settingsPanel = CreateRect("Panel", settingsRoot, new Vector2(.10f,.19f), new Vector2(.90f,.79f));
+            settingsPanel.gameObject.AddComponent<Image>().color = new Color(.045f,.03f,.085f,.97f);
+
+            Text masterValue, ambienceValue, sfxValue;
+            var masterSlider = CreateSettingsSlider("Master", settingsPanel, .92f, "전체 음량", out masterValue);
+            var ambienceSlider = CreateSettingsSlider("Ambience", settingsPanel, .76f, "환경음", out ambienceValue);
+            var sfxSlider = CreateSettingsSlider("Sfx", settingsPanel, .60f, "효과음", out sfxValue);
+            Text vibrationValue, textSpeedValue, languageValue;
+            var vibrationButton = CreateSettingsChoice("Vibration", settingsPanel, .43f, "진동", out vibrationValue);
+            var speedButton = CreateSettingsChoice("TextSpeed", settingsPanel, .27f, "대화 속도", out textSpeedValue);
+            var languageButton = CreateSettingsChoice("Language", settingsPanel, .11f, "언어", out languageValue);
+            var settingsBack = CreateButton("BackButton", settingsRoot, new Vector2(.30f,.07f),
                 new Vector2(.70f,.13f), "돌아가기", new Color(.08f,.065f,.14f,1f));
 
             var starterRoot = CreateRect("StarterRoot", root.transform, Vector2.zero, Vector2.one);
@@ -148,6 +173,7 @@ namespace ShadowTheater.EditorTools
             controllerSo.FindProperty("newCycleButton").objectReferenceValue = cycleButton;
             controllerSo.FindProperty("starterSelection").objectReferenceValue = selection;
             controllerSo.FindProperty("endingGallery").objectReferenceValue = root.GetComponent<EndingGalleryController>();
+            controllerSo.FindProperty("settingsPanel").objectReferenceValue = root.GetComponent<SettingsPanelController>();
             controllerSo.ApplyModifiedPropertiesWithoutUndo();
 
             var gallery = root.GetComponent<EndingGalleryController>();
@@ -163,15 +189,39 @@ namespace ShadowTheater.EditorTools
             gallerySo.FindProperty("detailState").objectReferenceValue = detailState;
             gallerySo.ApplyModifiedPropertiesWithoutUndo();
 
+            var settings = root.GetComponent<SettingsPanelController>();
+            var settingsSo = new SerializedObject(settings);
+            settingsSo.FindProperty("root").objectReferenceValue = settingsRoot.gameObject;
+            settingsSo.FindProperty("titleRoot").objectReferenceValue = titleRoot.gameObject;
+            settingsSo.FindProperty("masterSlider").objectReferenceValue = masterSlider;
+            settingsSo.FindProperty("ambienceSlider").objectReferenceValue = ambienceSlider;
+            settingsSo.FindProperty("sfxSlider").objectReferenceValue = sfxSlider;
+            settingsSo.FindProperty("masterValue").objectReferenceValue = masterValue;
+            settingsSo.FindProperty("ambienceValue").objectReferenceValue = ambienceValue;
+            settingsSo.FindProperty("sfxValue").objectReferenceValue = sfxValue;
+            settingsSo.FindProperty("vibrationValue").objectReferenceValue = vibrationValue;
+            settingsSo.FindProperty("textSpeedValue").objectReferenceValue = textSpeedValue;
+            settingsSo.FindProperty("languageValue").objectReferenceValue = languageValue;
+            settingsSo.ApplyModifiedPropertiesWithoutUndo();
+
             UnityEditor.Events.UnityEventTools.AddPersistentListener(newButton.onClick, controller.NewGame);
             UnityEditor.Events.UnityEventTools.AddPersistentListener(continueButton.onClick, controller.ContinueGame);
             UnityEditor.Events.UnityEventTools.AddPersistentListener(cycleButton.onClick, controller.NewCycle);
             UnityEditor.Events.UnityEventTools.AddPersistentListener(galleryButton.onClick, gallery.Open);
             UnityEditor.Events.UnityEventTools.AddPersistentListener(galleryBack.onClick, gallery.Close);
+            UnityEditor.Events.UnityEventTools.AddPersistentListener(settingsButton.onClick, settings.Open);
+            UnityEditor.Events.UnityEventTools.AddPersistentListener(settingsBack.onClick, settings.Close);
+            UnityEditor.Events.UnityEventTools.AddPersistentListener(masterSlider.onValueChanged, settings.SetMaster);
+            UnityEditor.Events.UnityEventTools.AddPersistentListener(ambienceSlider.onValueChanged, settings.SetAmbience);
+            UnityEditor.Events.UnityEventTools.AddPersistentListener(sfxSlider.onValueChanged, settings.SetSfx);
+            UnityEditor.Events.UnityEventTools.AddPersistentListener(vibrationButton.onClick, settings.ToggleVibration);
+            UnityEditor.Events.UnityEventTools.AddPersistentListener(speedButton.onClick, settings.CycleTextSpeed);
+            UnityEditor.Events.UnityEventTools.AddPersistentListener(languageButton.onClick, settings.ToggleLanguage);
             UnityEditor.Events.UnityEventTools.AddPersistentListener(backButton.onClick,
                 controller.CancelStarterSelection);
             starterRoot.gameObject.SetActive(false);
             galleryRoot.gameObject.SetActive(false);
+            settingsRoot.gameObject.SetActive(false);
 
             PrefabUtility.SaveAsPrefabAsset(root, UiFolder + "/TitleCanvas.prefab");
             Object.DestroyImmediate(root);
@@ -254,6 +304,43 @@ namespace ShadowTheater.EditorTools
             var text = CreateText("Label", rect, Vector2.zero, Vector2.one, 31, FontStyle.Bold,
                 TextAnchor.MiddleCenter);
             text.text = label;
+            return button;
+        }
+
+        private static Slider CreateSettingsSlider(string name, Transform parent, float top, string label,
+            out Text valueText)
+        {
+            var labelText = CreateText(name + "Label", parent, new Vector2(.07f, top - .10f),
+                new Vector2(.34f, top), 25, FontStyle.Bold, TextAnchor.MiddleLeft);
+            labelText.text = label;
+            var track = CreateRect(name + "Slider", parent, new Vector2(.38f, top - .075f),
+                new Vector2(.79f, top - .025f));
+            var trackImage = track.gameObject.AddComponent<Image>();
+            trackImage.color = new Color(.11f,.085f,.18f,1f);
+            var slider = track.gameObject.AddComponent<Slider>();
+            slider.minValue = 0f; slider.maxValue = 1f;
+            var fill = CreateRect("Fill", track, new Vector2(.015f,.18f), new Vector2(.985f,.82f));
+            var fillImage = fill.gameObject.AddComponent<Image>(); fillImage.color = new Color(.55f,.30f,.88f,1f);
+            var handle = CreateRect("Handle", track, new Vector2(0f,-.12f), new Vector2(.06f,1.12f));
+            var handleImage = handle.gameObject.AddComponent<Image>(); handleImage.color = new Color(.93f,.86f,1f,1f);
+            slider.fillRect = fill; slider.handleRect = handle; slider.targetGraphic = handleImage;
+            valueText = CreateText(name + "Value", parent, new Vector2(.81f, top - .10f),
+                new Vector2(.94f, top), 23, FontStyle.Bold, TextAnchor.MiddleRight);
+            valueText.color = new Color(.78f,.66f,1f,1f);
+            return slider;
+        }
+
+        private static Button CreateSettingsChoice(string name, Transform parent, float top, string label,
+            out Text valueText)
+        {
+            var labelText = CreateText(name + "Label", parent, new Vector2(.07f, top - .09f),
+                new Vector2(.48f, top), 25, FontStyle.Bold, TextAnchor.MiddleLeft);
+            labelText.text = label;
+            var button = CreateButton(name + "Button", parent, new Vector2(.55f, top - .085f),
+                new Vector2(.94f, top), "", new Color(.095f,.07f,.16f,1f));
+            valueText = button.GetComponentInChildren<Text>();
+            valueText.fontSize = 23;
+            valueText.color = new Color(.78f,.66f,1f,1f);
             return button;
         }
 

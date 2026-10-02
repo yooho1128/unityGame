@@ -15,6 +15,7 @@ namespace ShadowTheater.UI
         [SerializeField] private Button newCycleButton;
         [SerializeField] private StarterSelectionController starterSelection;
         [SerializeField] private EndingGalleryController endingGallery;
+        [SerializeField] private SettingsPanelController settingsPanel;
         [Header("새 게임 시작 위치")]
         [SerializeField] private string firstScene = "Prologue";
         [SerializeField] private Vector2Int firstCell = new Vector2Int(0, -7);
@@ -91,6 +92,7 @@ namespace ShadowTheater.UI
         {
             starterSelection?.Hide();
             endingGallery?.Close();
+            settingsPanel?.Close();
             if (titleRoot != null) titleRoot.SetActive(true);
             RefreshContinue();
         }

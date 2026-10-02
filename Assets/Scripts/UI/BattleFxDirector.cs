@@ -153,6 +153,7 @@ namespace ShadowTheater.UI
                     {
                         impacted = true;
                         if (sfxPlayer != null) sfxPlayer.PlayImpact(skill);
+                        GameSettings.TryVibrate();
                         yield return HitStop(skill.hitStopDuration / Mathf.Sqrt(speed));
                     }
                 }

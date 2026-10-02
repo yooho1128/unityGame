@@ -9,7 +9,7 @@
 | `Assets/Scripts/Save` | SaveData(JSON), SaveManager, 파티·각본 서고 편성 API |
 | `Assets/Scripts/Field` | PlayerController(타일 이동), EncounterSymbol(심볼 인카운터), GameFlowController(필드↔전투) |
 | `Assets/Scripts/Story` | JSON 대사/퀘스트 저장소, 목표 추적, 누적 선택 기반 다중 엔딩 |
-| `Assets/Scripts/UI` | 모바일 대화창, 퀘스트 HUD, 스타터 선택, 각본집 도감, 파티·서고 편성 |
+| `Assets/Scripts/UI` | 모바일 대화창, 퀘스트 HUD, 스타터 선택, 각본집 도감, 파티·서고 편성, 전역 설정 |
 | `Assets/Editor` | 주요 모바일 UI 프리팹 자동 생성 메뉴 |
 | `Prototype/shadow-theater.html` | 같은 전투 규칙의 브라우저 프로토타입 — 더블클릭으로 실행, 밸런스 데이터 편집 탭 포함 |
 | `Docs/` | 기획 명세서, 씬 세팅 가이드(SETUP.md) |
@@ -86,6 +86,14 @@
 - 해금 엔딩과 마지막 엔딩은 세이브에 기록
 - 결말 후 타이틀의 `엔딩 기록관`에서 4개 결말의 해금률과 상세 문구 열람
 - `다음 회차 시작`은 엔딩 도감·완주 횟수만 계승하고 파티·퀘스트·선택을 초기화
+
+## 게임 설정
+
+`Generate Title and Starter UI`로 만든 타이틀에는 설정 화면이 포함됩니다. 전체 음량, 환경음, 효과음,
+진동, 대화 출력 속도, 언어를 조절할 수 있으며 값은 `PlayerPrefs`에 저장되어 세이브 슬롯과 회차에
+상관없이 유지됩니다. 환경음 슬라이더는 필드의 지속음과 간헐음을 즉시 갱신하고, 효과음은 전투 스킬과
+필살기에 적용됩니다. 진동은 모바일 전투의 타격 순간에만 발생합니다. 언어 전환 상태와 변경 이벤트는
+준비되어 있으며 실제 영문 대사·UI 문자열 카탈로그 연결은 다음 현지화 단계에서 확장합니다.
 
 ## 각본집 도감 빠른 설치
 1. Unity 메뉴 **Tools → Shadow Theater → Generate Script Book UI** 실행

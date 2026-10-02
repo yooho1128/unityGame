@@ -1,4 +1,5 @@
 using System.Collections;
+using ShadowTheater.UI;
 using UnityEngine;
 
 namespace ShadowTheater.Field
@@ -24,6 +25,9 @@ namespace ShadowTheater.Field
         private AudioClip _generatedDetail;
         private Coroutine _fadeRoutine;
         private Coroutine _detailRoutine;
+        private float _fadeTarget;
+
+        private float EffectiveAmbienceVolume => ambienceVolume * GameSettings.AmbienceVolume;
 
         private void Awake()
         {
@@ -38,6 +42,7 @@ namespace ShadowTheater.Field
         private void OnEnable()
         {
             Instance = this;
+            GameSettings.Changed += HandleSettingsChanged;
             EnsureSources();
             bedSource.volume = 0f;
             if (bedSource.clip != null && !bedSource.isPlaying) bedSource.Play();
@@ -47,6 +52,7 @@ namespace ShadowTheater.Field
 
         private void OnDisable()
         {
+            GameSettings.Changed -= HandleSettingsChanged;
             if (Instance == this) Instance = null;
             StopAllCoroutines();
             _fadeRoutine = null;
@@ -70,13 +76,19 @@ namespace ShadowTheater.Field
         public void BeginFadeIn()
         {
             if (!isActiveAndEnabled) return;
-            StartFade(ambienceVolume);
+            StartFade(EffectiveAmbienceVolume);
         }
 
         private void StartFade(float target)
         {
+            _fadeTarget = target;
             if (_fadeRoutine != null) StopCoroutine(_fadeRoutine);
             _fadeRoutine = StartCoroutine(FadeRoutine(target));
+        }
+
+        private void HandleSettingsChanged()
+        {
+            if (isActiveAndEnabled && _fadeTarget > 0f) StartFade(EffectiveAmbienceVolume);
         }
 
         private IEnumerator FadeRoutine(float target)
@@ -105,7 +117,9 @@ namespace ShadowTheater.Field
                     if (clip != null)
                     {
                         detailSource.pitch = Random.Range(0.94f, 1.07f);
-                        detailSource.PlayOneShot(clip, detailVolume * Mathf.Clamp01(bedSource.volume / Mathf.Max(.01f, ambienceVolume)));
+                        float categoryVolume = GameSettings.AmbienceVolume;
+                        float fadeRatio = Mathf.Clamp01(bedSource.volume / Mathf.Max(.01f, EffectiveAmbienceVolume));
+                        detailSource.PlayOneShot(clip, detailVolume * categoryVolume * fadeRatio);
                     }
                 }
             }

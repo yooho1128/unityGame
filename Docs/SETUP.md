@@ -16,7 +16,7 @@ Assets/Scripts/
            EndingData/Repository/Manager, EndingTrigger
   UI/      DialogueController, DialogueChoiceView, QuestHudController,
            TitleScreenController, StarterSelectionController, StarterCardView,
-           EndingGalleryController, EndingGalleryEntryView,
+           EndingGalleryController, EndingGalleryEntryView, GameSettings, SettingsPanelController,
            ScriptBookController, ScriptBookEntryView, BattleUIController, BattleFxDirector,
            BattleSfxPlayer,
            BattleUnitPanel, BattleOptionButton, PartyStorageController, PartyStorageEntryView
@@ -160,6 +160,18 @@ Light 2D를 배치한다. `Environment` 아래에는 안개 6겹과 빛가루 24
 이어하기 버튼은 정상 세이브가 있을 때만 활성화된다. 새 게임은 스타터 선택 직후 세이브를 만들고
 첫 씬의 지정 좌표로 이동한다. `CoreSystems`는 씬 전환 후에도 유지되며 저장과 맵 이동을 담당한다.
 
+### 전역 설정
+
+같은 생성 메뉴가 `CoreSystems`에 `GameSettings`, `TitleCanvas`에 설정 패널을 함께 구성한다.
+설정은 게임 세이브 JSON이 아니라 `PlayerPrefs`에 별도로 저장되므로 새 게임과 다음 회차에서도 유지된다.
+
+- 전체 음량: `AudioListener.volume`에 즉시 반영
+- 환경음: `FieldAmbientAudio`의 지속음·간헐음에 즉시 반영
+- 효과음: `BattleSfxPlayer`의 스킬·필살기 음량에 반영
+- 진동: Android/iOS 전투 타격 프레임에서 실행
+- 대화 속도: 느리게 24자/초, 보통 42자/초, 빠르게 72자/초
+- 언어: 한국어/English 선택 상태와 변경 이벤트 제공(영문 문자열 카탈로그는 추후 연결)
+
 ## 지역 간 맵 이동
 1. 이동 대상이 되는 모든 씬을 `File > Build Settings > Scenes In Build`에 추가
 2. 길 끝/문 타일에 Collider2D와 `MapPortal`을 추가
@@ -281,5 +293,5 @@ Core/Legendary JSON 값을 바꾼 뒤 각 데이터 생성 메뉴를 다시 실�
 ## 다음 작업 후보
 1. 필살기별 실제 파티클·녹음 SFX 에셋 교체
 2. 프롤로그 실제 타일·캐릭터 아트와 녹음 환경음 교체
-3. 설정/오디오/언어 메뉴
+3. 영문 UI·대사 문자열 카탈로그와 폰트 폴백 연결
 4. 전체 40개 지역의 월드맵·진행 데이터 확장
