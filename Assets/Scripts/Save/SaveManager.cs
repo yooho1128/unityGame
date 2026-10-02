@@ -144,8 +144,14 @@ namespace ShadowTheater.Save
         /// <summary>구버전 세이브 변환. 버전 올릴 때마다 case 추가</summary>
         private static void Migrate(SaveData data)
         {
-            // 예시)
-            // if (data.version < 2) { data.newField = 기본값; data.version = 2; }
+            if (data.version < 2 || data.quests == null)
+                data.quests = new List<QuestProgressData>();
+
+            data.flags ??= new List<FlagEntry>();
+            data.clearedEncounterIds ??= new List<string>();
+            data.seenShadowIds ??= new List<string>();
+            data.recordedShadowIds ??= new List<string>();
+            data.inventory ??= new List<ItemStack>();
             data.version = SaveData.CurrentVersion;
         }
 

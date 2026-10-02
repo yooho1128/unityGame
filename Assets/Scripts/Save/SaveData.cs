@@ -12,7 +12,7 @@ namespace ShadowTheater.Save
     [Serializable]
     public class SaveData
     {
-        public const int CurrentVersion = 1;
+        public const int CurrentVersion = 2;
         public const int MaxPartySize = 6;
 
         public int version = CurrentVersion;
@@ -40,6 +40,7 @@ namespace ShadowTheater.Save
         // ── 진행도 ──
         public List<FlagEntry> flags = new List<FlagEntry>();
         public List<string> clearedEncounterIds = new List<string>(); // 보스/고정 심볼 처치 기록
+        public List<QuestProgressData> quests = new List<QuestProgressData>();
 
         // ── 재화 / 도구 ──
         public int gold;
@@ -66,5 +67,21 @@ namespace ShadowTheater.Save
     {
         public string itemId;
         public int count;
+    }
+
+    [Serializable]
+    public class QuestProgressData
+    {
+        public string questId;
+        public bool completed;
+        public bool rewardClaimed;
+        public List<QuestObjectiveProgressData> objectives = new List<QuestObjectiveProgressData>();
+    }
+
+    [Serializable]
+    public class QuestObjectiveProgressData
+    {
+        public string objectiveId;
+        public int current;
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using ShadowTheater.Battle;
 using ShadowTheater.Data;
 using ShadowTheater.Save;
+using ShadowTheater.Story;
 using UnityEngine;
 
 namespace ShadowTheater.Field
@@ -189,10 +190,12 @@ namespace ShadowTheater.Field
                     shadow.FullHeal(); // 기억이 정화되어 온전한 모습으로 합류
                     bool toParty = SaveManager.AddCapturedShadow(shadow);
                     OnShadowRecorded?.Invoke(shadow, toParty);
+                    QuestManager.Instance?.Notify(QuestObjectiveType.Record, shadow.shadowId);
                     break;
                 }
                 case BattleResult.Victory:
                     SaveManager.MarkEncounterCleared(outcome.encounterId);
+                    QuestManager.Instance?.Notify(QuestObjectiveType.Defeat, outcome.encounterId);
                     break;
 
                 case BattleResult.Defeat:
