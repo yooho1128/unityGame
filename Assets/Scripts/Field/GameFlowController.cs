@@ -161,8 +161,11 @@ namespace ShadowTheater.Field
             battleRoot.SetActive(false);
             fieldRoot.SetActive(true);
 
-            if (outcome.result == BattleResult.Defeat) RespawnAtCheckpoint();
             if (symbol != null) symbol.OnBattleFinished(outcome.result); // fieldRoot 켜진 뒤 호출해야 코루틴 동작
+
+            if (outcome.result == BattleResult.Defeat && TryTravelToCheckpoint(ctx, outcome, onFinished))
+                yield break;
+            if (outcome.result == BattleResult.Defeat) RespawnAtCheckpoint();
 
             yield return ScreenFader.Instance.FadeIn();
 
@@ -207,9 +210,28 @@ namespace ShadowTheater.Field
         private void RespawnAtCheckpoint()
         {
             var save = SaveManager.Current;
-            // TODO: checkpointMapId가 현재 맵과 다르면 맵 로딩 처리 (MapLoader 작성 시)
             PlayerController.Instance.SnapToCell(new Vector2Int(save.checkpointX, save.checkpointY));
             PlayerController.Instance.SetFacing(FacingDir.Down);
+        }
+
+        /// <summary>패배 체크포인트가 다른 맵이면 현재 페이드 상태를 유지한 채 해당 씬으로 이동한다.</summary>
+        private bool TryTravelToCheckpoint(BattleContext context, BattleOutcome outcome,
+                                           Action<BattleOutcome> onFinished)
+        {
+            var save = SaveManager.Current;
+            if (save == null || string.IsNullOrEmpty(save.checkpointMapId) ||
+                save.checkpointMapId == FieldGrid.Current.MapId) return false;
+
+            IsInBattle = false;
+            bool started = MapLoader.Instance != null && MapLoader.Instance.TravelTo(save.checkpointMapId,
+                new Vector2Int(save.checkpointX, save.checkpointY), FacingDir.Down, true);
+            if (started)
+            {
+                onFinished?.Invoke(outcome);
+                OnBattleFlowFinished?.Invoke(context, outcome);
+            }
+            else IsInBattle = true;
+            return started;
         }
 
         #endregion

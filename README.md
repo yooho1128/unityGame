@@ -31,6 +31,16 @@
 아직 없는 개체에는 기능 테스트용 실루엣 PNG를 자동 생성하며, 이후 완성 아트로 교체해도 ID와 세이브는
 그대로 유지됩니다. 원본 수치와 Lore는 `Assets/Resources/Data/CoreContentCatalog.json`에서 수정합니다.
 
+## 플레이 가능한 프롤로그 자동 생성
+1. Unity 메뉴 **Tools → Shadow Theater → Generate Playable Prologue** 실행
+2. 현재 씬 저장 여부를 확인하면 필요한 데이터·UI 프리팹과 프롤로그 씬을 일괄 생성
+3. 생성 후 자동으로 열린 `Title` 씬에서 Play
+
+생성되는 동선은 `Title → 잔향 극장 → 잔향 마을 → 달빛 초원 → 달빛 보스 무대`입니다. 각 필드는
+23×19 타일의 개방형 구조이며 상하좌우 탐색, 장애물 우회, 모바일 방향키/A 버튼, NPC 대화, 퀘스트,
+심볼 인카운터, 각본 기록, 지역 보스 정화까지 한 흐름으로 확인할 수 있습니다. 5개 씬은 Build Settings에
+자동 등록됩니다.
+
 ## 대화 시스템 빠른 설치
 1. Unity 메뉴 **Tools → Shadow Theater → Generate Dialogue UI Prefab** 실행
 2. 생성된 `Assets/Prefabs/UI/DialogueCanvas.prefab`을 필드 씬 최상위에 배치

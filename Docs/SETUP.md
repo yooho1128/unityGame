@@ -9,7 +9,7 @@ Assets/Scripts/
   Save/    SaveData, SaveManager
   Field/   FieldGrid, PlayerController, EncounterSymbol, ScreenFader,
            VirtualDPadButton, VirtualActionButton, VirtualScriptBookButton, VirtualPartyButton,
-           GameFlowController, MapLoader, MapPortal
+           GameFlowController, MapLoader, MapPortal, FieldCameraFollow
   Story/   DialogueData/Repository, StoryNpc, DialogueInteractable,
            QuestData/Repository/Manager, QuestAreaTrigger, BossEncounterTrigger,
            EndingData/Repository/Manager, EndingTrigger
@@ -19,7 +19,7 @@ Assets/Scripts/
            BattleUnitPanel, BattleOptionButton, PartyStorageController, PartyStorageEntryView
   Editor/  DialogueUIPrefabGenerator, QuestHudPrefabGenerator, FrontEndPrefabGenerator,
            ScriptBookPrefabGenerator, BattleUIPrefabGenerator, PartyStoragePrefabGenerator,
-           CoreContentBatchGenerator, LegendaryGrowthBatchGenerator
+           CoreContentBatchGenerator, LegendaryGrowthBatchGenerator, PlayablePrologueGenerator
 ```
 
 ## 프로젝트 설정
@@ -37,6 +37,36 @@ Assets/Scripts/
 원본은 `Resources/Data/CoreContentCatalog.json`이며 같은 메뉴를 반복 실행하면 ID를 기준으로 기존
 ScriptableObject를 갱신한다. 스타터 3종과 수집 가능한 일반 그림자에는 세 단계 성장 데이터가 들어 있다.
 전용 아트가 없는 동안에는 `Assets/Art/Generated/Core`에 기능 테스트용 실루엣을 생성한다.
+
+## 플레이 가능한 프롤로그 생성
+1. 메뉴 `Tools > Shadow Theater > Generate Playable Prologue` 실행
+2. 현재 열려 있는 씬의 변경 사항을 저장하거나 폐기할지 선택
+3. 생성이 끝나면 자동으로 열리는 `Assets/Scenes/Prologue/Title.unity`에서 Play
+
+이 메뉴는 핵심·전설 데이터와 모든 UI 프리팹을 먼저 갱신한 뒤 아래 씬을 만든다.
+
+| 씬 | 포함 내용 |
+|---|---|
+| `Title` | 이어하기, 스타터 3종 선택, 첫 지역 진입 |
+| `PrologueTheater` | 아리아, 첫 퀘스트, 기억의 제단 |
+| `EchoVillage` | 개방형 마을 필드, 표지판, 양방향 포털 |
+| `MoonlitMeadow` | 도착 목표, 등불지기, 야생 심볼 4종, 보스 입구 |
+| `MoonlitBossStage` | 달빛의 미망인 보스전과 정화 보상 |
+
+각 필드는 23×19 타일이며 가장자리 벽과 내부 장애물이 있는 개방형 2D 구조다. 한 줄 통로가 아니라
+장애물의 위·아래 경로를 선택할 수 있다. 지역별 타일 팔레트, 카메라 배경색, 지역명 HUD가 다르며
+필드 카메라는 플레이어의 타일 이동을 부드럽게 추적한다. 생성한 `.unity`, `.prefab`, `.asset`,
+`.png`, `.meta` 파일은 모두 Git에 커밋한다.
+
+기본 진행 순서:
+1. 잔향 극장에서 아리아와 대화
+2. 잔향 마을을 지나 달빛 초원 도착
+3. 야생 그림자를 기록하고 등불지기와 대화
+4. `prologue_04_echoes` 완료 후 북쪽 보스 입구 개방
+5. 달빛의 미망인을 정화해 파티 또는 각본 서고에 합류
+
+달빛 초원 진입 포털은 초원 서쪽 입구를 체크포인트로 지정한다. 보스 무대처럼 다른 씬에서 패배한
+경우에도 `GameFlowController`가 달빛 초원 씬을 다시 로드하고 파티를 회복한다.
 
 ## 씬 계층 (단일 씬 + 루트 토글)
 ```
@@ -218,7 +248,7 @@ HP·상태·FP·턴 표시와 공격, 스킬, 교체, 각본 기록, 도구, 도
 - 첫 번째 파티원이 전투의 선봉으로 사용되므로 순서 변경은 다음 인카운터부터 반영된다.
 
 ## 다음 작업 후보
-1. 플레이 가능한 프롤로그 씬 자동 생성 — 타이틀, 잔향 마을, 달빛 초원, 보스 무대
-2. DOTween BattlePresenter — 돌진/피격/컷인/카메라 쉐이크
+1. DOTween BattlePresenter — 돌진/피격/컷인/카메라 쉐이크
+2. 프롤로그 실제 아트·URP 2D 조명·환경음 교체
 3. 엔딩 갤러리와 회차 시작
 4. 설정/오디오/언어 메뉴
