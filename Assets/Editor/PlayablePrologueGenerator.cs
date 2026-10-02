@@ -358,8 +358,11 @@ namespace ShadowTheater.EditorTools
             importer.textureType = TextureImporterType.Sprite;
             importer.spriteImportMode = SpriteImportMode.Single;
             importer.spritePixelsPerUnit = 820f;
-            importer.spriteAlignment = (int)SpriteAlignment.Custom;
-            importer.spritePivot = new Vector2(.5f, .035f);
+            var textureSettings = new TextureImporterSettings();
+            importer.ReadTextureSettings(textureSettings);
+            textureSettings.spriteAlignment = (int)SpriteAlignment.Custom;
+            textureSettings.spritePivot = new Vector2(.5f, .035f);
+            importer.SetTextureSettings(textureSettings);
             importer.alphaIsTransparency = true;
             importer.mipmapEnabled = false;
             importer.filterMode = FilterMode.Bilinear;

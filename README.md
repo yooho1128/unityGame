@@ -187,4 +187,5 @@ Bloom·색 보정·비네트, 이동 안개와 반딧불을 결합합니다. 배
 
 필드 플레이어는 임시 스타터 실루엣 대신 `Assets/Art/Characters/Player/TheaterDirector_Field.png`의
 극단주 전용 스프라이트를 사용합니다. 프레임 애니메이션 없이도 이동 보간, 좌우 반전과 바운스로
-걷는 느낌을 유지합니다.
+걷는 느낌을 유지합니다. 커스텀 발 위치 피벗은 Unity 2022와 호환되는 `TextureImporterSettings`를
+통해 자동 적용됩니다.
