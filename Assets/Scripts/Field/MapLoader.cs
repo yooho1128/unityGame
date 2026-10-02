@@ -1,5 +1,6 @@
 using System.Collections;
 using ShadowTheater.Save;
+using ShadowTheater.Story;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -36,6 +37,11 @@ namespace ShadowTheater.Field
             bool setCheckpoint = false)
         {
             if (!CanTravel || string.IsNullOrWhiteSpace(sceneName) || SaveManager.Current == null) return false;
+            if (!RegionProgress.CanEnterScene(sceneName))
+            {
+                Debug.LogWarning($"[MapLoader] 아직 해금되지 않은 지역입니다: {sceneName}");
+                return false;
+            }
             if (!Application.CanStreamedLevelBeLoaded(sceneName))
             {
                 Debug.LogError($"[MapLoader] Build Settings에 씬이 없습니다: {sceneName}");
@@ -72,6 +78,7 @@ namespace ShadowTheater.Field
             save.tileX = arrivalCell.x;
             save.tileY = arrivalCell.y;
             save.facing = (int)facing;
+            RegionProgress.MarkVisitedScene(sceneName);
             if (setCheckpoint)
             {
                 save.checkpointMapId = sceneName;

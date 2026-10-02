@@ -8,8 +8,8 @@
 | `Assets/Scripts/Battle` | BattleManager(턴 상태 머신), BattleUnit, DamageCalculator, BattleAI, IBattlePresenter |
 | `Assets/Scripts/Save` | SaveData(JSON), SaveManager, 파티·각본 서고 편성 API |
 | `Assets/Scripts/Field` | PlayerController(타일 이동), EncounterSymbol(심볼 인카운터), GameFlowController(필드↔전투) |
-| `Assets/Scripts/Story` | JSON 대사/퀘스트 저장소, 목표 추적, 누적 선택 기반 다중 엔딩 |
-| `Assets/Scripts/UI` | 모바일 대화창, 퀘스트 HUD, 스타터 선택, 각본집 도감, 파티·서고 편성, 전역 설정 |
+| `Assets/Scripts/Story` | JSON 대사/퀘스트/40개 지역 저장소, 목표 추적, 누적 선택 기반 다중 엔딩 |
+| `Assets/Scripts/UI` | 모바일 대화창, 퀘스트 HUD, 월드맵, 스타터 선택, 각본집 도감, 파티·서고 편성, 전역 설정 |
 | `Assets/Editor` | 주요 모바일 UI 프리팹 자동 생성 메뉴 |
 | `Prototype/shadow-theater.html` | 같은 전투 규칙의 브라우저 프로토타입 — 더블클릭으로 실행, 밸런스 데이터 편집 탭 포함 |
 | `Docs/` | 기획 명세서, 씬 세팅 가이드(SETUP.md) |
@@ -94,6 +94,17 @@
 상관없이 유지됩니다. 환경음 슬라이더는 필드의 지속음과 간헐음을 즉시 갱신하고, 효과음은 전투 스킬과
 필살기에 적용됩니다. 진동은 모바일 전투의 타격 순간에만 발생합니다. 언어 전환 상태와 변경 이벤트는
 준비되어 있으며 실제 영문 대사·UI 문자열 카탈로그 연결은 다음 현지화 단계에서 확장합니다.
+
+## 40개 지역 월드맵
+
+8개 막, 총 40개 지역의 이름·씬 ID·권장 레벨·환경·연결 경로·대표 출현 그림자·지역 보스가
+`Assets/Resources/Data/RegionCatalog.json`에 정의되어 있습니다. Unity 메뉴
+**Tools → Shadow Theater → Generate World Map UI**를 실행하면 모바일 월드맵 프리팹이 생성됩니다.
+
+월드맵은 잠김/새 지역/방문 완료/현재 위치를 구분합니다. 새 지역은 인접 필드 출구로 직접 발견해야 하고,
+한 번 방문한 지역만 빠른 이동할 수 있습니다. 지역 해금과 방문 기록은 세이브 버전 6에 보존되며 기존
+세이브는 현재 지역을 기준으로 자동 이전됩니다. 전체 막 구성은
+[`Docs/WORLD_MAP.md`](Docs/WORLD_MAP.md)에서 확인할 수 있습니다.
 
 ## 각본집 도감 빠른 설치
 1. Unity 메뉴 **Tools → Shadow Theater → Generate Script Book UI** 실행

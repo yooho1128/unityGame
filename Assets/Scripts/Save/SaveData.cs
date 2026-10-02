@@ -12,7 +12,7 @@ namespace ShadowTheater.Save
     [Serializable]
     public class SaveData
     {
-        public const int CurrentVersion = 5;
+        public const int CurrentVersion = 6;
         public const int MaxPartySize = 6;
 
         public int version = CurrentVersion;
@@ -41,6 +41,8 @@ namespace ShadowTheater.Save
         public List<FlagEntry> flags = new List<FlagEntry>();
         public List<string> clearedEncounterIds = new List<string>(); // 보스/고정 심볼 처치 기록
         public List<QuestProgressData> quests = new List<QuestProgressData>();
+        public List<string> unlockedRegionIds = new List<string>();
+        public List<string> visitedRegionIds = new List<string>();
         public string lastEndingId;
         public List<string> unlockedEndingIds = new List<string>();
         public int cycle = 1;

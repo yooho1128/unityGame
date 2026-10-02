@@ -13,16 +13,18 @@ Assets/Scripts/
            FieldAmbientAudio
   Story/   DialogueData/Repository, StoryNpc, DialogueInteractable,
            QuestData/Repository/Manager, QuestAreaTrigger, BossEncounterTrigger,
-           EndingData/Repository/Manager, EndingTrigger
+           EndingData/Repository/Manager, EndingTrigger, RegionData/Repository/Progress
   UI/      DialogueController, DialogueChoiceView, QuestHudController,
            TitleScreenController, StarterSelectionController, StarterCardView,
            EndingGalleryController, EndingGalleryEntryView, GameSettings, SettingsPanelController,
+           WorldMapController, RegionMapNodeView,
            ScriptBookController, ScriptBookEntryView, BattleUIController, BattleFxDirector,
            BattleSfxPlayer,
            BattleUnitPanel, BattleOptionButton, PartyStorageController, PartyStorageEntryView
   Editor/  DialogueUIPrefabGenerator, QuestHudPrefabGenerator, FrontEndPrefabGenerator,
            ScriptBookPrefabGenerator, BattleUIPrefabGenerator, PartyStoragePrefabGenerator,
-           CoreContentBatchGenerator, LegendaryGrowthBatchGenerator, PlayablePrologueGenerator
+           WorldMapPrefabGenerator, CoreContentBatchGenerator, LegendaryGrowthBatchGenerator,
+           PlayablePrologueGenerator
 ```
 
 ## 프로젝트 설정
@@ -183,6 +185,17 @@ Light 2D를 배치한다. `Environment` 아래에는 안개 6겹과 빛가루 24
 포털 재진입을 막아 양방향 출구 사이에서 즉시 되돌아가는 현상을 방지한다. `requiredFlag`와
 `blockedFlag`로 스토리 진행에 따른 출구 잠금도 가능하다.
 
+## 40개 지역 월드맵
+
+1. 메뉴 `Tools > Shadow Theater > Generate World Map UI` 실행
+2. 생성된 `Assets/Prefabs/UI/WorldMapCanvas.prefab`을 각 필드 씬에 배치
+3. `Resources/Data/RegionCatalog.json`의 `sceneName`과 실제 씬 이름을 일치시킴
+4. 완성한 지역 씬을 Build Settings에 등록
+
+프리팹의 `월드맵` 버튼은 40개 지역을 진행 순서로 보여준다. 처음 방문한 지역과 인접한 경로가 자동
+해금되며, 스토리 관문은 `requiredFlag`까지 만족해야 한다. 새 지역은 필드에서 직접 발견해야 하고 방문
+완료 지역만 빠른 이동할 수 있다. 자세한 전체 경로는 `Docs/WORLD_MAP.md` 참고.
+
 ## 다중 엔딩 세팅
 `CoreSystems.prefab`에는 `EndingManager`가 포함된다. 최종 무대의 상호작용 오브젝트에 Collider2D와
 `EndingTrigger`를 붙이고, 최종장 진입 시 `story_finale_unlocked` 플래그를 설정한다. 플레이어가
@@ -294,4 +307,4 @@ Core/Legendary JSON 값을 바꾼 뒤 각 데이터 생성 메뉴를 다시 실�
 1. 필살기별 실제 파티클·녹음 SFX 에셋 교체
 2. 프롤로그 실제 타일·캐릭터 아트와 녹음 환경음 교체
 3. 영문 UI·대사 문자열 카탈로그와 폰트 폴백 연결
-4. 전체 40개 지역의 월드맵·진행 데이터 확장
+4. 제2막 `재의 국경`부터 실제 필드 씬·NPC·그림자 데이터 제작

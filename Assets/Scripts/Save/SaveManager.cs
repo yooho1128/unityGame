@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using ShadowTheater.Data;
+using ShadowTheater.Story;
 using UnityEngine;
 
 namespace ShadowTheater.Save
@@ -137,6 +138,7 @@ namespace ShadowTheater.Save
             foreach (var s in data.storage) s.EnsureHp();
 
             _current = data;
+            RegionProgress.SyncCurrentMap();
             OnLoaded?.Invoke();
             return true;
         }
@@ -184,6 +186,11 @@ namespace ShadowTheater.Save
                 data.cycleCompleted = !string.IsNullOrEmpty(data.lastEndingId);
                 data.completedCycles = data.cycleCompleted ? Mathf.Max(1, data.completedCycles) : 0;
             }
+            if (data.version < 6)
+            {
+                data.unlockedRegionIds = new List<string>();
+                data.visitedRegionIds = new List<string>();
+            }
 
             data.flags ??= new List<FlagEntry>();
             data.clearedEncounterIds ??= new List<string>();
@@ -191,6 +198,8 @@ namespace ShadowTheater.Save
             data.recordedShadowIds ??= new List<string>();
             data.inventory ??= new List<ItemStack>();
             data.unlockedEndingIds ??= new List<string>();
+            data.unlockedRegionIds ??= new List<string>();
+            data.visitedRegionIds ??= new List<string>();
             data.cycle = Mathf.Max(1, data.cycle);
             data.version = SaveData.CurrentVersion;
         }

@@ -61,6 +61,7 @@ namespace ShadowTheater.EditorTools
             QuestHudPrefabGenerator.Generate();
             ScriptBookPrefabGenerator.Generate();
             PartyStoragePrefabGenerator.Generate();
+            WorldMapPrefabGenerator.Generate();
             BattleUIPrefabGenerator.Generate();
         }
 
@@ -191,6 +192,7 @@ namespace ShadowTheater.EditorTools
             InstantiatePrefab("Assets/Prefabs/UI/QuestHUDCanvas.prefab");
             InstantiatePrefab("Assets/Prefabs/UI/ScriptBookCanvas.prefab");
             InstantiatePrefab("Assets/Prefabs/UI/PartyStorageCanvas.prefab");
+            InstantiatePrefab("Assets/Prefabs/UI/WorldMapCanvas.prefab");
             CreateFader();
             CreateEventSystem();
             return new FieldSceneContext { scene = scene, fieldRoot = fieldRoot.transform };
