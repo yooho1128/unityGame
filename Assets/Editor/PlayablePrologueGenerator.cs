@@ -82,11 +82,16 @@ namespace ShadowTheater.EditorTools
             CreateMarionetteOpera();
             CreateSeveredWorkshop();
             CreatePuppeteerStage();
+            CreateErasedStation();
+            CreateBlankPrison();
+            CreateRedactionLab();
+            CreateSilentCourt();
+            CreateBlackArchive();
             RegisterBuildScenes();
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             EditorSceneManager.OpenScene($"{SceneFolder}/Title.unity", OpenSceneMode.Single);
-            Debug.Log("[World] 프롤로그부터 제5막 꼭두각시 도시까지 25개 픽셀 필드 생성 완료");
+            Debug.Log("[World] 프롤로그부터 제6막 검은 검열단까지 30개 픽셀 필드 생성 완료");
         }
 
         private static void GenerateDependencies()
@@ -508,7 +513,66 @@ namespace ShadowTheater.EditorTools
             CreateEncounter(map.fieldRoot, "RoyalScissorConductor", new Vector2Int(5,0), LoadShadow("scissor_conductor"),72,75);
             CreateBossEncounter(map.fieldRoot, "LastPuppeteerBoss", new Vector2Int(0,4), "last_puppeteer", "boss_last_puppeteer", new Vector2Int(75,78), "boss_last_puppeteer_pre", "boss_last_puppeteer_post", "boss_last_puppeteer_story_complete", "boss_last_puppeteer_reward_claimed", 78, new Color(.94f,.2f,.5f));
             CreatePortal(map.fieldRoot, "BackToWorkshop", new Vector2Int(0,-8), "SeveredWorkshop", new Vector2Int(8,0), FacingDir.Down);
+            CreatePortal(map.fieldRoot, "ToErasedStation", new Vector2Int(9,0), "ErasedStation", new Vector2Int(-8,0), FacingDir.Right, false, "act5_complete");
             FinishFieldScene(map, "PuppeteerStage");
+        }
+
+        private static void CreateErasedStation()
+        {
+            var map = BeginFieldScene("ErasedStation", "지워진 역", new Vector2Int(-8,0), new Color(.08f,.08f,.10f), Theme.Censor);
+            CreateAreaTrigger(map.fieldRoot, new Vector2Int(-8,0), "area_erased_station");
+            CreateNpc(map.fieldRoot, "InkConductor", new Vector2Int(1,4), LoadShadow("ink_conductor"), "npc_ink_conductor", "npc_ink_conductor_intro", "npc_ink_conductor_repeat", "talked_ink_conductor", new Color(.72f,.72f,.8f));
+            CreateEncounter(map.fieldRoot, "TicketlessPassengerA", new Vector2Int(-4,-3), LoadShadow("ticketless_passenger"),74,77);
+            CreateEncounter(map.fieldRoot, "InkConductorEcho", new Vector2Int(5,-3), LoadShadow("ink_conductor"),75,78);
+            CreatePortal(map.fieldRoot, "BackToPuppeteerStage", new Vector2Int(-9,0), "PuppeteerStage", new Vector2Int(8,0), FacingDir.Left);
+            CreatePortal(map.fieldRoot, "ToBlankPrison", new Vector2Int(9,0), "BlankPrison", new Vector2Int(0,-7), FacingDir.Right, false, "quest_act6_01_station_complete");
+            FinishFieldScene(map, "ErasedStation");
+        }
+
+        private static void CreateBlankPrison()
+        {
+            var map = BeginFieldScene("BlankPrison", "백지 감옥", new Vector2Int(0,-7), new Color(.075f,.075f,.095f), Theme.Censor);
+            CreateAreaTrigger(map.fieldRoot, new Vector2Int(0,-7), "area_blank_prison");
+            CreateEncounter(map.fieldRoot, "NumberedPrisonerA", new Vector2Int(-5,0), LoadShadow("numbered_prisoner"),77,80);
+            CreateEncounter(map.fieldRoot, "SealShackleA", new Vector2Int(5,0), LoadShadow("seal_shackle"),78,81);
+            CreateBossEncounter(map.fieldRoot, "ZeroWardenBoss", new Vector2Int(0,5), "zero_warden", "boss_zero_warden", new Vector2Int(81,83), "boss_zero_warden_pre", "boss_zero_warden_post", "boss_zero_warden_story_complete", "boss_zero_warden_reward_claimed", 83, new Color(.85f,.86f,.92f));
+            CreatePortal(map.fieldRoot, "BackToStation", new Vector2Int(0,-8), "ErasedStation", new Vector2Int(8,0), FacingDir.Down);
+            CreatePortal(map.fieldRoot, "ToRedactionLab", new Vector2Int(9,0), "RedactionLab", new Vector2Int(-8,0), FacingDir.Right, false, "boss_zero_warden_story_complete");
+            FinishFieldScene(map, "BlankPrison");
+        }
+
+        private static void CreateRedactionLab()
+        {
+            var map = BeginFieldScene("RedactionLab", "먹칠 연구소", new Vector2Int(-8,0), new Color(.075f,.035f,.085f), Theme.Censor);
+            CreateAreaTrigger(map.fieldRoot, new Vector2Int(-8,0), "area_redaction_lab");
+            CreateNpc(map.fieldRoot, "CensorSurgeon", new Vector2Int(-1,4), LoadShadow("censor_surgeon"), "npc_censor_surgeon", "npc_censor_surgeon_intro", "npc_censor_surgeon_repeat", "talked_censor_surgeon", new Color(.66f,.42f,.61f));
+            CreateEncounter(map.fieldRoot, "BlackVialA", new Vector2Int(-4,-3), LoadShadow("black_vial"),80,83);
+            CreateEncounter(map.fieldRoot, "CensorSurgeonEcho", new Vector2Int(5,-3), LoadShadow("censor_surgeon"),81,84);
+            CreateBossEncounter(map.fieldRoot, "SubjectMBoss", new Vector2Int(3,4), "extract_subject_m", "boss_subject_m", new Vector2Int(84,86), "boss_subject_m_pre", "boss_subject_m_post", "boss_subject_m_story_complete", "boss_subject_m_reward_claimed", 86, new Color(.72f,.18f,.42f));
+            CreatePortal(map.fieldRoot, "BackToPrison", new Vector2Int(-9,0), "BlankPrison", new Vector2Int(8,0), FacingDir.Left);
+            CreatePortal(map.fieldRoot, "ToSilentCourt", new Vector2Int(9,0), "SilentCourt", new Vector2Int(0,-7), FacingDir.Right, false, "quest_act6_03_lab_complete");
+            FinishFieldScene(map, "RedactionLab");
+        }
+
+        private static void CreateSilentCourt()
+        {
+            var map = BeginFieldScene("SilentCourt", "침묵 재판정", new Vector2Int(0,-7), new Color(.06f,.045f,.07f), Theme.Censor);
+            CreateEncounter(map.fieldRoot, "NumberedWitness", new Vector2Int(-5,0), LoadShadow("numbered_prisoner"),83,86);
+            CreateEncounter(map.fieldRoot, "MuteJudgeA", new Vector2Int(5,0), LoadShadow("mute_judge"),84,87);
+            CreateBossEncounter(map.fieldRoot, "MuteJudgeBoss", new Vector2Int(0,5), "mute_judge", "boss_mute_judge", new Vector2Int(87,89), "boss_mute_judge_pre", "boss_mute_judge_post", "boss_mute_judge_story_complete", "boss_mute_judge_reward_claimed", 89, new Color(.43f,.36f,.48f));
+            CreatePortal(map.fieldRoot, "BackToLab", new Vector2Int(0,-8), "RedactionLab", new Vector2Int(8,0), FacingDir.Down);
+            CreatePortal(map.fieldRoot, "ToBlackArchive", new Vector2Int(9,0), "BlackArchive", new Vector2Int(0,-6), FacingDir.Right, false, "boss_mute_judge_story_complete");
+            FinishFieldScene(map, "SilentCourt");
+        }
+
+        private static void CreateBlackArchive()
+        {
+            var map = BeginFieldScene("BlackArchive", "검은 기록원", new Vector2Int(0,-6), new Color(.025f,.018f,.035f), Theme.BlackArchive);
+            CreateEncounter(map.fieldRoot, "ArchiveBlackVial", new Vector2Int(-5,0), LoadShadow("black_vial"),86,89);
+            CreateEncounter(map.fieldRoot, "ArchiveWarden", new Vector2Int(5,0), LoadShadow("zero_warden"),87,90);
+            CreateBossEncounter(map.fieldRoot, "HighCensorNoxBoss", new Vector2Int(0,4), "high_censor_nox", "boss_high_censor_nox", new Vector2Int(90,93), "boss_high_censor_nox_pre", "boss_high_censor_nox_post", "boss_high_censor_nox_story_complete", "boss_high_censor_nox_reward_claimed", 93, new Color(.28f,.20f,.34f));
+            CreatePortal(map.fieldRoot, "BackToCourt", new Vector2Int(0,-8), "SilentCourt", new Vector2Int(8,0), FacingDir.Down);
+            FinishFieldScene(map, "BlackArchive");
         }
 
         private static FieldSceneContext BeginFieldScene(string mapId, string displayName, Vector2Int startCell,
@@ -712,6 +776,9 @@ namespace ShadowTheater.EditorTools
                 case Theme.SeveredWorkshop:
                     blocks.Add(new RectInt(-6,3,3,3)); blocks.Add(new RectInt(4,3,3,3));
                     blocks.Add(new RectInt(-5,-6,3,2)); blocks.Add(new RectInt(4,-6,3,2)); break;
+                case Theme.Censor:
+                    blocks.Add(new RectInt(-7,2,3,4)); blocks.Add(new RectInt(5,2,3,4));
+                    blocks.Add(new RectInt(-3,-5,2,3)); blocks.Add(new RectInt(2,-5,2,3)); break;
                 case Theme.Boss:
                 case Theme.AshThrone:
                 case Theme.BlueAbyss:
@@ -719,6 +786,7 @@ namespace ShadowTheater.EditorTools
                 case Theme.BeastDen:
                 case Theme.MarionetteOpera:
                 case Theme.PuppeteerStage:
+                case Theme.BlackArchive:
                     blocks.Add(new RectInt(-7, -1, 2, 5)); blocks.Add(new RectInt(6, -1, 2, 5));
                     blocks.Add(new RectInt(-4, 6, 2, 2)); blocks.Add(new RectInt(3, 6, 2, 2)); break;
             }
@@ -1194,6 +1262,18 @@ namespace ShadowTheater.EditorTools
                         ambienceVolume = .28f, detailVolume = .23f, detailInterval = new Vector2(4f,8f),
                         lightPositions = new[] { new Vector2(-6f,4f), new Vector2(0f,5f), new Vector2(6f,4f), new Vector2(-4f,-4f), new Vector2(4f,-4f) }
                     };
+                case Theme.Censor:
+                case Theme.BlackArchive:
+                    return new EnvironmentProfile
+                    {
+                        globalColor = new Color(.32f,.28f,.37f), globalIntensity = .38f,
+                        pointColor = new Color(.62f,.55f,.70f), secondaryLightColor = new Color(.42f,.22f,.43f),
+                        pointIntensity = .92f, fogColor = new Color(.18f,.13f,.21f), fogAlpha = .2f,
+                        moteColor = new Color(.66f,.60f,.72f), fogDrift = new Vector2(.045f,.006f),
+                        moteDrift = new Vector2(0f,.04f), fogPulse = .1f, motePulse = .32f, pulseSpeed = .5f,
+                        ambienceVolume = .31f, detailVolume = .22f, detailInterval = new Vector2(5f,9f),
+                        lightPositions = new[] { new Vector2(-6f,4f), new Vector2(0f,5f), new Vector2(6f,4f), new Vector2(-4f,-4f), new Vector2(4f,-4f) }
+                    };
                 case Theme.AshThrone:
                     return new EnvironmentProfile
                     {
@@ -1422,6 +1502,14 @@ namespace ShadowTheater.EditorTools
                     _groundTile = CreateTile("PuppeteerStage_Ground", new Color(.27f,.07f,.18f), new Color(.50f,.12f,.31f));
                     _wallTile = CreateTile("PuppeteerStage_Wall", new Color(.065f,.012f,.045f), new Color(.28f,.035f,.14f));
                     _accentTile = CreateTile("PuppeteerStage_Accent", new Color(.22f,.035f,.13f), new Color(.94f,.19f,.48f)); break;
+                case Theme.Censor:
+                    _groundTile = CreateTile("Censor_Ground", new Color(.26f,.26f,.30f), new Color(.44f,.43f,.49f));
+                    _wallTile = CreateTile("Censor_Wall", new Color(.055f,.05f,.065f), new Color(.20f,.17f,.23f));
+                    _accentTile = CreateTile("Censor_Accent", new Color(.16f,.13f,.18f), new Color(.48f,.39f,.53f)); break;
+                case Theme.BlackArchive:
+                    _groundTile = CreateTile("BlackArchive_Ground", new Color(.12f,.09f,.15f), new Color(.25f,.18f,.30f));
+                    _wallTile = CreateTile("BlackArchive_Wall", new Color(.018f,.012f,.025f), new Color(.10f,.065f,.13f));
+                    _accentTile = CreateTile("BlackArchive_Accent", new Color(.08f,.045f,.10f), new Color(.35f,.22f,.42f)); break;
                 case Theme.AshThrone:
                     _groundTile = CreateTile("AshThrone_Ground", new Color(.25f,.10f,.09f), new Color(.42f,.15f,.10f));
                     _wallTile = CreateTile("AshThrone_Wall", new Color(.055f,.012f,.015f), new Color(.22f,.035f,.03f));
@@ -1837,7 +1925,8 @@ namespace ShadowTheater.EditorTools
                 "CurtainPass", "AshBorder", "CinderCity", "RuinedBarracks", "EmberCatacombs", "CrownlessThrone",
                 "FrostPort", "WhiteArchive", "ForbiddenStacks", "MirrorVault", "BlueAbyss",
                 "VioletMarsh", "HowlVillage", "MoonfangForest", "BloodmoonRidge", "SleepingBeastDen",
-                "ThreadMarket", "ClockworkAlley", "MarionetteOpera", "SeveredWorkshop", "PuppeteerStage" };
+                "ThreadMarket", "ClockworkAlley", "MarionetteOpera", "SeveredWorkshop", "PuppeteerStage",
+                "ErasedStation", "BlankPrison", "RedactionLab", "SilentCourt", "BlackArchive" };
             var scenes = new List<EditorBuildSettingsScene>();
             var generatedPaths = new HashSet<string>();
             foreach (string name in names)
@@ -1900,7 +1989,8 @@ namespace ShadowTheater.EditorTools
             Theater, Village, Meadow, Boss, AshWastes, EmberCity, Catacombs, AshThrone,
             FrostPort, Archive, ForbiddenStacks, MirrorVault, BlueAbyss,
             VioletMarsh, HowlVillage, MoonfangForest, BloodmoonRidge, BeastDen,
-            ThreadMarket, ClockworkAlley, MarionetteOpera, SeveredWorkshop, PuppeteerStage
+            ThreadMarket, ClockworkAlley, MarionetteOpera, SeveredWorkshop, PuppeteerStage,
+            Censor, BlackArchive
         }
         private enum PixelTileKind { Grass, Path, Water, Cliff, Bush }
         private class EnvironmentProfile
