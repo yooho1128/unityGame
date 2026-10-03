@@ -76,6 +76,9 @@
 | ![거꾸로 안내원](Assets/Art/Final/Portraits/inverted_guide.png) | ![침묵의 박수](Assets/Art/Final/Portraits/silent_applause.png) | ![각본 밖의 그림자](Assets/Art/Final/Portraits/outside_script_shadow.png) |
 | 등불이 뒤따르는 2보 보행 | 손 펼침·합장 날갯짓 | 장막과 투명도가 어긋나는 위상 이동 |
 
+Unity 메뉴 **Tools → Shadow Theater → Preview Final Shadow Art**를 열면 스토리를 진행하지 않아도 세 전투
+초상과 실제 24×32 필드 2프레임을 애니메이션으로 비교하고, 생성된 `ShadowData`를 바로 선택할 수 있습니다.
+
 제5막에는 신규 그림자 10종과 스킬 20개, 메인 퀘스트 5개, 끊어진 공방 선택 분기, 지역 보스
 `줄 위의 프리마돈나`와 전설 보스 `마지막 인형사`가 포함됩니다. 전체 구성은
 [`Docs/ACT5_PUPPET_CITY.md`](Docs/ACT5_PUPPET_CITY.md)를 참고하세요.
