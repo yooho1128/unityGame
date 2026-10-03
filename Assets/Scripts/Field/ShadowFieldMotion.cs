@@ -15,14 +15,16 @@ namespace ShadowTheater.Field
         [SerializeField] private GrowthTier growthTier;
         [SerializeField, Range(0.01f, 0.15f)] private float amount = 0.055f;
         [SerializeField, Range(1f, 12f)] private float speed = 5f;
+        [SerializeField] private Sprite[] frames;
 
         private Vector3 _baseScale;
         private Quaternion _baseRotation;
         private float _phase;
 
-        public void Configure(ShadowData shadow)
+        public void Configure(ShadowData shadow, Sprite[] animationFrames = null)
         {
             target = GetComponent<SpriteRenderer>();
+            frames = animationFrames;
             if (shadow == null) return;
             role = shadow.role;
             growthTier = shadow.growthTier;
@@ -44,6 +46,11 @@ namespace ShadowTheater.Field
             if (target == null || !target.enabled) return;
             float wave = Mathf.Sin((Time.time + _phase) * speed);
             float lift = Mathf.Sin((Time.time + _phase) * speed * 0.5f);
+            if (frames != null && frames.Length > 0)
+            {
+                int frame = Mathf.FloorToInt((Time.time + _phase) * speed) % frames.Length;
+                target.sprite = frames[Mathf.Abs(frame)];
+            }
 
             switch (role)
             {

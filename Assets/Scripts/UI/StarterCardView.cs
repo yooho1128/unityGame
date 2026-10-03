@@ -36,7 +36,7 @@ namespace ShadowTheater.UI
             if (silhouette != null)
             {
                 silhouette.sprite = data.silhouetteSprite;
-                silhouette.color = Color.black;
+                silhouette.color = ShadowPortraitStyle.Tint(silhouette.sprite);
                 silhouette.preserveAspect = true;
             }
             if (accentGlow != null) accentGlow.color = data.accentColor;

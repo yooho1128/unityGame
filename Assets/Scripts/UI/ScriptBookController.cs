@@ -166,7 +166,7 @@ namespace ShadowTheater.UI
             if (portrait != null)
             {
                 portrait.sprite = seen ? (_selectedInstance?.Silhouette ?? data.silhouetteSprite) : null;
-                portrait.color = Color.black;
+                portrait.color = ShadowPortraitStyle.Tint(portrait.sprite);
                 portrait.preserveAspect = true;
             }
             if (accentGlow != null) accentGlow.color = recorded

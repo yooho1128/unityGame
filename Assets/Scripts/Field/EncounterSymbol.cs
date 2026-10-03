@@ -73,7 +73,7 @@ namespace ShadowTheater.Field
 
             _home = _cell = FieldGrid.Current.WorldToCell(transform.position);
             transform.position = FieldGrid.Current.CellToWorld(_cell);
-            if (silhouette != null && leadShadow != null && leadShadow.silhouetteSprite != null)
+            if (silhouette != null && silhouette.sprite == null && leadShadow != null && leadShadow.silhouetteSprite != null)
                 silhouette.sprite = leadShadow.silhouetteSprite;
 
             _ai = StartCoroutine(AIRoutine());

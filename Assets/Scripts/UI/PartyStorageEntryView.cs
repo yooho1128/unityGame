@@ -23,7 +23,7 @@ namespace ShadowTheater.UI
         public void Bind(ShadowInstance instance, Action<ShadowInstance> onSelected)
         {
             _instance = instance; _onSelected = onSelected;
-            if (portrait != null) { portrait.sprite = instance.Silhouette; portrait.color = Color.black; portrait.preserveAspect = true; }
+            if (portrait != null) { portrait.sprite = instance.Silhouette; portrait.color = ShadowPortraitStyle.Tint(portrait.sprite); portrait.preserveAspect = true; }
             if (hpFill != null) hpFill.fillAmount = instance.MaxHp > 0 ? (float)instance.currentHp / instance.MaxHp : 0f;
             if (nameText != null) nameText.text = instance.DisplayName;
             if (infoText != null) infoText.text = $"Lv.{instance.level}  HP {instance.currentHp}/{instance.MaxHp}";

@@ -24,6 +24,7 @@ namespace ShadowTheater.UI
         private float _motionPhase;
         public RectTransform MotionRoot => (RectTransform)transform;
         public Image Portrait => portrait;
+        public ShadowRole MotionRole => _motionRole;
 
         private void Awake()
         {
@@ -46,7 +47,7 @@ namespace ShadowTheater.UI
             if (portrait != null)
             {
                 portrait.sprite = unit.Instance.Silhouette;
-                portrait.color = Color.black;
+                portrait.color = ShadowPortraitStyle.Tint(portrait.sprite);
                 portrait.preserveAspect = true;
             }
             if (accent != null) accent.color = unit.Instance.AccentColor;

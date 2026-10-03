@@ -18,5 +18,14 @@
 최종막 콘텐츠 카탈로그는 `Assets/Resources/Data/Act8ContentCatalog.json`이다. 전용 그림자 13종과
 스킬 12개를 제공하고, 성장 카탈로그의 `legend_first_actor`, `legend_last_audience`도 지역 보스로 사용한다.
 
+## 완성 초상과 모션
+
+`Assets/Art/Final/Portraits`에는 `inverted_guide`, `silent_applause`, `outside_script_shadow`의 투명
+512×512 전투 초상이 들어 있다. `CoreContentBatchGenerator`는 같은 ID의 완성 초상이 있으면 자동 생성
+실루엣 대신 해당 이미지를 `ShadowData.silhouetteSprite`에 연결한다. 필드에서는 24×32 전용 픽셀 외형을
+사용한다. 세 그림자는 `Assets/Art/Final/Field`의 `_01`, `_02` 프레임을 우선 불러오며, 다른 그림자는
+동일 규격 프레임을 자동 생성한다. 역할에 따라 보행·부유·활공 모션을 적용한다. 전투 초상은 대기 호흡과 기존 공격·피격·필살기
+연출을 함께 재생한다.
+
 달빛 초원 진행이 막혔던 이전 생성본은 생성 메뉴를 다시 실행해야 한다. 새 버전은 보스 무대 출구를
 북쪽 절벽이 아니라 동쪽 길 `(9, 0)`에 두며 별도 퀘스트 플래그로 입장을 막지 않는다.

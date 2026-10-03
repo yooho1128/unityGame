@@ -27,6 +27,7 @@ namespace ShadowTheater.EditorTools
         private const string TileFolder = "Assets/Data/Generated/Tiles";
         private const string TileArtFolder = "Assets/Art/Generated/Tiles";
         private const string PixelCharacterFolder = "Assets/Art/Generated/Characters";
+        private const string FinalFieldCharacterFolder = "Assets/Art/Final/Field";
         private static Tile _groundTile;
         private static Tile _wallTile;
         private static Tile _accentTile;
@@ -182,6 +183,8 @@ namespace ShadowTheater.EditorTools
             var keeperRenderer = lanternKeeper.GetComponentInChildren<SpriteRenderer>();
             keeperRenderer.sprite = CreatePixelLanternKeeperSprite();
             keeperRenderer.color = Color.white;
+            var keeperMotion = lanternKeeper.GetComponentInChildren<ShadowFieldMotion>();
+            if (keeperMotion != null) keeperMotion.enabled = false;
             CreateEncounter(map.fieldRoot, "PuppetSymbol", new Vector2Int(-3, 3), LoadShadow("puppet"), 3, 5);
             CreateEncounter(map.fieldRoot, "CrowSymbol", new Vector2Int(4, 4), LoadShadow("crow"), 3, 6);
             CreateEncounter(map.fieldRoot, "MaskSymbol", new Vector2Int(4, -3), LoadShadow("mask"), 4, 6);
@@ -982,12 +985,13 @@ namespace ShadowTheater.EditorTools
             var visualObject = new GameObject("Visual", typeof(SpriteRenderer), typeof(ShadowFieldMotion));
             visualObject.transform.SetParent(go.transform, false);
             var renderer = visualObject.GetComponent<SpriteRenderer>();
-            renderer.sprite = CreatePixelFieldActorSprite(visual);
+            var frames = CreatePixelFieldActorFrames(visual);
+            renderer.sprite = frames.Length > 0 ? frames[0] : null;
             if (renderer.sprite == null) renderer.sprite = visual?.silhouetteSprite;
             renderer.color = Color.white;
             renderer.sortingOrder = 8;
             var box = go.GetComponent<BoxCollider2D>(); box.size = new Vector2(0.72f, 0.82f); box.isTrigger = trigger;
-            visualObject.GetComponent<ShadowFieldMotion>().Configure(visual);
+            visualObject.GetComponent<ShadowFieldMotion>().Configure(visual, frames);
             return go;
         }
 
@@ -999,14 +1003,15 @@ namespace ShadowTheater.EditorTools
             var visualObject = new GameObject("Visual", typeof(SpriteRenderer), typeof(ShadowFieldMotion));
             visualObject.transform.SetParent(go.transform, false);
             var renderer = visualObject.GetComponent<SpriteRenderer>();
-            renderer.sprite = CreatePixelFieldActorSprite(shadow) ?? CreatePixelEncounterSprite();
+            var frames = CreatePixelFieldActorFrames(shadow);
+            renderer.sprite = frames.Length > 0 ? frames[0] : CreatePixelEncounterSprite();
             renderer.color = Color.white;
             renderer.sortingOrder = 7;
             go.GetComponent<CircleCollider2D>().radius = 0.38f;
             var so = new SerializedObject(go.GetComponent<EncounterSymbol>());
             Set(so, "leadShadow", shadow); Set(so, "levelRange", new Vector2Int(minLevel, maxLevel));
             Set(so, "silhouette", renderer); so.ApplyModifiedPropertiesWithoutUndo();
-            visualObject.GetComponent<ShadowFieldMotion>().Configure(shadow);
+            visualObject.GetComponent<ShadowFieldMotion>().Configure(shadow, frames);
         }
 
         private static void CreateBoss(Transform parent, Vector2Int cell)
@@ -1933,13 +1938,47 @@ namespace ShadowTheater.EditorTools
             return _pixelLanternKeeperSprite;
         }
 
-        private static Sprite CreatePixelFieldActorSprite(ShadowData shadow)
+        private static Sprite[] CreatePixelFieldActorFrames(ShadowData shadow)
+        {
+            if (shadow == null) return System.Array.Empty<Sprite>();
+            Sprite[] finalFrames = LoadFinalFieldFrames(shadow.shadowId);
+            if (finalFrames != null) return finalFrames;
+            return new[] { CreatePixelFieldActorSprite(shadow, 0), CreatePixelFieldActorSprite(shadow, 1) };
+        }
+
+        private static Sprite[] LoadFinalFieldFrames(string shadowId)
+        {
+            var result = new Sprite[2];
+            for (int i = 0; i < result.Length; i++)
+            {
+                string path = $"{FinalFieldCharacterFolder}/{shadowId}_{i + 1:00}.png";
+                if (!File.Exists(path)) return null;
+                AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceSynchronousImport);
+                var importer = AssetImporter.GetAtPath(path) as TextureImporter;
+                if (importer == null) return null;
+                importer.textureType = TextureImporterType.Sprite;
+                importer.spriteImportMode = SpriteImportMode.Single;
+                importer.spritePixelsPerUnit = 24f;
+                importer.alphaIsTransparency = true;
+                importer.mipmapEnabled = false;
+                importer.filterMode = FilterMode.Point;
+                importer.textureCompression = TextureImporterCompression.Uncompressed;
+                importer.maxTextureSize = 32;
+                importer.SaveAndReimport();
+                result[i] = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+            }
+            return result;
+        }
+
+        private static Sprite CreatePixelFieldActorSprite(ShadowData shadow, int frame = 0)
         {
             if (shadow == null || string.IsNullOrEmpty(shadow.shadowId)) return null;
-            if (PixelFieldActors.TryGetValue(shadow.shadowId, out Sprite cached) && cached != null) return cached;
+            string cacheKey = $"{shadow.shadowId}:{frame}";
+            if (PixelFieldActors.TryGetValue(cacheKey, out Sprite cached) && cached != null) return cached;
 
             string safeId = shadow.shadowId.Replace("/", "_").Replace("\\", "_");
-            string path = $"{PixelCharacterFolder}/Field_{safeId}.png";
+            string suffix = frame == 0 ? string.Empty : $"_{frame + 1:00}";
+            string path = $"{PixelCharacterFolder}/Field_{safeId}{suffix}.png";
             var texture = NewClearTexture(24, 32);
             Color accent = ClampColor(shadow.accentColor);
             Color light = Color.Lerp(accent, Color.white, .42f);
@@ -1950,7 +1989,7 @@ namespace ShadowTheater.EditorTools
             // Feet and lower cloak. A one-pixel asymmetry keeps each generated actor from
             // looking like a scaled battle silhouette when viewed on the field grid.
             int seed = StableHash(shadow.shadowId);
-            int footShift = (seed & 1);
+            int footShift = ((seed & 1) + frame) & 1;
             FillPixelRect(texture, 7, 2 + footShift, 4, 6, outline);
             FillPixelRect(texture, 13, 3 - footShift, 4, 5, outline);
             FillPixelRect(texture, 8, 3 + footShift, 2, 4, dark);
@@ -2009,7 +2048,7 @@ namespace ShadowTheater.EditorTools
             }
 
             Sprite sprite = SavePixelSprite(texture, path, 24f);
-            PixelFieldActors[shadow.shadowId] = sprite;
+            PixelFieldActors[cacheKey] = sprite;
             return sprite;
         }
 

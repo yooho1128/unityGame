@@ -132,10 +132,13 @@ namespace ShadowTheater.UI
         {
             RectTransform a = attacker.MotionRoot;
             Vector3 start = a.localPosition;
+            Vector3 startScale = a.localScale;
+            Quaternion startRotation = a.localRotation;
             Vector3 cameraPosition = battleCamera != null ? battleCamera.transform.localPosition : Vector3.zero;
             Vector3 target = defender != null
                 ? start + (defender.MotionRoot.position - a.position) * 0.14f
                 : start + Vector3.right * 70f;
+            if (attacker.MotionRole == ShadowRole.SpeedUtility) target = start + (target - start) * 1.35f;
             float half = Mathf.Max(0.03f, duration * 0.5f);
             float t = 0f;
             bool impacted = false;
@@ -144,6 +147,14 @@ namespace ShadowTheater.UI
                 t += Time.unscaledDeltaTime;
                 float p = Mathf.Clamp01(t / half);
                 a.localPosition = t < half ? Vector3.Lerp(start, target, EaseOut(p)) : Vector3.Lerp(target, start, EaseOut((t - half) / half));
+                float motion = Mathf.Sin(Mathf.Clamp01(t / duration) * Mathf.PI);
+                if (attacker.MotionRole == ShadowRole.MagicNuker || attacker.MotionRole == ShadowRole.Support)
+                    a.localPosition += Vector3.up * (motion * 34f);
+                float stretch = attacker.MotionRole == ShadowRole.SpeedUtility ? .18f : .1f;
+                a.localScale = Vector3.Scale(startScale, new Vector3(1f + motion * stretch, 1f - motion * stretch * .35f, 1f));
+                float tilt = attacker.MotionRole == ShadowRole.SpeedUtility ? -10f :
+                    attacker.MotionRole == ShadowRole.MagicNuker || attacker.MotionRole == ShadowRole.Support ? 4f : -3f;
+                a.localRotation = startRotation * Quaternion.Euler(0f, 0f, motion * tilt);
                 if (t >= half && !hit.missed && defender != null)
                 {
                     defender.MotionRoot.localPosition += (Vector3)Random.insideUnitCircle * (shakePower * 4f);
@@ -160,6 +171,8 @@ namespace ShadowTheater.UI
                 yield return null;
             }
             a.localPosition = start;
+            a.localScale = startScale;
+            a.localRotation = startRotation;
             if (defender != null) defender.ResetMotion();
             if (battleCamera != null) battleCamera.transform.localPosition = cameraPosition;
         }

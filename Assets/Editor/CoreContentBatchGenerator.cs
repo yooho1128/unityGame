@@ -27,6 +27,7 @@ namespace ShadowTheater.EditorTools
         private const string ItemFolder = "Assets/Data/Generated/Items";
         private const string ShadowFolder = "Assets/Data/Generated/Shadows";
         private const string ArtFolder = "Assets/Art/Generated/Core";
+        private const string FinalPortraitFolder = "Assets/Art/Final/Portraits";
         private const string DatabasePath = "Assets/Resources/ShadowDatabase.asset";
 
         [MenuItem("Tools/Shadow Theater/Generate Core Content Data")]
@@ -183,7 +184,7 @@ namespace ShadowTheater.EditorTools
                 shadow.growthTier = Parse(spec.growthTier, GrowthTier.Standard);
                 shadow.element = Parse(spec.element, ShadowElement.None);
                 shadow.role = Parse(spec.role, ShadowRole.PhysicalDealer);
-                shadow.silhouetteSprite = GeneratePlaceholderSprite(spec.shadowId, spec.shape);
+                shadow.silhouetteSprite = LoadFinalPortrait(spec.shadowId) ?? GeneratePlaceholderSprite(spec.shadowId, spec.shape);
                 shadow.accentColor = ParseColor(spec.accentColor, Color.white);
                 shadow.baseHp = spec.baseHp;
                 shadow.baseAtk = spec.baseAtk;
@@ -262,6 +263,25 @@ namespace ShadowTheater.EditorTools
                 importer.filterMode = FilterMode.Bilinear;
                 importer.SaveAndReimport();
             }
+            return AssetDatabase.LoadAssetAtPath<Sprite>(path);
+        }
+
+        private static Sprite LoadFinalPortrait(string id)
+        {
+            string path = $"{FinalPortraitFolder}/{id}.png";
+            if (!File.Exists(path)) return null;
+            AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceSynchronousImport);
+            var importer = AssetImporter.GetAtPath(path) as TextureImporter;
+            if (importer == null) return null;
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.spritePixelsPerUnit = 256f;
+            importer.alphaIsTransparency = true;
+            importer.mipmapEnabled = false;
+            importer.filterMode = FilterMode.Point;
+            importer.textureCompression = TextureImporterCompression.Uncompressed;
+            importer.maxTextureSize = 512;
+            importer.SaveAndReimport();
             return AssetDatabase.LoadAssetAtPath<Sprite>(path);
         }
 
