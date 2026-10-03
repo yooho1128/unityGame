@@ -71,6 +71,11 @@
 `Assets/Art/Final/Portraits`에 있는 거꾸로 안내원·침묵의 박수·각본 밖의 그림자 완성 초상은 데이터 생성 시
 자동 실루엣보다 우선 적용됩니다. 512×512 투명 PNG, Point 필터, 밉맵 비활성 설정도 생성기가 보장합니다.
 
+| 거꾸로 안내원 | 침묵의 박수 | 각본 밖의 그림자 |
+|---|---|---|
+| ![거꾸로 안내원](Assets/Art/Final/Portraits/inverted_guide.png) | ![침묵의 박수](Assets/Art/Final/Portraits/silent_applause.png) | ![각본 밖의 그림자](Assets/Art/Final/Portraits/outside_script_shadow.png) |
+| 등불이 뒤따르는 2보 보행 | 손 펼침·합장 날갯짓 | 장막과 투명도가 어긋나는 위상 이동 |
+
 제5막에는 신규 그림자 10종과 스킬 20개, 메인 퀘스트 5개, 끊어진 공방 선택 분기, 지역 보스
 `줄 위의 프리마돈나`와 전설 보스 `마지막 인형사`가 포함됩니다. 전체 구성은
 [`Docs/ACT5_PUPPET_CITY.md`](Docs/ACT5_PUPPET_CITY.md)를 참고하세요.
