@@ -20,7 +20,8 @@ namespace ShadowTheater.EditorTools
             "Assets/Resources/Data/Act4ContentCatalog.json",
             "Assets/Resources/Data/Act5ContentCatalog.json",
             "Assets/Resources/Data/Act6ContentCatalog.json",
-            "Assets/Resources/Data/Act7ContentCatalog.json"
+            "Assets/Resources/Data/Act7ContentCatalog.json",
+            "Assets/Resources/Data/Act8ContentCatalog.json"
         };
         private const string SkillFolder = "Assets/Data/Generated/Skills";
         private const string ItemFolder = "Assets/Data/Generated/Items";

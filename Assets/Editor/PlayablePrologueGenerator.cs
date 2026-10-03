@@ -92,11 +92,16 @@ namespace ShadowTheater.EditorTools
             CreateNameIslands();
             CreateMourningLighthouse();
             CreateWidowMoonPalace();
+            CreateInvertedLobby();
+            CreateEndlessBackstage();
+            CreateFirstActorRoom();
+            CreateCosmicAuditorium();
+            CreateFinalCurtain();
             RegisterBuildScenes();
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             EditorSceneManager.OpenScene($"{SceneFolder}/Title.unity", OpenSceneMode.Single);
-            Debug.Log("[World] 프롤로그부터 제7막 기억의 바다까지 35개 픽셀 필드 생성 완료");
+            Debug.Log("[World] 프롤로그부터 최종막 그림자 극장까지 40개 픽셀 필드 생성 완료");
         }
 
         private static void GenerateDependencies()
@@ -183,8 +188,10 @@ namespace ShadowTheater.EditorTools
             CreateEncounter(map.fieldRoot, "WanderingBeast", new Vector2Int(-2, -4), LoadShadow("beast"), 5, 7);
             CreatePortal(map.fieldRoot, "ToEchoVillage", new Vector2Int(-9, 0), "EchoVillage",
                 new Vector2Int(8, 0), FacingDir.Left);
-            CreatePortal(map.fieldRoot, "ToMoonlitBoss", new Vector2Int(-3, 8), "MoonlitBossStage",
-                new Vector2Int(0, -6), FacingDir.Up, false, "quest_prologue_04_echoes_complete");
+            // 북쪽 절벽에 숨겨져 있던 출구를 화면에서 바로 읽히는 동쪽 길로 옮긴다.
+            // 보스 퀘스트는 입장 후 자동 진행되므로 탐색 자체를 플래그로 막지 않는다.
+            CreatePortal(map.fieldRoot, "ToMoonlitBoss", new Vector2Int(9, 0), "MoonlitBossStage",
+                new Vector2Int(0, -6), FacingDir.Right);
             FinishFieldScene(map, "MoonlitMeadow");
         }
 
@@ -615,7 +622,66 @@ namespace ShadowTheater.EditorTools
             var map=BeginFieldScene("WidowMoonPalace","미망인의 월궁",new Vector2Int(0,-6),new Color(.035f,.025f,.10f),Theme.MoonPalace);
             CreateEncounter(map.fieldRoot,"MoonSeaGuard",new Vector2Int(-5,0),LoadShadow("mourning_keeper"),102,105); CreateEncounter(map.fieldRoot,"NameBirdMoon",new Vector2Int(5,0),LoadShadow("name_bird"),102,105);
             CreateBossEncounter(map.fieldRoot,"TrueNameSeleneBoss",new Vector2Int(0,4),"boss_moonlit_widow","boss_true_name_selene",new Vector2Int(105,108),"boss_true_name_selene_pre","boss_true_name_selene_post","boss_true_name_selene_story_complete","boss_true_name_selene_reward_claimed",108,new Color(.78f,.7f,1f));
-            CreatePortal(map.fieldRoot,"BackToLighthouse",new Vector2Int(0,-8),"MourningLighthouse",new Vector2Int(8,0),FacingDir.Down); FinishFieldScene(map,"WidowMoonPalace");
+            CreatePortal(map.fieldRoot,"BackToLighthouse",new Vector2Int(0,-8),"MourningLighthouse",new Vector2Int(8,0),FacingDir.Down);
+            CreatePortal(map.fieldRoot,"ToInvertedLobby",new Vector2Int(9,0),"InvertedLobby",new Vector2Int(0,-7),FacingDir.Right,false,"act7_complete");
+            FinishFieldScene(map,"WidowMoonPalace");
+        }
+
+        private static void CreateInvertedLobby()
+        {
+            var map=BeginFieldScene("InvertedLobby","뒤집힌 로비",new Vector2Int(0,-7),new Color(.045f,.025f,.11f),Theme.FinalTheater);
+            CreateAreaTrigger(map.fieldRoot,new Vector2Int(0,-7),"area_inverted_lobby");
+            CreateNpc(map.fieldRoot,"InvertedGuide",new Vector2Int(0,4),LoadShadow("inverted_guide"),"npc_inverted_guide","npc_inverted_guide_intro","npc_inverted_guide_repeat","talked_inverted_guide",new Color(.68f,.45f,.95f));
+            CreateEncounter(map.fieldRoot,"CeilingAudienceA",new Vector2Int(-5,0),LoadShadow("ceiling_audience"),104,107);
+            CreateEncounter(map.fieldRoot,"MirroredUnderstudyA",new Vector2Int(5,0),LoadShadow("mirrored_understudy"),105,108);
+            CreatePortal(map.fieldRoot,"BackToMoonPalace",new Vector2Int(0,-8),"WidowMoonPalace",new Vector2Int(8,0),FacingDir.Down);
+            CreatePortal(map.fieldRoot,"ToEndlessBackstage",new Vector2Int(9,0),"EndlessBackstage",new Vector2Int(0,-7),FacingDir.Right,false,"quest_act8_01_lobby_complete");
+            FinishFieldScene(map,"InvertedLobby");
+        }
+
+        private static void CreateEndlessBackstage()
+        {
+            var map=BeginFieldScene("EndlessBackstage","끝없는 무대 뒤",new Vector2Int(0,-7),new Color(.035f,.02f,.075f),Theme.FinalTheater);
+            CreateEncounter(map.fieldRoot,"ForgottenPropA",new Vector2Int(-5,-1),LoadShadow("forgotten_prop"),107,110);
+            CreateEncounter(map.fieldRoot,"InterludeActorA",new Vector2Int(5,-1),LoadShadow("interlude_actor"),107,111);
+            CreateBossEncounter(map.fieldRoot,"InterludeManagerBoss",new Vector2Int(0,5),"interlude_manager","boss_interlude_manager",new Vector2Int(110,112),"boss_interlude_manager_pre","boss_interlude_manager_post","boss_interlude_manager_story_complete","boss_interlude_manager_reward_claimed",112,new Color(.55f,.34f,.78f));
+            CreatePortal(map.fieldRoot,"BackToLobby",new Vector2Int(0,-8),"InvertedLobby",new Vector2Int(8,0),FacingDir.Down);
+            CreatePortal(map.fieldRoot,"ToFirstActorRoom",new Vector2Int(9,0),"FirstActorRoom",new Vector2Int(0,-6),FacingDir.Right,false,"boss_interlude_manager_story_complete");
+            FinishFieldScene(map,"EndlessBackstage");
+        }
+
+        private static void CreateFirstActorRoom()
+        {
+            var map=BeginFieldScene("FirstActorRoom","최초 배우의 분장실",new Vector2Int(0,-6),new Color(.10f,.065f,.025f),Theme.FinalTheater);
+            CreateEncounter(map.fieldRoot,"FirstLineEchoA",new Vector2Int(-5,0),LoadShadow("first_line_echo"),110,113);
+            CreateEncounter(map.fieldRoot,"GoldenMaskA",new Vector2Int(5,0),LoadShadow("golden_mask"),111,114);
+            CreateBossEncounter(map.fieldRoot,"FirstActorBoss",new Vector2Int(0,4),"legend_first_actor","boss_first_actor",new Vector2Int(113,115),"boss_first_actor_pre","boss_first_actor_post","boss_first_actor_story_complete","boss_first_actor_reward_claimed",115,new Color(.92f,.68f,.28f));
+            CreatePortal(map.fieldRoot,"BackToBackstage",new Vector2Int(0,-8),"EndlessBackstage",new Vector2Int(8,0),FacingDir.Down);
+            CreatePortal(map.fieldRoot,"ToCosmicAuditorium",new Vector2Int(9,0),"CosmicAuditorium",new Vector2Int(0,-6),FacingDir.Right,false,"boss_first_actor_story_complete");
+            FinishFieldScene(map,"FirstActorRoom");
+        }
+
+        private static void CreateCosmicAuditorium()
+        {
+            var map=BeginFieldScene("CosmicAuditorium","우주의 객석",new Vector2Int(0,-6),new Color(.012f,.02f,.075f),Theme.CosmicStage);
+            CreateEncounter(map.fieldRoot,"ConstellationSeatA",new Vector2Int(-5,0),LoadShadow("constellation_seat"),113,116);
+            CreateEncounter(map.fieldRoot,"SilentApplauseA",new Vector2Int(5,0),LoadShadow("silent_applause"),114,117);
+            CreateBossEncounter(map.fieldRoot,"LastAudienceBoss",new Vector2Int(0,4),"legend_last_audience","boss_last_audience",new Vector2Int(116,118),"boss_last_audience_pre","boss_last_audience_post","boss_last_audience_story_complete","boss_last_audience_reward_claimed",118,new Color(.48f,.55f,1f));
+            CreatePortal(map.fieldRoot,"BackToFirstActor",new Vector2Int(0,-8),"FirstActorRoom",new Vector2Int(8,0),FacingDir.Down);
+            CreatePortal(map.fieldRoot,"ToFinalCurtain",new Vector2Int(9,0),"FinalCurtain",new Vector2Int(0,-6),FacingDir.Right,false,"boss_last_audience_story_complete");
+            FinishFieldScene(map,"CosmicAuditorium");
+        }
+
+        private static void CreateFinalCurtain()
+        {
+            var map=BeginFieldScene("FinalCurtain","마지막 장막",new Vector2Int(0,-6),new Color(.035f,.025f,.055f),Theme.CosmicStage);
+            CreateAreaTrigger(map.fieldRoot,new Vector2Int(0,-6),"area_final_curtain");
+            CreateNpc(map.fieldRoot,"RivalDirector",new Vector2Int(-5,2),LoadShadow("rival_director"),"npc_rival_director","npc_rival_director_final","npc_rival_director_repeat","talked_rival_director_final",new Color(.9f,.28f,.52f));
+            CreateEncounter(map.fieldRoot,"CensoredProtagonistA",new Vector2Int(5,-1),LoadShadow("censored_protagonist"),116,119);
+            CreateBossEncounter(map.fieldRoot,"OutsideScriptShadowBoss",new Vector2Int(0,3),"outside_script_shadow","boss_final_shadow",new Vector2Int(119,120),"boss_final_shadow_pre","boss_final_shadow_post","boss_final_shadow_story_complete","boss_final_shadow_reward_claimed",120,new Color(.92f,.82f,1f));
+            CreateEndingTrigger(map.fieldRoot,new Vector2Int(0,7));
+            CreatePortal(map.fieldRoot,"BackToAuditorium",new Vector2Int(0,-8),"CosmicAuditorium",new Vector2Int(8,0),FacingDir.Down);
+            FinishFieldScene(map,"FinalCurtain");
         }
 
         private static FieldSceneContext BeginFieldScene(string mapId, string displayName, Vector2Int startCell,
@@ -821,6 +887,7 @@ namespace ShadowTheater.EditorTools
                     blocks.Add(new RectInt(-5,-6,3,2)); blocks.Add(new RectInt(4,-6,3,2)); break;
                 case Theme.Censor:
                 case Theme.MemorySea:
+                case Theme.FinalTheater:
                     blocks.Add(new RectInt(-7,2,3,4)); blocks.Add(new RectInt(5,2,3,4));
                     blocks.Add(new RectInt(-3,-5,2,3)); blocks.Add(new RectInt(2,-5,2,3)); break;
                 case Theme.Boss:
@@ -832,6 +899,7 @@ namespace ShadowTheater.EditorTools
                 case Theme.PuppeteerStage:
                 case Theme.BlackArchive:
                 case Theme.MoonPalace:
+                case Theme.CosmicStage:
                     blocks.Add(new RectInt(-7, -1, 2, 5)); blocks.Add(new RectInt(6, -1, 2, 5));
                     blocks.Add(new RectInt(-4, 6, 2, 2)); blocks.Add(new RectInt(3, 6, 2, 2)); break;
             }
@@ -861,6 +929,7 @@ namespace ShadowTheater.EditorTools
         private static bool IsMoonlitWalkable(int x, int y)
         {
             bool westEntrance = x >= -10 && x <= -6 && y >= -1 && y <= 1;
+            bool eastExit = x >= 3 && x <= 10 && y >= -1 && y <= 1;
             bool centralClearing = x >= -8 && x <= 5 && y >= -4 && y <= 2;
             bool northernTrail = x >= -4 && x <= -2 && y >= 2 && y <= 8;
             bool upperLoop = x >= -5 && x <= 4 && y >= 3 && y <= 5;
@@ -870,8 +939,8 @@ namespace ShadowTheater.EditorTools
             bool westernCliff = x <= -6 && y >= 2;
             bool easternWater = x >= 6 && y >= -2;
             bool lowerRuin = x >= -1 && x <= 1 && y <= -5;
-            return (westEntrance || centralClearing || northernTrail || upperLoop || southernLoop || eastConnector)
-                   && !centralGrove && !westernCliff && !easternWater && !lowerRuin;
+            return (westEntrance || eastExit || centralClearing || northernTrail || upperLoop || southernLoop || eastConnector)
+                   && !centralGrove && !westernCliff && (!easternWater || eastExit) && !lowerRuin;
         }
 
         private static bool IsMoonlitPath(int x, int y)
@@ -879,7 +948,7 @@ namespace ShadowTheater.EditorTools
             bool westRoad = x <= -4 && y >= -1 && y <= 1;
             bool northRoad = x >= -4 && x <= -2 && y >= 0;
             bool southRoad = y >= -5 && y <= -3 && x >= -5 && x <= 4;
-            bool eastRoad = x >= 3 && x <= 4 && y >= -4 && y <= 4;
+            bool eastRoad = x >= 3 && x <= 10 && y >= -4 && y <= 4;
             return IsMoonlitWalkable(x, y) && (westRoad || northRoad || southRoad || eastRoad);
         }
 
@@ -965,6 +1034,13 @@ namespace ShadowTheater.EditorTools
             Set(so, "purificationRewardLevel", rewardLevel); Set(so, "purificationRewardFlag", rewardFlag);
             Set(so, "silhouette", go.GetComponent<SpriteRenderer>());
             so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static void CreateEndingTrigger(Transform parent, Vector2Int cell)
+        {
+            var go = CreateFieldActor(parent, "FinalScriptBook", cell, LoadShadow("outside_script_shadow"), false);
+            go.transform.localScale = Vector3.one * 1.2f;
+            go.AddComponent<EndingTrigger>();
         }
 
         private static void CreateAreaTrigger(Transform parent, Vector2Int cell, string areaId)
@@ -1322,6 +1398,10 @@ namespace ShadowTheater.EditorTools
                 case Theme.MemorySea:
                 case Theme.MoonPalace:
                     return new EnvironmentProfile { globalColor=new Color(.30f,.55f,.76f),globalIntensity=.48f,pointColor=new Color(.42f,.84f,1f),secondaryLightColor=new Color(.72f,.58f,1f),pointIntensity=1.05f,fogColor=new Color(.18f,.42f,.62f),fogAlpha=.16f,moteColor=new Color(.7f,.9f,1f),fogDrift=new Vector2(.08f,.01f),moteDrift=new Vector2(.02f,.07f),fogPulse=.12f,motePulse=.4f,pulseSpeed=.65f,ambienceVolume=.29f,detailVolume=.22f,detailInterval=new Vector2(4f,8f),lightPositions=new[]{new Vector2(-6f,4f),new Vector2(0f,5f),new Vector2(6f,4f),new Vector2(-4f,-4f),new Vector2(4f,-4f)} };
+                case Theme.FinalTheater:
+                    return new EnvironmentProfile { globalColor=new Color(.42f,.24f,.64f),globalIntensity=.45f,pointColor=new Color(.78f,.42f,1f),secondaryLightColor=new Color(1f,.62f,.32f),pointIntensity=1.12f,fogColor=new Color(.25f,.10f,.40f),fogAlpha=.18f,moteColor=new Color(.88f,.64f,1f),fogDrift=new Vector2(.08f,.01f),moteDrift=new Vector2(.02f,.07f),fogPulse=.13f,motePulse=.42f,pulseSpeed=.7f,ambienceVolume=.29f,detailVolume=.23f,detailInterval=new Vector2(4f,7f),lightPositions=new[]{new Vector2(-6f,4f),new Vector2(0f,5f),new Vector2(6f,4f),new Vector2(0f,-3f)} };
+                case Theme.CosmicStage:
+                    return new EnvironmentProfile { globalColor=new Color(.28f,.32f,.70f),globalIntensity=.42f,pointColor=new Color(.48f,.62f,1f),secondaryLightColor=new Color(.92f,.72f,1f),pointIntensity=1.18f,fogColor=new Color(.12f,.16f,.48f),fogAlpha=.2f,moteColor=new Color(.72f,.80f,1f),fogDrift=new Vector2(.04f,.008f),moteDrift=new Vector2(.01f,.09f),fogPulse=.16f,motePulse=.5f,pulseSpeed=.55f,ambienceVolume=.31f,detailVolume=.24f,detailInterval=new Vector2(4f,8f),lightPositions=new[]{new Vector2(-6f,5f),new Vector2(0f,5f),new Vector2(6f,5f),new Vector2(-3f,-4f),new Vector2(3f,-4f)} };
                 case Theme.AshThrone:
                     return new EnvironmentProfile
                     {
@@ -1979,7 +2059,8 @@ namespace ShadowTheater.EditorTools
                 "VioletMarsh", "HowlVillage", "MoonfangForest", "BloodmoonRidge", "SleepingBeastDen",
                 "ThreadMarket", "ClockworkAlley", "MarionetteOpera", "SeveredWorkshop", "PuppeteerStage",
                 "ErasedStation", "BlankPrison", "RedactionLab", "SilentCourt", "BlackArchive",
-                "GlassCoast", "DrownedGallery", "NameIslands", "MourningLighthouse", "WidowMoonPalace" };
+                "GlassCoast", "DrownedGallery", "NameIslands", "MourningLighthouse", "WidowMoonPalace",
+                "InvertedLobby", "EndlessBackstage", "FirstActorRoom", "CosmicAuditorium", "FinalCurtain" };
             var scenes = new List<EditorBuildSettingsScene>();
             var generatedPaths = new HashSet<string>();
             foreach (string name in names)
@@ -2043,7 +2124,7 @@ namespace ShadowTheater.EditorTools
             FrostPort, Archive, ForbiddenStacks, MirrorVault, BlueAbyss,
             VioletMarsh, HowlVillage, MoonfangForest, BloodmoonRidge, BeastDen,
             ThreadMarket, ClockworkAlley, MarionetteOpera, SeveredWorkshop, PuppeteerStage,
-            Censor, BlackArchive, MemorySea, MoonPalace
+            Censor, BlackArchive, MemorySea, MoonPalace, FinalTheater, CosmicStage
         }
         private enum PixelTileKind { Grass, Path, Water, Cliff, Bush }
         private class EnvironmentProfile

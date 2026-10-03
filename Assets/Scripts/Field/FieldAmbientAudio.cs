@@ -11,7 +11,7 @@ namespace ShadowTheater.Field
         FrostPort, Archive, ForbiddenStacks, MirrorVault, BlueAbyss,
         VioletMarsh, HowlVillage, MoonfangForest, BloodmoonRidge, BeastDen,
         ThreadMarket, ClockworkAlley, MarionetteOpera, SeveredWorkshop, PuppeteerStage,
-        Censor, BlackArchive, MemorySea, MoonPalace
+        Censor, BlackArchive, MemorySea, MoonPalace, FinalTheater, CosmicStage
     }
 
     /// <summary>지역별 지속 환경음과 간헐 원샷을 재생하며 씬/전투 전환 때 페이드한다.</summary>
@@ -220,6 +220,10 @@ namespace ShadowTheater.Field
                     return Sin(13,.28f)+Sin(29,.16f)+Sin(1200,.035f)*(0.5f+Sin(4,.5f));
                 case FieldAmbienceStyle.MoonPalace:
                     return Sin(66,.38f)+Sin(33,.22f)+Sin(6,.18f)*Sin(132,.3f);
+                case FieldAmbienceStyle.FinalTheater:
+                    return Sin(44,.3f)+Sin(88,.18f)+Sin(7,.2f)*Sin(352,.12f);
+                case FieldAmbienceStyle.CosmicStage:
+                    return Sin(33,.34f)+Sin(66,.2f)+Sin(5,.2f)*Sin(990,.08f);
                 default:
                     return Sin(147, .46f) + Sin(73, .26f) + Sin(7, .20f) * Sin(151, .32f);
             }
