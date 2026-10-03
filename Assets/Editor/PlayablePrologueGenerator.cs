@@ -179,7 +179,7 @@ namespace ShadowTheater.EditorTools
             var lanternKeeper = CreateNpc(map.fieldRoot, "LanternKeeperMoen", new Vector2Int(1, 5), LoadShadow("crow"),
                 "npc_lantern_keeper", "npc_lantern_keeper_intro", "npc_lantern_keeper_repeat",
                 "talked_npc_lantern_keeper", new Color(1f, 0.70f, 0.38f));
-            var keeperRenderer = lanternKeeper.GetComponent<SpriteRenderer>();
+            var keeperRenderer = lanternKeeper.GetComponentInChildren<SpriteRenderer>();
             keeperRenderer.sprite = CreatePixelLanternKeeperSprite();
             keeperRenderer.color = Color.white;
             CreateEncounter(map.fieldRoot, "PuppetSymbol", new Vector2Int(-3, 3), LoadShadow("puppet"), 3, 5);
@@ -977,29 +977,36 @@ namespace ShadowTheater.EditorTools
         private static GameObject CreateFieldActor(Transform parent, string name, Vector2Int cell,
                                                    ShadowData visual, bool trigger)
         {
-            var go = new GameObject(name, typeof(SpriteRenderer), typeof(BoxCollider2D));
+            var go = new GameObject(name, typeof(BoxCollider2D));
             go.transform.SetParent(parent); go.transform.position = Cell(cell);
-            var renderer = go.GetComponent<SpriteRenderer>();
+            var visualObject = new GameObject("Visual", typeof(SpriteRenderer), typeof(ShadowFieldMotion));
+            visualObject.transform.SetParent(go.transform, false);
+            var renderer = visualObject.GetComponent<SpriteRenderer>();
             renderer.sprite = CreatePixelFieldActorSprite(visual);
             if (renderer.sprite == null) renderer.sprite = visual?.silhouetteSprite;
             renderer.color = Color.white;
             renderer.sortingOrder = 8;
             var box = go.GetComponent<BoxCollider2D>(); box.size = new Vector2(0.72f, 0.82f); box.isTrigger = trigger;
+            visualObject.GetComponent<ShadowFieldMotion>().Configure(visual);
             return go;
         }
 
         private static void CreateEncounter(Transform parent, string name, Vector2Int cell,
                                             ShadowData shadow, int minLevel, int maxLevel)
         {
-            var go = new GameObject(name, typeof(SpriteRenderer), typeof(CircleCollider2D), typeof(EncounterSymbol));
+            var go = new GameObject(name, typeof(CircleCollider2D), typeof(EncounterSymbol));
             go.transform.SetParent(parent); go.transform.position = Cell(cell);
-            var renderer = go.GetComponent<SpriteRenderer>(); renderer.sprite = CreatePixelEncounterSprite();
-            renderer.color = shadow != null ? Color.Lerp(shadow.accentColor, Color.white, .22f) : Color.white;
+            var visualObject = new GameObject("Visual", typeof(SpriteRenderer), typeof(ShadowFieldMotion));
+            visualObject.transform.SetParent(go.transform, false);
+            var renderer = visualObject.GetComponent<SpriteRenderer>();
+            renderer.sprite = CreatePixelFieldActorSprite(shadow) ?? CreatePixelEncounterSprite();
+            renderer.color = Color.white;
             renderer.sortingOrder = 7;
             go.GetComponent<CircleCollider2D>().radius = 0.38f;
             var so = new SerializedObject(go.GetComponent<EncounterSymbol>());
             Set(so, "leadShadow", shadow); Set(so, "levelRange", new Vector2Int(minLevel, maxLevel));
             Set(so, "silhouette", renderer); so.ApplyModifiedPropertiesWithoutUndo();
+            visualObject.GetComponent<ShadowFieldMotion>().Configure(shadow);
         }
 
         private static void CreateBoss(Transform parent, Vector2Int cell)
@@ -1011,7 +1018,7 @@ namespace ShadowTheater.EditorTools
             var so = new SerializedObject(trigger);
             var party = so.FindProperty("enemyParty"); party.arraySize = 1;
             party.GetArrayElementAtIndex(0).objectReferenceValue = boss;
-            Set(so, "levelRange", new Vector2Int(10, 12)); Set(so, "silhouette", go.GetComponent<SpriteRenderer>());
+            Set(so, "levelRange", new Vector2Int(10, 12)); Set(so, "silhouette", go.GetComponentInChildren<SpriteRenderer>());
             Set(so, "purificationReward", boss); Set(so, "purificationRewardLevel", 12);
             so.ApplyModifiedPropertiesWithoutUndo();
         }
@@ -1032,7 +1039,7 @@ namespace ShadowTheater.EditorTools
             Set(so, "victoryDialogueId", postDialogue); Set(so, "victoryFlag", victoryFlag);
             Set(so, "accent", accent); Set(so, "purificationReward", boss);
             Set(so, "purificationRewardLevel", rewardLevel); Set(so, "purificationRewardFlag", rewardFlag);
-            Set(so, "silhouette", go.GetComponent<SpriteRenderer>());
+            Set(so, "silhouette", go.GetComponentInChildren<SpriteRenderer>());
             so.ApplyModifiedPropertiesWithoutUndo();
         }
 
