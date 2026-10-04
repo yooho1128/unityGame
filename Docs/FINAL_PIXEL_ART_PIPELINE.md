@@ -54,3 +54,7 @@
 핵심 10종은 512×512 전투·도감 초상과 24×32 필드 보행 2프레임이 모두 포함된다. 원본 생성 시트는
 `Assets/Art/Source`에 보존하며 게임은 `Assets/Art/Final`의 개별 PNG만 참조한다. 전체 검증은 주인공
 6프레임과 핵심 10종 파일이 하나라도 빠지면 실패한다.
+
+스타터 `knight`, `mage`, `beast`는 고해상도 초상을 축소하지 않고 필드 판독성을 위해 별도로 제작한
+저해상도 도트를 사용한다. 원본 시트는 `Assets/Art/Source/FieldCasts/StarterFieldPixelSheet.png`이며,
+배포 파일은 각 캐릭터의 `_01`, `_02` 두 프레임으로 분리되어 있다.
