@@ -30,6 +30,8 @@ namespace ShadowTheater.Save
         public event Action OnSaved;
         public event Action OnLoaded;
         public static event Action PartyChanged;
+        public static event Action InventoryChanged;
+        public static event Action EconomyChanged;
 
         private SaveData _current;
 
@@ -476,6 +478,22 @@ namespace ShadowTheater.Save
         {
             if (Current == null) return;
             foreach (var s in Current.party) s.FullHeal();
+            PartyChanged?.Invoke();
+        }
+
+        public static bool TryRestParty(int cost, out string message)
+        {
+            message = string.Empty;
+            if (Current == null) { message = "휴식할 파티가 없습니다."; return false; }
+            bool needsRest = Current.party.Exists(x => x.currentHp < x.MaxHp);
+            if (!needsRest) { message = "파티의 HP가 이미 가득합니다."; return false; }
+            cost = Mathf.Max(0, cost);
+            if (Current.gold < cost) { message = "휴식에 필요한 금화가 부족합니다."; return false; }
+            Current.gold -= cost;
+            HealParty();
+            EconomyChanged?.Invoke();
+            message = $"막간 휴식 완료 · 파티 전원 회복 (-{cost} 금화)";
+            return true;
         }
 
         public static bool HasAliveShadow() =>
@@ -541,6 +559,68 @@ namespace ShadowTheater.Save
                 stack.count = Mathf.Max(0, stack.count + amount);
                 if (stack.count == 0) Current.inventory.Remove(stack);
             }
+            InventoryChanged?.Invoke();
+        }
+
+        public static bool TryBuyItem(ItemData item, out string message)
+        {
+            message = string.Empty;
+            if (Current == null || item == null) { message = "구매할 도구가 없습니다."; return false; }
+            int price = Mathf.Max(0, item.buyPrice);
+            if (Current.gold < price) { message = "금화가 부족합니다."; return false; }
+            Current.gold -= price;
+            AddItem(item.itemId, 1);
+            EconomyChanged?.Invoke();
+            message = $"{item.displayName}을(를) 구매했습니다.";
+            return true;
+        }
+
+        public static bool TrySellItem(ItemData item, out string message)
+        {
+            message = string.Empty;
+            if (Current == null || item == null || GetItemCount(item.itemId) <= 0)
+            { message = "판매할 도구가 없습니다."; return false; }
+            AddItem(item.itemId, -1);
+            Current.gold += Mathf.Max(0, item.sellPrice);
+            EconomyChanged?.Invoke();
+            message = $"{item.displayName}을(를) 판매했습니다.";
+            return true;
+        }
+
+        /// <summary>선택한 그림자에게 낭비가 가장 적은 필드 회복 도구 하나를 사용한다.</summary>
+        public static bool TryUseBestHealingItem(ShadowInstance target, out string message)
+        {
+            message = string.Empty;
+            if (Current == null || target == null || (!Current.party.Contains(target) && !Current.storage.Contains(target)))
+            { message = "회복할 그림자를 선택하세요."; return false; }
+            if (target.IsFainted) { message = "기절한 그림자는 휴식 지점에서 회복해야 합니다."; return false; }
+            int missing = target.MaxHp - target.currentHp;
+            if (missing <= 0) { message = "이미 HP가 가득합니다."; return false; }
+
+            ItemData best = null;
+            int bestWaste = int.MaxValue;
+            foreach (var stack in Current.inventory)
+            {
+                if (stack.count <= 0) continue;
+                ItemData item = ShadowDatabase.Instance != null ? ShadowDatabase.Instance.GetItem(stack.itemId) : null;
+                if (item == null || !item.usableInField ||
+                    (item.effectType != ItemEffectType.HealFlat && item.effectType != ItemEffectType.HealRatio)) continue;
+                int amount = item.effectType == ItemEffectType.HealRatio
+                    ? Mathf.Max(1, Mathf.RoundToInt(target.MaxHp * Mathf.Clamp01(item.value)))
+                    : Mathf.Max(1, Mathf.RoundToInt(item.value));
+                int waste = Mathf.Abs(amount - missing) + (amount < missing ? missing : 0);
+                if (waste < bestWaste) { best = item; bestWaste = waste; }
+            }
+            if (best == null) { message = "사용할 수 있는 회복 도구가 없습니다."; return false; }
+            int healed = best.effectType == ItemEffectType.HealRatio
+                ? Mathf.Max(1, Mathf.RoundToInt(target.MaxHp * Mathf.Clamp01(best.value)))
+                : Mathf.Max(1, Mathf.RoundToInt(best.value));
+            int before = target.currentHp;
+            target.currentHp = Mathf.Min(target.MaxHp, target.currentHp + healed);
+            AddItem(best.itemId, -1);
+            PartyChanged?.Invoke();
+            message = $"{best.displayName} 사용 · HP {target.currentHp - before} 회복";
+            return true;
         }
 
         /// <summary>BattleContext.inventory용 Dictionary로 변환</summary>
@@ -567,6 +647,7 @@ namespace ShadowTheater.Save
                 stack.count = kv.Value;
                 if (stack.count <= 0) Current.inventory.Remove(stack);
             }
+            InventoryChanged?.Invoke();
         }
 
         #endregion

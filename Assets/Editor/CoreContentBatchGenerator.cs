@@ -259,6 +259,9 @@ namespace ShadowTheater.EditorTools
                 item.effectType = Parse(spec.effectType, ItemEffectType.HealRatio);
                 item.value = spec.value;
                 item.usableInBattle = spec.usableInBattle;
+                item.usableInField = spec.usableInField;
+                item.buyPrice = Mathf.Max(0, spec.buyPrice);
+                item.sellPrice = Mathf.Clamp(spec.sellPrice, 0, item.buyPrice);
                 EditorUtility.SetDirty(item);
                 result.Add(item);
             }
@@ -530,7 +533,8 @@ namespace ShadowTheater.EditorTools
         {
             public string itemId, displayName, description, effectType;
             public float value;
-            public bool usableInBattle;
+            public int buyPrice, sellPrice;
+            public bool usableInBattle, usableInField;
         }
         [Serializable] private class ShadowSpec
         {

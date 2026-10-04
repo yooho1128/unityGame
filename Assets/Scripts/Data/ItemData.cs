@@ -24,11 +24,17 @@ namespace ShadowTheater.Data
         [Tooltip("HealFlat=회복량, HealRatio=0~1 비율, GainFP=FP량, CaptureBoost=배율")]
         public float value;
         public bool usableInBattle = true;
+        [Tooltip("필드의 파티 화면에서 사용할 수 있는 도구인지 여부")]
+        public bool usableInField;
+        [Min(0)] public int buyPrice = 50;
+        [Min(0)] public int sellPrice = 20;
 
 #if UNITY_EDITOR
         private void OnValidate()
         {
             if (string.IsNullOrEmpty(itemId)) itemId = name;
+            buyPrice = Mathf.Max(0, buyPrice);
+            sellPrice = Mathf.Clamp(sellPrice, 0, buyPrice);
         }
 #endif
     }

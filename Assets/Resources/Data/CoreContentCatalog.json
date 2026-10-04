@@ -600,7 +600,10 @@
       "description": "그림자 하나의 최대 HP 50%를 회복한다.",
       "effectType": "HealRatio",
       "value": 0.5,
-      "usableInBattle": true
+      "usableInBattle": true,
+      "usableInField": true,
+      "buyPrice": 60,
+      "sellPrice": 30
     },
     {
       "itemId": "tonic",
@@ -608,7 +611,10 @@
       "description": "공연 열기 FP를 2 회복한다.",
       "effectType": "GainFP",
       "value": 2,
-      "usableInBattle": true
+      "usableInBattle": true,
+      "usableInField": false,
+      "buyPrice": 80,
+      "sellPrice": 40
     },
     {
       "itemId": "ink",
@@ -616,7 +622,10 @@
       "description": "이번 전투의 각본 기록 확률을 1.8배 높인다.",
       "effectType": "CaptureBoost",
       "value": 1.8,
-      "usableInBattle": true
+      "usableInBattle": true,
+      "usableInField": false,
+      "buyPrice": 140,
+      "sellPrice": 70
     },
     {
       "itemId": "salve",
@@ -624,7 +633,10 @@
       "description": "현재 걸린 상태 이상을 제거한다.",
       "effectType": "CureStatus",
       "value": 0,
-      "usableInBattle": true
+      "usableInBattle": true,
+      "usableInField": false,
+      "buyPrice": 50,
+      "sellPrice": 25
     }
   ],
   "shadows": [

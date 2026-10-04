@@ -23,6 +23,7 @@ namespace ShadowTheater.UI
         [SerializeField] private Button toStorageButton;
         [SerializeField] private Button upButton;
         [SerializeField] private Button downButton;
+        [SerializeField] private Button healButton;
 
         private readonly List<GameObject> _spawned = new List<GameObject>();
         private ShadowInstance _selected;
@@ -66,6 +67,13 @@ namespace ShadowTheater.UI
         public void MoveSelectedToStorage() => Apply(SaveManager.MoveToStorage(_selected?.instanceId), L10n.Get("party.stored", "각본 서고에 보관했습니다."), L10n.Get("party.minimum", "파티에는 전투 가능한 그림자가 최소 1명 필요합니다."));
         public void MoveSelectedUp() => Apply(SaveManager.MovePartySlot(_selected?.instanceId, -1), L10n.Get("party.reordered", "파티 순서를 변경했습니다."), L10n.Get("party.top", "더 위로 이동할 수 없습니다."));
         public void MoveSelectedDown() => Apply(SaveManager.MovePartySlot(_selected?.instanceId, 1), L10n.Get("party.reordered", "파티 순서를 변경했습니다."), L10n.Get("party.bottom", "더 아래로 이동할 수 없습니다."));
+
+        public void HealSelected()
+        {
+            bool success = SaveManager.TryUseBestHealingItem(_selected, out string message);
+            if (feedbackText != null) { feedbackText.text = message; feedbackText.color = success ? new Color(.55f,1f,.72f) : new Color(1f,.6f,.68f); }
+            if (success) { SaveManager.Instance.Save(); Refresh(); }
+        }
 
         private void Apply(bool success, string ok, string fail)
         {
@@ -123,6 +131,7 @@ namespace ShadowTheater.UI
             int index = _selectedInParty && _selected != null ? save.party.IndexOf(_selected) : -1;
             if (upButton != null) upButton.interactable = index > 0;
             if (downButton != null) downButton.interactable = index >= 0 && index < save.party.Count - 1;
+            if (healButton != null) healButton.interactable = _selected != null && !_selected.IsFainted && _selected.currentHp < _selected.MaxHp;
         }
 
         private void ReleasePlayer() { if (!_lockedPlayer) return; PlayerController.Instance?.Unlock(); _lockedPlayer = false; }

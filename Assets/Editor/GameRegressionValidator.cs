@@ -254,6 +254,14 @@ namespace ShadowTheater.EditorTools
                 if (skill.sfxClip == null) result.errors.Add($"{skill.skillId}: 캐스트 SFX 누락");
                 if (skill.impactSfxClip == null) result.errors.Add($"{skill.skillId}: 타격 SFX 누락");
             }
+            foreach (ItemData item in database.items.Where(x => x != null))
+            {
+                if (item.buyPrice <= 0) result.errors.Add($"{item.itemId}: 상점 구매 가격 누락");
+                if (item.sellPrice < 0 || item.sellPrice > item.buyPrice)
+                    result.errors.Add($"{item.itemId}: 판매 가격 범위 오류 ({item.sellPrice}/{item.buyPrice})");
+                if (item.usableInField && item.effectType != ItemEffectType.HealFlat && item.effectType != ItemEffectType.HealRatio)
+                    result.warnings.Add($"{item.itemId}: 필드 사용 효과가 아직 지원되지 않음 ({item.effectType})");
+            }
         }
 
         private static void ValidateFinalArt(ValidationReport result)
@@ -352,7 +360,8 @@ namespace ShadowTheater.EditorTools
                         var partySo = new SerializedObject(partyStorage);
                         if (partySo.FindProperty("root")?.objectReferenceValue == null ||
                             partySo.FindProperty("partyContent")?.objectReferenceValue == null ||
-                            partySo.FindProperty("storageContent")?.objectReferenceValue == null)
+                            partySo.FindProperty("storageContent")?.objectReferenceValue == null ||
+                            partySo.FindProperty("healButton")?.objectReferenceValue == null)
                             result.errors.Add($"{region.sceneName}: 파티·각본 서고 UI 참조 누락");
                         foreach (string property in new[] { "partyTemplate", "storageTemplate" })
                         {
@@ -363,6 +372,18 @@ namespace ShadowTheater.EditorTools
                                 entrySo.FindProperty("expText")?.objectReferenceValue == null)
                                 result.errors.Add($"{region.sceneName}: 파티·각본 서고 경험치 UI 참조 누락");
                         }
+                    }
+                    SettlementShopController shop = roots.SelectMany(x => x.GetComponentsInChildren<SettlementShopController>(true)).FirstOrDefault();
+                    if (shop == null) result.errors.Add($"{region.sceneName}: 정착지 상점 UI 누락");
+                    else
+                    {
+                        var shopSo = new SerializedObject(shop);
+                        if (shopSo.FindProperty("root")?.objectReferenceValue == null ||
+                            shopSo.FindProperty("openButton")?.objectReferenceValue == null ||
+                            shopSo.FindProperty("contentRoot")?.objectReferenceValue == null ||
+                            shopSo.FindProperty("itemTemplate")?.objectReferenceValue == null ||
+                            shopSo.FindProperty("restButton")?.objectReferenceValue == null)
+                            result.errors.Add($"{region.sceneName}: 정착지 상점 UI 참조 누락");
                     }
                     FieldPauseMenuController pauseMenu = roots.SelectMany(x => x.GetComponentsInChildren<FieldPauseMenuController>(true)).FirstOrDefault();
                     if (pauseMenu == null) result.errors.Add($"{region.sceneName}: 필드 메뉴 누락");

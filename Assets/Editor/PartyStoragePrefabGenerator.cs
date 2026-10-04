@@ -26,16 +26,17 @@ namespace ShadowTheater.EditorTools
             Scroll("Party",panel,new Vector2(.05f,.46f),new Vector2(.95f,.73f),out var partyContent,out var partyTemplate);
             var storageLabel=Text("StorageCount",panel,new Vector2(.05f,.39f),new Vector2(.5f,.45f),27,"각본 서고",TextAnchor.MiddleLeft);
             Scroll("Storage",panel,new Vector2(.05f,.12f),new Vector2(.95f,.39f),out var storageContent,out var storageTemplate);
-            var toParty=Btn("ToParty",panel,new Vector2(.05f,.04f),new Vector2(.27f,.10f),"파티로");
-            var toStorage=Btn("ToStorage",panel,new Vector2(.29f,.04f),new Vector2(.52f,.10f),"서고로");
-            var up=Btn("Up",panel,new Vector2(.56f,.04f),new Vector2(.74f,.10f),"위로");
-            var down=Btn("Down",panel,new Vector2(.76f,.04f),new Vector2(.95f,.10f),"아래로");
+            var toParty=Btn("ToParty",panel,new Vector2(.05f,.04f),new Vector2(.21f,.10f),"파티로");
+            var toStorage=Btn("ToStorage",panel,new Vector2(.225f,.04f),new Vector2(.395f,.10f),"서고로");
+            var heal=Btn("Heal",panel,new Vector2(.41f,.04f),new Vector2(.59f,.10f),"회복");
+            var up=Btn("Up",panel,new Vector2(.605f,.04f),new Vector2(.77f,.10f),"위로");
+            var down=Btn("Down",panel,new Vector2(.785f,.04f),new Vector2(.95f,.10f),"아래로");
             var ctrl=root.GetComponent<PartyStorageController>();var so=new SerializedObject(ctrl);
             Set(so,"root",panel.gameObject);Set(so,"partyContent",partyContent);Set(so,"storageContent",storageContent);Set(so,"partyTemplate",partyTemplate);Set(so,"storageTemplate",storageTemplate);
             Set(so,"partyCountText",partyLabel);Set(so,"storageCountText",storageLabel);Set(so,"selectedText",selected);Set(so,"feedbackText",feedback);
-            Set(so,"toPartyButton",toParty);Set(so,"toStorageButton",toStorage);Set(so,"upButton",up);Set(so,"downButton",down);so.ApplyModifiedPropertiesWithoutUndo();
+            Set(so,"toPartyButton",toParty);Set(so,"toStorageButton",toStorage);Set(so,"healButton",heal);Set(so,"upButton",up);Set(so,"downButton",down);so.ApplyModifiedPropertiesWithoutUndo();
             UnityEditor.Events.UnityEventTools.AddPersistentListener(close.onClick,ctrl.Close);UnityEditor.Events.UnityEventTools.AddPersistentListener(toParty.onClick,ctrl.MoveSelectedToParty);
-            UnityEditor.Events.UnityEventTools.AddPersistentListener(toStorage.onClick,ctrl.MoveSelectedToStorage);UnityEditor.Events.UnityEventTools.AddPersistentListener(up.onClick,ctrl.MoveSelectedUp);UnityEditor.Events.UnityEventTools.AddPersistentListener(down.onClick,ctrl.MoveSelectedDown);
+            UnityEditor.Events.UnityEventTools.AddPersistentListener(toStorage.onClick,ctrl.MoveSelectedToStorage);UnityEditor.Events.UnityEventTools.AddPersistentListener(heal.onClick,ctrl.HealSelected);UnityEditor.Events.UnityEventTools.AddPersistentListener(up.onClick,ctrl.MoveSelectedUp);UnityEditor.Events.UnityEventTools.AddPersistentListener(down.onClick,ctrl.MoveSelectedDown);
             panel.gameObject.SetActive(false);string path="Assets/Prefabs/UI/PartyStorageCanvas.prefab";PrefabUtility.SaveAsPrefabAsset(root,path);Object.DestroyImmediate(root);AssetDatabase.SaveAssets();AssetDatabase.Refresh();EditorGUIUtility.PingObject(AssetDatabase.LoadAssetAtPath<GameObject>(path));
         }
         private static ScrollRect Scroll(string n,Transform p,Vector2 min,Vector2 max,out RectTransform content,out PartyStorageEntryView template){var r=Rect(n,p,min,max);r.gameObject.AddComponent<Image>().color=new Color(.035f,.025f,.07f);var v=Rect("Viewport",r,Vector2.zero,Vector2.one);v.gameObject.AddComponent<Image>().color=new Color(1,1,1,.01f);v.gameObject.AddComponent<Mask>().showMaskGraphic=false;content=Rect("Content",v,new Vector2(0,1),Vector2.one);content.pivot=new Vector2(.5f,1);var l=content.gameObject.AddComponent<VerticalLayoutGroup>();l.spacing=6;l.childControlHeight=true;l.childForceExpandHeight=false;content.gameObject.AddComponent<ContentSizeFitter>().verticalFit=ContentSizeFitter.FitMode.PreferredSize;template=Entry(content);template.gameObject.SetActive(false);var s=r.gameObject.AddComponent<ScrollRect>();s.viewport=v;s.content=content;s.horizontal=false;return s;}
