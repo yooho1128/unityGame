@@ -111,6 +111,7 @@ namespace ShadowTheater.EditorTools
             CoreContentBatchGenerator.Generate();
             LegendaryGrowthBatchGenerator.Generate();
             UltimateFxAssetGenerator.Generate();
+            FieldAudioAssetGenerator.Generate();
             FrontEndPrefabGenerator.Generate();
             DialogueUIPrefabGenerator.Generate();
             QuestHudPrefabGenerator.Generate();
@@ -708,7 +709,7 @@ namespace ShadowTheater.EditorTools
             gridSo.FindProperty("unitMask").intValue = 1 << 0;
             gridSo.ApplyModifiedPropertiesWithoutUndo();
 
-            var player = CreatePlayer(fieldRoot.transform, startCell);
+            var player = CreatePlayer(fieldRoot.transform, startCell, theme);
             CreateCamera("FieldCamera", cameraColor, player.transform, true).transform.SetParent(fieldRoot.transform);
             CreateEnvironment(fieldRoot.transform, theme);
             ApplyPixelFieldPass(fieldRoot.transform, theme);
@@ -743,7 +744,7 @@ namespace ShadowTheater.EditorTools
 
         private static void FinishFieldScene(FieldSceneContext context, string sceneName) => Save(context.scene, sceneName);
 
-        private static PlayerController CreatePlayer(Transform parent, Vector2Int cell)
+        private static PlayerController CreatePlayer(Transform parent, Vector2Int cell, Theme theme)
         {
             var go = new GameObject("Player", typeof(SpriteRenderer), typeof(Rigidbody2D),
                 typeof(CapsuleCollider2D), typeof(PlayerController));
@@ -773,7 +774,45 @@ namespace ShadowTheater.EditorTools
                 SetSpriteArray(animatorSo.FindProperty("sideFrames"), sprites.side);
                 animatorSo.ApplyModifiedPropertiesWithoutUndo();
             }
+            var footstep = go.AddComponent<FieldFootstepAudio>();
+            var footstepSo = new SerializedObject(footstep);
+            Set(footstepSo, "controller", go.GetComponent<PlayerController>());
+            FootstepSurface surface = SurfaceFor(theme);
+            Set(footstepSo, "surface", (int)surface);
+            AudioClip[] clips = FieldAudioAssetGenerator.LoadFootsteps(surface);
+            SerializedProperty clipProperty = footstepSo.FindProperty("clips");
+            clipProperty.arraySize = clips.Length;
+            for (int i = 0; i < clips.Length; i++)
+                clipProperty.GetArrayElementAtIndex(i).objectReferenceValue = clips[i];
+            footstepSo.ApplyModifiedPropertiesWithoutUndo();
             return go.GetComponent<PlayerController>();
+        }
+
+        private static FootstepSurface SurfaceFor(Theme theme)
+        {
+            switch (theme)
+            {
+                case Theme.Theater:
+                case Theme.MarionetteOpera:
+                case Theme.PuppeteerStage:
+                case Theme.FinalTheater: return FootstepSurface.Wood;
+                case Theme.Village:
+                case Theme.Meadow:
+                case Theme.VioletMarsh:
+                case Theme.HowlVillage:
+                case Theme.MoonfangForest: return FootstepSurface.Grass;
+                case Theme.AshWastes:
+                case Theme.AshThrone: return FootstepSurface.Ash;
+                case Theme.FrostPort:
+                case Theme.Archive:
+                case Theme.ForbiddenStacks: return FootstepSurface.Snow;
+                case Theme.MemorySea: return FootstepSurface.Water;
+                case Theme.ClockworkAlley:
+                case Theme.SeveredWorkshop: return FootstepSurface.Metal;
+                case Theme.BlueAbyss:
+                case Theme.CosmicStage: return FootstepSurface.Void;
+                default: return FootstepSurface.Stone;
+            }
         }
 
         private static PlayerSpriteSet LoadPixelPlayerSprites()
@@ -1275,7 +1314,10 @@ namespace ShadowTheater.EditorTools
 
             var ambience = root.AddComponent<FieldAmbientAudio>();
             var audioSo = new SerializedObject(ambience);
-            Set(audioSo, "style", (int)theme);
+            var ambienceStyle = (FieldAmbienceStyle)(int)theme;
+            Set(audioSo, "style", (int)ambienceStyle);
+            Set(audioSo, "ambienceClip", FieldAudioAssetGenerator.LoadBed(ambienceStyle));
+            Set(audioSo, "detailClip", FieldAudioAssetGenerator.LoadDetail(ambienceStyle));
             Set(audioSo, "ambienceVolume", profile.ambienceVolume);
             Set(audioSo, "detailVolume", profile.detailVolume);
             Set(audioSo, "fadeDuration", .4f);

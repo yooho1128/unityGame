@@ -169,6 +169,25 @@ namespace ShadowTheater.EditorTools
                     if (!roots.Any(x => x.GetComponentInChildren<FieldGrid>(true) != null)) result.errors.Add($"{region.sceneName}: FieldGrid 누락");
                     if (!roots.Any(x => x.GetComponentInChildren<PlayerController>(true) != null)) result.errors.Add($"{region.sceneName}: Player 누락");
                     if (!roots.Any(x => x.GetComponentInChildren<GameFlowController>(true) != null)) result.errors.Add($"{region.sceneName}: GameFlow 누락");
+                    FieldAmbientAudio ambience = roots.SelectMany(x => x.GetComponentsInChildren<FieldAmbientAudio>(true)).FirstOrDefault();
+                    if (ambience == null) result.errors.Add($"{region.sceneName}: 환경음 컨트롤러 누락");
+                    else
+                    {
+                        var ambienceSo = new SerializedObject(ambience);
+                        if (ambienceSo.FindProperty("ambienceClip")?.objectReferenceValue == null)
+                            result.errors.Add($"{region.sceneName}: 지속 환경음 누락");
+                        if (ambienceSo.FindProperty("detailClip")?.objectReferenceValue == null)
+                            result.errors.Add($"{region.sceneName}: 간헐 환경음 누락");
+                    }
+                    FieldFootstepAudio footsteps = roots.SelectMany(x => x.GetComponentsInChildren<FieldFootstepAudio>(true)).FirstOrDefault();
+                    if (footsteps == null) result.errors.Add($"{region.sceneName}: 발걸음 오디오 누락");
+                    else
+                    {
+                        SerializedProperty clips = new SerializedObject(footsteps).FindProperty("clips");
+                        if (clips == null || clips.arraySize < 4 || Enumerable.Range(0, clips.arraySize)
+                            .Any(i => clips.GetArrayElementAtIndex(i).objectReferenceValue == null))
+                            result.errors.Add($"{region.sceneName}: 발걸음 클립 누락");
+                    }
                     foreach (GameObject root in roots)
                     foreach (Transform tr in root.GetComponentsInChildren<Transform>(true))
                         if (GameObjectUtility.GetMonoBehavioursWithMissingScriptCount(tr.gameObject) > 0)

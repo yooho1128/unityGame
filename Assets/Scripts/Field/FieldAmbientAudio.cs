@@ -17,6 +17,7 @@ namespace ShadowTheater.Field
     /// <summary>지역별 지속 환경음과 간헐 원샷을 재생하며 씬/전투 전환 때 페이드한다.</summary>
     public class FieldAmbientAudio : MonoBehaviour
     {
+        public const int SampleRate = 22050;
         public static FieldAmbientAudio Instance { get; private set; }
 
         [SerializeField] private FieldAmbienceStyle style;
@@ -152,19 +153,22 @@ namespace ShadowTheater.Field
 
         private static AudioClip GenerateBed(FieldAmbienceStyle ambienceStyle)
         {
-            const int rate = 22050;
-            const float duration = 6f;
-            int count = Mathf.RoundToInt(rate * duration);
+            float[] samples = SynthesizeBedSamples(ambienceStyle);
+            var clip = AudioClip.Create($"GeneratedAmbience_{ambienceStyle}", samples.Length, 1, SampleRate, false);
+            clip.SetData(samples, 0);
+            return clip;
+        }
+
+        public static float[] SynthesizeBedSamples(FieldAmbienceStyle ambienceStyle)
+        {
+            int count = Mathf.RoundToInt(SampleRate * 6f);
             var samples = new float[count];
             for (int i = 0; i < count; i++)
             {
-                float p = i / (float)count;
-                float value = BedWave(ambienceStyle, p);
-                samples[i] = Mathf.Clamp(value * 0.42f, -0.88f, 0.88f);
+                float phase = i / (float)count;
+                samples[i] = Mathf.Clamp(BedWave(ambienceStyle, phase) * 0.42f, -0.88f, 0.88f);
             }
-            var clip = AudioClip.Create($"GeneratedAmbience_{ambienceStyle}", count, 1, rate, false);
-            clip.SetData(samples, 0);
-            return clip;
+            return samples;
         }
 
         private static float BedWave(FieldAmbienceStyle ambienceStyle, float phase)
@@ -231,16 +235,23 @@ namespace ShadowTheater.Field
 
         private static AudioClip GenerateDetail(FieldAmbienceStyle ambienceStyle)
         {
-            const int rate = 22050;
+            float[] samples = SynthesizeDetailSamples(ambienceStyle);
+            var clip = AudioClip.Create($"GeneratedDetail_{ambienceStyle}", samples.Length, 1, SampleRate, false);
+            clip.SetData(samples, 0);
+            return clip;
+        }
+
+        public static float[] SynthesizeDetailSamples(FieldAmbienceStyle ambienceStyle)
+        {
             float duration = ambienceStyle == FieldAmbienceStyle.EclipseBoss ||
                              ambienceStyle == FieldAmbienceStyle.AshThrone ? 1.2f : 0.72f;
-            int count = Mathf.RoundToInt(rate * duration);
+            int count = Mathf.RoundToInt(SampleRate * duration);
             var samples = new float[count];
             float frequency = DetailFrequency(ambienceStyle);
             uint noise = unchecked((uint)ambienceStyle.GetHashCode() * 2246822519u + 3266489917u);
             for (int i = 0; i < count; i++)
             {
-                float t = i / (float)rate;
+                float t = i / (float)SampleRate;
                 float p = t / duration;
                 float envelope = Mathf.Sin(Mathf.PI * p) * Mathf.Exp(-p * 2.2f);
                 noise = noise * 1664525u + 1013904223u;
@@ -252,9 +263,7 @@ namespace ShadowTheater.Field
                     : tone * .82f + hiss * .06f;
                 samples[i] = Mathf.Clamp(mix * envelope, -.9f, .9f);
             }
-            var clip = AudioClip.Create($"GeneratedDetail_{ambienceStyle}", count, 1, rate, false);
-            clip.SetData(samples, 0);
-            return clip;
+            return samples;
         }
 
         private static float DetailFrequency(FieldAmbienceStyle ambienceStyle)

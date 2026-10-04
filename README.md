@@ -96,11 +96,12 @@ Unity 메뉴 **Tools → Shadow Theater → Preview Final Shadow Art**를 열면
 보랏빛 거울·푸른 심연 팔레트를 구분해 사용합니다. 렌더 파이프라인이 비어 있는 새
 프로젝트에서는 전용 URP 2D Renderer 자산을 자동 생성하며 기존 설정은 덮어쓰지 않습니다.
 
-각 지역의 지속 환경음과 간헐 효과음도 자동 생성됩니다. 극장은 낮은 무대 공명, 마을은 부드러운
-바람과 등불음, 초원은 밤바람과 높은 빛벌레 소리, 보스 무대는 월식 저음을 사용합니다. 제2막에는
-재바람, 성도 화로, 지하묘 공명, 왕좌 저음이 추가됩니다. 맵 이동과
-전투 진입 시 화면 페이드와 함께 소리도 자연스럽게 줄어들며, 실제 AudioClip을 지정하면 합성음을
-자동으로 대체합니다.
+전체 게임 생성 시 29개 지역 테마의 지속·간헐 환경음 58개와 8개 지형의 발걸음 32개가 WAV로
+자동 생성되어 각 필드에 연결됩니다. 극장은 낮은 무대 공명과 나무 발판, 초원은 밤바람과 풀밭,
+설원은 눈, 공방은 금속 발걸음을 사용합니다. 맵 이동과 전투 진입 시 화면 페이드와 함께 환경음도
+자연스럽게 줄어듭니다. 자산이 없으면 런타임 합성음으로 대체되며 완성 음원은 AudioClip 참조만
+교체하면 됩니다. 자세한 내용은 [`Docs/FIELD_AUDIO_PIPELINE.md`](Docs/FIELD_AUDIO_PIPELINE.md)를
+참고하세요.
 
 ## 대화 시스템 빠른 설치
 1. Unity 메뉴 **Tools → Shadow Theater → Generate Dialogue UI Prefab** 실행
@@ -160,8 +161,8 @@ Unity 메뉴 **Tools → Shadow Theater → Preview Final Shadow Art**를 열면
 `.corrupt_날짜` 파일로 격리합니다.
 
 Unity 메뉴 **Tools → Shadow Theater → Generate and Validate Full Game**은 전체 콘텐츠를 다시 만든 뒤
-180종 데이터, 40개 지역 연결, 40개 필드 구조, 포털 목적지, 인카운터 데이터, Missing Script와 Build
-Settings를 일괄 검사합니다. 자세한 출시 점검법은
+180종 데이터, 40개 지역 연결, 40개 필드 구조, 포털 목적지, 인카운터 데이터, 필드 환경음·발걸음,
+Missing Script와 Build Settings를 일괄 검사합니다. 자세한 출시 점검법은
 [`Docs/MOBILE_RELEASE_VALIDATION.md`](Docs/MOBILE_RELEASE_VALIDATION.md)를 참고하세요.
 
 ## 40개 지역 월드맵

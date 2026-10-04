@@ -10,7 +10,7 @@ Assets/Scripts/
   Field/   FieldGrid, PlayerController, EncounterSymbol, ScreenFader,
            VirtualDPadButton, VirtualActionButton, VirtualScriptBookButton, VirtualPartyButton,
            GameFlowController, MapLoader, MapPortal, FieldCameraFollow, FieldAtmosphereController,
-           FieldAmbientAudio
+           FieldAmbientAudio, FieldFootstepAudio
   Story/   DialogueData/Repository, StoryNpc, DialogueInteractable,
            QuestData/Repository/Manager, QuestAreaTrigger, BossEncounterTrigger,
            EndingData/Repository/Manager, EndingTrigger, RegionData/Repository/Progress
@@ -25,7 +25,8 @@ Assets/Scripts/
   Editor/  DialogueUIPrefabGenerator, QuestHudPrefabGenerator, FrontEndPrefabGenerator,
            ScriptBookPrefabGenerator, BattleUIPrefabGenerator, PartyStoragePrefabGenerator,
            WorldMapPrefabGenerator, CoreContentBatchGenerator, LegendaryGrowthBatchGenerator,
-           UltimateFxAssetGenerator, PlayablePrologueGenerator, GameRegressionValidator
+           UltimateFxAssetGenerator, FieldAudioAssetGenerator, PlayablePrologueGenerator,
+           GameRegressionValidator
 ```
 
 ## 프로젝트 설정
@@ -103,12 +104,12 @@ Point 필터의 선명한 가장자리를 유지한다. 렌더 파이프라인 �
 없을 때만 `ShadowTheaterURP.asset`과 `ShadowTheater2DRenderer.asset`을 만들어 Project/Quality
 설정에 연결한다. 이미 지정된 렌더 파이프라인은 보존한다.
 
-같은 `Environment`에는 `FieldAmbientAudio`가 포함된다. 지역별 6초 무봉제 지속음과 간헐 원샷을
-런타임에 생성하며 극장·마을·초원·월식 보스·재 황무지·불씨 성도·지하묘·재의 왕좌의 파형과 음역이
-다르다. `ambienceClip`과 `detailClip`을
-지정하면 완성 음원으로 자동 교체되고, `ambienceVolume`, `detailVolume`, `detailInterval`로 지역별
-밀도를 조절한다. `MapLoader`와 `GameFlowController`가 맵 이동·전투 진입 전에 환경음 페이드를
-시작하며 필드 복귀 시 자동으로 다시 페이드 인한다.
+같은 `Environment`에는 `FieldAmbientAudio`가 포함된다. 전체 생성 과정에서 29개 지역 테마의 6초
+지속음과 간헐 원샷 58개를 WAV로 만들고 씬에 직접 연결한다. 플레이어의 `FieldFootstepAudio`에는
+나무·돌·풀·재·눈·물·금속·공허 8개 지형별 4개 변형, 총 32개 발걸음이 연결된다. 자산이 누락되어도
+런타임 합성음이 폴백으로 작동한다. `MapLoader`와 `GameFlowController`가 맵 이동·전투 진입 전에
+환경음 페이드를 시작하며 필드 복귀 시 자동으로 다시 페이드 인한다. 생성·교체 방법은
+`Docs/FIELD_AUDIO_PIPELINE.md`를 참고한다.
 
 기본 진행 순서:
 1. 잔향 극장에서 아리아와 대화
@@ -346,7 +347,8 @@ JSON 값을 바꾼 뒤 각 데이터 생성 메뉴를 다시 실행하면 된다
 
 ## 다음 작업 후보
 1. 자동 생성 필살기 WAV를 전문 녹음·마스터링 음원으로 선택 교체
-2. 자동 생성 픽셀 타일·캐릭터를 최종 수작업 픽셀 아트와 녹음 환경음으로 교체
+2. 자동 생성 픽셀 타일·캐릭터를 최종 수작업 픽셀 아트로 교체
+3. 자동 생성 환경음·발걸음을 전문 녹음·마스터링 음원으로 선택 교체
 
 모바일 성능 프로필, v7 세이브 마이그레이션과 40개 필드 자동 회귀 검증은 구현 완료했다. 실제 출시 전
 기기별 발열·배터리·노치 영역 최종 확인은 `Docs/MOBILE_RELEASE_VALIDATION.md` 체크리스트를 따른다.
