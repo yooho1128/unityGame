@@ -28,6 +28,8 @@ namespace ShadowTheater.Data
         public bool usableInField;
         [Min(0)] public int buyPrice = 50;
         [Min(0)] public int sellPrice = 20;
+        [Tooltip("상점에 등장하는 최소 막. 1이면 처음부터 판매")]
+        [Range(1, 8)] public int shopUnlockAct = 1;
 
 #if UNITY_EDITOR
         private void OnValidate()
@@ -35,6 +37,7 @@ namespace ShadowTheater.Data
             if (string.IsNullOrEmpty(itemId)) itemId = name;
             buyPrice = Mathf.Max(0, buyPrice);
             sellPrice = Mathf.Clamp(sellPrice, 0, buyPrice);
+            shopUnlockAct = Mathf.Clamp(shopUnlockAct, 1, 8);
         }
 #endif
     }

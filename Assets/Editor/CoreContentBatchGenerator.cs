@@ -262,6 +262,7 @@ namespace ShadowTheater.EditorTools
                 item.usableInField = spec.usableInField;
                 item.buyPrice = Mathf.Max(0, spec.buyPrice);
                 item.sellPrice = Mathf.Clamp(spec.sellPrice, 0, item.buyPrice);
+                item.shopUnlockAct = Mathf.Clamp(spec.shopUnlockAct > 0 ? spec.shopUnlockAct : 1, 1, 8);
                 EditorUtility.SetDirty(item);
                 result.Add(item);
             }
@@ -546,7 +547,7 @@ namespace ShadowTheater.EditorTools
         {
             public string itemId, displayName, description, effectType;
             public float value;
-            public int buyPrice, sellPrice;
+            public int buyPrice, sellPrice, shopUnlockAct = 1;
             public bool usableInBattle, usableInField;
         }
         [Serializable] private class ShadowSpec

@@ -239,6 +239,8 @@ namespace ShadowTheater.EditorTools
         {
             var database = AssetDatabase.LoadAssetAtPath<ShadowDatabase>(DatabasePath);
             if (database == null) { result.errors.Add("ShadowDatabase.asset 누락"); return; }
+            if (database.items.Count(x => x != null) != 8)
+                result.errors.Add($"도구 데이터 수 불일치: {database.items.Count(x => x != null)}/8");
             result.shadows = database.shadows.Count(x => x != null);
             if (result.shadows != 180) result.errors.Add($"그림자 데이터 수 불일치: {result.shadows}/180");
             var ids = database.shadows.Where(x => x != null).Select(x => x.shadowId).ToList();
@@ -260,6 +262,8 @@ namespace ShadowTheater.EditorTools
                 if (item.buyPrice <= 0) result.errors.Add($"{item.itemId}: 상점 구매 가격 누락");
                 if (item.sellPrice < 0 || item.sellPrice > item.buyPrice)
                     result.errors.Add($"{item.itemId}: 판매 가격 범위 오류 ({item.sellPrice}/{item.buyPrice})");
+                if (item.shopUnlockAct < 1 || item.shopUnlockAct > 8)
+                    result.errors.Add($"{item.itemId}: 상점 해금 막 오류 ({item.shopUnlockAct})");
                 if (item.usableInField && item.effectType != ItemEffectType.HealFlat && item.effectType != ItemEffectType.HealRatio)
                     result.warnings.Add($"{item.itemId}: 필드 사용 효과가 아직 지원되지 않음 ({item.effectType})");
             }

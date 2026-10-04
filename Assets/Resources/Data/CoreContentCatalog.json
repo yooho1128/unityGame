@@ -603,7 +603,8 @@
       "usableInBattle": true,
       "usableInField": true,
       "buyPrice": 60,
-      "sellPrice": 30
+      "sellPrice": 30,
+      "shopUnlockAct": 1
     },
     {
       "itemId": "tonic",
@@ -614,7 +615,8 @@
       "usableInBattle": true,
       "usableInField": false,
       "buyPrice": 80,
-      "sellPrice": 40
+      "sellPrice": 40,
+      "shopUnlockAct": 1
     },
     {
       "itemId": "ink",
@@ -625,7 +627,8 @@
       "usableInBattle": true,
       "usableInField": false,
       "buyPrice": 140,
-      "sellPrice": 70
+      "sellPrice": 70,
+      "shopUnlockAct": 2
     },
     {
       "itemId": "salve",
@@ -636,7 +639,56 @@
       "usableInBattle": true,
       "usableInField": false,
       "buyPrice": 50,
-      "sellPrice": 25
+      "sellPrice": 25,
+      "shopUnlockAct": 1
+    },
+    {
+      "itemId": "minor_potion",
+      "displayName": "작은 회복 시약",
+      "description": "그림자 하나의 HP를 50 회복한다.",
+      "effectType": "HealFlat",
+      "value": 50,
+      "usableInBattle": true,
+      "usableInField": true,
+      "buyPrice": 35,
+      "sellPrice": 17,
+      "shopUnlockAct": 1
+    },
+    {
+      "itemId": "greater_potion",
+      "displayName": "농축 회복 시약",
+      "description": "그림자 하나의 최대 HP 85%를 회복한다.",
+      "effectType": "HealRatio",
+      "value": 0.85,
+      "usableInBattle": true,
+      "usableInField": true,
+      "buyPrice": 180,
+      "sellPrice": 90,
+      "shopUnlockAct": 3
+    },
+    {
+      "itemId": "focus_elixir",
+      "displayName": "무대 열기 영약",
+      "description": "공연 열기 FP를 4 회복한다.",
+      "effectType": "GainFP",
+      "value": 4,
+      "usableInBattle": true,
+      "usableInField": false,
+      "buyPrice": 220,
+      "sellPrice": 110,
+      "shopUnlockAct": 4
+    },
+    {
+      "itemId": "silver_ink",
+      "displayName": "진명의 은빛 잉크",
+      "description": "다음 각본 기록 확률을 2.5배 높인다.",
+      "effectType": "CaptureBoost",
+      "value": 2.5,
+      "usableInBattle": true,
+      "usableInField": false,
+      "buyPrice": 360,
+      "sellPrice": 180,
+      "shopUnlockAct": 5
     }
   ],
   "shadows": [

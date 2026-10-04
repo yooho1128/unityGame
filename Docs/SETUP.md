@@ -38,7 +38,7 @@ Assets/Scripts/
 ## 초반 데이터 생성
 1. 메뉴 `Tools > Shadow Theater > Generate Core Content Data` 실행
 2. `Assets/Data/Generated/Skills`의 핵심 스킬 142개 확인
-3. `Assets/Data/Generated/Items`의 도구 4개 확인
+3. `Assets/Data/Generated/Items`의 도구 8개 확인
 4. `Assets/Data/Generated/Shadows`의 핵심·제2~8막 및 지역 확장 그림자 177종 확인
 5. `Tools > Shadow Theater > Generate Legendary Growth Batch` 실행 후 전설 성장 그림자 3종을 더해 총 180종 확인
 6. `Assets/Resources/ShadowDatabase.asset` 자동 등록 결과 확인

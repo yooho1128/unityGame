@@ -135,7 +135,7 @@ namespace ShadowTheater.UI
             if (clearFeedback && feedbackText != null) feedbackText.text = string.Empty;
             foreach (ItemData item in ShadowDatabase.Instance.items)
             {
-                if (item == null) continue;
+                if (item == null || item.shopUnlockAct > Mathf.Max(1, region?.act ?? 1)) continue;
                 ShopItemEntryView view = Instantiate(itemTemplate, contentRoot);
                 view.Bind(item, SaveManager.GetItemCount(item.itemId), SaveManager.Current.gold, Buy, Sell);
                 _spawned.Add(view.gameObject);
