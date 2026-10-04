@@ -79,6 +79,8 @@ namespace ShadowTheater.UI
             var save = SaveManager.Current; if (save == null) return;
             foreach (var instance in save.party) Spawn(partyTemplate, partyContent, instance);
             foreach (var instance in save.storage) Spawn(storageTemplate, storageContent, instance);
+            RebuildLayout(partyContent);
+            RebuildLayout(storageContent);
             if (partyCountText != null) partyCountText.text = L10n.Format("party.count", "파티 {0} / {1}", save.party.Count, SaveData.MaxPartySize);
             if (storageCountText != null) storageCountText.text = L10n.Format("party.storage_count", "각본 서고 {0}", save.storage.Count);
             if (_selected != null)
@@ -91,7 +93,18 @@ namespace ShadowTheater.UI
 
         private void Spawn(PartyStorageEntryView template, Transform parent, ShadowInstance instance)
         {
-            var view = Instantiate(template, parent); view.Bind(instance, Select); _spawned.Add(view.gameObject);
+            var view = Instantiate(template, parent);
+            view.gameObject.SetActive(true);
+            view.Bind(instance, Select);
+            _spawned.Add(view.gameObject);
+        }
+
+        private static void RebuildLayout(Transform parent)
+        {
+            if (!(parent is RectTransform content)) return;
+            Canvas.ForceUpdateCanvases();
+            LayoutRebuilder.ForceRebuildLayoutImmediate(content);
+            content.anchoredPosition = new Vector2(content.anchoredPosition.x, 0f);
         }
 
         private void Select(ShadowInstance instance)

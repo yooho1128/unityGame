@@ -69,6 +69,7 @@ namespace ShadowTheater.UI
                 AddOption(L10n.Text(skill.displayName), L10n.Format("battle.skill_info", "FP {0} · 위력 {1:0.0}", skill.fpCost, skill.damageMultiplier),
                     manager.CanUseSkill(skill), () => Submit(BattleAction.UseSkill(BattleSide.Player, captured)));
             }
+            RebuildOptionsLayout();
         }
 
         public void OpenSwitches()
@@ -76,26 +77,39 @@ namespace ShadowTheater.UI
             OpenOptions(manager.State == BattleState.ForcedSwitch
                 ? L10n.Get("battle.choose_next", "다음 그림자를 선택하세요")
                 : L10n.Get("battle.choose_switch", "교체할 그림자를 선택하세요"));
+            int candidates = 0;
             for (int i = 0; i < manager.PlayerUnits.Count; i++)
             {
+                if (i == manager.PlayerActiveIndex) continue;
                 int index = i;
                 var unit = manager.PlayerUnits[i];
-                AddOption(L10n.Text(unit.Name), $"Lv.{unit.Level}  HP {unit.Hp}/{unit.MaxHp}", manager.CanSwitchTo(i),
+                bool canSwitch = manager.CanSwitchTo(i);
+                if (canSwitch) candidates++;
+                AddOption(L10n.Text(unit.Name), $"Lv.{unit.Level}  HP {unit.Hp}/{unit.MaxHp}", canSwitch,
                     () => Submit(BattleAction.Switch(BattleSide.Player, index)));
             }
+            if (manager.PlayerUnits.Count <= 1 || candidates == 0)
+                AddOption(L10n.Get("battle.no_switch_candidate", "교체 가능한 그림자가 없습니다"),
+                    L10n.Get("battle.no_switch_hint", "필드의 파티 메뉴에서 포획한 그림자를 확인하세요"), false, null);
+            RebuildOptionsLayout();
         }
 
         public void OpenItems()
         {
             OpenOptions(L10n.Get("battle.choose_item", "사용할 도구를 선택하세요"));
-            if (manager.Context?.inventory == null) return;
-            foreach (var pair in manager.Context.inventory)
+            if (manager.Context?.inventory != null)
             {
-                ItemData item = pair.Key;
-                int count = pair.Value;
-                AddOption(L10n.Text(item.displayName), L10n.Format("battle.item_info", "보유 {0} · {1}", count, L10n.Text(item.description)), count > 0 && item.usableInBattle,
-                    () => Submit(BattleAction.UseItem(BattleSide.Player, item)));
+                foreach (var pair in manager.Context.inventory)
+                {
+                    ItemData item = pair.Key;
+                    int count = pair.Value;
+                    AddOption(L10n.Text(item.displayName), L10n.Format("battle.item_info", "보유 {0} · {1}", count, L10n.Text(item.description)), count > 0 && item.usableInBattle,
+                        () => Submit(BattleAction.UseItem(BattleSide.Player, item)));
+                }
             }
+            if (_options.Count == 0)
+                AddOption(L10n.Get("battle.no_items", "사용할 수 있는 도구가 없습니다"), string.Empty, false, null);
+            RebuildOptionsLayout();
         }
 
         public void BackToActions()
@@ -179,8 +193,18 @@ namespace ShadowTheater.UI
         private void AddOption(string title, string subtitle, bool enabled, System.Action action)
         {
             var option = Instantiate(optionTemplate, optionContent);
+            // 비활성 템플릿을 복제하므로 Bind 전에도 명시적으로 켠다.
+            option.gameObject.SetActive(true);
             option.Bind(title, subtitle, enabled, action);
             _options.Add(option.gameObject);
+        }
+
+        private void RebuildOptionsLayout()
+        {
+            if (!(optionContent is RectTransform content)) return;
+            Canvas.ForceUpdateCanvases();
+            LayoutRebuilder.ForceRebuildLayoutImmediate(content);
+            content.anchoredPosition = new Vector2(content.anchoredPosition.x, 0f);
         }
 
         private void ClearOptions()
