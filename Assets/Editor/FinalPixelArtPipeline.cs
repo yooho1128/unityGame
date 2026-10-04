@@ -45,7 +45,7 @@ namespace ShadowTheater.EditorTools
                     if (texture.width != texture.height || texture.width < 192)
                         invalid.Add($"초상은 192px 이상 정사각형이어야 함: {path} ({texture.width}x{texture.height})");
                 });
-            ImportFolder(FieldFolder, 24f, FilterMode.Point, new Vector2(.5f, 0f),
+            ImportFolder(FieldFolder, 32f, FilterMode.Point, new Vector2(.5f, 0f),
                 (path, texture) =>
                 {
                     if (texture.width != 24 || texture.height != 32)
@@ -54,7 +54,7 @@ namespace ShadowTheater.EditorTools
                     if (!stem.EndsWith("_01", StringComparison.Ordinal) && !stem.EndsWith("_02", StringComparison.Ordinal))
                         invalid.Add("그림자 필드 파일은 _01 또는 _02로 끝나야 함: " + path);
                 });
-            ImportFolder(PlayerFolder, 24f, FilterMode.Point, new Vector2(.5f, 0f),
+            ImportFolder(PlayerFolder, 32f, FilterMode.Point, new Vector2(.5f, 0f),
                 (path, texture) =>
                 {
                     if (texture.width != 24 || texture.height != 32)

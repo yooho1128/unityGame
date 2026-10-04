@@ -845,7 +845,7 @@ namespace ShadowTheater.EditorTools
                 for (int i = 0; i < result.Length; i++)
                 {
                     string path = $"{FinalPlayerFolder}/director_{direction}_{i + 1:00}.png";
-                    result[i] = LoadFinalPixelSprite(path, 24f, new Vector2(.5f, 0f));
+                    result[i] = LoadFinalPixelSprite(path, 32f, new Vector2(.5f, 0f));
                     if (result[i] == null) return null;
                 }
                 return result;
@@ -2013,7 +2013,7 @@ namespace ShadowTheater.EditorTools
             var importer = AssetImporter.GetAtPath(path) as TextureImporter;
             importer.textureType = TextureImporterType.Sprite;
             importer.spriteImportMode = SpriteImportMode.Single;
-            importer.spritePixelsPerUnit = 24f;
+            importer.spritePixelsPerUnit = 32f;
             var settings = new TextureImporterSettings();
             importer.ReadTextureSettings(settings);
             settings.spriteAlignment = (int)SpriteAlignment.Custom;
@@ -2054,7 +2054,7 @@ namespace ShadowTheater.EditorTools
             FillPixelRect(texture, 9, 14, 2, 2, eye);
             FillPixelRect(texture, 13, 14, 2, 2, eye);
             FillPixelRect(texture, 10, 8, 4, 2, light);
-            _pixelEncounterSprite = SavePixelSprite(texture, path, 24f);
+            _pixelEncounterSprite = SavePixelSprite(texture, path, 32f);
             return _pixelEncounterSprite;
         }
 
@@ -2079,7 +2079,7 @@ namespace ShadowTheater.EditorTools
             FillPixelRect(texture, 17, 8, 4, 7, outline);
             FillPixelRect(texture, 18, 9, 2, 5, amber);
             FillPixelRect(texture, 18, 11, 2, 2, flame);
-            _pixelLanternKeeperSprite = SavePixelSprite(texture, path, 24f);
+            _pixelLanternKeeperSprite = SavePixelSprite(texture, path, 32f);
             return _pixelLanternKeeperSprite;
         }
 
@@ -2103,7 +2103,7 @@ namespace ShadowTheater.EditorTools
                 if (importer == null) return null;
                 importer.textureType = TextureImporterType.Sprite;
                 importer.spriteImportMode = SpriteImportMode.Single;
-                importer.spritePixelsPerUnit = 24f;
+                importer.spritePixelsPerUnit = 32f;
                 importer.alphaIsTransparency = true;
                 importer.mipmapEnabled = false;
                 importer.filterMode = FilterMode.Point;
@@ -2192,7 +2192,7 @@ namespace ShadowTheater.EditorTools
                 FillPixelRect(texture, 14, 29, 2, 2, light);
             }
 
-            Sprite sprite = SavePixelSprite(texture, path, 24f);
+            Sprite sprite = SavePixelSprite(texture, path, 32f);
             PixelFieldActors[cacheKey] = sprite;
             return sprite;
         }

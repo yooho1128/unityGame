@@ -66,8 +66,14 @@ namespace ShadowTheater.EditorTools
 
             int frame = Mathf.FloorToInt((float)EditorApplication.timeSinceStartup * 5f) & 1;
             Texture2D field = AssetDatabase.LoadAssetAtPath<Texture2D>($"Assets/Art/Final/Field/{spec.id}_{frame + 1:00}.png");
-            Rect fieldRect = GUILayoutUtility.GetRect(120f, 150f, GUILayout.ExpandWidth(true));
-            if (field != null) EditorGUI.DrawPreviewTexture(fieldRect, field, null, ScaleMode.ScaleToFit);
+            Rect fieldArea = GUILayoutUtility.GetRect(144f, 192f, GUILayout.ExpandWidth(true));
+            if (field != null)
+            {
+                // 24x32를 정확히 6배 확대해 에디터 미리보기의 bilinear 흐림을 방지한다.
+                field.filterMode = FilterMode.Point;
+                var pixelRect = new Rect(fieldArea.center.x - 72f, fieldArea.y, 144f, 192f);
+                EditorGUI.DrawPreviewTexture(pixelRect, field, null, ScaleMode.StretchToFill);
+            }
 
             if (GUILayout.Button("생성된 ShadowData 선택"))
             {

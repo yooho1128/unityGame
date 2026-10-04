@@ -169,9 +169,33 @@ namespace ShadowTheater.EditorTools
             if (report.shadowCount != 180) result.errors.Add($"픽셀 아트 대상 그림자 수 불일치: {report.shadowCount}/180");
             if (report.tileCount != 89) result.errors.Add($"최종 타일 대상 수 불일치: {report.tileCount}/89");
             foreach (string issue in report.invalid ?? new List<string>()) result.errors.Add("최종 아트 규격: " + issue);
+            ValidatePixelArtImporters("Assets/Art/Final/Player", result);
+            ValidatePixelArtImporters("Assets/Art/Final/Field", result);
             result.warnings.Add($"최종 아트 교체율 — 초상 {report.portraitsReady}/{report.shadowCount}, " +
                                 $"필드 그림자 {report.fieldActorsReady}/{report.shadowCount}, " +
                                 $"플레이어 {report.playerFramesReady}/6, 타일 {report.tilesReady}/{report.tileCount}");
+        }
+
+        private static void ValidatePixelArtImporters(string folder, ValidationReport result)
+        {
+            if (!Directory.Exists(folder)) return;
+            foreach (string file in Directory.GetFiles(folder, "*.png", SearchOption.TopDirectoryOnly))
+            {
+                string path = file.Replace('\\', '/');
+                var importer = AssetImporter.GetAtPath(path) as TextureImporter;
+                if (importer == null)
+                {
+                    result.errors.Add("픽셀 아트 임포터 누락: " + path);
+                    continue;
+                }
+
+                if (!Mathf.Approximately(importer.spritePixelsPerUnit, 32f))
+                    result.errors.Add($"픽셀 아트 PPU 불일치: {path} ({importer.spritePixelsPerUnit}/32)");
+                if (importer.filterMode != FilterMode.Point)
+                    result.errors.Add("픽셀 아트 Point 필터 누락: " + path);
+                if (importer.mipmapEnabled)
+                    result.errors.Add("픽셀 아트 밉맵 활성화: " + path);
+            }
         }
 
         private static void ValidateMusic(ValidationReport result)
