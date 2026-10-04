@@ -41,3 +41,15 @@
 
 최종 아트가 없는 대상은 오류가 아니라 자동 생성 아트를 사용한다. 이미 존재하는 PNG의 잘못된 크기,
 잘못된 접미사, 존재하지 않는 `shadowId`는 오류이며 전체 회귀 검증에서도 실패로 처리된다.
+
+## 저장소에 포함된 핵심 완성 아트
+
+- 극단주 주인공: 아래·위·옆 방향 각 2프레임, 총 6장
+- 스타터: `knight`, `mage`, `beast`
+- 프롤로그 NPC·야생 그림자: `crow`, `puppet`, `mask`
+- 제2막 초반 배역: `ash_hound`, `banner_spearman`, `soot_archer`, `furnace_keeper`
+- 기존 최종막 배역: `inverted_guide`, `silent_applause`, `outside_script_shadow`
+
+핵심 10종은 512×512 전투·도감 초상과 24×32 필드 보행 2프레임이 모두 포함된다. 원본 생성 시트는
+`Assets/Art/Source`에 보존하며 게임은 `Assets/Art/Final`의 개별 PNG만 참조한다. 전체 검증은 주인공
+6프레임과 핵심 10종 파일이 하나라도 빠지면 실패한다.

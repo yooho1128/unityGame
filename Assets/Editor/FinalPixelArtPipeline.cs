@@ -27,6 +27,13 @@ namespace ShadowTheater.EditorTools
             "BlackArchive", "MemorySea", "MoonPalace", "FinalTheater", "CosmicStage"
         };
 
+        // 초반 플레이에서 즉시 보이는 핵심 배역. 이 파일들은 저장소에 완성 아트로 포함한다.
+        private static readonly string[] BundledCoreCast =
+        {
+            "knight", "mage", "beast", "crow", "puppet", "mask",
+            "ash_hound", "banner_spearman", "soot_archer", "furnace_keeper"
+        };
+
         [MenuItem("Tools/Shadow Theater/Import and Validate Final Pixel Art")]
         public static void ImportAndValidate()
         {
@@ -118,6 +125,16 @@ namespace ShadowTheater.EditorTools
                 if (!playerFiles.Contains(Path.GetFileNameWithoutExtension(path)))
                     invalid.Add("알 수 없는 주인공 프레임 파일명: " + path.Replace('\\', '/'));
             int player = playerNames.Count(name => File.Exists($"{PlayerFolder}/director_{name}.png"));
+            foreach (string name in playerNames)
+                if (!File.Exists($"{PlayerFolder}/director_{name}.png"))
+                    invalid.Add("번들 주인공 프레임 누락: Player/director_" + name + ".png");
+            foreach (string id in BundledCoreCast)
+            {
+                if (!File.Exists($"{PortraitFolder}/{id}.png"))
+                    invalid.Add("번들 핵심 초상 누락: Portraits/" + id + ".png");
+                if (!File.Exists($"{FieldFolder}/{id}_01.png") || !File.Exists($"{FieldFolder}/{id}_02.png"))
+                    invalid.Add("번들 핵심 필드 프레임 누락: Field/" + id + "_01,_02.png");
+            }
             string[] tiles = ExpectedTiles().ToArray();
             var tileFiles = new HashSet<string>(tiles, StringComparer.Ordinal);
             foreach (string path in Directory.GetFiles(TileFolder, "*.png"))

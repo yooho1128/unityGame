@@ -5,11 +5,21 @@ using UnityEngine;
 
 namespace ShadowTheater.EditorTools
 {
-    /// <summary>최종막 완성 초상과 필드 2프레임을 실제 진행 없이 확인한다.</summary>
+    /// <summary>저장소에 포함된 완성 초상과 필드 2프레임을 실제 진행 없이 확인한다.</summary>
     public class FinalShadowArtPreviewWindow : EditorWindow
     {
         private static readonly PreviewSpec[] Specs =
         {
+            new PreviewSpec("knight", "붉은 불꽃 기사", "스타터 · 검/망토 보행"),
+            new PreviewSpec("mage", "푸른 서리 마도사", "스타터·아리아 · 마도서 부유"),
+            new PreviewSpec("beast", "밤의 방랑 야수", "스타터 · 사족 보행"),
+            new PreviewSpec("crow", "등불지기", "NPC · 깃털/등불 흔들림"),
+            new PreviewSpec("puppet", "마리오네트 잔영", "프롤로그 · 줄/관절 보행"),
+            new PreviewSpec("mask", "깨진 가면", "프롤로그 · 쌍검/천 흔들림"),
+            new PreviewSpec("ash_hound", "불씨 사냥개", "제2막 · 사족 보행"),
+            new PreviewSpec("banner_spearman", "깃발 창병", "제2막 · 창/깃발 흔들림"),
+            new PreviewSpec("soot_archer", "그을음 궁수", "제2막 · 활/재 흔들림"),
+            new PreviewSpec("furnace_keeper", "용광로 문지기", "제2막 · 중장 보행"),
             new PreviewSpec("inverted_guide", "거꾸로 안내원", "2보 보행 · 등불 흔들림"),
             new PreviewSpec("silent_applause", "침묵의 박수", "부유 · 손 펼침/합장"),
             new PreviewSpec("outside_script_shadow", "각본 밖의 그림자", "장막 팽창 · 위상 이동")
@@ -31,12 +41,15 @@ namespace ShadowTheater.EditorTools
         private void OnGUI()
         {
             EditorGUILayout.Space(10f);
-            EditorGUILayout.LabelField("최종막 완성 그림자", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("적용된 완성 그림자", EditorStyles.boldLabel);
             EditorGUILayout.HelpBox("큰 이미지는 전투·각본집 초상, 아래 이미지는 게임에서 반복되는 필드 2프레임입니다.", MessageType.Info);
             _scroll = EditorGUILayout.BeginScrollView(_scroll);
-            EditorGUILayout.BeginHorizontal();
-            foreach (PreviewSpec spec in Specs) DrawSpec(spec);
-            EditorGUILayout.EndHorizontal();
+            for (int i = 0; i < Specs.Length; i += 3)
+            {
+                EditorGUILayout.BeginHorizontal();
+                for (int j = i; j < Mathf.Min(i + 3, Specs.Length); j++) DrawSpec(Specs[j]);
+                EditorGUILayout.EndHorizontal();
+            }
             EditorGUILayout.EndScrollView();
         }
 

@@ -98,6 +98,10 @@ Unity 메뉴 **Tools → Shadow Theater → Preview Final Shadow Art**를 열면
 현재 교체율과 잘못된 크기·파일명은 `FinalArtCoverage.json`과 전체 회귀 검증에서 확인할 수 있습니다.
 자세한 규칙은 [`Docs/FINAL_PIXEL_ART_PIPELINE.md`](Docs/FINAL_PIXEL_ART_PIPELINE.md)를 참고하세요.
 
+현재 저장소에는 극단주 방향별 보행 6프레임과 스타터 3종, 아리아/등불지기 및 프롤로그 야생 그림자,
+제2막 초반 그림자까지 핵심 10종의 컬러 초상·필드 프레임이 실제 PNG로 포함되어 있습니다. 전체 생성 시
+임시 도형보다 이 파일을 우선 연결하며, 핵심 파일이 빠지면 회귀 검증이 실패하도록 보호합니다.
+
 제5막에는 신규 그림자 10종과 스킬 20개, 메인 퀘스트 5개, 끊어진 공방 선택 분기, 지역 보스
 `줄 위의 프리마돈나`와 전설 보스 `마지막 인형사`가 포함됩니다. 전체 구성은
 [`Docs/ACT5_PUPPET_CITY.md`](Docs/ACT5_PUPPET_CITY.md)를 참고하세요.
