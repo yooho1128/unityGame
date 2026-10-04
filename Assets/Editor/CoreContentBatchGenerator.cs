@@ -175,6 +175,35 @@ namespace ShadowTheater.EditorTools
                 error = "중복된 shadowId가 있습니다.";
                 return false;
             }
+            if (catalog.items.Length != 8)
+            {
+                error = $"도구 수가 올바르지 않습니다: {catalog.items.Length}/8";
+                return false;
+            }
+            var itemIds = new HashSet<string>(catalog.items.Select(x => x.itemId));
+            if (itemIds.Count != catalog.items.Length || catalog.items.Any(x => string.IsNullOrEmpty(x.itemId)))
+            {
+                error = "비어 있거나 중복된 itemId가 있습니다.";
+                return false;
+            }
+            foreach (var item in catalog.items)
+            {
+                if (!Enum.TryParse(item.effectType, true, out ItemEffectType _))
+                {
+                    error = $"{item.itemId}의 효과 타입이 올바르지 않습니다: {item.effectType}";
+                    return false;
+                }
+                if (item.buyPrice <= 0 || item.sellPrice < 0 || item.sellPrice > item.buyPrice)
+                {
+                    error = $"{item.itemId}의 구매/판매 가격이 올바르지 않습니다.";
+                    return false;
+                }
+                if (item.shopUnlockAct < 1 || item.shopUnlockAct > 8)
+                {
+                    error = $"{item.itemId}의 상점 해금 막이 올바르지 않습니다: {item.shopUnlockAct}";
+                    return false;
+                }
+            }
             foreach (var shadow in catalog.shadows)
             {
                 var references = new List<string> { shadow.basicAttack };
