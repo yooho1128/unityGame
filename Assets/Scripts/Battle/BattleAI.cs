@@ -5,11 +5,14 @@ using UnityEngine;
 namespace ShadowTheater.Battle
 {
     /// <summary>
-    /// 적 AI + 플레이어 자동 전투(Auto)에 공용으로 쓰는 단순 행동 선택기.
-    /// 공격/스킬만 선택한다 (교체/도구는 추후 확장).
+    /// 적 AI + 플레이어 자동 전투(Auto)에 공용으로 쓰는 행동 선택기.
+    /// 공격·회복·상태 이상뿐 아니라 위험 HP와 속성 상성을 보고 교체 후보도 고른다.
     /// </summary>
     public static class BattleAI
     {
+        private const float EmergencyHp = .28f;
+        private const float SafeBenchHp = .48f;
+
         public static BattleAction Choose(BattleUnit self, BattleUnit opponent, int currentFp)
         {
             var basic = self.BasicAttack;
@@ -31,6 +34,52 @@ namespace ShadowTheater.Battle
                 return BattleAction.Attack(self.Side, basic);
 
             return BattleAction.UseSkill(self.Side, best.skill);
+        }
+
+        /// <summary>
+        /// 현재 유닛보다 확실히 안전한 후보만 반환한다. -1이면 교체하지 않는다.
+        /// 교체 쿨다운은 BattleManager가 관리한다.
+        /// </summary>
+        public static int ChooseSwitchIndex(IReadOnlyList<BattleUnit> party, int activeIndex,
+                                            BattleUnit opponent)
+        {
+            if (party == null || opponent == null || activeIndex < 0 || activeIndex >= party.Count || party.Count < 2)
+                return -1;
+
+            BattleUnit current = party[activeIndex];
+            float currentMatchup = Matchup(current, opponent);
+            int bestIndex = -1;
+            float bestScore = float.NegativeInfinity;
+
+            for (int i = 0; i < party.Count; i++)
+            {
+                BattleUnit candidate = party[i];
+                if (i == activeIndex || candidate == null || candidate.IsFainted || candidate.HpRatio < .2f) continue;
+
+                float matchup = Matchup(candidate, opponent);
+                float score = matchup * 2f + candidate.HpRatio;
+                if (score <= bestScore) continue;
+                bestScore = score;
+                bestIndex = i;
+            }
+
+            if (bestIndex < 0) return -1;
+            BattleUnit best = party[bestIndex];
+            float bestMatchup = Matchup(best, opponent);
+
+            bool emergency = current.HpRatio <= EmergencyHp && best.HpRatio >= SafeBenchHp &&
+                             best.HpRatio >= current.HpRatio + .25f && bestMatchup >= currentMatchup - .25f;
+            bool counterPick = currentMatchup < 0f && best.HpRatio >= .35f &&
+                               bestMatchup >= currentMatchup + .75f;
+            return emergency || counterPick ? bestIndex : -1;
+        }
+
+        /// <summary>양수면 유리, 음수면 불리. 공격 상성과 받는 상성을 함께 평가한다.</summary>
+        private static float Matchup(BattleUnit self, BattleUnit opponent)
+        {
+            float outgoing = ElementChart.GetMultiplier(self.Data.element, opponent.Data.element);
+            float incoming = ElementChart.GetMultiplier(opponent.Data.element, self.Data.element);
+            return outgoing - incoming;
         }
 
         private static float Score(BattleUnit self, BattleUnit opponent, SkillData s)

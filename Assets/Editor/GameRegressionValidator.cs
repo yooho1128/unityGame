@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using ShadowTheater.Battle;
 using ShadowTheater.Data;
 using ShadowTheater.Field;
 using ShadowTheater.Save;
@@ -54,6 +55,7 @@ namespace ShadowTheater.EditorTools
         {
             var result = new ValidationReport();
             ValidateMigration(result);
+            ValidateBattleAi(result);
             if (!File.Exists(RegionPath))
             {
                 result.errors.Add("RegionCatalog.json 누락");
@@ -91,6 +93,53 @@ namespace ShadowTheater.EditorTools
                 old.party.Any(x => x.level < 1 || x.exp < 0) ||
                 old.party.Concat(old.storage).Select(x => x.instanceId).Distinct().Count() != 8)
                 result.errors.Add("v1 → 현재 세이브 마이그레이션 회귀 실패");
+        }
+
+        private static void ValidateBattleAi(ValidationReport result)
+        {
+            ShadowData flame = CreateAiTestShadow("ai_flame", ShadowElement.Flame);
+            ShadowData frost = CreateAiTestShadow("ai_frost", ShadowElement.Frost);
+            ShadowData shade = CreateAiTestShadow("ai_shade", ShadowElement.Shade);
+            ShadowData neutral = CreateAiTestShadow("ai_neutral", ShadowElement.None);
+            try
+            {
+                var flameUnit = new BattleUnit(new ShadowInstance(flame, 5), BattleSide.Enemy);
+                var frostUnit = new BattleUnit(new ShadowInstance(frost, 5), BattleSide.Enemy);
+                var shadeOpponent = new BattleUnit(new ShadowInstance(shade, 5), BattleSide.Player);
+                var elementalParty = new List<BattleUnit> { flameUnit, frostUnit };
+                if (BattleAI.ChooseSwitchIndex(elementalParty, 0, shadeOpponent) != 1)
+                    result.errors.Add("전투 AI 불리 상성 교체 회귀 실패");
+                if (BattleAI.ChooseSwitchIndex(elementalParty, 1, shadeOpponent) != -1)
+                    result.errors.Add("전투 AI 유리 상성 유지 회귀 실패");
+
+                var wounded = new ShadowInstance(neutral, 5) { currentHp = 1 };
+                var healthy = new ShadowInstance(neutral, 5);
+                var neutralOpponent = new BattleUnit(new ShadowInstance(neutral, 5), BattleSide.Player);
+                var emergencyParty = new List<BattleUnit>
+                {
+                    new BattleUnit(wounded, BattleSide.Enemy),
+                    new BattleUnit(healthy, BattleSide.Enemy)
+                };
+                if (BattleAI.ChooseSwitchIndex(emergencyParty, 0, neutralOpponent) != 1)
+                    result.errors.Add("전투 AI 위험 HP 교체 회귀 실패");
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(flame);
+                UnityEngine.Object.DestroyImmediate(frost);
+                UnityEngine.Object.DestroyImmediate(shade);
+                UnityEngine.Object.DestroyImmediate(neutral);
+            }
+        }
+
+        private static ShadowData CreateAiTestShadow(string id, ShadowElement element)
+        {
+            var data = ScriptableObject.CreateInstance<ShadowData>();
+            data.shadowId = id;
+            data.displayName = id;
+            data.element = element;
+            data.baseHp = 100;
+            return data;
         }
 
         private static void ValidateRegionGraph(List<RegionData> regions, ValidationReport result)

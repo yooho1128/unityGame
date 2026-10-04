@@ -53,6 +53,7 @@ namespace ShadowTheater.Battle
         private readonly List<BattleUnit> _enemyUnits = new List<BattleUnit>();
         private int _playerIdx, _enemyIdx;
         private readonly int[] _fp = new int[2];
+        private readonly int[] _lastVoluntarySwitchTurn = { -99, -99 };
 
         private BattleAction _pendingAction;
         private int _pendingForcedSwitch = -1;
@@ -117,6 +118,7 @@ namespace ShadowTheater.Battle
             }
 
             _fp[0] = _fp[1] = startFp;
+            _lastVoluntarySwitchTurn[0] = _lastVoluntarySwitchTurn[1] = -99;
             Turn = 0;
             IsAuto = context.autoBattle;
             _captureBonus = 1f;
@@ -196,11 +198,11 @@ namespace ShadowTheater.Battle
                 SetState(BattleState.WaitingForInput);
                 yield return new WaitUntil(() => _pendingAction != null || IsAuto);
                 var playerAction = _pendingAction
-                    ?? BattleAI.Choose(PlayerActive, EnemyActive, GetFp(BattleSide.Player));
+                    ?? ChooseAiAction(BattleSide.Player, true);
                 playerAction.actor = PlayerActive;
 
                 // 2) 적 선택
-                var enemyAction = BattleAI.Choose(EnemyActive, PlayerActive, GetFp(BattleSide.Enemy));
+                var enemyAction = ChooseAiAction(BattleSide.Enemy, Context.mode != BattleMode.Wild);
                 enemyAction.actor = EnemyActive;
 
                 // 3) 처리
@@ -313,6 +315,7 @@ namespace ShadowTheater.Battle
             var prev = Active(side);
             if (!prev.IsFainted)
             {
+                _lastVoluntarySwitchTurn[(int)side] = Turn;
                 prev.ClearDebuffs();
                 yield return _presenter.PlayWithdraw(prev);
             }
@@ -509,6 +512,18 @@ namespace ShadowTheater.Battle
 
         private BattleUnit Active(BattleSide side) => side == BattleSide.Player ? PlayerActive : EnemyActive;
         private BattleUnit Opponent(BattleSide side) => side == BattleSide.Player ? EnemyActive : PlayerActive;
+
+        private BattleAction ChooseAiAction(BattleSide side, bool allowSwitch)
+        {
+            var units = side == BattleSide.Player ? _playerUnits : _enemyUnits;
+            int activeIndex = side == BattleSide.Player ? _playerIdx : _enemyIdx;
+            if (allowSwitch && Turn - _lastVoluntarySwitchTurn[(int)side] >= 3)
+            {
+                int next = BattleAI.ChooseSwitchIndex(units, activeIndex, Opponent(side));
+                if (next >= 0) return BattleAction.Switch(side, next);
+            }
+            return BattleAI.Choose(Active(side), Opponent(side), GetFp(side));
+        }
 
         private static int FindNextAlive(List<BattleUnit> units, int exclude)
         {
