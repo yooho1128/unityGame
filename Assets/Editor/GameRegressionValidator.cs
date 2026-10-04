@@ -151,8 +151,20 @@ namespace ShadowTheater.EditorTools
                 result.errors.Add("참여 경험치 분배 회귀 실패");
 
             ShadowData data = CreateAiTestShadow("level_cap_test", ShadowElement.None);
+            SkillData unlockSkill = ScriptableObject.CreateInstance<SkillData>();
             try
             {
+                unlockSkill.skillId = "unlock_test";
+                unlockSkill.displayName = "unlock_test";
+                unlockSkill.requiredLevel = 5;
+                data.skills.Add(unlockSkill);
+                var learner = new ShadowInstance(data, 4);
+                if (learner.GetAvailableSkills().Contains(unlockSkill))
+                    result.errors.Add("기술 레벨 잠금 회귀 실패");
+                learner.AddExp(learner.ExpToNext);
+                if (!learner.GetAvailableSkills().Contains(unlockSkill))
+                    result.errors.Add("기술 레벨 해금 회귀 실패");
+
                 var instance = new ShadowInstance(data, ShadowInstance.MaxLevel - 1);
                 int ups = instance.AddExp(instance.ExpToNext * 2);
                 if (ups != 1 || instance.level != ShadowInstance.MaxLevel || instance.exp != 0 ||
@@ -162,6 +174,7 @@ namespace ShadowTheater.EditorTools
             }
             finally
             {
+                UnityEngine.Object.DestroyImmediate(unlockSkill);
                 UnityEngine.Object.DestroyImmediate(data);
             }
         }
@@ -220,6 +233,9 @@ namespace ShadowTheater.EditorTools
             if (ids.Distinct().Count() != ids.Count) result.errors.Add("ShadowDatabase shadowId 중복");
             var ultimates = database.skills.Where(x => x != null && x.isUltimate).ToList();
             if (ultimates.Count == 0) result.errors.Add("진명 필살기 데이터 없음");
+            foreach (SkillData skill in database.skills.Where(x => x != null))
+                if (skill.requiredLevel < 1 || skill.requiredLevel > ShadowInstance.MaxLevel)
+                    result.errors.Add($"{skill.skillId}: 기술 해금 레벨 범위 오류 ({skill.requiredLevel})");
             foreach (SkillData skill in ultimates)
             {
                 if (skill.ultimateFxStyle == UltimateFxStyle.None) result.errors.Add($"{skill.skillId}: 필살기 테마 누락");

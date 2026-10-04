@@ -505,6 +505,7 @@ namespace ShadowTheater.Battle
             foreach (BattleUnit receiver in receivers)
             {
                 _outcome.expGained += exp;
+                var knownSkills = new HashSet<SkillData>(receiver.Instance.GetAvailableSkills());
                 int ups = receiver.Instance.AddExp(exp);
                 yield return _presenter.ShowMessage($"{receiver.Name}은(는) 참여 경험치 {exp}을(를) 얻었다.");
                 if (ups > 0)
@@ -512,6 +513,9 @@ namespace ShadowTheater.Battle
                     if (!_outcome.leveledUpInstanceIds.Contains(receiver.Instance.instanceId))
                         _outcome.leveledUpInstanceIds.Add(receiver.Instance.instanceId);
                     yield return _presenter.ShowMessage($"{receiver.Name}의 레벨이 {receiver.Level}(으)로 올랐다!");
+                    foreach (SkillData skill in receiver.Instance.GetAvailableSkills())
+                        if (!knownSkills.Contains(skill))
+                            yield return _presenter.ShowMessage($"{receiver.Name}은(는) [{skill.displayName}] 기술을 깨달았다!");
                 }
                 OnUnitChanged?.Invoke(receiver);
             }

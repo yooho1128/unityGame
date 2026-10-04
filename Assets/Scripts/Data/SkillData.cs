@@ -14,6 +14,8 @@ namespace ShadowTheater.Data
         public string displayName;
         [TextArea(2, 4)] public string description;
         public Sprite icon;
+        [Tooltip("이 기술을 사용할 수 있는 최소 그림자 레벨")]
+        [Range(1, 100)] public int requiredLevel = 1;
 
         [Header("FP (공연 열기)")]
         [Tooltip("소비 FP. 기본 공격은 0")]
@@ -62,6 +64,7 @@ namespace ShadowTheater.Data
         private void OnValidate()
         {
             if (string.IsNullOrEmpty(skillId)) skillId = name;
+            requiredLevel = Mathf.Clamp(requiredLevel, 1, 100);
         }
 #endif
     }

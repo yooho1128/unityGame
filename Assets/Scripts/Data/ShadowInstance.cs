@@ -79,19 +79,23 @@ namespace ShadowTheater.Data
             if (currentHp < 0 || currentHp > MaxHp) currentHp = MaxHp;
         }
 
-        public List<SkillData> GetAvailableSkills()
+        public List<SkillData> GetAvailableSkills() => GetAvailableSkills(level);
+
+        public List<SkillData> GetAvailableSkills(int atLevel)
         {
-            var result = new List<SkillData>(Data.skills);
-            if (memoryStage >= MemoryStage.Restored) AddSkills(result, Data.restoredForm?.bonusSkills);
-            if (memoryStage == MemoryStage.TrueName) AddSkills(result, ActiveForm?.bonusSkills);
+            var result = new List<SkillData>();
+            AddSkills(result, Data.skills, atLevel);
+            if (memoryStage >= MemoryStage.Restored) AddSkills(result, Data.restoredForm?.bonusSkills, atLevel);
+            if (memoryStage == MemoryStage.TrueName) AddSkills(result, ActiveForm?.bonusSkills, atLevel);
             return result;
         }
 
-        private static void AddSkills(List<SkillData> target, List<SkillData> source)
+        private static void AddSkills(List<SkillData> target, List<SkillData> source, int atLevel)
         {
             if (source == null) return;
             foreach (var skill in source)
-                if (skill != null && !target.Contains(skill)) target.Add(skill);
+                if (skill != null && Mathf.Max(1, skill.requiredLevel) <= atLevel && !target.Contains(skill))
+                    target.Add(skill);
         }
 
         private static int ApplyMultiplier(int value, float multiplier) =>

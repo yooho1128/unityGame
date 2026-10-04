@@ -71,6 +71,9 @@ namespace ShadowTheater.UI
                 AddOption(L10n.Text(skill.displayName), L10n.Format("battle.skill_info", "FP {0} · 위력 {1:0.0}", skill.fpCost, skill.damageMultiplier),
                     manager.CanUseSkill(skill), () => Submit(BattleAction.UseSkill(BattleSide.Player, captured)));
             }
+            if (_options.Count == 0)
+                AddOption(L10n.Get("battle.no_unlocked_skills", "아직 깨달은 기술이 없습니다"),
+                    L10n.Get("battle.skill_unlock_hint", "레벨을 올리면 새로운 기술을 깨달을 수 있습니다"), false, null);
             RebuildOptionsLayout();
         }
 
