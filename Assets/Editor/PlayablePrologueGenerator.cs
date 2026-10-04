@@ -122,6 +122,7 @@ namespace ShadowTheater.EditorTools
             PartyStoragePrefabGenerator.Generate();
             WorldMapPrefabGenerator.Generate();
             SettlementShopPrefabGenerator.Generate();
+            FieldInventoryPrefabGenerator.Generate();
             FieldPausePrefabGenerator.Generate();
             BattleUIPrefabGenerator.Generate();
         }
@@ -743,6 +744,7 @@ namespace ShadowTheater.EditorTools
             InstantiatePrefab("Assets/Prefabs/UI/PartyStorageCanvas.prefab");
             InstantiatePrefab("Assets/Prefabs/UI/WorldMapCanvas.prefab");
             InstantiatePrefab("Assets/Prefabs/UI/SettlementShopCanvas.prefab");
+            InstantiatePrefab("Assets/Prefabs/UI/FieldInventoryCanvas.prefab");
             InstantiatePrefab("Assets/Prefabs/UI/FieldPauseCanvas.prefab", fieldRoot.transform);
             CreateFader();
             CreateEventSystem();

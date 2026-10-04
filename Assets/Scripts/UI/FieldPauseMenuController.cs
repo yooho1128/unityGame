@@ -112,6 +112,13 @@ namespace ShadowTheater.UI
             PartyStorageController.Instance?.Open();
         }
 
+        public void OpenInventory()
+        {
+            if (!IsOpen || _returning) return;
+            Close();
+            FieldInventoryController.Instance?.Open();
+        }
+
         public void RequestReturnToTitle()
         {
             if (!IsOpen || _returning) return;
@@ -158,6 +165,7 @@ namespace ShadowTheater.UI
             if (PartyStorageController.Instance != null && PartyStorageController.Instance.IsOpen) return false;
             if (WorldMapController.Instance != null && WorldMapController.Instance.IsOpen) return false;
             if (SettlementShopController.Instance != null && SettlementShopController.Instance.IsOpen) return false;
+            if (FieldInventoryController.Instance != null && FieldInventoryController.Instance.IsOpen) return false;
             return true;
         }
 

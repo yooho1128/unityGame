@@ -410,6 +410,15 @@ namespace ShadowTheater.EditorTools
                             shopSo.FindProperty("restButton")?.objectReferenceValue == null)
                             result.errors.Add($"{region.sceneName}: 정착지 상점 UI 참조 누락");
                     }
+                    FieldInventoryController inventory = roots.SelectMany(x => x.GetComponentsInChildren<FieldInventoryController>(true)).FirstOrDefault();
+                    if (inventory == null) result.errors.Add($"{region.sceneName}: 필드 도구 가방 UI 누락");
+                    else
+                    {
+                        var inventorySo = new SerializedObject(inventory);
+                        foreach (string property in new[] { "root", "itemContent", "targetContent", "itemTemplate", "targetTemplate", "useButton" })
+                            if (inventorySo.FindProperty(property)?.objectReferenceValue == null)
+                                result.errors.Add($"{region.sceneName}: 도구 가방 {property} 참조 누락");
+                    }
                     FieldPauseMenuController pauseMenu = roots.SelectMany(x => x.GetComponentsInChildren<FieldPauseMenuController>(true)).FirstOrDefault();
                     if (pauseMenu == null) result.errors.Add($"{region.sceneName}: 필드 메뉴 누락");
                     else

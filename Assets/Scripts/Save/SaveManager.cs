@@ -619,14 +619,32 @@ namespace ShadowTheater.Save
                 if (waste < bestWaste) { best = item; bestWaste = waste; }
             }
             if (best == null) { message = "사용할 수 있는 회복 도구가 없습니다."; return false; }
-            int healed = best.effectType == ItemEffectType.HealRatio
-                ? Mathf.Max(1, Mathf.RoundToInt(target.MaxHp * Mathf.Clamp01(best.value)))
-                : Mathf.Max(1, Mathf.RoundToInt(best.value));
+            return TryUseFieldItem(best, target, out message);
+        }
+
+        public static bool TryUseFieldItem(ItemData item, ShadowInstance target, out string message)
+        {
+            message = string.Empty;
+            if (Current == null || item == null || GetItemCount(item.itemId) <= 0)
+            { message = "보유하지 않은 도구입니다."; return false; }
+            if (!item.usableInField)
+            { message = "이 도구는 전투 중에만 사용할 수 있습니다."; return false; }
+            if (target == null || (!Current.party.Contains(target) && !Current.storage.Contains(target)))
+            { message = "사용할 그림자를 선택하세요."; return false; }
+            if (target.IsFainted)
+            { message = "기절한 그림자는 막간 휴식으로 회복해야 합니다."; return false; }
+            if (item.effectType != ItemEffectType.HealFlat && item.effectType != ItemEffectType.HealRatio)
+            { message = "필드에서 사용할 수 없는 효과입니다."; return false; }
+            if (target.currentHp >= target.MaxHp)
+            { message = "이미 HP가 가득합니다."; return false; }
+            int healed = item.effectType == ItemEffectType.HealRatio
+                ? Mathf.Max(1, Mathf.RoundToInt(target.MaxHp * Mathf.Clamp01(item.value)))
+                : Mathf.Max(1, Mathf.RoundToInt(item.value));
             int before = target.currentHp;
             target.currentHp = Mathf.Min(target.MaxHp, target.currentHp + healed);
-            AddItem(best.itemId, -1);
+            AddItem(item.itemId, -1);
             PartyChanged?.Invoke();
-            message = $"{best.displayName} 사용 · HP {target.currentHp - before} 회복";
+            message = $"{item.displayName} 사용 · HP {target.currentHp - before} 회복";
             return true;
         }
 
