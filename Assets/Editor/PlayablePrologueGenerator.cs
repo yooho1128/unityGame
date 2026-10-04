@@ -28,6 +28,7 @@ namespace ShadowTheater.EditorTools
         private const string TileArtFolder = "Assets/Art/Generated/Tiles";
         private const string PixelCharacterFolder = "Assets/Art/Generated/Characters";
         private const string FinalFieldCharacterFolder = "Assets/Art/Final/Field";
+        private const string RegionalRosterManifestPath = "Assets/Resources/Data/RegionalRosterManifest.json";
         private static Tile _groundTile;
         private static Tile _wallTile;
         private static Tile _accentTile;
@@ -710,6 +711,7 @@ namespace ShadowTheater.EditorTools
             CreateCamera("FieldCamera", cameraColor, player.transform, true).transform.SetParent(fieldRoot.transform);
             CreateEnvironment(fieldRoot.transform, theme);
             ApplyPixelFieldPass(fieldRoot.transform, theme);
+            CreateRegionalExpansionEncounters(fieldRoot.transform, mapId, collision, startCell);
             CreateFieldUi(fieldRoot.transform);
             CreateRegionLabel(fieldRoot.transform, displayName);
 
@@ -1012,6 +1014,52 @@ namespace ShadowTheater.EditorTools
             Set(so, "leadShadow", shadow); Set(so, "levelRange", new Vector2Int(minLevel, maxLevel));
             Set(so, "silhouette", renderer); so.ApplyModifiedPropertiesWithoutUndo();
             visualObject.GetComponent<ShadowFieldMotion>().Configure(shadow, frames);
+        }
+
+        private static void CreateRegionalExpansionEncounters(Transform parent, string mapId,
+            Tilemap collision, Vector2Int startCell)
+        {
+            if (!File.Exists(RegionalRosterManifestPath)) return;
+            var manifest = JsonUtility.FromJson<RegionalRosterManifest>(File.ReadAllText(RegionalRosterManifestPath));
+            if (manifest?.entries == null) return;
+
+            var occupied = new HashSet<Vector2Int> { startCell };
+            int regionIndex = 0;
+            foreach (RegionalRosterEntry entry in manifest.entries)
+            {
+                if (entry.sceneName != mapId) continue;
+                ShadowData shadow = LoadShadow(entry.shadowId);
+                if (shadow == null)
+                {
+                    Debug.LogWarning($"[RegionalRoster] 그림자 데이터를 찾지 못했습니다: {entry.shadowId}");
+                    continue;
+                }
+
+                Vector2Int cell = FindRegionalEncounterCell(collision, startCell, occupied,
+                    StableHash(entry.shadowId) + regionIndex * 17);
+                occupied.Add(cell);
+                CreateEncounter(parent, $"Regional_{entry.shadowId}", cell, shadow,
+                    Mathf.Max(1, entry.minLevel), Mathf.Max(entry.minLevel, entry.maxLevel));
+                regionIndex++;
+            }
+        }
+
+        private static Vector2Int FindRegionalEncounterCell(Tilemap collision, Vector2Int startCell,
+            HashSet<Vector2Int> occupied, int seed)
+        {
+            var candidates = new List<Vector2Int>();
+            for (int y = -7; y <= 7; y++)
+            for (int x = -9; x <= 9; x++)
+            {
+                var cell = new Vector2Int(x, y);
+                if (Mathf.Abs(x) < 3 && Mathf.Abs(y) < 3) continue;
+                if ((cell - startCell).sqrMagnitude < 9 || occupied.Contains(cell)) continue;
+                if (collision != null && collision.HasTile(new Vector3Int(x, y, 0))) continue;
+                candidates.Add(cell);
+            }
+            if (candidates.Count == 0) return Vector2Int.zero;
+            int index = (seed & int.MaxValue) % candidates.Count;
+            return candidates[index];
         }
 
         private static void CreateBoss(Transform parent, Vector2Int cell)
@@ -2183,6 +2231,12 @@ namespace ShadowTheater.EditorTools
         }
         private class PlayerSpriteSet { public Sprite[] down, up, side; }
         private class FieldSceneContext { public Scene scene; public Transform fieldRoot; }
+        [System.Serializable] private class RegionalRosterManifest { public List<RegionalRosterEntry> entries; }
+        [System.Serializable] private class RegionalRosterEntry
+        {
+            public string shadowId, regionId, sceneName;
+            public int minLevel, maxLevel;
+        }
     }
 }
 #endif

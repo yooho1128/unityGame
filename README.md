@@ -29,13 +29,16 @@
 
 ## 초반 콘텐츠 데이터 빠른 설치
 1. Unity 메뉴 **Tools → Shadow Theater → Generate Core Content Data** 실행
-2. `Assets/Data/Generated`에 생성된 그림자 67종, 스킬 130개, 도구 4개 확인
+2. `Assets/Data/Generated`에 생성된 핵심 그림자 177종, 스킬 142개, 도구 4개 확인
 3. `Resources/ShadowDatabase.asset`에 모든 데이터가 자동 등록되었는지 확인
 
 기본 카탈로그와 제2~8막 콘텐츠 팩을 자동 병합합니다. 스타터 3종과 주요 그림자는 기억 복원·구원·원한
 성장 데이터를 포함합니다. 실제 전용 이미지가
 아직 없는 개체에는 기능 테스트용 실루엣 PNG를 자동 생성하며, 이후 완성 아트로 교체해도 ID와 세이브는
-그대로 유지됩니다. 원본 수치와 Lore는 `Assets/Resources/Data/CoreContentCatalog.json`에서 수정합니다.
+그대로 유지됩니다. 생성기는 기존 80종에 지역 로스터 97종을 더하고, 전설 성장 3종까지 실행하면
+총 180종이 됩니다. 97종은 40개 필드에 실제 심볼 인카운터로 배치되며 레벨·희귀도·포획률·스킬·Lore를
+각 지역 설정에서 결정합니다. 상세 규칙은 [`Docs/SHADOW_ROSTER_180.md`](Docs/SHADOW_ROSTER_180.md)를
+참고하세요.
 
 ## 플레이 가능한 프롤로그 자동 생성
 1. Unity 메뉴 **Tools → Shadow Theater → Generate Playable Prologue** 실행

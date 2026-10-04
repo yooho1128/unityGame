@@ -29,6 +29,10 @@ namespace ShadowTheater.EditorTools
         private const string ArtFolder = "Assets/Art/Generated/Core";
         private const string FinalPortraitFolder = "Assets/Art/Final/Portraits";
         private const string DatabasePath = "Assets/Resources/ShadowDatabase.asset";
+        private const string RegionCatalogPath = "Assets/Resources/Data/RegionCatalog.json";
+        private const string LegendaryCatalogPath = "Assets/Resources/Data/LegendaryGrowthCatalog.json";
+        private const string RosterManifestPath = "Assets/Resources/Data/RegionalRosterManifest.json";
+        private const int TargetCoreShadowCount = 177; // 별도 성장 전설 3종을 더해 총 180종
 
         [MenuItem("Tools/Shadow Theater/Generate Core Content Data")]
         public static void Generate()
@@ -45,7 +49,14 @@ namespace ShadowTheater.EditorTools
             };
             foreach (string path in AdditionalCatalogPaths)
                 if (File.Exists(path)) catalogs.Add(JsonUtility.FromJson<CoreCatalog>(File.ReadAllText(path)));
+            var baseCatalog = Merge(catalogs);
+            catalogs.Add(BuildRegionalExpansion(baseCatalog));
             var catalog = Merge(catalogs);
+            if (catalog.shadows == null || catalog.shadows.Length != TargetCoreShadowCount)
+            {
+                Debug.LogError($"[CoreContent] 목표 로스터 불일치: {catalog.shadows?.Length ?? 0}/{TargetCoreShadowCount}");
+                return;
+            }
             if (!Validate(catalog, out string error))
             {
                 Debug.LogError($"[CoreContent] {error}");
@@ -61,6 +72,88 @@ namespace ShadowTheater.EditorTools
             AssetDatabase.Refresh();
             Selection.activeObject = shadows.FirstOrDefault();
             Debug.Log($"[CoreContent] 생성 완료: 그림자 {shadows.Count}종, 스킬 {skills.Count}개, 도구 {items.Count}개");
+        }
+
+        private static CoreCatalog BuildRegionalExpansion(CoreCatalog source)
+        {
+            int needed = Mathf.Max(0, TargetCoreShadowCount - (source.shadows?.Length ?? 0));
+            if (needed == 0) return new CoreCatalog { skills = Array.Empty<SkillSpec>(), items = Array.Empty<ItemSpec>(), shadows = Array.Empty<ShadowSpec>() };
+            var regionCatalog = File.Exists(RegionCatalogPath)
+                ? JsonUtility.FromJson<RegionCatalogSpec>(File.ReadAllText(RegionCatalogPath)) : null;
+            if (regionCatalog?.regions == null || regionCatalog.regions.Length == 0)
+                throw new InvalidOperationException("지역 로스터 생성을 위한 RegionCatalog이 없습니다.");
+
+            var existingNames = new HashSet<string>((source.shadows ?? Array.Empty<ShadowSpec>()).Select(x => x.displayName));
+            if (File.Exists(LegendaryCatalogPath))
+            {
+                var legendary = JsonUtility.FromJson<CoreCatalog>(File.ReadAllText(LegendaryCatalogPath));
+                foreach (ShadowSpec shadow in legendary?.shadows ?? Array.Empty<ShadowSpec>())
+                    if (!string.IsNullOrEmpty(shadow.displayName)) existingNames.Add(shadow.displayName);
+            }
+            var specs = new List<ShadowSpec>(needed);
+            var manifest = new RegionalRosterManifest { entries = new List<RegionalRosterEntry>() };
+            var slots = regionCatalog.regions.ToDictionary(x => x.regionId, _ => 1);
+
+            // 월드맵에 선언됐지만 실제 데이터가 없던 대표 그림자를 최우선으로 채운다.
+            foreach (RegionSpec region in regionCatalog.regions)
+            foreach (string featured in region.featuredShadows ?? Array.Empty<string>())
+            {
+                if (specs.Count >= needed) break;
+                if (string.IsNullOrEmpty(featured) || existingNames.Contains(featured)) continue;
+                AddRegionalShadow(specs, manifest, region, slots[region.regionId]++, featured, true);
+                existingNames.Add(featured);
+            }
+
+            string[] suffixes = { "장막쥐", "잔향나비", "기억여우", "가면사슴", "등불새", "문장벌레", "안개늑대", "종소리망령" };
+            int pass = 0;
+            while (specs.Count < needed)
+            {
+                RegionSpec region = regionCatalog.regions[pass % regionCatalog.regions.Length];
+                int slot = slots[region.regionId]++;
+                string name = $"{region.displayName}의 {suffixes[(slot + region.order) % suffixes.Length]}";
+                if (existingNames.Add(name)) AddRegionalShadow(specs, manifest, region, slot, name, false);
+                pass++;
+            }
+
+            File.WriteAllText(RosterManifestPath, JsonUtility.ToJson(manifest, true));
+            AssetDatabase.ImportAsset(RosterManifestPath, ImportAssetOptions.ForceSynchronousImport);
+            return new CoreCatalog { skills = Array.Empty<SkillSpec>(), items = Array.Empty<ItemSpec>(), shadows = specs.ToArray() };
+        }
+
+        private static void AddRegionalShadow(List<ShadowSpec> output, RegionalRosterManifest manifest,
+            RegionSpec region, int slot, string displayName, bool featured)
+        {
+            int act = Mathf.Max(1, region.act);
+            string element = act == 2 ? "Flame" : act == 3 || act == 7 ? "Frost" : act >= 4 ? "Shade" : "None";
+            string[] roles = { "PhysicalDealer", "MagicNuker", "SpeedUtility", "Tank", "Support" };
+            string[] shapes = { "Knight", "Mage", "Crow", "Beast", "Mask" };
+            string role = roles[(region.order + slot) % roles.Length];
+            string shape = shapes[(region.order * 2 + slot) % shapes.Length];
+            bool rare = featured || (region.order + slot) % 7 == 0;
+            int level = Mathf.RoundToInt((region.recommendedLevelMin + region.recommendedLevelMax) * .5f);
+            string id = $"exp_{region.regionId}_{slot:00}";
+            string basic = role == "MagicNuker" || role == "Support" ? "inkshot" : shape == "Crow" ? "peck" : shape == "Beast" ? "claw" : "slash";
+            string[] skills = element == "Flame" ? new[] { "ember_strike", "cinder_peck" }
+                : element == "Frost" ? new[] { "frost_sigil", "frost_breath" }
+                : element == "Shade" ? new[] { "night_leap", "black_ink" }
+                : new[] { "cut_string", "stitch" };
+            output.Add(new ShadowSpec
+            {
+                shadowId=id, displayName=displayName, title=$"{region.environment}에 남은 {(featured ? "대표 배역" : "떠도는 잔영")}",
+                growthTier=rare ? "Rare" : "Standard", element=element, role=role, shape=shape,
+                accentColor=string.IsNullOrEmpty(region.accentHex) ? "#8F7CC9" : "#" + region.accentHex,
+                baseHp=85+level*2+(role=="Tank"?35:0), baseAtk=18+Mathf.RoundToInt(level*.38f),
+                baseDef=10+Mathf.RoundToInt(level*.23f)+(role=="Tank"?10:0), baseSpd=10+Mathf.RoundToInt(level*.12f)+(role=="SpeedUtility"?8:0),
+                critRate=role=="SpeedUtility"?.17f:.09f, evasion=role=="SpeedUtility"?.13f:.05f,
+                hpGrowth=9f+level*.09f, atkGrowth=2f+level*.025f, defGrowth=1.2f+level*.018f, spdGrowth=.35f+level*.004f,
+                basicAttack=basic, skills=skills, baseCaptureRate=rare?.18f:.34f,
+                expReward=40+level*4, goldReward=20+level*2,
+                loreLocked=$"{region.displayName}의 {region.environment} 속에서 오래된 배역을 반복한다.",
+                loreUnlocked=$"{region.summary} 그날, {displayName}은 사라지는 이들의 마지막 장면을 대신 기억했다.",
+                restored=null, salvation=null, grudge=null
+            });
+            manifest.entries.Add(new RegionalRosterEntry { shadowId=id, regionId=region.regionId,
+                sceneName=region.sceneName, minLevel=region.recommendedLevelMin, maxLevel=region.recommendedLevelMax });
         }
 
         private static bool Validate(CoreCatalog catalog, out string error)
@@ -450,6 +543,19 @@ namespace ShadowTheater.EditorTools
             public int requiredLevel;
             public float hpMultiplier, atkMultiplier, defMultiplier, spdMultiplier, bonusCritRate, bonusEvasion;
             public string[] bonusSkills;
+        }
+        [Serializable] private class RegionCatalogSpec { public RegionSpec[] regions; }
+        [Serializable] private class RegionSpec
+        {
+            public string regionId, displayName, sceneName, environment, summary, accentHex;
+            public int order, act, recommendedLevelMin, recommendedLevelMax;
+            public string[] featuredShadows;
+        }
+        [Serializable] private class RegionalRosterManifest { public List<RegionalRosterEntry> entries; }
+        [Serializable] private class RegionalRosterEntry
+        {
+            public string shadowId, regionId, sceneName;
+            public int minLevel, maxLevel;
         }
     }
 }

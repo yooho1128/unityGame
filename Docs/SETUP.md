@@ -34,14 +34,17 @@ Assets/Scripts/
 
 ## 초반 데이터 생성
 1. 메뉴 `Tools > Shadow Theater > Generate Core Content Data` 실행
-2. `Assets/Data/Generated/Skills`의 스킬 130개 확인
+2. `Assets/Data/Generated/Skills`의 핵심 스킬 142개 확인
 3. `Assets/Data/Generated/Items`의 도구 4개 확인
-4. `Assets/Data/Generated/Shadows`의 핵심·제2~8막 그림자 80종과 전설 성장 그림자 3종 확인
-5. `Assets/Resources/ShadowDatabase.asset` 자동 등록 결과 확인
+4. `Assets/Data/Generated/Shadows`의 핵심·제2~8막 및 지역 확장 그림자 177종 확인
+5. `Tools > Shadow Theater > Generate Legendary Growth Batch` 실행 후 전설 성장 그림자 3종을 더해 총 180종 확인
+6. `Assets/Resources/ShadowDatabase.asset` 자동 등록 결과 확인
 
 원본은 `Resources/Data/CoreContentCatalog.json`이며 같은 메뉴를 반복 실행하면 ID를 기준으로 기존
-ScriptableObject를 갱신한다. 스타터 3종과 수집 가능한 일반 그림자에는 세 단계 성장 데이터가 들어 있다.
-전용 아트가 없는 동안에는 `Assets/Art/Generated/Core`에 기능 테스트용 실루엣을 생성한다.
+ScriptableObject를 갱신한다. 상위 등급과 주요 그림자는 기억 복원·진명 각성 데이터를 가지고 일반 등급은
+레벨 성장과 스킬 해금을 중심으로 차등 구성한다. 전용 아트가 없는 동안에는
+`Assets/Art/Generated/Core`에 기능 테스트용 실루엣을 생성한다. 지역 확장 97종의 배치 결과는
+`Assets/Resources/Data/RegionalRosterManifest.json`에 자동 기록된다.
 
 ## 플레이 가능한 프롤로그·제2~8막 생성
 1. 메뉴 `Tools > Shadow Theater > Generate Playable Prologue` 실행
