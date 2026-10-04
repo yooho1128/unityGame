@@ -82,6 +82,11 @@
 Unity 메뉴 **Tools → Shadow Theater → Preview Final Shadow Art**를 열면 스토리를 진행하지 않아도 세 전투
 초상과 실제 24×32 필드 2프레임을 애니메이션으로 비교하고, 생성된 `ShadowData`를 바로 선택할 수 있습니다.
 
+최종 픽셀 아트는 자동 생성 파일을 직접 덮어쓰지 않습니다. `Assets/Art/Final` 아래에 규격과 파일명을
+맞춰 넣으면 전체 생성 과정이 전투 초상, 그림자 2프레임, 주인공 6프레임, 지역 타일을 우선 사용합니다.
+현재 교체율과 잘못된 크기·파일명은 `FinalArtCoverage.json`과 전체 회귀 검증에서 확인할 수 있습니다.
+자세한 규칙은 [`Docs/FINAL_PIXEL_ART_PIPELINE.md`](Docs/FINAL_PIXEL_ART_PIPELINE.md)를 참고하세요.
+
 제5막에는 신규 그림자 10종과 스킬 20개, 메인 퀘스트 5개, 끊어진 공방 선택 분기, 지역 보스
 `줄 위의 프리마돈나`와 전설 보스 `마지막 인형사`가 포함됩니다. 전체 구성은
 [`Docs/ACT5_PUPPET_CITY.md`](Docs/ACT5_PUPPET_CITY.md)를 참고하세요.
@@ -162,7 +167,7 @@ Unity 메뉴 **Tools → Shadow Theater → Preview Final Shadow Art**를 열면
 
 Unity 메뉴 **Tools → Shadow Theater → Generate and Validate Full Game**은 전체 콘텐츠를 다시 만든 뒤
 180종 데이터, 40개 지역 연결, 40개 필드 구조, 포털 목적지, 인카운터 데이터, 필드 환경음·발걸음,
-Missing Script와 Build Settings를 일괄 검사합니다. 자세한 출시 점검법은
+최종 픽셀 아트 규격과 교체율, Missing Script와 Build Settings를 일괄 검사합니다. 자세한 출시 점검법은
 [`Docs/MOBILE_RELEASE_VALIDATION.md`](Docs/MOBILE_RELEASE_VALIDATION.md)를 참고하세요.
 
 ## 40개 지역 월드맵

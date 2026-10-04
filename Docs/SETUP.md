@@ -25,8 +25,8 @@ Assets/Scripts/
   Editor/  DialogueUIPrefabGenerator, QuestHudPrefabGenerator, FrontEndPrefabGenerator,
            ScriptBookPrefabGenerator, BattleUIPrefabGenerator, PartyStoragePrefabGenerator,
            WorldMapPrefabGenerator, CoreContentBatchGenerator, LegendaryGrowthBatchGenerator,
-           UltimateFxAssetGenerator, FieldAudioAssetGenerator, PlayablePrologueGenerator,
-           GameRegressionValidator
+           UltimateFxAssetGenerator, FieldAudioAssetGenerator, FinalPixelArtPipeline,
+           PlayablePrologueGenerator, GameRegressionValidator
 ```
 
 ## 프로젝트 설정
@@ -347,8 +347,13 @@ JSON 값을 바꾼 뒤 각 데이터 생성 메뉴를 다시 실행하면 된다
 
 ## 다음 작업 후보
 1. 자동 생성 필살기 WAV를 전문 녹음·마스터링 음원으로 선택 교체
-2. 자동 생성 픽셀 타일·캐릭터를 최종 수작업 픽셀 아트로 교체
+2. 180종 초상·필드 프레임과 89개 타일의 최종 아트 제작 및 순차 투입
 3. 자동 생성 환경음·발걸음을 전문 녹음·마스터링 음원으로 선택 교체
+
+최종 아트는 `Assets/Art/Final`의 파일을 우선 사용하는 비파괴 교체 방식이다. 메뉴
+`Tools > Shadow Theater > Import and Validate Final Pixel Art`가 크기·이름·임포트 설정을 검사하고
+`FinalArtCoverage.json`에 현재 교체율을 기록한다. 전체 파일 규칙은
+`Docs/FINAL_PIXEL_ART_PIPELINE.md`를 참고한다.
 
 모바일 성능 프로필, v7 세이브 마이그레이션과 40개 필드 자동 회귀 검증은 구현 완료했다. 실제 출시 전
 기기별 발열·배터리·노치 영역 최종 확인은 `Docs/MOBILE_RELEASE_VALIDATION.md` 체크리스트를 따른다.

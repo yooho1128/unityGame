@@ -28,6 +28,8 @@ namespace ShadowTheater.EditorTools
         private const string TileArtFolder = "Assets/Art/Generated/Tiles";
         private const string PixelCharacterFolder = "Assets/Art/Generated/Characters";
         private const string FinalFieldCharacterFolder = "Assets/Art/Final/Field";
+        private const string FinalPlayerFolder = "Assets/Art/Final/Player";
+        private const string FinalTileFolder = "Assets/Art/Final/Tiles";
         private const string RegionalRosterManifestPath = "Assets/Resources/Data/RegionalRosterManifest.json";
         private static Tile _groundTile;
         private static Tile _wallTile;
@@ -110,6 +112,7 @@ namespace ShadowTheater.EditorTools
         {
             CoreContentBatchGenerator.Generate();
             LegendaryGrowthBatchGenerator.Generate();
+            FinalPixelArtPipeline.ImportAndValidate();
             UltimateFxAssetGenerator.Generate();
             FieldAudioAssetGenerator.Generate();
             FrontEndPrefabGenerator.Generate();
@@ -818,6 +821,8 @@ namespace ShadowTheater.EditorTools
         private static PlayerSpriteSet LoadPixelPlayerSprites()
         {
             if (_pixelPlayerSprites != null) return _pixelPlayerSprites;
+            PlayerSpriteSet final = LoadFinalPlayerSprites();
+            if (final != null) return _pixelPlayerSprites = final;
             _pixelPlayerSprites = new PlayerSpriteSet
             {
                 down = new[] { CreatePixelPlayerSprite("Director_Down_0", FacingDir.Down, 0),
@@ -828,6 +833,27 @@ namespace ShadowTheater.EditorTools
                                CreatePixelPlayerSprite("Director_Side_1", FacingDir.Right, 1) }
             };
             return _pixelPlayerSprites;
+        }
+
+        private static PlayerSpriteSet LoadFinalPlayerSprites()
+        {
+            Sprite[] LoadDirection(string direction)
+            {
+                var result = new Sprite[2];
+                for (int i = 0; i < result.Length; i++)
+                {
+                    string path = $"{FinalPlayerFolder}/director_{direction}_{i + 1:00}.png";
+                    result[i] = LoadFinalPixelSprite(path, 24f, new Vector2(.5f, 0f));
+                    if (result[i] == null) return null;
+                }
+                return result;
+            }
+
+            Sprite[] down = LoadDirection("down");
+            Sprite[] up = LoadDirection("up");
+            Sprite[] side = LoadDirection("side");
+            return down == null || up == null || side == null ? null :
+                new PlayerSpriteSet { down = down, up = up, side = side };
         }
 
         private static Camera CreateCamera(string name, Color background, Transform target, bool follow)
@@ -1758,6 +1784,8 @@ namespace ShadowTheater.EditorTools
 
         private static Tile CreateTile(string name, Color baseColor, Color detailColor)
         {
+            Sprite finalSprite = LoadFinalPixelSprite($"{FinalTileFolder}/{name}.png", 32f, new Vector2(.5f, .5f));
+            if (finalSprite != null) return SaveTile(name, finalSprite);
             string texturePath = $"{TileArtFolder}/{name}.png";
             var texture = new Texture2D(32, 32, TextureFormat.RGBA32, false);
             bool ground = name.EndsWith("_Ground");
@@ -1801,16 +1829,13 @@ namespace ShadowTheater.EditorTools
             importer.spritePixelsPerUnit = 32; importer.filterMode = FilterMode.Point; importer.mipmapEnabled = false;
             importer.alphaIsTransparency = accent; importer.textureCompression = TextureImporterCompression.Uncompressed;
             importer.SaveAndReimport();
-            string tilePath = $"{TileFolder}/{name}.asset";
-            var tile = AssetDatabase.LoadAssetAtPath<Tile>(tilePath);
-            if (tile == null) { tile = ScriptableObject.CreateInstance<Tile>(); AssetDatabase.CreateAsset(tile, tilePath); }
-            tile.sprite = AssetDatabase.LoadAssetAtPath<Sprite>(texturePath);
-            tile.colliderType = Tile.ColliderType.Grid;
-            EditorUtility.SetDirty(tile); return tile;
+            return SaveTile(name, AssetDatabase.LoadAssetAtPath<Sprite>(texturePath));
         }
 
         private static Tile CreatePixelMeadowTile(string name, PixelTileKind kind)
         {
+            Sprite finalSprite = LoadFinalPixelSprite($"{FinalTileFolder}/{name}.png", 32f, new Vector2(.5f, .5f));
+            if (finalSprite != null) return SaveTile(name, finalSprite);
             string texturePath = $"{TileArtFolder}/{name}.png";
             var texture = new Texture2D(32, 32, TextureFormat.RGBA32, false);
             Color grassDark = new Color32(37, 67, 83, 255);
@@ -1878,6 +1903,11 @@ namespace ShadowTheater.EditorTools
             importer.textureCompression = TextureImporterCompression.Uncompressed;
             importer.SaveAndReimport();
 
+            return SaveTile(name, AssetDatabase.LoadAssetAtPath<Sprite>(texturePath));
+        }
+
+        private static Tile SaveTile(string name, Sprite sprite)
+        {
             string tilePath = $"{TileFolder}/{name}.asset";
             var tile = AssetDatabase.LoadAssetAtPath<Tile>(tilePath);
             if (tile == null)
@@ -1885,10 +1915,32 @@ namespace ShadowTheater.EditorTools
                 tile = ScriptableObject.CreateInstance<Tile>();
                 AssetDatabase.CreateAsset(tile, tilePath);
             }
-            tile.sprite = AssetDatabase.LoadAssetAtPath<Sprite>(texturePath);
+            tile.sprite = sprite;
             tile.colliderType = Tile.ColliderType.Grid;
             EditorUtility.SetDirty(tile);
             return tile;
+        }
+
+        private static Sprite LoadFinalPixelSprite(string path, float pixelsPerUnit, Vector2 pivot)
+        {
+            if (!File.Exists(path)) return null;
+            AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceSynchronousImport);
+            var importer = AssetImporter.GetAtPath(path) as TextureImporter;
+            if (importer == null) return null;
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.spritePixelsPerUnit = pixelsPerUnit;
+            var settings = new TextureImporterSettings();
+            importer.ReadTextureSettings(settings);
+            settings.spriteAlignment = (int)SpriteAlignment.Custom;
+            settings.spritePivot = pivot;
+            importer.SetTextureSettings(settings);
+            importer.alphaIsTransparency = true;
+            importer.mipmapEnabled = false;
+            importer.filterMode = FilterMode.Point;
+            importer.textureCompression = TextureImporterCompression.Uncompressed;
+            importer.SaveAndReimport();
+            return AssetDatabase.LoadAssetAtPath<Sprite>(path);
         }
 
         private static Sprite CreatePixelPlayerSprite(string name, FacingDir facing, int frame)

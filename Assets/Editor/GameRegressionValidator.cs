@@ -66,6 +66,7 @@ namespace ShadowTheater.EditorTools
             ValidateRegionGraph(regions, result);
             ValidateRoster(result);
             ValidateDatabase(result);
+            ValidateFinalArt(result);
             ValidateScenes(regions, result);
             ValidateBuildSettings(regions, result);
             return result;
@@ -151,6 +152,24 @@ namespace ShadowTheater.EditorTools
                 if (skill.sfxClip == null) result.errors.Add($"{skill.skillId}: 캐스트 SFX 누락");
                 if (skill.impactSfxClip == null) result.errors.Add($"{skill.skillId}: 타격 SFX 누락");
             }
+        }
+
+        private static void ValidateFinalArt(ValidationReport result)
+        {
+            if (!File.Exists(FinalPixelArtPipeline.ReportPath))
+            {
+                result.errors.Add("최종 픽셀 아트 커버리지 보고서 누락");
+                return;
+            }
+            FinalArtCoverageReport report = JsonUtility.FromJson<FinalArtCoverageReport>(
+                File.ReadAllText(FinalPixelArtPipeline.ReportPath));
+            if (report == null) { result.errors.Add("최종 픽셀 아트 보고서 파싱 실패"); return; }
+            if (report.shadowCount != 180) result.errors.Add($"픽셀 아트 대상 그림자 수 불일치: {report.shadowCount}/180");
+            if (report.tileCount != 89) result.errors.Add($"최종 타일 대상 수 불일치: {report.tileCount}/89");
+            foreach (string issue in report.invalid ?? new List<string>()) result.errors.Add("최종 아트 규격: " + issue);
+            result.warnings.Add($"최종 아트 교체율 — 초상 {report.portraitsReady}/{report.shadowCount}, " +
+                                $"필드 그림자 {report.fieldActorsReady}/{report.shadowCount}, " +
+                                $"플레이어 {report.playerFramesReady}/6, 타일 {report.tilesReady}/{report.tileCount}");
         }
 
         private static void ValidateScenes(List<RegionData> regions, ValidationReport result)
