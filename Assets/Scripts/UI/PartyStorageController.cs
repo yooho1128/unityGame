@@ -36,10 +36,19 @@ namespace ShadowTheater.UI
             Instance = this; root?.SetActive(false);
             partyTemplate?.gameObject.SetActive(false); storageTemplate?.gameObject.SetActive(false);
         }
-        private void OnEnable() => L10n.Changed += RefreshIfOpen;
+        private void OnEnable()
+        {
+            L10n.Changed += RefreshIfOpen;
+            SaveManager.PartyChanged += RefreshIfOpen;
+        }
         private void RefreshIfOpen() { if (IsOpen) Refresh(); }
         private void OnDestroy() { if (Instance == this) Instance = null; ReleasePlayer(); }
-        private void OnDisable() { L10n.Changed -= RefreshIfOpen; if (IsOpen) Close(); }
+        private void OnDisable()
+        {
+            L10n.Changed -= RefreshIfOpen;
+            SaveManager.PartyChanged -= RefreshIfOpen;
+            if (IsOpen) Close();
+        }
 
         public void Toggle() { if (IsOpen) Close(); else Open(); }
         public void Open()

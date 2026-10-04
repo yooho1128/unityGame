@@ -177,6 +177,7 @@ namespace ShadowTheater.Field
             IsInBattle = false;
 
             SaveManager.Instance.Save();
+            ShowCaptureDestination(outcome);
             onFinished?.Invoke(outcome);
             OnBattleFlowFinished?.Invoke(ctx, outcome);
         }
@@ -197,6 +198,8 @@ namespace ShadowTheater.Field
                     shadow.FullHeal(); // 기억이 정화되어 온전한 모습으로 합류
                     bool toParty = SaveManager.AddCapturedShadow(shadow);
                     OnShadowRecorded?.Invoke(shadow, toParty);
+                    // 결과 연출이나 씬 전환 중 앱이 종료돼도 포획 개체가 사라지지 않도록 즉시 확정한다.
+                    SaveManager.Instance.Save();
                     QuestManager.Instance?.Notify(QuestObjectiveType.Record, shadow.shadowId);
                     break;
                 }
@@ -216,6 +219,17 @@ namespace ShadowTheater.Field
             var save = SaveManager.Current;
             PlayerController.Instance.SnapToCell(new Vector2Int(save.checkpointX, save.checkpointY));
             PlayerController.Instance.SetFacing(FacingDir.Down);
+        }
+
+        private static void ShowCaptureDestination(BattleOutcome outcome)
+        {
+            var captured = outcome?.capturedShadow;
+            if (captured == null || SaveManager.Current == null) return;
+            bool inParty = SaveManager.Current.party.Exists(x => x.instanceId == captured.instanceId);
+            string name = L10n.Text(captured.DisplayName);
+            SaveFeedbackController.Instance?.ShowMessage(inParty
+                ? L10n.Format("capture.to_party", "{0}이(가) 파티에 합류했습니다!", name)
+                : L10n.Format("capture.to_storage", "파티가 가득 차 {0}을(를) 각본 서고에 보관했습니다.", name));
         }
 
         /// <summary>패배 체크포인트가 다른 맵이면 현재 페이드 상태를 유지한 채 해당 씬으로 이동한다.</summary>

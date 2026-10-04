@@ -49,10 +49,11 @@ namespace ShadowTheater.EditorTools
             CreateSliderRow(card, .46f, "환경음", out var ambience, out var ambienceValue);
             CreateSliderRow(card, .37f, "효과음", out var sfx, out var sfxValue);
 
-            var feedback = Text("Feedback", card, new Vector2(.07f,.28f), new Vector2(.93f,.33f), 21, "", TextAnchor.MiddleCenter);
+            var feedback = Text("Feedback", card, new Vector2(.07f,.30f), new Vector2(.93f,.35f), 21, "", TextAnchor.MiddleCenter);
             feedback.color = new Color(.55f,1f,.84f);
-            var save = Button("Save", card, new Vector2(.07f,.18f), new Vector2(.93f,.26f), "진행 상황 저장", new Color(.13f,.30f,.29f));
-            var title = Button("ReturnTitle", card, new Vector2(.07f,.08f), new Vector2(.93f,.16f), "타이틀로 돌아가기", new Color(.29f,.10f,.19f));
+            var party = Button("Party", card, new Vector2(.07f,.21f), new Vector2(.93f,.285f), "파티 편성 · 각본 서고", new Color(.18f,.12f,.34f));
+            var save = Button("Save", card, new Vector2(.07f,.09f), new Vector2(.48f,.18f), "진행 상황 저장", new Color(.13f,.30f,.29f));
+            var title = Button("ReturnTitle", card, new Vector2(.52f,.09f), new Vector2(.93f,.18f), "타이틀로 돌아가기", new Color(.29f,.10f,.19f));
 
             var confirm = Rect("TitleConfirm", root, new Vector2(.10f,.35f), new Vector2(.90f,.65f));
             confirm.gameObject.AddComponent<Image>().color = new Color(.045f,.025f,.085f,1f);
@@ -74,6 +75,7 @@ namespace ShadowTheater.EditorTools
             toastSo.ApplyModifiedPropertiesWithoutUndo();
 
             UnityEventTools.AddPersistentListener(close.onClick, controller.Close);
+            UnityEventTools.AddPersistentListener(party.onClick, controller.OpenPartyManagement);
             UnityEventTools.AddPersistentListener(save.onClick, controller.SaveNow);
             UnityEventTools.AddPersistentListener(title.onClick, controller.RequestReturnToTitle);
             UnityEventTools.AddPersistentListener(cancel.onClick, controller.CancelReturnToTitle);

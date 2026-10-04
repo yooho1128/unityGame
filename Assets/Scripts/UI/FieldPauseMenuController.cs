@@ -105,6 +105,13 @@ namespace ShadowTheater.UI
             RefreshStatus();
         }
 
+        public void OpenPartyManagement()
+        {
+            if (!IsOpen || _returning) return;
+            Close();
+            PartyStorageController.Instance?.Open();
+        }
+
         public void RequestReturnToTitle()
         {
             if (!IsOpen || _returning) return;

@@ -43,9 +43,14 @@ namespace ShadowTheater.UI
 
         public void ShowSaved()
         {
+            ShowMessage(L10n.Get("save.recorded", "기억을 기록했습니다"));
+        }
+
+        public void ShowMessage(string message)
+        {
             if (!isActiveAndEnabled || root == null) return;
             if (_routine != null) StopCoroutine(_routine);
-            RefreshLabel();
+            if (label != null) label.text = message ?? string.Empty;
             _routine = StartCoroutine(ShowRoutine());
         }
 

@@ -204,6 +204,16 @@ namespace ShadowTheater.EditorTools
                     if (!roots.Any(x => x.GetComponentInChildren<FieldGrid>(true) != null)) result.errors.Add($"{region.sceneName}: FieldGrid 누락");
                     if (!roots.Any(x => x.GetComponentInChildren<PlayerController>(true) != null)) result.errors.Add($"{region.sceneName}: Player 누락");
                     if (!roots.Any(x => x.GetComponentInChildren<GameFlowController>(true) != null)) result.errors.Add($"{region.sceneName}: GameFlow 누락");
+                    PartyStorageController partyStorage = roots.SelectMany(x => x.GetComponentsInChildren<PartyStorageController>(true)).FirstOrDefault();
+                    if (partyStorage == null) result.errors.Add($"{region.sceneName}: 파티·각본 서고 UI 누락");
+                    else
+                    {
+                        var partySo = new SerializedObject(partyStorage);
+                        if (partySo.FindProperty("root")?.objectReferenceValue == null ||
+                            partySo.FindProperty("partyContent")?.objectReferenceValue == null ||
+                            partySo.FindProperty("storageContent")?.objectReferenceValue == null)
+                            result.errors.Add($"{region.sceneName}: 파티·각본 서고 UI 참조 누락");
+                    }
                     FieldPauseMenuController pauseMenu = roots.SelectMany(x => x.GetComponentsInChildren<FieldPauseMenuController>(true)).FirstOrDefault();
                     if (pauseMenu == null) result.errors.Add($"{region.sceneName}: 필드 메뉴 누락");
                     else

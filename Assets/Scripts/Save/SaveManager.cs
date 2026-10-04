@@ -158,6 +158,7 @@ namespace ShadowTheater.Save
             LastMigrationReport = migrationReport;
             foreach (var s in data.party) s.EnsureHp();
             foreach (var s in data.storage) s.EnsureHp();
+            int restoredShadows = RepairRecordedOwnership(data);
 
             _current = data;
             RegionProgress.SyncCurrentMap();
@@ -168,7 +169,12 @@ namespace ShadowTheater.Save
                 try { File.Move(SavePath, corruptPath); }
                 catch (Exception e) { Debug.LogWarning($"[SaveManager] 손상 파일 격리 실패: {e.Message}"); }
             }
-            if (sourceVersion < SaveData.CurrentVersion || LastLoadUsedBackup) Save(false);
+            if (restoredShadows > 0)
+            {
+                LastMigrationReport += $" · 누락 그림자 {restoredShadows}종 복구";
+                Debug.LogWarning($"[SaveManager] 도감에는 기록됐지만 보유 목록에서 누락된 그림자 {restoredShadows}종을 파티/각본 서고에 복구했습니다.");
+            }
+            if (sourceVersion < SaveData.CurrentVersion || LastLoadUsedBackup || restoredShadows > 0) Save(false);
             return true;
         }
 
@@ -399,7 +405,10 @@ namespace ShadowTheater.Save
         /// <summary>포획한 그림자 추가. 파티가 가득 차면 서고(보관함)로. 파티에 들어갔으면 true</summary>
         public static bool AddCapturedShadow(ShadowInstance shadow)
         {
-            if (Current == null || shadow == null) return false;
+            if (Current == null || shadow == null || string.IsNullOrWhiteSpace(shadow.shadowId)) return false;
+            if (string.IsNullOrEmpty(shadow.instanceId) || ContainsInstanceId(shadow.instanceId))
+                shadow.instanceId = Guid.NewGuid().ToString("N");
+            shadow.EnsureHp();
             MarkRecorded(shadow.shadowId);
 
             if (Current.party.Count < SaveData.MaxPartySize)
@@ -412,6 +421,48 @@ namespace ShadowTheater.Save
             PartyChanged?.Invoke();
             return false;
         }
+
+        /// <summary>도감 기록은 남았지만 파티·서고에서 사라진 구버전 포획 개체를 복구한다.</summary>
+        private static int RepairRecordedOwnership(SaveData data)
+        {
+            var ownedShadowIds = new HashSet<string>(StringComparer.Ordinal);
+            int totalLevel = 0;
+            int ownedCount = 0;
+            foreach (var instance in data.party)
+            {
+                ownedShadowIds.Add(instance.shadowId);
+                totalLevel += Mathf.Max(1, instance.level);
+                ownedCount++;
+            }
+            foreach (var instance in data.storage)
+            {
+                ownedShadowIds.Add(instance.shadowId);
+                totalLevel += Mathf.Max(1, instance.level);
+                ownedCount++;
+            }
+
+            int recoveryLevel = ownedCount > 0 ? Mathf.Max(1, Mathf.RoundToInt((float)totalLevel / ownedCount)) : 5;
+            int restored = 0;
+            foreach (string shadowId in data.recordedShadowIds)
+            {
+                if (ownedShadowIds.Contains(shadowId)) continue;
+                ShadowData definition = ShadowDatabase.Instance != null ? ShadowDatabase.Instance.GetShadow(shadowId) : null;
+                if (definition == null)
+                {
+                    Debug.LogWarning($"[SaveManager] 누락 그림자 데이터를 찾지 못해 복구 보류: {shadowId}");
+                    continue;
+                }
+                var restoredInstance = new ShadowInstance(definition, recoveryLevel);
+                if (data.party.Count < SaveData.MaxPartySize) data.party.Add(restoredInstance);
+                else data.storage.Add(restoredInstance);
+                ownedShadowIds.Add(shadowId);
+                restored++;
+            }
+            return restored;
+        }
+
+        private static bool ContainsInstanceId(string instanceId) =>
+            Current.party.Exists(x => x.instanceId == instanceId) || Current.storage.Exists(x => x.instanceId == instanceId);
 
         public static void HealParty()
         {

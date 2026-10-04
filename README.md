@@ -63,6 +63,9 @@
 지역 이동·전투 결과·퀘스트 진행 등 자동 저장이 끝나면 우상단에 `기억을 기록했습니다`가 짧게 표시됩니다.
 지역 카탈로그에서 `isSettlement`로 지정된 거점에 도착하면 그 위치가 자동 체크포인트가 되어, 이후 전투에서
 패배해도 직전 거점으로 복귀합니다.
+포획 직후에는 새 그림자가 파티에 합류했는지, 파티가 가득 차 각본 서고로 이동했는지 이름과 함께 알려줍니다.
+필드 `메뉴 → 파티 편성 · 각본 서고`에서 보유 그림자를 확인하고 파티 이동과 출전 순서를 변경할 수 있습니다.
+기존 세이브에서 도감에는 기록됐지만 보유 목록에서 누락된 그림자도 이어하기 시 파티 또는 각본 서고로 자동 복구합니다.
 
 제2막에는 그림자 10종과 스킬 20개, 메인 퀘스트 5개, 선택 분기, 지역 보스 2종과 전설 보스
 `재의 왕`이 포함됩니다. 전체 구성은 [`Docs/ACT2_CROWN_OF_ASH.md`](Docs/ACT2_CROWN_OF_ASH.md)를
@@ -179,7 +182,7 @@ Unity 메뉴 **Tools → Shadow Theater → Preview Final Shadow Art**를 열면
 
 Unity 메뉴 **Tools → Shadow Theater → Generate and Validate Full Game**은 전체 콘텐츠를 다시 만든 뒤
 180종 데이터, 40개 지역 연결, 40개 필드 구조, 포털 목적지, 인카운터 데이터, 필드 환경음·발걸음,
-필드 메뉴 참조, 최종 픽셀 아트 규격과 교체율, Missing Script와 Build Settings를 일괄 검사합니다. 자세한 출시 점검법은
+필드 메뉴와 파티·각본 서고 UI 참조, 최종 픽셀 아트 규격과 교체율, Missing Script와 Build Settings를 일괄 검사합니다. 자세한 출시 점검법은
 [`Docs/MOBILE_RELEASE_VALIDATION.md`](Docs/MOBILE_RELEASE_VALIDATION.md)를 참고하세요.
 
 ## 40개 지역 월드맵
