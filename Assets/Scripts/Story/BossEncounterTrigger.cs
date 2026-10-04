@@ -115,6 +115,10 @@ namespace ShadowTheater.Story
             QuestManager.Instance?.Notify(QuestObjectiveType.Record, purificationReward.shadowId);
             if (!string.IsNullOrEmpty(purificationRewardFlag)) SaveManager.SetFlag(purificationRewardFlag);
             SaveManager.Instance.Save();
+            string rewardName = L10n.Text(purificationReward.displayName);
+            SaveFeedbackController.Instance?.ShowMessage(joinedParty
+                ? L10n.Format("capture.to_party", "{0}이(가) 파티에 합류했습니다!", rewardName)
+                : L10n.Format("capture.to_storage", "파티가 가득 차 {0}을(를) 각본 서고에 보관했습니다.", rewardName));
             Debug.Log($"[Boss:{encounterId}] {purificationReward.displayName} 정화 완료 → " +
                       (joinedParty ? "파티" : "각본 서고"));
         }
