@@ -44,6 +44,7 @@ namespace ShadowTheater.Battle
         public IReadOnlyList<BattleUnit> PlayerUnits => _playerUnits;
         public IReadOnlyList<BattleUnit> EnemyUnits => _enemyUnits;
         public int PlayerActiveIndex => _playerIdx;
+        public int EnemyActiveIndex => _enemyIdx;
         public BattleUnit PlayerActive => _playerUnits[_playerIdx];
         public BattleUnit EnemyActive => _enemyUnits[_enemyIdx];
 

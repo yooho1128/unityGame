@@ -228,6 +228,22 @@ namespace ShadowTheater.EditorTools
                     if (!roots.Any(x => x.GetComponentInChildren<FieldGrid>(true) != null)) result.errors.Add($"{region.sceneName}: FieldGrid 누락");
                     if (!roots.Any(x => x.GetComponentInChildren<PlayerController>(true) != null)) result.errors.Add($"{region.sceneName}: Player 누락");
                     if (!roots.Any(x => x.GetComponentInChildren<GameFlowController>(true) != null)) result.errors.Add($"{region.sceneName}: GameFlow 누락");
+                    BattleUIController battleUi = roots.SelectMany(x => x.GetComponentsInChildren<BattleUIController>(true)).FirstOrDefault();
+                    if (battleUi == null) result.errors.Add($"{region.sceneName}: 전투 UI 누락");
+                    else
+                    {
+                        var battleSo = new SerializedObject(battleUi);
+                        if (battleSo.FindProperty("playerPartyStrip")?.objectReferenceValue == null ||
+                            battleSo.FindProperty("enemyPartyStrip")?.objectReferenceValue == null ||
+                            battleSo.FindProperty("optionContent")?.objectReferenceValue == null)
+                            result.errors.Add($"{region.sceneName}: 전투 파티 스트립·선택 목록 참조 누락");
+                        foreach (BattlePartyStrip strip in battleUi.GetComponentsInChildren<BattlePartyStrip>(true))
+                        {
+                            SerializedProperty slots = new SerializedObject(strip).FindProperty("slots");
+                            if (slots == null || slots.arraySize != SaveData.MaxPartySize)
+                                result.errors.Add($"{region.sceneName}: 전투 파티 스트립 슬롯 수 불일치");
+                        }
+                    }
                     PartyStorageController partyStorage = roots.SelectMany(x => x.GetComponentsInChildren<PartyStorageController>(true)).FirstOrDefault();
                     if (partyStorage == null) result.errors.Add($"{region.sceneName}: 파티·각본 서고 UI 누락");
                     else

@@ -13,6 +13,8 @@ namespace ShadowTheater.UI
         [SerializeField] private BattleManager manager;
         [SerializeField] private BattleUnitPanel playerPanel;
         [SerializeField] private BattleUnitPanel enemyPanel;
+        [SerializeField] private BattlePartyStrip playerPartyStrip;
+        [SerializeField] private BattlePartyStrip enemyPartyStrip;
         [SerializeField] private BattleFxDirector fxDirector;
         [SerializeField] private GameObject actionRoot;
         [SerializeField] private GameObject optionRoot;
@@ -155,8 +157,16 @@ namespace ShadowTheater.UI
         }
 
         private void OnFpChanged(BattleSide side, int value) { if (side == BattleSide.Player) RefreshLabels(); }
-        private void OnUnitChanged(BattleUnit unit) { if (unit.Side == BattleSide.Player) playerPanel.Bind(unit); else enemyPanel.Bind(unit); }
-        private void OnActiveChanged(BattleSide side, BattleUnit unit) { if (side == BattleSide.Player) playerPanel.Bind(unit); else enemyPanel.Bind(unit); }
+        private void OnUnitChanged(BattleUnit unit)
+        {
+            if (unit.Side == BattleSide.Player) playerPanel.Bind(unit); else enemyPanel.Bind(unit);
+            RefreshPartyStrips();
+        }
+        private void OnActiveChanged(BattleSide side, BattleUnit unit)
+        {
+            if (side == BattleSide.Player) playerPanel.Bind(unit); else enemyPanel.Bind(unit);
+            RefreshPartyStrips();
+        }
 
         private void RefreshAll()
         {
@@ -165,7 +175,15 @@ namespace ShadowTheater.UI
             enemyPanel.Bind(manager.EnemyActive);
             if (recordButton != null) recordButton.interactable = manager.Context.CanCapture;
             if (escapeButton != null) escapeButton.interactable = manager.Context.CanEscape;
+            RefreshPartyStrips();
             RefreshLabels();
+        }
+
+        private void RefreshPartyStrips()
+        {
+            if (manager.Context == null) return;
+            playerPartyStrip?.Bind(manager.PlayerUnits, manager.PlayerActiveIndex);
+            enemyPartyStrip?.Bind(manager.EnemyUnits, manager.EnemyActiveIndex);
         }
 
         private void RefreshLabels()
