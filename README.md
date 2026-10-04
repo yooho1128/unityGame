@@ -9,7 +9,7 @@
 | `Assets/Scripts/Save` | SaveData(JSON), SaveManager, 파티·각본 서고 편성 API |
 | `Assets/Scripts/Field` | PlayerController(타일 이동), EncounterSymbol(심볼 인카운터), GameFlowController(필드↔전투) |
 | `Assets/Scripts/Story` | JSON 대사/퀘스트/40개 지역 저장소, 목표 추적, 누적 선택 기반 다중 엔딩 |
-| `Assets/Scripts/UI` | 모바일 대화창, 퀘스트 HUD, 월드맵, 스타터 선택, 각본집 도감, 파티·서고 편성, 전역 설정 |
+| `Assets/Scripts/UI` | 모바일 대화창, 퀘스트 HUD, 월드맵, 필드 저장 메뉴, 스타터 선택, 각본집 도감, 파티·서고 편성, 전역 설정 |
 | `Assets/Editor` | 주요 모바일 UI 프리팹 자동 생성 메뉴 |
 | `Prototype/shadow-theater.html` | 같은 전투 규칙의 브라우저 프로토타입 — 더블클릭으로 실행, 밸런스 데이터 편집 탭 포함 |
 | `Docs/` | 기획 명세서, 씬 세팅 가이드(SETUP.md) |
@@ -55,6 +55,11 @@
 23×19 타일의 개방형 구조이며 상하좌우 탐색, 장애물 우회, 모바일 방향키/A 버튼, NPC 대화, 퀘스트,
 심볼 인카운터, 각본 기록, 지역 보스 정화와 분기 엔딩까지 한 흐름으로 확인할 수 있습니다. 41개 씬은 Build Settings에
 자동 등록됩니다.
+
+각 필드 우상단의 `메뉴`에서는 현재 지역·플레이 시간·금화를 확인하고 수동 저장할 수 있습니다. 전체/음악/
+환경음/효과음은 플레이 중 즉시 조절되며, 타이틀 복귀는 확인 창을 거쳐 현재 위치를 저장한 다음 실행됩니다.
+전투·대화·각본집·파티·월드맵이 열린 동안에는 중복으로 열리지 않습니다. 자세한 내용은
+[`Docs/FIELD_PAUSE_MENU.md`](Docs/FIELD_PAUSE_MENU.md)를 참고하세요.
 
 제2막에는 그림자 10종과 스킬 20개, 메인 퀘스트 5개, 선택 분기, 지역 보스 2종과 전설 보스
 `재의 왕`이 포함됩니다. 전체 구성은 [`Docs/ACT2_CROWN_OF_ASH.md`](Docs/ACT2_CROWN_OF_ASH.md)를
@@ -171,7 +176,7 @@ Unity 메뉴 **Tools → Shadow Theater → Preview Final Shadow Art**를 열면
 
 Unity 메뉴 **Tools → Shadow Theater → Generate and Validate Full Game**은 전체 콘텐츠를 다시 만든 뒤
 180종 데이터, 40개 지역 연결, 40개 필드 구조, 포털 목적지, 인카운터 데이터, 필드 환경음·발걸음,
-최종 픽셀 아트 규격과 교체율, Missing Script와 Build Settings를 일괄 검사합니다. 자세한 출시 점검법은
+필드 메뉴 참조, 최종 픽셀 아트 규격과 교체율, Missing Script와 Build Settings를 일괄 검사합니다. 자세한 출시 점검법은
 [`Docs/MOBILE_RELEASE_VALIDATION.md`](Docs/MOBILE_RELEASE_VALIDATION.md)를 참고하세요.
 
 ## 40개 지역 월드맵

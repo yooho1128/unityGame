@@ -204,6 +204,16 @@ namespace ShadowTheater.EditorTools
                     if (!roots.Any(x => x.GetComponentInChildren<FieldGrid>(true) != null)) result.errors.Add($"{region.sceneName}: FieldGrid 누락");
                     if (!roots.Any(x => x.GetComponentInChildren<PlayerController>(true) != null)) result.errors.Add($"{region.sceneName}: Player 누락");
                     if (!roots.Any(x => x.GetComponentInChildren<GameFlowController>(true) != null)) result.errors.Add($"{region.sceneName}: GameFlow 누락");
+                    FieldPauseMenuController pauseMenu = roots.SelectMany(x => x.GetComponentsInChildren<FieldPauseMenuController>(true)).FirstOrDefault();
+                    if (pauseMenu == null) result.errors.Add($"{region.sceneName}: 필드 메뉴 누락");
+                    else
+                    {
+                        var pauseSo = new SerializedObject(pauseMenu);
+                        if (pauseSo.FindProperty("root")?.objectReferenceValue == null ||
+                            pauseSo.FindProperty("masterSlider")?.objectReferenceValue == null ||
+                            pauseSo.FindProperty("titleConfirmRoot")?.objectReferenceValue == null)
+                            result.errors.Add($"{region.sceneName}: 필드 메뉴 참조 누락");
+                    }
                     FieldAmbientAudio ambience = roots.SelectMany(x => x.GetComponentsInChildren<FieldAmbientAudio>(true)).FirstOrDefault();
                     if (ambience == null) result.errors.Add($"{region.sceneName}: 환경음 컨트롤러 누락");
                     else

@@ -8,7 +8,7 @@ Assets/Scripts/
            DebugBattlePresenter, BattleManager, BattleTestBootstrap
   Save/    SaveData, SaveManager
   Field/   FieldGrid, PlayerController, EncounterSymbol, ScreenFader,
-           VirtualDPadButton, VirtualActionButton, VirtualScriptBookButton, VirtualPartyButton,
+           VirtualDPadButton, VirtualActionButton, VirtualScriptBookButton, VirtualPartyButton, VirtualPauseButton,
            GameFlowController, MapLoader, MapPortal, FieldCameraFollow, FieldAtmosphereController,
            FieldAmbientAudio, FieldFootstepAudio
   Story/   DialogueData/Repository, StoryNpc, DialogueInteractable,
@@ -17,14 +17,14 @@ Assets/Scripts/
   UI/      DialogueController, DialogueChoiceView, QuestHudController,
            TitleScreenController, StarterSelectionController, StarterCardView,
            EndingGalleryController, EndingGalleryEntryView, GameSettings, SettingsPanelController,
-           LocalizationService, MobilePerformanceController, AdaptiveMusicDirector,
+           LocalizationService, MobilePerformanceController, AdaptiveMusicDirector, FieldPauseMenuController,
            WorldMapController, RegionMapNodeView,
            ScriptBookController, ScriptBookEntryView, BattleUIController, BattleFxDirector,
            BattleSfxPlayer,
            BattleUnitPanel, BattleOptionButton, PartyStorageController, PartyStorageEntryView
   Editor/  DialogueUIPrefabGenerator, QuestHudPrefabGenerator, FrontEndPrefabGenerator,
            ScriptBookPrefabGenerator, BattleUIPrefabGenerator, PartyStoragePrefabGenerator,
-           WorldMapPrefabGenerator, CoreContentBatchGenerator, LegendaryGrowthBatchGenerator,
+           WorldMapPrefabGenerator, FieldPausePrefabGenerator, CoreContentBatchGenerator, LegendaryGrowthBatchGenerator,
            UltimateFxAssetGenerator, FieldAudioAssetGenerator, MusicAssetGenerator, FinalPixelArtPipeline,
            PlayablePrologueGenerator, GameRegressionValidator
 ```
