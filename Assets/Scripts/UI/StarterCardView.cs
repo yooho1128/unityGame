@@ -40,11 +40,12 @@ namespace ShadowTheater.UI
                 silhouette.preserveAspect = true;
             }
             if (accentGlow != null) accentGlow.color = data.accentColor;
-            if (nameText != null) nameText.text = data.displayName;
-            if (titleText != null) titleText.text = data.title;
+            if (nameText != null) nameText.text = L10n.Text(data.displayName);
+            if (titleText != null) titleText.text = L10n.Text(data.title);
             if (roleText != null) roleText.text = $"{ElementName(data.element)} · {RoleName(data.role)}";
             if (statsText != null)
-                statsText.text = $"HP {data.baseHp}   공격 {data.baseAtk}   속도 {data.baseSpd}";
+                statsText.text = L10n.Format("stats.starter", "HP {0}   공격 {1}   속도 {2}",
+                    data.baseHp, data.baseAtk, data.baseSpd);
         }
 
         private void Select()
@@ -56,10 +57,10 @@ namespace ShadowTheater.UI
         {
             switch (element)
             {
-                case ShadowElement.Flame: return "붉은 불꽃";
-                case ShadowElement.Frost: return "푸른 서리";
-                case ShadowElement.Shade: return "자줏빛 그림자";
-                default: return "무속성";
+                case ShadowElement.Flame: return L10n.Get("element.flame", "붉은 불꽃");
+                case ShadowElement.Frost: return L10n.Get("element.frost", "푸른 서리");
+                case ShadowElement.Shade: return L10n.Get("element.shade", "자줏빛 그림자");
+                default: return L10n.Get("element.none", "무속성");
             }
         }
 
@@ -67,11 +68,11 @@ namespace ShadowTheater.UI
         {
             switch (role)
             {
-                case ShadowRole.PhysicalDealer: return "물리 공격";
-                case ShadowRole.MagicNuker: return "마법 공격";
-                case ShadowRole.SpeedUtility: return "속도·유틸";
-                case ShadowRole.Tank: return "수호";
-                default: return "지원";
+                case ShadowRole.PhysicalDealer: return L10n.Get("role.physical", "물리 공격");
+                case ShadowRole.MagicNuker: return L10n.Get("role.magic", "마법 공격");
+                case ShadowRole.SpeedUtility: return L10n.Get("role.speed", "속도·유틸");
+                case ShadowRole.Tank: return L10n.Get("role.tank", "수호");
+                default: return L10n.Get("role.support", "지원");
             }
         }
     }

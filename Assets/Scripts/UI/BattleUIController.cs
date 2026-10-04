@@ -61,37 +61,39 @@ namespace ShadowTheater.UI
 
         public void OpenSkills()
         {
-            OpenOptions("사용할 기술을 선택하세요");
+            OpenOptions(L10n.Get("battle.choose_skill", "사용할 기술을 선택하세요"));
             foreach (var skill in manager.PlayerActive.Skills)
             {
                 if (skill == null) continue;
                 var captured = skill;
-                AddOption(skill.displayName, $"FP {skill.fpCost} · 위력 {skill.damageMultiplier:0.0}",
+                AddOption(L10n.Text(skill.displayName), L10n.Format("battle.skill_info", "FP {0} · 위력 {1:0.0}", skill.fpCost, skill.damageMultiplier),
                     manager.CanUseSkill(skill), () => Submit(BattleAction.UseSkill(BattleSide.Player, captured)));
             }
         }
 
         public void OpenSwitches()
         {
-            OpenOptions(manager.State == BattleState.ForcedSwitch ? "다음 그림자를 선택하세요" : "교체할 그림자를 선택하세요");
+            OpenOptions(manager.State == BattleState.ForcedSwitch
+                ? L10n.Get("battle.choose_next", "다음 그림자를 선택하세요")
+                : L10n.Get("battle.choose_switch", "교체할 그림자를 선택하세요"));
             for (int i = 0; i < manager.PlayerUnits.Count; i++)
             {
                 int index = i;
                 var unit = manager.PlayerUnits[i];
-                AddOption(unit.Name, $"Lv.{unit.Level}  HP {unit.Hp}/{unit.MaxHp}", manager.CanSwitchTo(i),
+                AddOption(L10n.Text(unit.Name), $"Lv.{unit.Level}  HP {unit.Hp}/{unit.MaxHp}", manager.CanSwitchTo(i),
                     () => Submit(BattleAction.Switch(BattleSide.Player, index)));
             }
         }
 
         public void OpenItems()
         {
-            OpenOptions("사용할 도구를 선택하세요");
+            OpenOptions(L10n.Get("battle.choose_item", "사용할 도구를 선택하세요"));
             if (manager.Context?.inventory == null) return;
             foreach (var pair in manager.Context.inventory)
             {
                 ItemData item = pair.Key;
                 int count = pair.Value;
-                AddOption(item.displayName, $"보유 {count} · {item.description}", count > 0 && item.usableInBattle,
+                AddOption(L10n.Text(item.displayName), L10n.Format("battle.item_info", "보유 {0} · {1}", count, L10n.Text(item.description)), count > 0 && item.usableInBattle,
                     () => Submit(BattleAction.UseItem(BattleSide.Player, item)));
             }
         }
@@ -190,26 +192,28 @@ namespace ShadowTheater.UI
         public void SetSpeed(float timeScale) => _speed = Mathf.Max(0.1f, timeScale);
 
         public IEnumerator PlayIntro(BattleUnit player, BattleUnit enemy, BattleMode mode)
-        { RefreshAll(); yield return Say($"{enemy.Name}이(가) 무대에 올랐다!\n가라, {player.Name}!"); }
-        public IEnumerator PlaySendOut(BattleUnit unit) { yield return Say($"{unit.Name}, 무대로!"); }
-        public IEnumerator PlayWithdraw(BattleUnit unit) { yield return Say($"{unit.Name}, 각본집으로 돌아와!"); }
+        { RefreshAll(); yield return Say(L10n.Format("battle.intro", "{0}이(가) 무대에 올랐다!\n가라, {1}!", L10n.Text(enemy.Name), L10n.Text(player.Name))); }
+        public IEnumerator PlaySendOut(BattleUnit unit) { yield return Say(L10n.Format("battle.send_out", "{0}, 무대로!", L10n.Text(unit.Name))); }
+        public IEnumerator PlayWithdraw(BattleUnit unit) { yield return Say(L10n.Format("battle.withdraw", "{0}, 각본집으로 돌아와!", L10n.Text(unit.Name))); }
         public IEnumerator PlaySkill(BattleUnit a, BattleUnit d, SkillData s, HitResult hit)
         {
             BattleUnitPanel attacker = a.Side == BattleSide.Player ? playerPanel : enemyPanel;
             BattleUnitPanel defender = d.Side == BattleSide.Player ? playerPanel : enemyPanel;
             if (fxDirector != null) yield return fxDirector.Play(attacker, defender, s, hit, _speed);
-            yield return Say(hit.missed ? $"{a.Name}의 {s.displayName}! 빗나갔다." : $"{a.Name}의 {s.displayName}!" );
+            yield return Say(hit.missed
+                ? L10n.Format("battle.missed", "{0}의 {1}! 빗나갔다.", L10n.Text(a.Name), L10n.Text(s.displayName))
+                : L10n.Format("battle.used_skill", "{0}의 {1}!", L10n.Text(a.Name), L10n.Text(s.displayName)));
         }
-        public IEnumerator PlayHeal(BattleUnit unit, int amount) { yield return Say($"{unit.Name}의 HP가 {amount} 회복됐다."); }
-        public IEnumerator PlayStatusApplied(BattleUnit unit, StatusEffectType status) { yield return Say($"{unit.Name}에게 {status} 상태가 걸렸다."); }
-        public IEnumerator PlayStatusDamage(BattleUnit unit, StatusEffectType status, int damage) { yield return Say($"{unit.Name}은(는) {status}로 {damage} 피해!"); }
-        public IEnumerator PlayCantMove(BattleUnit unit) { yield return Say($"{unit.Name}은(는) 움직일 수 없다!"); }
-        public IEnumerator PlayFaint(BattleUnit unit) { yield return Say($"{unit.Name}의 실루엣이 흩어졌다."); }
-        public IEnumerator PlayRecordAttempt(BattleUnit target, bool success) { yield return Say(success ? $"{target.Name}의 기억을 기록했다!" : "기록에 실패했다!"); }
-        public IEnumerator PlayItem(BattleUnit target, ItemData item) { yield return Say($"{item.displayName} 사용!"); }
-        public IEnumerator PlayEscape(bool success) { yield return Say(success ? "무대에서 벗어났다." : "도망칠 수 없다!"); }
+        public IEnumerator PlayHeal(BattleUnit unit, int amount) { yield return Say(L10n.Format("battle.heal", "{0}의 HP가 {1} 회복됐다.", L10n.Text(unit.Name), amount)); }
+        public IEnumerator PlayStatusApplied(BattleUnit unit, StatusEffectType status) { yield return Say(L10n.Format("battle.status_applied", "{0}에게 {1} 상태가 걸렸다.", L10n.Text(unit.Name), StatusLabel(status))); }
+        public IEnumerator PlayStatusDamage(BattleUnit unit, StatusEffectType status, int damage) { yield return Say(L10n.Format("battle.status_damage", "{0}은(는) {1}로 {2} 피해!", L10n.Text(unit.Name), StatusLabel(status), damage)); }
+        public IEnumerator PlayCantMove(BattleUnit unit) { yield return Say(L10n.Format("battle.cannot_move", "{0}은(는) 움직일 수 없다!", L10n.Text(unit.Name))); }
+        public IEnumerator PlayFaint(BattleUnit unit) { yield return Say(L10n.Format("battle.faint", "{0}의 실루엣이 흩어졌다.", L10n.Text(unit.Name))); }
+        public IEnumerator PlayRecordAttempt(BattleUnit target, bool success) { yield return Say(success ? L10n.Format("battle.recorded", "{0}의 기억을 기록했다!", L10n.Text(target.Name)) : L10n.Get("battle.record_failed", "기록에 실패했다!")); }
+        public IEnumerator PlayItem(BattleUnit target, ItemData item) { yield return Say(L10n.Format("battle.used_item", "{0} 사용!", L10n.Text(item.displayName))); }
+        public IEnumerator PlayEscape(bool success) { yield return Say(success ? L10n.Get("battle.escaped", "무대에서 벗어났다.") : L10n.Get("battle.escape_failed", "도망칠 수 없다!")); }
         public IEnumerator ShowMessage(string message) { yield return Say(message); }
-        public IEnumerator PlayResult(BattleOutcome outcome) { yield return Say($"전투 {ResultLabel(outcome.result)}\nEXP +{outcome.expGained}  금화 +{outcome.goldGained}", 1.4f); }
+        public IEnumerator PlayResult(BattleOutcome outcome) { yield return Say(L10n.Format("battle.result", "전투 {0}\nEXP +{1}  금화 +{2}", ResultLabel(outcome.result), outcome.expGained, outcome.goldGained), 1.4f); }
 
         private IEnumerator Say(string message, float multiplier = 1f)
         {
@@ -222,12 +226,15 @@ namespace ShadowTheater.UI
         {
             switch (result)
             {
-                case BattleResult.Victory: return "승리";
-                case BattleResult.Defeat: return "패배";
-                case BattleResult.Captured: return "기록 성공";
-                case BattleResult.Escaped: return "종료";
+                case BattleResult.Victory: return L10n.Get("battle.victory", "승리");
+                case BattleResult.Defeat: return L10n.Get("battle.defeat", "패배");
+                case BattleResult.Captured: return L10n.Get("battle.record_success", "기록 성공");
+                case BattleResult.Escaped: return L10n.Get("battle.ended", "종료");
                 default: return result.ToString();
             }
         }
+
+        private static string StatusLabel(StatusEffectType status) =>
+            L10n.Get("status." + status.ToString().ToLowerInvariant(), status.ToString());
     }
 }

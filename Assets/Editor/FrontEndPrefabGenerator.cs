@@ -31,7 +31,7 @@ namespace ShadowTheater.EditorTools
         private static void GenerateCoreSystems()
         {
             var systems = new GameObject("CoreSystems", typeof(SaveManager), typeof(MapLoader),
-                typeof(EndingManager), typeof(GameSettings));
+                typeof(EndingManager), typeof(GameSettings), typeof(LocalizationRuntime));
             PrefabUtility.SaveAsPrefabAsset(systems, SystemsFolder + "/CoreSystems.prefab");
             Object.DestroyImmediate(systems);
         }

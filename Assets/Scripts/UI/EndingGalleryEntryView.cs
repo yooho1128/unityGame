@@ -18,9 +18,13 @@ namespace ShadowTheater.UI
                          Action<EndingDefinition, bool> onSelected)
         {
             if (numberText != null) numberText.text = $"ENDING {index + 1:00}";
-            if (titleText != null) titleText.text = unlocked ? ending.title : "???";
-            if (subtitleText != null) subtitleText.text = unlocked ? ending.subtitle : "아직 기록되지 않은 결말";
-            if (lockText != null) lockText.text = unlocked ? "기록 완료" : "잠김";
+            if (titleText != null) titleText.text = unlocked
+                ? L10n.Get($"ending.{ending.endingId}.title", L10n.Text(ending.title)) : "???";
+            if (subtitleText != null) subtitleText.text = unlocked
+                ? L10n.Get($"ending.{ending.endingId}.subtitle", L10n.Text(ending.subtitle))
+                : L10n.Get("ending.unrecorded_sub", "아직 기록되지 않은 결말");
+            if (lockText != null) lockText.text = unlocked
+                ? L10n.Get("common.complete", "기록 완료") : L10n.Get("common.locked", "잠김");
             if (accent != null) accent.color = unlocked ? color : new Color(.24f,.22f,.30f,1f);
             if (button != null)
             {

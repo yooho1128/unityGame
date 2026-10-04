@@ -89,8 +89,11 @@ namespace ShadowTheater.UI
             if (masterValue != null) masterValue.text = Percent(GameSettings.MasterVolume);
             if (ambienceValue != null) ambienceValue.text = Percent(GameSettings.AmbienceVolume);
             if (sfxValue != null) sfxValue.text = Percent(GameSettings.SfxVolume);
-            if (vibrationValue != null) vibrationValue.text = GameSettings.Vibration ? "켜짐" : "꺼짐";
-            if (textSpeedValue != null) textSpeedValue.text = GameSettings.TextSpeed < 33f ? "느리게" : GameSettings.TextSpeed < 60f ? "보통" : "빠르게";
+            if (vibrationValue != null) vibrationValue.text = GameSettings.Vibration
+                ? L10n.Get("settings.on", "켜짐") : L10n.Get("settings.off", "꺼짐");
+            if (textSpeedValue != null) textSpeedValue.text = GameSettings.TextSpeed < 33f
+                ? L10n.Get("settings.slow", "느리게") : GameSettings.TextSpeed < 60f
+                    ? L10n.Get("settings.normal", "보통") : L10n.Get("settings.fast", "빠르게");
             if (languageValue != null) languageValue.text = GameSettings.Language == GameLanguage.Korean ? "한국어" : "English";
         }
 

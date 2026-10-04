@@ -50,6 +50,9 @@ namespace ShadowTheater.UI
             if (entryTemplate != null) entryTemplate.gameObject.SetActive(false);
         }
 
+        private void OnEnable() => L10n.Changed += RefreshIfOpen;
+        private void RefreshIfOpen() { if (IsOpen) RefreshList(); }
+
         private void OnDestroy()
         {
             if (Instance == this) Instance = null;
@@ -58,6 +61,7 @@ namespace ShadowTheater.UI
 
         private void OnDisable()
         {
+            L10n.Changed -= RefreshIfOpen;
             if (IsOpen) Close();
         }
 
@@ -144,7 +148,7 @@ namespace ShadowTheater.UI
                 _spawned.Add(view.gameObject);
             }
 
-            if (progressText != null) progressText.text = $"기록 {recorded} / {database.shadows.Count}";
+            if (progressText != null) progressText.text = L10n.Format("book.progress", "기록 {0} / {1}", recorded, database.shadows.Count);
             if (_spawned.Count > 0)
             {
                 // 목록의 첫 데이터를 다시 찾는 대신 필터 순서대로 선택한다.
@@ -173,12 +177,12 @@ namespace ShadowTheater.UI
                 ? (_selectedInstance?.AccentColor ?? data.accentColor)
                 : new Color(0.18f, 0.16f, 0.24f, 1f);
             if (nameText != null) nameText.text = seen
-                ? (_selectedInstance?.DisplayName ?? data.displayName)
-                : "기록되지 않은 그림자";
-            if (titleText != null) titleText.text = recorded ? data.title : "???";
+                ? L10n.Text(_selectedInstance?.DisplayName ?? data.displayName)
+                : L10n.Get("book.unrecorded", "기록되지 않은 그림자");
+            if (titleText != null) titleText.text = recorded ? L10n.Text(data.title) : "???";
             if (typeText != null) typeText.text = recorded
                 ? $"{GrowthTierName(data.growthTier)} · {ElementName(data.element)} · {RoleName(data.role)}"
-                : "속성 미상";
+                : L10n.Get("book.unknown_type", "속성 미상");
             if (statsText != null) statsText.text = recorded
                 ? (_selectedInstance != null
                     ? $"Lv.{_selectedInstance.level}  HP {_selectedInstance.MaxHp}  공격 {_selectedInstance.Atk}  방어 {_selectedInstance.Def}  속도 {_selectedInstance.Spd}"
@@ -211,11 +215,11 @@ namespace ShadowTheater.UI
         private void ShowEmptyDetail()
         {
             if (portrait != null) portrait.sprite = null;
-            if (nameText != null) nameText.text = "표시할 기록이 없습니다";
+            if (nameText != null) nameText.text = L10n.Get("book.empty", "표시할 기록이 없습니다");
             if (titleText != null) titleText.text = string.Empty;
             if (typeText != null) typeText.text = string.Empty;
             if (statsText != null) statsText.text = string.Empty;
-            if (loreText != null) loreText.text = "다른 필터를 선택하거나 새로운 그림자를 만나 보세요.";
+            if (loreText != null) loreText.text = L10n.Get("book.empty_hint", "다른 필터를 선택하거나 새로운 그림자를 만나 보세요.");
             _selectedData = null;
             _selectedInstance = null;
             RefreshAwakeningActions(false);
@@ -289,18 +293,18 @@ namespace ShadowTheater.UI
         private static string BuildLore(ShadowData data, ShadowInstance instance)
         {
             if (instance?.ActiveForm == null || string.IsNullOrWhiteSpace(instance.ActiveForm.loreAppend))
-                return data.loreUnlocked;
-            return data.loreUnlocked + "\n\n" + instance.ActiveForm.loreAppend;
+                return L10n.Text(data.loreUnlocked);
+            return L10n.Text(data.loreUnlocked) + "\n\n" + L10n.Text(instance.ActiveForm.loreAppend);
         }
 
         private static string ElementName(ShadowElement element)
         {
             switch (element)
             {
-                case ShadowElement.Flame: return "붉은 불꽃";
-                case ShadowElement.Frost: return "푸른 서리";
-                case ShadowElement.Shade: return "자줏빛 그림자";
-                default: return "무속성";
+                case ShadowElement.Flame: return L10n.Get("element.flame", "붉은 불꽃");
+                case ShadowElement.Frost: return L10n.Get("element.frost", "푸른 서리");
+                case ShadowElement.Shade: return L10n.Get("element.shade", "자줏빛 그림자");
+                default: return L10n.Get("element.none", "무속성");
             }
         }
 
@@ -308,11 +312,11 @@ namespace ShadowTheater.UI
         {
             switch (role)
             {
-                case ShadowRole.PhysicalDealer: return "물리 공격";
-                case ShadowRole.MagicNuker: return "마법 공격";
-                case ShadowRole.SpeedUtility: return "속도·유틸";
-                case ShadowRole.Tank: return "수호";
-                default: return "지원";
+                case ShadowRole.PhysicalDealer: return L10n.Get("role.physical", "물리 공격");
+                case ShadowRole.MagicNuker: return L10n.Get("role.magic", "마법 공격");
+                case ShadowRole.SpeedUtility: return L10n.Get("role.speed", "속도·유틸");
+                case ShadowRole.Tank: return L10n.Get("role.tank", "수호");
+                default: return L10n.Get("role.support", "지원");
             }
         }
 
@@ -320,10 +324,10 @@ namespace ShadowTheater.UI
         {
             switch (tier)
             {
-                case GrowthTier.Rare: return "희귀";
-                case GrowthTier.RegionalBoss: return "지역 보스";
-                case GrowthTier.Legendary: return "전설";
-                default: return "일반";
+                case GrowthTier.Rare: return L10n.Get("tier.rare", "희귀");
+                case GrowthTier.RegionalBoss: return L10n.Get("tier.boss", "지역 보스");
+                case GrowthTier.Legendary: return L10n.Get("tier.legendary", "전설");
+                default: return L10n.Get("tier.standard", "일반");
             }
         }
     }

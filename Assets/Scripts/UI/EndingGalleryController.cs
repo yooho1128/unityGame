@@ -27,6 +27,10 @@ namespace ShadowTheater.UI
             if (root != null) root.SetActive(false);
         }
 
+        private void OnEnable() => L10n.Changed += RefreshIfOpen;
+        private void OnDisable() => L10n.Changed -= RefreshIfOpen;
+        private void RefreshIfOpen() { if (root != null && root.activeSelf) Refresh(); }
+
         public void Open()
         {
             EnsureSaveLoaded();
@@ -59,22 +63,22 @@ namespace ShadowTheater.UI
                 index++;
             }
 
-            if (progressText != null) progressText.text = $"기록한 결말  {unlockedCount} / {index}";
+            if (progressText != null) progressText.text = L10n.Format("ending.progress", "기록한 결말  {0} / {1}", unlockedCount, index);
             if (cycleText != null) cycleText.text = save == null
-                ? "아직 시작되지 않은 기억"
-                : $"현재 {Mathf.Max(1, save.cycle)}회차 · 완주 {save.completedCycles}회";
-            if (detailTitle != null) detailTitle.text = "결말 기록을 선택하세요";
-            if (detailSubtitle != null) detailSubtitle.text = "선택에 따라 달라진 세계의 마지막 장면";
-            if (detailState != null) detailState.text = unlockedCount == index && index > 0 ? "모든 결말 기록 완료" : "잠긴 결말은 다른 선택에서 해금됩니다";
+                ? L10n.Get("ending.not_started", "아직 시작되지 않은 기억")
+                : L10n.Format("ending.cycle", "현재 {0}회차 · 완주 {1}회", Mathf.Max(1, save.cycle), save.completedCycles);
+            if (detailTitle != null) detailTitle.text = L10n.Get("ending.choose", "결말 기록을 선택하세요");
+            if (detailSubtitle != null) detailSubtitle.text = L10n.Get("ending.choose_hint", "선택에 따라 달라진 세계의 마지막 장면");
+            if (detailState != null) detailState.text = unlockedCount == index && index > 0 ? L10n.Get("ending.all_complete", "모든 결말 기록 완료") : L10n.Get("ending.lock_hint", "잠긴 결말은 다른 선택에서 해금됩니다");
         }
 
         private void Select(EndingDefinition ending, bool unlocked)
         {
-            if (detailTitle != null) detailTitle.text = unlocked ? ending.title : "기록되지 않은 결말";
+            if (detailTitle != null) detailTitle.text = unlocked ? L10n.Get($"ending.{ending.endingId}.title", L10n.Text(ending.title)) : L10n.Get("ending.unrecorded", "기록되지 않은 결말");
             if (detailSubtitle != null) detailSubtitle.text = unlocked
-                ? (!string.IsNullOrEmpty(ending.archiveText) ? ending.archiveText : ending.subtitle)
-                : "다른 선택과 진명으로 마지막 무대에 도달하세요.";
-            if (detailState != null) detailState.text = unlocked ? $"기록 ID · {ending.endingId}" : "???";
+                ? L10n.Get($"ending.{ending.endingId}.archive", L10n.Text(!string.IsNullOrEmpty(ending.archiveText) ? ending.archiveText : ending.subtitle))
+                : L10n.Get("ending.reach_again", "다른 선택과 진명으로 마지막 무대에 도달하세요.");
+            if (detailState != null) detailState.text = unlocked ? L10n.Format("ending.id", "기록 ID · {0}", ending.endingId) : "???";
         }
 
         private static void EnsureSaveLoaded()

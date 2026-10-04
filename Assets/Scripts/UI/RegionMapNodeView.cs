@@ -18,7 +18,9 @@ namespace ShadowTheater.UI
         {
             bool known = state != RegionMapState.Locked;
             if (orderText != null) orderText.text = $"{region.order:00}";
-            if (nameText != null) nameText.text = known ? region.displayName : "아직 걷지 않은 길";
+            if (nameText != null) nameText.text = known
+                ? L10n.Get($"region.{region.regionId}.name", L10n.Text(region.displayName))
+                : L10n.Get("common.unknown_path", "아직 걷지 않은 길");
             if (levelText != null) levelText.text = known
                 ? $"Lv.{region.recommendedLevelMin}–{region.recommendedLevelMax}"
                 : "???";
@@ -37,10 +39,10 @@ namespace ShadowTheater.UI
         {
             switch (state)
             {
-                case RegionMapState.Current: return "현재 위치";
-                case RegionMapState.Visited: return "방문 완료";
-                case RegionMapState.Unlocked: return "새 지역";
-                default: return "잠김";
+                case RegionMapState.Current: return L10n.Get("map.current", "현재 위치");
+                case RegionMapState.Visited: return L10n.Get("map.visited", "방문 완료");
+                case RegionMapState.Unlocked: return L10n.Get("map.new", "새 지역");
+                default: return L10n.Get("common.locked", "잠김");
             }
         }
     }

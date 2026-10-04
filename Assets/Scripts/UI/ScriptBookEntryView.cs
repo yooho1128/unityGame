@@ -32,7 +32,8 @@ namespace ShadowTheater.UI
             _data = data;
             _onSelected = onSelected;
             if (numberText != null) numberText.text = $"No.{index + 1:000}";
-            if (nameText != null) nameText.text = state == ScriptBookEntryState.Unknown ? "???" : data.displayName;
+            if (nameText != null) nameText.text = state == ScriptBookEntryState.Unknown
+                ? "???" : L10n.Text(data.displayName);
             if (stateText != null) stateText.text = StateLabel(state);
             if (silhouette != null)
             {
@@ -55,9 +56,9 @@ namespace ShadowTheater.UI
         {
             switch (state)
             {
-                case ScriptBookEntryState.Recorded: return "기록 완료";
-                case ScriptBookEntryState.Seen: return "조우";
-                default: return "미조우";
+                case ScriptBookEntryState.Recorded: return L10n.Get("common.complete", "기록 완료");
+                case ScriptBookEntryState.Seen: return L10n.Get("common.encountered", "조우");
+                default: return L10n.Get("common.not_seen", "미조우");
             }
         }
     }

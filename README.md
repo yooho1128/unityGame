@@ -143,8 +143,11 @@ Unity 메뉴 **Tools → Shadow Theater → Preview Final Shadow Art**를 열면
 `Generate Title and Starter UI`로 만든 타이틀에는 설정 화면이 포함됩니다. 전체 음량, 환경음, 효과음,
 진동, 대화 출력 속도, 언어를 조절할 수 있으며 값은 `PlayerPrefs`에 저장되어 세이브 슬롯과 회차에
 상관없이 유지됩니다. 환경음 슬라이더는 필드의 지속음과 간헐음을 즉시 갱신하고, 효과음은 전투 스킬과
-필살기에 적용됩니다. 진동은 모바일 전투의 타격 순간에만 발생합니다. 언어 전환 상태와 변경 이벤트는
-준비되어 있으며 실제 영문 대사·UI 문자열 카탈로그 연결은 다음 현지화 단계에서 확장합니다.
+필살기에 적용됩니다. 진동은 모바일 전투의 타격 순간에만 발생합니다. 한국어/English 전환은
+`LocalizationCatalog.json`을 통해 타이틀·전투·대화·퀘스트·각본집·파티·40개 지역·엔딩 UI에 즉시
+반영됩니다. Windows/macOS/Android/iOS의 설치 폰트에서 한글과 라틴 글꼴을 우선 탐색하고 없으면 Unity
+기본 동적 폰트로 안전하게 폴백합니다. 키 작성 규칙은
+[`Docs/LOCALIZATION.md`](Docs/LOCALIZATION.md)를 참고하세요.
 
 ## 40개 지역 월드맵
 

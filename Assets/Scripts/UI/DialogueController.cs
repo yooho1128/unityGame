@@ -173,8 +173,9 @@ namespace ShadowTheater.UI
         {
             var line = _sequence.lines[_lineIndex];
             if (!string.IsNullOrEmpty(line.setFlag)) SaveManager.SetFlag(line.setFlag, line.setFlagValue);
-            if (speakerText != null) speakerText.text = line.speaker ?? string.Empty;
-            _fullLine = line.text ?? string.Empty;
+            if (speakerText != null) speakerText.text = L10n.Get(
+                $"dialogue.{_sequence.dialogueId}.{_lineIndex}.speaker", L10n.Text(line.speaker));
+            _fullLine = L10n.Get($"dialogue.{_sequence.dialogueId}.{_lineIndex}.text", L10n.Text(line.text));
             if (_typingRoutine != null) StopCoroutine(_typingRoutine);
             _typingRoutine = StartCoroutine(TypeLine());
         }
@@ -201,7 +202,8 @@ namespace ShadowTheater.UI
             if (continueText != null) continueText.gameObject.SetActive(false);
             for (int i = 0; i < choiceViews.Count; i++)
             {
-                if (i < _visibleChoices.Count) choiceViews[i].Bind(i, _visibleChoices[i].text, SelectChoice);
+                if (i < _visibleChoices.Count) choiceViews[i].Bind(i,
+                    L10n.Text(_visibleChoices[i].text), SelectChoice);
                 else choiceViews[i].Clear();
             }
             if (_visibleChoices.Count > choiceViews.Count)

@@ -18,6 +18,7 @@ namespace ShadowTheater.UI
         private void OnEnable()
         {
             QuestManager.GlobalQuestChanged += Refresh;
+            L10n.Changed += Refresh;
             Refresh();
         }
 
@@ -34,6 +35,7 @@ namespace ShadowTheater.UI
         private void OnDisable()
         {
             QuestManager.GlobalQuestChanged -= Refresh;
+            L10n.Changed -= Refresh;
         }
 
         public void Refresh()
@@ -45,7 +47,7 @@ namespace ShadowTheater.UI
             if (panelRoot != null) panelRoot.SetActive(quest != null && !inBattle);
             if (quest == null || manager == null) return;
 
-            if (titleText != null) titleText.text = quest.title;
+            if (titleText != null) titleText.text = L10n.Get($"quest.{quest.questId}.title", L10n.Text(quest.title));
 
             var builder = new StringBuilder();
             foreach (var objective in quest.objectives)
@@ -56,12 +58,13 @@ namespace ShadowTheater.UI
                 bool done = current >= required;
                 if (builder.Length > 0) builder.AppendLine();
                 builder.Append(done ? "✓ " : "□ ");
-                builder.Append(objective.description);
+                builder.Append(L10n.Get($"quest.{quest.questId}.{objective.objectiveId}", L10n.Text(objective.description)));
                 if (required > 1) builder.Append($"  {current}/{required}");
             }
             if (objectiveText != null) objectiveText.text = builder.ToString();
             if (rewardText != null)
-                rewardText.text = quest.rewardGold > 0 ? $"보상  {quest.rewardGold:N0} 금화" : string.Empty;
+                rewardText.text = quest.rewardGold > 0
+                    ? L10n.Format("quest.reward", "보상  {0:N0} 금화", quest.rewardGold) : string.Empty;
         }
     }
 }
