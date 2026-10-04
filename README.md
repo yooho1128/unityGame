@@ -149,6 +149,21 @@ Unity 메뉴 **Tools → Shadow Theater → Preview Final Shadow Art**를 열면
 기본 동적 폰트로 안전하게 폴백합니다. 키 작성 규칙은
 [`Docs/LOCALIZATION.md`](Docs/LOCALIZATION.md)를 참고하세요.
 
+## 모바일 성능·세이브·전체 회귀 검증
+
+`CoreSystems`의 `MobilePerformanceController`는 기기 메모리 등급에 따라 60/30 FPS를 선택하고 모바일에서
+불필요한 MSAA, 실시간 그림자, 반사 프로브와 이방성 필터를 끕니다. 다섯 번의 씬 이동마다 사용하지 않는
+리소스를 회수하며 OS 저메모리 알림이 오면 먼저 세이브한 뒤 메모리를 정리합니다.
+
+세이브 형식은 v7입니다. v1~v6 데이터는 위치·파티·성장·지역·엔딩 정보를 유지한 채 자동 변환되고,
+중복 ID와 잘못된 수치도 정리됩니다. 주 세이브가 손상되면 `.bak`을 불러오고 손상본은
+`.corrupt_날짜` 파일로 격리합니다.
+
+Unity 메뉴 **Tools → Shadow Theater → Generate and Validate Full Game**은 전체 콘텐츠를 다시 만든 뒤
+180종 데이터, 40개 지역 연결, 40개 필드 구조, 포털 목적지, 인카운터 데이터, Missing Script와 Build
+Settings를 일괄 검사합니다. 자세한 출시 점검법은
+[`Docs/MOBILE_RELEASE_VALIDATION.md`](Docs/MOBILE_RELEASE_VALIDATION.md)를 참고하세요.
+
 ## 40개 지역 월드맵
 
 8개 막, 총 40개 지역의 이름·씬 ID·권장 레벨·환경·연결 경로·대표 출현 그림자·지역 보스가

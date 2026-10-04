@@ -18,6 +18,8 @@ namespace ShadowTheater.Save
     {
         public static SaveManager Instance { get; private set; }
         public static SaveData Current => Instance != null ? Instance._current : null;
+        public bool LastLoadUsedBackup { get; private set; }
+        public string LastMigrationReport { get; private set; }
 
         [SerializeField] private int slot = 0;
         [SerializeField] private bool autoSaveOnPause = true;
@@ -90,6 +92,14 @@ namespace ShadowTheater.Save
         {
             _current = new SaveData
             {
+                saveGuid = Guid.NewGuid().ToString("N"),
+                mapId = "PrologueTheater",
+                checkpointMapId = "PrologueTheater",
+                lastStableMapId = "PrologueTheater",
+                tileX = 0,
+                tileY = -5,
+                checkpointX = 0,
+                checkpointY = -5,
                 starterShadowId = starter.shadowId,
                 gold = 100,
                 cycle = cycle,
@@ -108,6 +118,8 @@ namespace ShadowTheater.Save
             try
             {
                 if (captureRuntimeState) BeforeSave?.Invoke();
+                if (!string.IsNullOrEmpty(_current.mapId)) _current.lastStableMapId = _current.mapId;
+                if (string.IsNullOrEmpty(_current.saveGuid)) _current.saveGuid = Guid.NewGuid().ToString("N");
                 _current.version = SaveData.CurrentVersion;
                 _current.savedAtUtcTicks = DateTime.UtcNow.Ticks;
                 string json = JsonUtility.ToJson(_current, prettyPrint);
@@ -130,16 +142,33 @@ namespace ShadowTheater.Save
 
         public bool Load()
         {
-            var data = TryRead(SavePath) ?? TryRead(BackupPath);
+            LastLoadUsedBackup = false;
+            var data = TryRead(SavePath, out bool futureVersion);
+            if (futureVersion) return false;
+            if (data == null)
+            {
+                data = TryRead(BackupPath, out futureVersion);
+                if (futureVersion) return false;
+                LastLoadUsedBackup = data != null;
+            }
             if (data == null) return false;
 
-            Migrate(data);
+            int sourceVersion = data.version;
+            Migrate(data, out string migrationReport);
+            LastMigrationReport = migrationReport;
             foreach (var s in data.party) s.EnsureHp();
             foreach (var s in data.storage) s.EnsureHp();
 
             _current = data;
             RegionProgress.SyncCurrentMap();
             OnLoaded?.Invoke();
+            if (LastLoadUsedBackup && File.Exists(SavePath))
+            {
+                string corruptPath = SavePath + $".corrupt_{DateTime.UtcNow:yyyyMMddHHmmss}";
+                try { File.Move(SavePath, corruptPath); }
+                catch (Exception e) { Debug.LogWarning($"[SaveManager] 손상 파일 격리 실패: {e.Message}"); }
+            }
+            if (sourceVersion < SaveData.CurrentVersion || LastLoadUsedBackup) Save(false);
             return true;
         }
 
@@ -150,13 +179,21 @@ namespace ShadowTheater.Save
             _current = null;
         }
 
-        private static SaveData TryRead(string path)
+        private static SaveData TryRead(string path, out bool futureVersion)
         {
+            futureVersion = false;
             if (!File.Exists(path)) return null;
             try
             {
                 var data = JsonUtility.FromJson<SaveData>(File.ReadAllText(path));
-                return data != null && data.party != null ? data : null;
+                if (data == null || data.party == null) return null;
+                if (data.version > SaveData.CurrentVersion)
+                {
+                    futureVersion = true;
+                    Debug.LogWarning($"[SaveManager] 더 새로운 세이브 버전입니다: {data.version}");
+                    return null;
+                }
+                return data;
             }
             catch (Exception e)
             {
@@ -166,8 +203,10 @@ namespace ShadowTheater.Save
         }
 
         /// <summary>구버전 세이브 변환. 버전 올릴 때마다 case 추가</summary>
-        private static void Migrate(SaveData data)
+        public static bool Migrate(SaveData data, out string report)
         {
+            if (data == null) { report = "세이브 데이터 없음"; return false; }
+            int sourceVersion = data.version;
             if (data.version < 2 || data.quests == null)
                 data.quests = new List<QuestProgressData>();
             if (data.version < 3 || data.unlockedEndingIds == null)
@@ -191,6 +230,23 @@ namespace ShadowTheater.Save
                 data.unlockedRegionIds = new List<string>();
                 data.visitedRegionIds = new List<string>();
             }
+            if (data.version < 7)
+            {
+                if (string.IsNullOrEmpty(data.saveGuid)) data.saveGuid = Guid.NewGuid().ToString("N");
+                if (string.IsNullOrEmpty(data.mapId) || data.mapId == "Prologue")
+                {
+                    data.mapId = "PrologueTheater";
+                    data.tileX = 0;
+                    data.tileY = -5;
+                }
+                if (string.IsNullOrEmpty(data.checkpointMapId) || data.checkpointMapId == "Prologue")
+                {
+                    data.checkpointMapId = "PrologueTheater";
+                    data.checkpointX = 0;
+                    data.checkpointY = -5;
+                }
+                data.lastStableMapId = data.mapId;
+            }
 
             data.flags ??= new List<FlagEntry>();
             data.clearedEncounterIds ??= new List<string>();
@@ -201,7 +257,82 @@ namespace ShadowTheater.Save
             data.unlockedRegionIds ??= new List<string>();
             data.visitedRegionIds ??= new List<string>();
             data.cycle = Mathf.Max(1, data.cycle);
+            Sanitize(data);
             data.version = SaveData.CurrentVersion;
+            report = sourceVersion == SaveData.CurrentVersion
+                ? $"v{SaveData.CurrentVersion} 무결성 정리 완료"
+                : $"v{sourceVersion} → v{SaveData.CurrentVersion} 마이그레이션 완료";
+            return sourceVersion != SaveData.CurrentVersion;
+        }
+
+        private static void Sanitize(SaveData data)
+        {
+            data.saveGuid = string.IsNullOrEmpty(data.saveGuid) ? Guid.NewGuid().ToString("N") : data.saveGuid;
+            data.gold = Mathf.Max(0, data.gold);
+            data.playTimeSeconds = Mathf.Max(0f, data.playTimeSeconds);
+            data.battleSpeed = Mathf.Clamp(data.battleSpeed <= 0f ? 1f : data.battleSpeed, 1f, 3f);
+            data.facing = Mathf.Clamp(data.facing, 0, 3);
+            data.mapId = string.IsNullOrEmpty(data.mapId) ? "PrologueTheater" : data.mapId;
+            data.checkpointMapId = string.IsNullOrEmpty(data.checkpointMapId) ? data.mapId : data.checkpointMapId;
+            data.lastStableMapId = string.IsNullOrEmpty(data.lastStableMapId) ? data.mapId : data.lastStableMapId;
+
+            CleanIds(data.seenShadowIds);
+            CleanIds(data.recordedShadowIds);
+            CleanIds(data.clearedEncounterIds);
+            CleanIds(data.unlockedRegionIds);
+            CleanIds(data.visitedRegionIds);
+            CleanIds(data.unlockedEndingIds);
+            foreach (string id in data.recordedShadowIds)
+                if (!data.seenShadowIds.Contains(id)) data.seenShadowIds.Add(id);
+
+            var instanceIds = new HashSet<string>(StringComparer.Ordinal);
+            CleanShadows(data.party, instanceIds);
+            CleanShadows(data.storage, instanceIds);
+            while (data.party.Count > SaveData.MaxPartySize)
+            {
+                int last = data.party.Count - 1;
+                data.storage.Insert(0, data.party[last]);
+                data.party.RemoveAt(last);
+            }
+            if (string.IsNullOrEmpty(data.starterShadowId) && data.party.Count > 0)
+                data.starterShadowId = data.party[0].shadowId;
+
+            var mergedItems = new Dictionary<string, int>(StringComparer.Ordinal);
+            foreach (var item in data.inventory)
+                if (item != null && !string.IsNullOrWhiteSpace(item.itemId) && item.count > 0)
+                    mergedItems[item.itemId] = mergedItems.TryGetValue(item.itemId, out int count) ? count + item.count : item.count;
+            data.inventory.Clear();
+            foreach (var pair in mergedItems) data.inventory.Add(new ItemStack { itemId = pair.Key, count = pair.Value });
+
+            var mergedFlags = new Dictionary<string, int>(StringComparer.Ordinal);
+            foreach (var flag in data.flags)
+                if (flag != null && !string.IsNullOrWhiteSpace(flag.key)) mergedFlags[flag.key] = flag.value;
+            data.flags.Clear();
+            foreach (var pair in mergedFlags) data.flags.Add(new FlagEntry { key = pair.Key, value = pair.Value });
+        }
+
+        private static void CleanIds(List<string> values)
+        {
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+            values.RemoveAll(x => string.IsNullOrWhiteSpace(x) || !seen.Add(x));
+        }
+
+        private static void CleanShadows(List<ShadowInstance> shadows, HashSet<string> instanceIds)
+        {
+            shadows.RemoveAll(x => x == null || string.IsNullOrWhiteSpace(x.shadowId));
+            foreach (var shadow in shadows)
+            {
+                shadow.level = Mathf.Max(1, shadow.level);
+                shadow.exp = Mathf.Max(0, shadow.exp);
+                if (!Enum.IsDefined(typeof(MemoryStage), shadow.memoryStage)) shadow.memoryStage = MemoryStage.Echo;
+                if (!Enum.IsDefined(typeof(AwakeningPath), shadow.awakeningPath)) shadow.awakeningPath = AwakeningPath.None;
+                if (string.IsNullOrEmpty(shadow.instanceId) || !instanceIds.Add(shadow.instanceId))
+                {
+                    shadow.instanceId = Guid.NewGuid().ToString("N");
+                    instanceIds.Add(shadow.instanceId);
+                }
+                NormalizeMemoryStage(shadow);
+            }
         }
 
         private static void NormalizeMemoryStage(ShadowInstance shadow)

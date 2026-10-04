@@ -12,10 +12,11 @@ namespace ShadowTheater.Save
     [Serializable]
     public class SaveData
     {
-        public const int CurrentVersion = 6;
+        public const int CurrentVersion = 7;
         public const int MaxPartySize = 6;
 
         public int version = CurrentVersion;
+        public string saveGuid;
         public long savedAtUtcTicks;
         public float playTimeSeconds;
 
@@ -25,6 +26,7 @@ namespace ShadowTheater.Save
         public int tileY;
         public int facing;              // 0=Down 1=Left 2=Right 3=Up
         public string checkpointMapId = "Prologue";   // 패배 시 복귀 지점 (여관/극장)
+        public string lastStableMapId = "PrologueTheater"; // 잘못된 씬 ID 복구용
         public int checkpointX;
         public int checkpointY;
 

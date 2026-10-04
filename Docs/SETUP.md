@@ -17,6 +17,7 @@ Assets/Scripts/
   UI/      DialogueController, DialogueChoiceView, QuestHudController,
            TitleScreenController, StarterSelectionController, StarterCardView,
            EndingGalleryController, EndingGalleryEntryView, GameSettings, SettingsPanelController,
+           LocalizationService, MobilePerformanceController,
            WorldMapController, RegionMapNodeView,
            ScriptBookController, ScriptBookEntryView, BattleUIController, BattleFxDirector,
            BattleSfxPlayer,
@@ -24,7 +25,7 @@ Assets/Scripts/
   Editor/  DialogueUIPrefabGenerator, QuestHudPrefabGenerator, FrontEndPrefabGenerator,
            ScriptBookPrefabGenerator, BattleUIPrefabGenerator, PartyStoragePrefabGenerator,
            WorldMapPrefabGenerator, CoreContentBatchGenerator, LegendaryGrowthBatchGenerator,
-           PlayablePrologueGenerator
+           PlayablePrologueGenerator, GameRegressionValidator
 ```
 
 ## 프로젝트 설정
@@ -343,7 +344,9 @@ Core/Legendary JSON 값을 바꾼 뒤 각 데이터 생성 메뉴를 다시 실�
 ## 다음 작업 후보
 1. 필살기별 실제 파티클·녹음 SFX 에셋 교체
 2. 자동 생성 픽셀 타일·캐릭터를 최종 수작업 픽셀 아트와 녹음 환경음으로 교체
-3. 모바일 실기 성능·세이브 마이그레이션·40개 필드 회귀 테스트
+
+모바일 성능 프로필, v7 세이브 마이그레이션과 40개 필드 자동 회귀 검증은 구현 완료했다. 실제 출시 전
+기기별 발열·배터리·노치 영역 최종 확인은 `Docs/MOBILE_RELEASE_VALIDATION.md` 체크리스트를 따른다.
 
 현재 `Generate Playable Prologue`는 프롤로그부터 최종막까지 40개 필드를 모두 32px 픽셀 규칙으로 생성한다.
 보이는 벽·수풀·폐허는 `Collision` 타일맵에 직접 그려져 이동 판정과 일치하며, NPC와 보스의 24×32 필드

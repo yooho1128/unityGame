@@ -55,7 +55,23 @@ namespace ShadowTheater.Field
         {
             var save = SaveManager.Current;
             if (save == null) return false;
-            return TravelTo(save.mapId, new Vector2Int(save.tileX, save.tileY), (FacingDir)save.facing);
+            string sceneName = save.mapId;
+            var cell = new Vector2Int(save.tileX, save.tileY);
+            if (!Application.CanStreamedLevelBeLoaded(sceneName))
+            {
+                Debug.LogWarning($"[MapLoader] 저장된 씬을 찾지 못해 체크포인트로 복구합니다: {sceneName}");
+                sceneName = save.checkpointMapId;
+                cell = new Vector2Int(save.checkpointX, save.checkpointY);
+            }
+            if (!Application.CanStreamedLevelBeLoaded(sceneName))
+            {
+                sceneName = "PrologueTheater";
+                cell = new Vector2Int(0, -5);
+            }
+            save.mapId = sceneName;
+            save.tileX = cell.x;
+            save.tileY = cell.y;
+            return TravelTo(sceneName, cell, (FacingDir)Mathf.Clamp(save.facing, 0, 3));
         }
 
         private IEnumerator TravelRoutine(string sceneName, Vector2Int arrivalCell, FacingDir facing,
