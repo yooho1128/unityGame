@@ -265,6 +265,7 @@ namespace ShadowTheater.EditorTools
                     result.errors.Add($"{item.itemId}: 판매 가격 범위 오류 ({item.sellPrice}/{item.buyPrice})");
                 if (item.shopUnlockAct < 1 || item.shopUnlockAct > 8)
                     result.errors.Add($"{item.itemId}: 상점 해금 막 오류 ({item.shopUnlockAct})");
+                if (item.icon == null) result.errors.Add($"{item.itemId}: 도구 아이콘 누락");
                 if (item.usableInField && item.effectType != ItemEffectType.HealFlat && item.effectType != ItemEffectType.HealRatio)
                     result.warnings.Add($"{item.itemId}: 필드 사용 효과가 아직 지원되지 않음 ({item.effectType})");
             }

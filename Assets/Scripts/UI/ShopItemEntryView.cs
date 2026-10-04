@@ -8,6 +8,7 @@ namespace ShadowTheater.UI
     public class ShopItemEntryView : MonoBehaviour
     {
         [SerializeField] private Text nameText;
+        [SerializeField] private Image icon;
         [SerializeField] private Text descriptionText;
         [SerializeField] private Text ownedText;
         [SerializeField] private Text buyPriceText;
@@ -36,6 +37,7 @@ namespace ShadowTheater.UI
             _item = item;
             _onBuy = onBuy;
             _onSell = onSell;
+            if (icon != null) { icon.sprite = item.icon; icon.enabled = item.icon != null; icon.preserveAspect = true; }
             if (nameText != null) nameText.text = L10n.Text(item.displayName);
             if (descriptionText != null) descriptionText.text = L10n.Text(item.description);
             if (ownedText != null) ownedText.text = L10n.Format("shop.owned", "보유 {0}", owned);

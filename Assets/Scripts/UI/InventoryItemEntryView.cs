@@ -8,6 +8,7 @@ namespace ShadowTheater.UI
     public class InventoryItemEntryView : MonoBehaviour
     {
         [SerializeField] private Button button;
+        [SerializeField] private Image icon;
         [SerializeField] private Text nameText;
         [SerializeField] private Text countText;
         [SerializeField] private Text useText;
@@ -20,6 +21,7 @@ namespace ShadowTheater.UI
         public void Bind(ItemData item, int count, Action<ItemData> onSelect)
         {
             _item = item; _onSelect = onSelect;
+            if (icon != null) { icon.sprite = item.icon; icon.enabled = item.icon != null; icon.preserveAspect = true; }
             if (nameText != null) nameText.text = L10n.Text(item.displayName);
             if (countText != null) countText.text = $"x{count}";
             if (useText != null) useText.text = item.usableInField

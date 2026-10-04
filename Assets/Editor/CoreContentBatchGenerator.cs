@@ -285,6 +285,7 @@ namespace ShadowTheater.EditorTools
                 item.name = item.itemId = spec.itemId;
                 item.displayName = spec.displayName;
                 item.description = spec.description;
+                item.icon = GenerateItemIcon(spec);
                 item.effectType = Parse(spec.effectType, ItemEffectType.HealRatio);
                 item.value = spec.value;
                 item.usableInBattle = spec.usableInBattle;
@@ -296,6 +297,30 @@ namespace ShadowTheater.EditorTools
                 result.Add(item);
             }
             return result;
+        }
+
+        private static Sprite GenerateItemIcon(ItemSpec spec)
+        {
+            string path = $"{ArtFolder}/item_{spec.itemId}.png";
+            const int size = 64;
+            var texture = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            texture.SetPixels(Enumerable.Repeat(Color.clear, size * size).ToArray());
+            Color outline = new Color(.08f,.06f,.13f,1f);
+            ItemEffectType effect = Parse(spec.effectType, ItemEffectType.HealRatio);
+            Color liquid = effect == ItemEffectType.HealFlat || effect == ItemEffectType.HealRatio ? new Color(.22f,.92f,.58f,1f)
+                : effect == ItemEffectType.GainFP ? new Color(.22f,.78f,1f,1f)
+                : effect == ItemEffectType.CaptureBoost ? new Color(.70f,.30f,1f,1f)
+                : new Color(1f,.76f,.30f,1f);
+            Ellipse(texture,32,25,20,22,outline); Rect(texture,25,42,39,55,outline); Rect(texture,23,53,41,59,outline);
+            Ellipse(texture,32,23,15,16,liquid); Rect(texture,29,39,35,48,liquid);
+            Rect(texture,27,55,37,60,new Color(.78f,.58f,.28f,1f));
+            if (spec.itemId.Contains("greater") || spec.itemId.Contains("silver"))
+            { Circle(texture,20,42,3,Color.white); Circle(texture,45,34,2,Color.white); }
+            texture.Apply(false,false); File.WriteAllBytes(path,texture.EncodeToPNG()); UnityEngine.Object.DestroyImmediate(texture);
+            AssetDatabase.ImportAsset(path,ImportAssetOptions.ForceSynchronousImport);
+            var importer=AssetImporter.GetAtPath(path) as TextureImporter;
+            if(importer!=null){importer.textureType=TextureImporterType.Sprite;importer.spriteImportMode=SpriteImportMode.Single;importer.spritePixelsPerUnit=64f;importer.alphaIsTransparency=true;importer.mipmapEnabled=false;importer.filterMode=FilterMode.Point;importer.textureCompression=TextureImporterCompression.Uncompressed;importer.SaveAndReimport();}
+            return AssetDatabase.LoadAssetAtPath<Sprite>(path);
         }
 
         private static List<ShadowData> GenerateShadows(IEnumerable<ShadowSpec> specs,
