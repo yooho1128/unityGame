@@ -241,9 +241,8 @@ Unity 메뉴 **Tools → Shadow Theater → Generate and Validate Full Game**은
 - `Prototype/shadow-theater.html`을 브라우저로 열어 전투/포획/밸런스 테스트
 - "밸런스 데이터" 탭의 필드명 = SO 필드명 → 확정한 수치를 SO에 그대로 입력
 
-오디오 생성기의 임포트 설정은 Unity 2022.3과 Unity 6 계열 API를 조건부로 지원합니다. Unity 6에서는
-플랫폼별 `AudioImporterSampleSettings.preloadAudioData`를 사용하므로 구형 API 컴파일 오류가 발생하지
-않습니다.
+오디오 생성기는 Unity 2022.3 이후의 플랫폼별 `AudioImporterSampleSettings.preloadAudioData`를
+사용하므로 폐기된 `AudioImporter.preloadAudioData` API를 참조하지 않습니다.
 
 ## 픽셀 필드 비주얼 패스
 

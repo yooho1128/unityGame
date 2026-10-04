@@ -114,11 +114,7 @@ namespace ShadowTheater.EditorTools
                     quality = 1f,
                     sampleRateSetting = AudioSampleRateSetting.OptimizeSampleRate
                 };
-#if UNITY_6000_0_OR_NEWER
                 sampleSettings.preloadAudioData = true;
-#else
-                importer.preloadAudioData = true;
-#endif
                 importer.defaultSampleSettings = sampleSettings;
                 importer.SaveAndReimport();
             }

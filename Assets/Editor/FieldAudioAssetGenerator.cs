@@ -87,11 +87,7 @@ namespace ShadowTheater.EditorTools
                 quality = streaming ? .62f : .76f,
                 sampleRateSetting = AudioSampleRateSetting.OptimizeSampleRate
             };
-#if UNITY_6000_0_OR_NEWER
             sampleSettings.preloadAudioData = !streaming;
-#else
-            importer.preloadAudioData = !streaming;
-#endif
             importer.defaultSampleSettings = sampleSettings;
             importer.SaveAndReimport();
         }
