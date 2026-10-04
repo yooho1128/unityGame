@@ -70,6 +70,7 @@ namespace ShadowTheater.EditorTools
             ValidateRegionGraph(regions, result);
             ValidateRoster(result);
             ValidateDatabase(result);
+            ValidateQuestRewards(result);
             ValidateFinalArt(result);
             ValidateMusic(result);
             ValidateScenes(regions, result);
@@ -261,6 +262,20 @@ namespace ShadowTheater.EditorTools
                     result.errors.Add($"{item.itemId}: 판매 가격 범위 오류 ({item.sellPrice}/{item.buyPrice})");
                 if (item.usableInField && item.effectType != ItemEffectType.HealFlat && item.effectType != ItemEffectType.HealRatio)
                     result.warnings.Add($"{item.itemId}: 필드 사용 효과가 아직 지원되지 않음 ({item.effectType})");
+            }
+        }
+
+        private static void ValidateQuestRewards(ValidationReport result)
+        {
+            var database = AssetDatabase.LoadAssetAtPath<ShadowDatabase>(DatabasePath);
+            if (database == null) return;
+            var itemIds = new HashSet<string>(database.items.Where(x => x != null).Select(x => x.itemId));
+            foreach (QuestDefinition quest in QuestRepository.All)
+            {
+                if (quest.rewardGold < 0) result.errors.Add($"{quest.questId}: 음수 금화 보상");
+                if (quest.rewardItemCount < 0) result.errors.Add($"{quest.questId}: 음수 도구 보상");
+                if (!string.IsNullOrEmpty(quest.rewardItemId) && !itemIds.Contains(quest.rewardItemId))
+                    result.errors.Add($"{quest.questId}: 존재하지 않는 보상 도구 {quest.rewardItemId}");
             }
         }
 

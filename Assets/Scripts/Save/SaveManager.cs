@@ -545,6 +545,13 @@ namespace ShadowTheater.Save
         public static int GetItemCount(string itemId) =>
             Current?.inventory.Find(x => x.itemId == itemId)?.count ?? 0;
 
+        public static void AddGold(int amount)
+        {
+            if (Current == null || amount == 0) return;
+            Current.gold = Mathf.Max(0, Current.gold + amount);
+            EconomyChanged?.Invoke();
+        }
+
         public static void AddItem(string itemId, int amount = 1)
         {
             if (Current == null || amount == 0) return;

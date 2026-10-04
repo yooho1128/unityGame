@@ -28,6 +28,8 @@ namespace ShadowTheater.Story
         public string nextQuestId;
         public bool autoStart;
         public int rewardGold;
+        public string rewardItemId;
+        public int rewardItemCount;
         public List<QuestObjectiveDefinition> objectives = new List<QuestObjectiveDefinition>();
     }
 

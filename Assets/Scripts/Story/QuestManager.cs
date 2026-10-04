@@ -118,11 +118,15 @@ namespace ShadowTheater.Story
             progress.completed = true;
             if (!progress.rewardClaimed)
             {
-                SaveManager.Current.gold += Mathf.Max(0, quest.rewardGold);
+                SaveManager.AddGold(Mathf.Max(0, quest.rewardGold));
+                if (!string.IsNullOrEmpty(quest.rewardItemId) && quest.rewardItemCount > 0)
+                    SaveManager.AddItem(quest.rewardItemId, quest.rewardItemCount);
                 progress.rewardClaimed = true;
             }
             SaveManager.SetFlag($"quest_{quest.questId}_complete");
-            Debug.Log($"[Quest] 완료: {quest.title} (+{quest.rewardGold} 금화)");
+            string itemReward = !string.IsNullOrEmpty(quest.rewardItemId) && quest.rewardItemCount > 0
+                ? $", {quest.rewardItemId} x{quest.rewardItemCount}" : string.Empty;
+            Debug.Log($"[Quest] 완료: {quest.title} (+{quest.rewardGold} 금화{itemReward})");
 
             if (!string.IsNullOrEmpty(quest.nextQuestId))
                 TryStartQuest(quest.nextQuestId, false);

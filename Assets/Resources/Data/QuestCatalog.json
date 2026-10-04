@@ -44,6 +44,8 @@
       "nextQuestId": "prologue_04_echoes",
       "autoStart": false,
       "rewardGold": 120,
+      "rewardItemId": "ink",
+      "rewardItemCount": 2,
       "objectives": [
         {
           "objectiveId": "record_shadow",
@@ -87,6 +89,8 @@
       "nextQuestId": "chapter_01_departure",
       "autoStart": false,
       "rewardGold": 500,
+      "rewardItemId": "potion",
+      "rewardItemCount": 3,
       "objectives": [
         {
           "objectiveId": "defeat_meadow_boss",

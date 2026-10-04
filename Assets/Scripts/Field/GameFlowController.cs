@@ -186,7 +186,7 @@ namespace ShadowTheater.Field
         {
             var save = SaveManager.Current;
             SaveManager.ApplyBattleInventory(ctx.inventory);
-            save.gold += outcome.goldGained;
+            SaveManager.AddGold(outcome.goldGained);
             save.autoBattle = battleManager.IsAuto;
             save.battleSpeed = ctx.timeScale;
 

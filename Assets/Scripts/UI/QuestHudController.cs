@@ -63,8 +63,16 @@ namespace ShadowTheater.UI
             }
             if (objectiveText != null) objectiveText.text = builder.ToString();
             if (rewardText != null)
-                rewardText.text = quest.rewardGold > 0
-                    ? L10n.Format("quest.reward", "보상  {0:N0} 금화", quest.rewardGold) : string.Empty;
+            {
+                string itemReward = string.Empty;
+                if (!string.IsNullOrEmpty(quest.rewardItemId) && quest.rewardItemCount > 0)
+                {
+                    var item = ShadowTheater.Data.ShadowDatabase.Instance?.GetItem(quest.rewardItemId);
+                    itemReward = item != null ? $" · {L10n.Text(item.displayName)} x{quest.rewardItemCount}" : string.Empty;
+                }
+                rewardText.text = quest.rewardGold > 0 || itemReward.Length > 0
+                    ? L10n.Format("quest.reward", "보상  {0:N0} 금화", quest.rewardGold) + itemReward : string.Empty;
+            }
         }
     }
 }
