@@ -234,7 +234,9 @@ HP와 함께 표시합니다. 비활성 UI 템플릿을 복제한 후보가 보�
 
 Unity 메뉴 **Tools → Shadow Theater → Generate and Validate Full Game**은 전체 콘텐츠를 다시 만든 뒤
 180종 데이터, 40개 지역 연결, 40개 필드 구조, 포털 목적지, 인카운터 데이터, 필드 환경음·발걸음,
-필드 메뉴, 정착지 상점과 파티·각본 서고 UI 참조, 도구 가격/필드 사용 규칙, 최종 픽셀 아트 규격과 교체율, Missing Script와 Build Settings를 일괄 검사합니다. 자세한 출시 점검법은
+필드 메뉴, 정착지 상점과 파티·각본 서고 UI 참조, 도구 가격/필드 사용 규칙, 최종 픽셀 아트 규격과 교체율,
+Missing Script와 Build Settings를 일괄 검사합니다. 추가로 41개 퀘스트의 ID·목표 타입·선행/다음 연결·
+순환·최종막 도달 가능 여부와 보상 도구 ID까지 검사합니다. 자세한 출시 점검법은
 [`Docs/MOBILE_RELEASE_VALIDATION.md`](Docs/MOBILE_RELEASE_VALIDATION.md)를 참고하세요.
 
 ## 40개 지역 월드맵

@@ -24,6 +24,7 @@ namespace ShadowTheater.EditorTools
         private const string RegionPath = "Assets/Resources/Data/RegionCatalog.json";
         private const string RosterPath = "Assets/Resources/Data/RegionalRosterManifest.json";
         private const string DatabasePath = "Assets/Resources/ShadowDatabase.asset";
+        private const string QuestPath = "Assets/Resources/Data/QuestCatalog.json";
 
         [MenuItem("Tools/Shadow Theater/Validate Full Game")]
         public static void ValidateFromMenu()
@@ -282,15 +283,53 @@ namespace ShadowTheater.EditorTools
         private static void ValidateQuestRewards(ValidationReport result)
         {
             var database = AssetDatabase.LoadAssetAtPath<ShadowDatabase>(DatabasePath);
-            if (database == null) return;
+            if (database == null || !File.Exists(QuestPath)) return;
             var itemIds = new HashSet<string>(database.items.Where(x => x != null).Select(x => x.itemId));
-            foreach (QuestDefinition quest in QuestRepository.All)
+            var catalog = JsonUtility.FromJson<QuestCatalogData>(File.ReadAllText(QuestPath));
+            var quests = catalog?.quests ?? new List<QuestDefinition>();
+            if (quests.Count != 41) result.errors.Add($"퀘스트 데이터 수 불일치: {quests.Count}/41");
+            var ids = quests.Where(x => x != null && !string.IsNullOrEmpty(x.questId)).Select(x => x.questId).ToList();
+            if (ids.Distinct().Count() != ids.Count) result.errors.Add("퀘스트 ID 중복");
+            var byId = quests.Where(x => x != null && !string.IsNullOrEmpty(x.questId))
+                .GroupBy(x => x.questId).ToDictionary(x => x.Key, x => x.First());
+            foreach (QuestDefinition quest in quests.Where(x => x != null))
             {
                 if (quest.rewardGold < 0) result.errors.Add($"{quest.questId}: 음수 금화 보상");
                 if (quest.rewardItemCount < 0) result.errors.Add($"{quest.questId}: 음수 도구 보상");
                 if (!string.IsNullOrEmpty(quest.rewardItemId) && !itemIds.Contains(quest.rewardItemId))
                     result.errors.Add($"{quest.questId}: 존재하지 않는 보상 도구 {quest.rewardItemId}");
+                if (!string.IsNullOrEmpty(quest.prerequisiteQuestId) && !byId.ContainsKey(quest.prerequisiteQuestId))
+                    result.errors.Add($"{quest.questId}: 선행 퀘스트 누락 {quest.prerequisiteQuestId}");
+                if (!string.IsNullOrEmpty(quest.nextQuestId) && !byId.ContainsKey(quest.nextQuestId))
+                    result.errors.Add($"{quest.questId}: 다음 퀘스트 누락 {quest.nextQuestId}");
+                var objectiveIds = new HashSet<string>();
+                if (quest.objectives == null || quest.objectives.Count == 0)
+                    result.errors.Add($"{quest.questId}: 목표가 없습니다");
+                foreach (QuestObjectiveDefinition objective in quest.objectives ?? new List<QuestObjectiveDefinition>())
+                {
+                    if (string.IsNullOrEmpty(objective.objectiveId) || !objectiveIds.Add(objective.objectiveId))
+                        result.errors.Add($"{quest.questId}: 목표 ID 누락 또는 중복");
+                    if (!objective.TryGetType(out _)) result.errors.Add($"{quest.questId}: 목표 타입 오류 {objective.type}");
+                    if (string.IsNullOrEmpty(objective.targetId)) result.errors.Add($"{quest.questId}: 목표 대상 누락 ({objective.objectiveId})");
+                }
             }
+
+            QuestDefinition start = quests.FirstOrDefault(x => x != null && x.autoStart);
+            if (quests.Count(x => x != null && x.autoStart) != 1)
+                result.errors.Add("자동 시작 퀘스트는 정확히 1개여야 합니다");
+            if (start == null) { result.errors.Add("자동 시작 퀘스트 누락"); return; }
+            var reached = new HashSet<string>();
+            QuestDefinition current = start;
+            while (current != null && reached.Add(current.questId))
+            {
+                if (string.IsNullOrEmpty(current.nextQuestId)) { current = null; break; }
+                if (!byId.TryGetValue(current.nextQuestId, out QuestDefinition next)) { current = null; break; }
+                if (next.prerequisiteQuestId != current.questId)
+                    result.errors.Add($"퀘스트 연결 불일치: {current.questId} → {next.questId}");
+                current = next;
+            }
+            if (current != null) result.errors.Add($"퀘스트 순환 발견: {current.questId}");
+            if (reached.Count != quests.Count) result.errors.Add($"시작부터 도달 가능한 퀘스트: {reached.Count}/{quests.Count}");
         }
 
         private static void ValidateFinalArt(ValidationReport result)
