@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace ShadowTheater.UI
 {
-    /// <summary>별도 이펙트 에셋 없이도 진명 필살기 컷인과 테마 문양을 만드는 UI 연출기.</summary>
+    /// <summary>생성된 진명 FX 프리팹을 우선 재생하고, 미지정 시 절차적 테마 문양으로 대체하는 UI 연출기.</summary>
     public class BattleFxDirector : MonoBehaviour
     {
         [SerializeField] private RectTransform fxRoot;
@@ -35,12 +35,13 @@ namespace ShadowTheater.UI
             Image flash = AddImage("Flash", layer, Vector2.zero, Vector2.one,
                 WithAlpha(skill.primaryFxColor, 0f));
             Text title = AddText("TrueNameCutIn", layer, new Vector2(0.05f, 0.63f), new Vector2(0.95f, 0.79f),
-                $"진명 필살기\n{skill.displayName}", skill.primaryFxColor, 46);
+                L10n.Format("battle.true_name_ultimate", "진명 필살기\n{0}", L10n.Text(skill.displayName)), skill.primaryFxColor, 46);
 
             Vector3 originalScale = attacker.MotionRoot.localScale;
             Vector3 originalPosition = attacker.MotionRoot.localPosition;
             Color originalPortrait = attacker.Portrait != null ? attacker.Portrait.color : Color.black;
-            BuildMotif(layer, skill);
+            UltimateFxAssetPlayer assetFx = CreateAssetFx(layer, skill);
+            if (assetFx == null) BuildMotif(layer, skill);
 
             float t = 0f;
             float intro = 0.28f / speed;
@@ -53,7 +54,7 @@ namespace ShadowTheater.UI
                 attacker.MotionRoot.localScale = Vector3.Lerp(originalScale, originalScale * 1.18f, EaseOut(p));
                 if (attacker.Portrait != null)
                     attacker.Portrait.color = Color.Lerp(originalPortrait, skill.primaryFxColor, p * 0.7f);
-                AnimateMotif(layer, p, skill);
+                if (assetFx != null) assetFx.SetProgress(p); else AnimateMotif(layer, p, skill);
                 yield return null;
             }
 
@@ -70,7 +71,7 @@ namespace ShadowTheater.UI
                 float p = Mathf.Clamp01(t / burst);
                 flash.color = WithAlpha(skill.secondaryFxColor, Mathf.Sin(p * Mathf.PI) * 0.88f);
                 title.color = Color.Lerp(skill.primaryFxColor, Color.white, Mathf.Sin(p * Mathf.PI));
-                AnimateMotif(layer, 1f + p, skill);
+                if (assetFx != null) assetFx.SetProgress(1f - p * .18f); else AnimateMotif(layer, 1f + p, skill);
                 if (stageRoot != null)
                     stageRoot.anchoredPosition = stagePosition + Random.insideUnitCircle * (skill.cameraShake * 8f * (1f - p));
                 if (battleCamera != null)
@@ -84,6 +85,30 @@ namespace ShadowTheater.UI
             if (stageRoot != null) stageRoot.anchoredPosition = stagePosition;
             if (battleCamera != null) battleCamera.transform.localPosition = cameraPosition;
             Object.Destroy(layer.gameObject);
+        }
+
+        private static UltimateFxAssetPlayer CreateAssetFx(RectTransform layer, SkillData skill)
+        {
+            if (skill.fxPrefab == null) return null;
+            GameObject instance = Object.Instantiate(skill.fxPrefab, layer, false);
+            instance.name = skill.fxPrefab.name;
+            var rect = instance.transform as RectTransform;
+            if (rect != null)
+            {
+                rect.anchorMin = Vector2.zero;
+                rect.anchorMax = Vector2.one;
+                rect.offsetMin = Vector2.zero;
+                rect.offsetMax = Vector2.zero;
+            }
+            var player = instance.GetComponent<UltimateFxAssetPlayer>();
+            if (player == null)
+            {
+                instance.transform.SetParent(null, false);
+                Object.Destroy(instance);
+                return null;
+            }
+            player.Initialize(skill.primaryFxColor, skill.secondaryFxColor, skill.ultimateBurstCount);
+            return player;
         }
 
         private static IEnumerator HitStop(float duration)

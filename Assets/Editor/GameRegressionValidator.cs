@@ -142,6 +142,15 @@ namespace ShadowTheater.EditorTools
             if (result.shadows != 180) result.errors.Add($"그림자 데이터 수 불일치: {result.shadows}/180");
             var ids = database.shadows.Where(x => x != null).Select(x => x.shadowId).ToList();
             if (ids.Distinct().Count() != ids.Count) result.errors.Add("ShadowDatabase shadowId 중복");
+            var ultimates = database.skills.Where(x => x != null && x.isUltimate).ToList();
+            if (ultimates.Count == 0) result.errors.Add("진명 필살기 데이터 없음");
+            foreach (SkillData skill in ultimates)
+            {
+                if (skill.ultimateFxStyle == UltimateFxStyle.None) result.errors.Add($"{skill.skillId}: 필살기 테마 누락");
+                if (skill.fxPrefab == null) result.errors.Add($"{skill.skillId}: FX 프리팹 누락");
+                if (skill.sfxClip == null) result.errors.Add($"{skill.skillId}: 캐스트 SFX 누락");
+                if (skill.impactSfxClip == null) result.errors.Add($"{skill.skillId}: 타격 SFX 누락");
+            }
         }
 
         private static void ValidateScenes(List<RegionData> regions, ValidationReport result)

@@ -25,7 +25,8 @@ namespace ShadowTheater.UI
             if (skill == null) return;
             AudioSource source = EnsureSource(ref impactSource, "ImpactAudio");
             source.pitch = Mathf.Lerp(skill.sfxPitch, 0.85f, 0.35f);
-            source.PlayOneShot(Clip(skill.ultimateFxStyle, true), skill.sfxVolume * GameSettings.SfxVolume);
+            source.PlayOneShot(skill.impactSfxClip != null ? skill.impactSfxClip : Clip(skill.ultimateFxStyle, true),
+                skill.sfxVolume * GameSettings.SfxVolume);
         }
 
         private AudioClip Clip(UltimateFxStyle style, bool impact)

@@ -61,6 +61,7 @@
     {"key":"battle.defeat","ko":"패배","en":"Defeat"},
     {"key":"battle.record_success","ko":"기록 성공","en":"Recorded"},
     {"key":"battle.ended","ko":"종료","en":"Ended"},
+    {"key":"battle.true_name_ultimate","ko":"진명 필살기\n{0}","en":"TRUE NAME ULTIMATE\n{0}"},
     {"key":"status.freeze","ko":"빙결","en":"Freeze"},
     {"key":"status.burn","ko":"화상","en":"Burn"},
     {"key":"status.bleed","ko":"출혈","en":"Bleed"},

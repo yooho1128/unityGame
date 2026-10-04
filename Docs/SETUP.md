@@ -25,7 +25,7 @@ Assets/Scripts/
   Editor/  DialogueUIPrefabGenerator, QuestHudPrefabGenerator, FrontEndPrefabGenerator,
            ScriptBookPrefabGenerator, BattleUIPrefabGenerator, PartyStoragePrefabGenerator,
            WorldMapPrefabGenerator, CoreContentBatchGenerator, LegendaryGrowthBatchGenerator,
-           PlayablePrologueGenerator, GameRegressionValidator
+           UltimateFxAssetGenerator, PlayablePrologueGenerator, GameRegressionValidator
 ```
 
 ## 프로젝트 설정
@@ -316,15 +316,18 @@ Sprite로 4등분한다. 같은 메뉴를 다시 실행하면 기존 ID의 에�
 HP·상태·FP·턴 표시와 공격, 스킬, 교체, 각본 기록, 도구, 도주 버튼을 제공한다. 스킬/교체/도구는
 동적 스크롤 목록이며 기절 시 강제 교체 화면으로 자동 전환한다. Auto와 1/2/3배속도 상단에서 조작한다.
 
-`BattleFxDirector`는 패키지 의존성 없이 일반 스킬의 돌진·피격 흔들림과 진명 필살기의 전용 컷인,
-화면 섬광, 테마 문양을 재생한다. `SkillData`의 `ultimateFxStyle`, 두 FX 색상, 파편 수로 조정하며
-Core/Legendary JSON 값을 바꾼 뒤 각 데이터 생성 메뉴를 다시 실행하면 된다. 수집 가능한 9종의
-구원·원한 진명에는 각각 전용 필살기 1개, 총 18개가 연결되어 있다.
+`BattleFxDirector`는 일반 스킬의 돌진·피격 흔들림과 진명 필살기의 전용 컷인, 화면 섬광, 테마
+프리팹을 재생한다. `SkillData`의 `ultimateFxStyle`, 두 FX 색상, 파편 수로 조정하며 Core/Legendary
+JSON 값을 바꾼 뒤 각 데이터 생성 메뉴를 다시 실행하면 된다. 현재 전체 콘텐츠의 고유 진명 필살기 47개가
+9개 연출 테마 중 하나를 사용한다.
 
-전투 프리팹에는 `BattleSfxPlayer`도 자동 포함된다. `SkillData.sfxClip`이 비어 있으면 연출 테마별
-합성음을 런타임에 한 번 생성해 캐시하고, 음원이 지정되면 실제 음원을 우선 재생한다. `sfxVolume`,
-`sfxPitch`, `hitStopDuration`, `cameraShake`로 각 스킬의 감각을 조정할 수 있다. 카메라는 전투 시작 시
-활성 `MainCamera`를 자동 탐색하므로 별도 프리팹 참조가 필요 없다.
+메뉴 `Tools > Shadow Theater > Generate Ultimate FX and SFX`는 Canvas용 테마 프리팹 9개와
+시전·타격 WAV 18개를 만들고 모든 필살기 `SkillData`에 자동 연결한다. 전투 프리팹의
+`BattleSfxPlayer`는 `sfxClip`과 `impactSfxClip`을 각각 재생하며, 어느 한쪽이 비어 있으면 해당
+테마의 런타임 합성음을 폴백으로 사용한다. `sfxVolume`, `sfxPitch`, `hitStopDuration`,
+`cameraShake`로 각 스킬의 감각을 조정할 수 있다. 카메라는 전투 시작 시 활성 `MainCamera`를 자동
+탐색하므로 별도 프리팹 참조가 필요 없다. 세부 경로와 교체 규칙은
+`Docs/ULTIMATE_FX_PIPELINE.md`를 참고한다.
 
 ## 파티 편성·각본 서고 세팅
 1. 메뉴 `Tools > Shadow Theater > Generate Party and Storage UI` 실행
@@ -342,7 +345,7 @@ Core/Legendary JSON 값을 바꾼 뒤 각 데이터 생성 메뉴를 다시 실�
 - 첫 번째 파티원이 전투의 선봉으로 사용되므로 순서 변경은 다음 인카운터부터 반영된다.
 
 ## 다음 작업 후보
-1. 필살기별 실제 파티클·녹음 SFX 에셋 교체
+1. 자동 생성 필살기 WAV를 전문 녹음·마스터링 음원으로 선택 교체
 2. 자동 생성 픽셀 타일·캐릭터를 최종 수작업 픽셀 아트와 녹음 환경음으로 교체
 
 모바일 성능 프로필, v7 세이브 마이그레이션과 40개 필드 자동 회귀 검증은 구현 완료했다. 실제 출시 전

@@ -55,6 +55,10 @@
       "statusChance": 0.35,
       "statusDuration": 1,
       "isUltimate": true,
+      "ultimateFxStyle": "MoonPetals",
+      "primaryFxColor": "#E5F5FF",
+      "secondaryFxColor": "#829BFF",
+      "ultimateBurstCount": 30,
       "cameraShake": 0.75
     },
     {
@@ -177,6 +181,10 @@
       "statusChance": 0,
       "statusDuration": 0,
       "isUltimate": true,
+      "ultimateFxStyle": "LivingScript",
+      "primaryFxColor": "#EAD9FF",
+      "secondaryFxColor": "#7C4DC2",
+      "ultimateBurstCount": 34,
       "cameraShake": 0.85
     },
     {
@@ -283,7 +291,7 @@
       "cameraShake": 0.25
     },
     {
-      "skillId": "final_ovation",
+      "skillId": "cosmic_final_ovation",
       "displayName": "최후의 기립박수",
       "description": "멸망을 지켜본 모든 시선이 한 점으로 쏟아진다.",
       "fpCost": 4,
@@ -299,6 +307,10 @@
       "statusChance": 0.8,
       "statusDuration": 3,
       "isUltimate": true,
+      "ultimateFxStyle": "CosmicAudience",
+      "primaryFxColor": "#E7E2FF",
+      "secondaryFxColor": "#6878D8",
+      "ultimateBurstCount": 36,
       "cameraShake": 0.9
     },
     {
@@ -546,7 +558,7 @@
       "basicAttack": "ticket_tear",
       "skills": [
         "empty_applause",
-        "final_ovation"
+        "cosmic_final_ovation"
       ],
       "baseCaptureRate": 0.03,
       "expReward": 260,

@@ -110,6 +110,7 @@ namespace ShadowTheater.EditorTools
         {
             CoreContentBatchGenerator.Generate();
             LegendaryGrowthBatchGenerator.Generate();
+            UltimateFxAssetGenerator.Generate();
             FrontEndPrefabGenerator.Generate();
             DialogueUIPrefabGenerator.Generate();
             QuestHudPrefabGenerator.Generate();

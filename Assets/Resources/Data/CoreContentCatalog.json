@@ -112,6 +112,10 @@
       "statusChance": 0,
       "statusDuration": 0,
       "isUltimate": true,
+      "ultimateFxStyle": "FlameCrown",
+      "primaryFxColor": "#FF6438",
+      "secondaryFxColor": "#FFD36A",
+      "ultimateBurstCount": 28,
       "cameraShake": 0.8
     },
     {
@@ -196,6 +200,10 @@
       "statusChance": 0.6,
       "statusDuration": 3,
       "isUltimate": true,
+      "ultimateFxStyle": "FrozenArchive",
+      "primaryFxColor": "#BDEFFF",
+      "secondaryFxColor": "#5278E8",
+      "ultimateBurstCount": 30,
       "cameraShake": 0.7
     },
     {
@@ -578,6 +586,10 @@
       "statusChance": 0,
       "statusDuration": 0,
       "isUltimate": true,
+      "ultimateFxStyle": "LivingScript",
+      "primaryFxColor": "#DDD9E8",
+      "secondaryFxColor": "#33293E",
+      "ultimateBurstCount": 32,
       "cameraShake": 0.8
     }
   ],

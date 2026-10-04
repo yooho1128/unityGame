@@ -48,6 +48,7 @@ namespace ShadowTheater.Data
         [Range(6, 36)] public int ultimateBurstCount = 18;
         public GameObject fxPrefab;
         public AudioClip sfxClip;
+        public AudioClip impactSfxClip;
         [Range(0f, 1f)] public float sfxVolume = 0.9f;
         [Range(0.5f, 2f)] public float sfxPitch = 1f;
         [Tooltip("타격 순간 전체 시간을 멈추는 시간(초)")]
