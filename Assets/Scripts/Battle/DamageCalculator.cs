@@ -66,5 +66,8 @@ namespace ShadowTheater.Battle
 
         public static int ExpReward(BattleUnit defeated) =>
             Mathf.RoundToInt(defeated.Data.expReward * defeated.Level / 5f) + 5;
+
+        public static int SplitExperience(int totalExp, int participantCount) =>
+            participantCount <= 0 || totalExp <= 0 ? 0 : Mathf.Max(1, totalExp / participantCount);
     }
 }

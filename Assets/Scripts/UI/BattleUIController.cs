@@ -159,7 +159,11 @@ namespace ShadowTheater.UI
         private void OnFpChanged(BattleSide side, int value) { if (side == BattleSide.Player) RefreshLabels(); }
         private void OnUnitChanged(BattleUnit unit)
         {
-            if (unit.Side == BattleSide.Player) playerPanel.Bind(unit); else enemyPanel.Bind(unit);
+            if (unit.Side == BattleSide.Player)
+            {
+                if (unit == manager.PlayerActive) playerPanel.Bind(unit);
+            }
+            else if (unit == manager.EnemyActive) enemyPanel.Bind(unit);
             RefreshPartyStrips();
         }
         private void OnActiveChanged(BattleSide side, BattleUnit unit)

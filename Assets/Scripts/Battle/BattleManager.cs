@@ -54,6 +54,7 @@ namespace ShadowTheater.Battle
         private int _playerIdx, _enemyIdx;
         private readonly int[] _fp = new int[2];
         private readonly int[] _lastVoluntarySwitchTurn = { -99, -99 };
+        private readonly HashSet<BattleUnit> _playerParticipants = new HashSet<BattleUnit>();
 
         private BattleAction _pendingAction;
         private int _pendingForcedSwitch = -1;
@@ -116,6 +117,8 @@ namespace ShadowTheater.Battle
                 Debug.LogError("[BattleManager] 싸울 수 있는 그림자가 없음");
                 return;
             }
+            _playerParticipants.Clear();
+            _playerParticipants.Add(PlayerActive);
 
             _fp[0] = _fp[1] = startFp;
             _lastVoluntarySwitchTurn[0] = _lastVoluntarySwitchTurn[1] = -99;
@@ -320,7 +323,12 @@ namespace ShadowTheater.Battle
                 yield return _presenter.PlayWithdraw(prev);
             }
 
-            if (side == BattleSide.Player) _playerIdx = index; else _enemyIdx = index;
+            if (side == BattleSide.Player)
+            {
+                _playerIdx = index;
+                _playerParticipants.Add(PlayerActive);
+            }
+            else _enemyIdx = index;
 
             OnActiveChanged?.Invoke(side, Active(side));
             yield return _presenter.PlaySendOut(Active(side));
@@ -488,21 +496,29 @@ namespace ShadowTheater.Battle
 
         private IEnumerator GrantExp(BattleUnit defeated)
         {
-            int exp = DamageCalculator.ExpReward(defeated);
-            _outcome.expGained += exp;
+            var receivers = new List<BattleUnit>();
+            foreach (BattleUnit unit in _playerUnits)
+                if (_playerParticipants.Contains(unit) && !unit.IsFainted) receivers.Add(unit);
+            if (receivers.Count == 0 && !PlayerActive.IsFainted) receivers.Add(PlayerActive);
 
-            var receiver = PlayerActive.IsFainted ? null : PlayerActive;
-            if (receiver == null) yield break;
-
-            int ups = receiver.Instance.AddExp(exp);
-            yield return _presenter.ShowMessage($"{receiver.Name}은(는) {exp} 경험치를 얻었다.");
-            if (ups > 0)
+            int exp = DamageCalculator.SplitExperience(DamageCalculator.ExpReward(defeated), receivers.Count);
+            foreach (BattleUnit receiver in receivers)
             {
-                if (!_outcome.leveledUpInstanceIds.Contains(receiver.Instance.instanceId))
-                    _outcome.leveledUpInstanceIds.Add(receiver.Instance.instanceId);
-                yield return _presenter.ShowMessage($"{receiver.Name}의 레벨이 {receiver.Level}(으)로 올랐다!");
+                _outcome.expGained += exp;
+                int ups = receiver.Instance.AddExp(exp);
+                yield return _presenter.ShowMessage($"{receiver.Name}은(는) 참여 경험치 {exp}을(를) 얻었다.");
+                if (ups > 0)
+                {
+                    if (!_outcome.leveledUpInstanceIds.Contains(receiver.Instance.instanceId))
+                        _outcome.leveledUpInstanceIds.Add(receiver.Instance.instanceId);
+                    yield return _presenter.ShowMessage($"{receiver.Name}의 레벨이 {receiver.Level}(으)로 올랐다!");
+                }
                 OnUnitChanged?.Invoke(receiver);
             }
+
+            // 다음 적 그림자에 대한 참여 기록은 현재 출전 그림자부터 새로 시작한다.
+            _playerParticipants.Clear();
+            if (!PlayerActive.IsFainted) _playerParticipants.Add(PlayerActive);
         }
 
         #endregion

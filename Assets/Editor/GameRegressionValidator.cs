@@ -56,6 +56,7 @@ namespace ShadowTheater.EditorTools
             var result = new ValidationReport();
             ValidateMigration(result);
             ValidateBattleAi(result);
+            ValidateBattleRewards(result);
             if (!File.Exists(RegionPath))
             {
                 result.errors.Add("RegionCatalog.json 누락");
@@ -140,6 +141,14 @@ namespace ShadowTheater.EditorTools
             data.element = element;
             data.baseHp = 100;
             return data;
+        }
+
+        private static void ValidateBattleRewards(ValidationReport result)
+        {
+            if (DamageCalculator.SplitExperience(101, 3) != 33 ||
+                DamageCalculator.SplitExperience(2, 6) != 1 ||
+                DamageCalculator.SplitExperience(100, 0) != 0)
+                result.errors.Add("참여 경험치 분배 회귀 실패");
         }
 
         private static void ValidateRegionGraph(List<RegionData> regions, ValidationReport result)
