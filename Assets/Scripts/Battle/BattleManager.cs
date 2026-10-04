@@ -168,6 +168,34 @@ namespace ShadowTheater.Battle
 
         public int GetFp(BattleSide side) => _fp[(int)side];
         public int MaxFp => maxFp;
+
+        public bool CanUseItem(BattleSide side, ItemData item, out string reason)
+        {
+            reason = string.Empty;
+            if (item == null || Context?.inventory == null || !Context.inventory.TryGetValue(item, out int count) || count <= 0)
+            { reason = "보유 수량이 없습니다."; return false; }
+            if (!item.usableInBattle) { reason = "필드 전용 도구입니다."; return false; }
+            BattleUnit target = Active(side);
+            if (target == null || target.IsFainted) { reason = "사용할 대상이 없습니다."; return false; }
+            switch (item.effectType)
+            {
+                case ItemEffectType.HealFlat:
+                case ItemEffectType.HealRatio:
+                    if (target.Hp >= target.MaxHp) { reason = "HP가 이미 가득합니다."; return false; }
+                    break;
+                case ItemEffectType.CureStatus:
+                    if (!target.HasAnyStatus) { reason = "해제할 상태 이상이 없습니다."; return false; }
+                    break;
+                case ItemEffectType.GainFP:
+                    if (GetFp(side) >= maxFp) { reason = "FP가 이미 가득합니다."; return false; }
+                    break;
+                case ItemEffectType.CaptureBoost:
+                    if (!Context.CanCapture) { reason = "기록 가능한 전투에서만 사용할 수 있습니다."; return false; }
+                    if (item.value <= _captureBonus) { reason = "이미 더 진한 잉크가 적용 중입니다."; return false; }
+                    break;
+            }
+            return true;
+        }
         public bool CanRecordCurrent => Context != null && Context.CanCapture && _enemyUnits.Count > 0 &&
                                         !EnemyActive.IsFainted && EnemyActive.Data.IsCapturable;
         public float CurrentCaptureChance => CanRecordCurrent
@@ -370,7 +398,11 @@ namespace ShadowTheater.Battle
         private IEnumerator DoItem(BattleAction a)
         {
             var item = a.item;
-            if (item == null) yield break;
+            if (!CanUseItem(a.side, item, out string reason))
+            {
+                if (!string.IsNullOrEmpty(reason)) yield return _presenter.ShowMessage(reason);
+                yield break;
+            }
 
             if (Context.inventory != null)
             {

@@ -86,6 +86,7 @@ namespace ShadowTheater.Battle
         }
 
         public bool HasDebuff(StatusEffectType type) => _debuffs.Exists(d => d.type == type);
+        public bool HasAnyStatus => MajorStatus != null || _debuffs.Count > 0;
 
         /// <summary>교체 시 호출: 능력치 디버프만 해제, 주요 상태 이상은 유지</summary>
         public void ClearDebuffs() => _debuffs.Clear();

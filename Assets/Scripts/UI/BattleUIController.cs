@@ -110,7 +110,10 @@ namespace ShadowTheater.UI
                 {
                     ItemData item = pair.Key;
                     int count = pair.Value;
-                    AddOption(L10n.Text(item.displayName), L10n.Format("battle.item_info", "보유 {0} · {1}", count, L10n.Text(item.description)), count > 0 && item.usableInBattle,
+                    bool usable = manager.CanUseItem(BattleSide.Player, item, out string reason);
+                    string detail = L10n.Format("battle.item_info", "보유 {0} · {1}", count, L10n.Text(item.description));
+                    if (!usable && !string.IsNullOrEmpty(reason)) detail += "\n" + reason;
+                    AddOption(L10n.Text(item.displayName), detail, usable,
                         () => Submit(BattleAction.UseItem(BattleSide.Player, item)));
                 }
             }
