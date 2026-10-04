@@ -438,6 +438,16 @@ namespace ShadowTheater.EditorTools
                             feedbackSo.FindProperty("label")?.objectReferenceValue == null)
                             result.errors.Add($"{region.sceneName}: 저장 완료 HUD 참조 누락");
                     }
+                    QuestCompletionToast questToast = roots.SelectMany(x => x.GetComponentsInChildren<QuestCompletionToast>(true)).FirstOrDefault();
+                    if (questToast == null) result.errors.Add($"{region.sceneName}: 퀘스트 완료 알림 누락");
+                    else
+                    {
+                        var toastSo = new SerializedObject(questToast);
+                        if (toastSo.FindProperty("root")?.objectReferenceValue == null ||
+                            toastSo.FindProperty("titleText")?.objectReferenceValue == null ||
+                            toastSo.FindProperty("rewardText")?.objectReferenceValue == null)
+                            result.errors.Add($"{region.sceneName}: 퀘스트 완료 알림 참조 누락");
+                    }
                     FieldAmbientAudio ambience = roots.SelectMany(x => x.GetComponentsInChildren<FieldAmbientAudio>(true)).FirstOrDefault();
                     if (ambience == null) result.errors.Add($"{region.sceneName}: 환경음 컨트롤러 누락");
                     else

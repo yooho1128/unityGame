@@ -14,6 +14,7 @@ namespace ShadowTheater.Story
     {
         public static QuestManager Instance { get; private set; }
         public static event Action GlobalQuestChanged;
+        public static event Action<QuestDefinition> GlobalQuestCompleted;
 
         public QuestDefinition TrackedQuest => FindTrackedQuest();
 
@@ -127,6 +128,7 @@ namespace ShadowTheater.Story
             string itemReward = !string.IsNullOrEmpty(quest.rewardItemId) && quest.rewardItemCount > 0
                 ? $", {quest.rewardItemId} x{quest.rewardItemCount}" : string.Empty;
             Debug.Log($"[Quest] 완료: {quest.title} (+{quest.rewardGold} 금화{itemReward})");
+            GlobalQuestCompleted?.Invoke(quest);
 
             if (!string.IsNullOrEmpty(quest.nextQuestId))
                 TryStartQuest(quest.nextQuestId, false);

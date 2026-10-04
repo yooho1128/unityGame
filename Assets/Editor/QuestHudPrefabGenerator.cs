@@ -18,7 +18,7 @@ namespace ShadowTheater.EditorTools
             EnsureFolder("Assets/Prefabs", "UI");
 
             var root = new GameObject("QuestHUDCanvas", typeof(RectTransform), typeof(Canvas),
-                typeof(CanvasScaler), typeof(QuestManager), typeof(QuestHudController));
+                typeof(CanvasScaler), typeof(QuestManager), typeof(QuestHudController), typeof(QuestCompletionToast));
             var canvas = root.GetComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 25;
@@ -56,6 +56,14 @@ namespace ShadowTheater.EditorTools
                 new Vector2(0.94f, 0.17f), 21, FontStyle.Normal, TextAnchor.MiddleRight);
             reward.color = new Color(1f, 0.76f, 0.30f, 1f);
 
+            var complete = CreateRect("CompletionToast", root.transform, new Vector2(.16f,.61f), new Vector2(.84f,.75f));
+            complete.gameObject.AddComponent<Image>().color = new Color(.045f,.025f,.09f,.97f);
+            var completeGroup = complete.gameObject.AddComponent<CanvasGroup>();
+            var completeTitle = CreateText("Title", complete, new Vector2(.05f,.48f), new Vector2(.95f,.92f), 32, FontStyle.Bold, TextAnchor.MiddleCenter);
+            completeTitle.color = new Color(.88f,.76f,1f);
+            var completeReward = CreateText("Reward", complete, new Vector2(.05f,.08f), new Vector2(.95f,.50f), 22, FontStyle.Normal, TextAnchor.MiddleCenter);
+            completeReward.color = new Color(1f,.80f,.38f);
+
             var hud = root.GetComponent<QuestHudController>();
             var serialized = new SerializedObject(hud);
             serialized.FindProperty("panelRoot").objectReferenceValue = panel.gameObject;
@@ -63,6 +71,12 @@ namespace ShadowTheater.EditorTools
             serialized.FindProperty("objectiveText").objectReferenceValue = objective;
             serialized.FindProperty("rewardText").objectReferenceValue = reward;
             serialized.ApplyModifiedPropertiesWithoutUndo();
+            var toastSerialized = new SerializedObject(root.GetComponent<QuestCompletionToast>());
+            toastSerialized.FindProperty("root").objectReferenceValue = completeGroup;
+            toastSerialized.FindProperty("titleText").objectReferenceValue = completeTitle;
+            toastSerialized.FindProperty("rewardText").objectReferenceValue = completeReward;
+            toastSerialized.ApplyModifiedPropertiesWithoutUndo();
+            complete.gameObject.SetActive(false);
 
             PrefabUtility.SaveAsPrefabAsset(root, PrefabPath);
             Object.DestroyImmediate(root);
