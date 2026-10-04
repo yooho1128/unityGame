@@ -328,8 +328,16 @@ namespace ShadowTheater.Save
             shadows.RemoveAll(x => x == null || string.IsNullOrWhiteSpace(x.shadowId));
             foreach (var shadow in shadows)
             {
-                shadow.level = Mathf.Max(1, shadow.level);
+                shadow.level = Mathf.Clamp(shadow.level, 1, ShadowInstance.MaxLevel);
                 shadow.exp = Mathf.Max(0, shadow.exp);
+                while (shadow.level < ShadowInstance.MaxLevel)
+                {
+                    int required = 20 + shadow.level * shadow.level * 5;
+                    if (shadow.exp < required) break;
+                    shadow.exp -= required;
+                    shadow.level++;
+                }
+                if (shadow.level >= ShadowInstance.MaxLevel) shadow.exp = 0;
                 if (!Enum.IsDefined(typeof(MemoryStage), shadow.memoryStage)) shadow.memoryStage = MemoryStage.Echo;
                 if (!Enum.IsDefined(typeof(AwakeningPath), shadow.awakeningPath)) shadow.awakeningPath = AwakeningPath.None;
                 if (string.IsNullOrEmpty(shadow.instanceId) || !instanceIds.Add(shadow.instanceId))

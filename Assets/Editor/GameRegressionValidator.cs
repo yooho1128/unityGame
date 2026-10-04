@@ -149,6 +149,21 @@ namespace ShadowTheater.EditorTools
                 DamageCalculator.SplitExperience(2, 6) != 1 ||
                 DamageCalculator.SplitExperience(100, 0) != 0)
                 result.errors.Add("참여 경험치 분배 회귀 실패");
+
+            ShadowData data = CreateAiTestShadow("level_cap_test", ShadowElement.None);
+            try
+            {
+                var instance = new ShadowInstance(data, ShadowInstance.MaxLevel - 1);
+                int ups = instance.AddExp(instance.ExpToNext * 2);
+                if (ups != 1 || instance.level != ShadowInstance.MaxLevel || instance.exp != 0 ||
+                    instance.ExpToNext != 0 || !Mathf.Approximately(instance.ExpProgress, 1f) ||
+                    instance.AddExp(9999) != 0)
+                    result.errors.Add("그림자 최대 레벨·경험치 회귀 실패");
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(data);
+            }
         }
 
         private static void ValidateRegionGraph(List<RegionData> regions, ValidationReport result)
@@ -311,6 +326,15 @@ namespace ShadowTheater.EditorTools
                             partySo.FindProperty("partyContent")?.objectReferenceValue == null ||
                             partySo.FindProperty("storageContent")?.objectReferenceValue == null)
                             result.errors.Add($"{region.sceneName}: 파티·각본 서고 UI 참조 누락");
+                        foreach (string property in new[] { "partyTemplate", "storageTemplate" })
+                        {
+                            var entry = partySo.FindProperty(property)?.objectReferenceValue as PartyStorageEntryView;
+                            if (entry == null) continue;
+                            var entrySo = new SerializedObject(entry);
+                            if (entrySo.FindProperty("expFill")?.objectReferenceValue == null ||
+                                entrySo.FindProperty("expText")?.objectReferenceValue == null)
+                                result.errors.Add($"{region.sceneName}: 파티·각본 서고 경험치 UI 참조 누락");
+                        }
                     }
                     FieldPauseMenuController pauseMenu = roots.SelectMany(x => x.GetComponentsInChildren<FieldPauseMenuController>(true)).FirstOrDefault();
                     if (pauseMenu == null) result.errors.Add($"{region.sceneName}: 필드 메뉴 누락");

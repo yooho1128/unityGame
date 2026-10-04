@@ -11,6 +11,8 @@ namespace ShadowTheater.Data
     [Serializable]
     public class ShadowInstance
     {
+        public const int MaxLevel = 100;
+
         public string instanceId;   // 같은 그림자 중복 수집 대비 고유 ID
         public string shadowId;
         public int level = 1;
@@ -29,7 +31,7 @@ namespace ShadowTheater.Data
             instanceId = Guid.NewGuid().ToString("N");
             shadowId = data.shadowId;
             _data = data;
-            this.level = Mathf.Max(1, level);
+            this.level = Mathf.Clamp(level, 1, MaxLevel);
             currentHp = MaxHp;
         }
 
@@ -47,21 +49,26 @@ namespace ShadowTheater.Data
             ? ActiveForm.formName : Data.displayName;
         public bool IsFainted => currentHp == 0;
 
-        public int ExpToNext => 20 + level * level * 5; // 임시 곡선
+        public bool IsMaxLevel => level >= MaxLevel;
+        public int ExpToNext => IsMaxLevel ? 0 : 20 + level * level * 5;
+        public float ExpProgress => IsMaxLevel ? 1f : Mathf.Clamp01((float)exp / ExpToNext);
 
         /// <summary>경험치 획득. 레벨업 횟수 반환</summary>
         public int AddExp(int amount)
         {
+            if (amount <= 0 || IsMaxLevel) return 0;
             int ups = 0;
             exp += amount;
-            while (exp >= ExpToNext)
+            while (!IsMaxLevel && exp >= ExpToNext)
             {
-                exp -= ExpToNext;
+                int required = ExpToNext;
+                exp -= required;
                 int prevMax = MaxHp;
                 level++;
                 currentHp += MaxHp - prevMax; // 오른 만큼 현재 HP도 증가
                 ups++;
             }
+            if (IsMaxLevel) exp = 0;
             return ups;
         }
 

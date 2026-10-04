@@ -87,7 +87,8 @@ namespace ShadowTheater.UI
                 var unit = manager.PlayerUnits[i];
                 bool canSwitch = manager.CanSwitchTo(i);
                 if (canSwitch) candidates++;
-                AddOption(L10n.Text(unit.Name), $"Lv.{unit.Level}  HP {unit.Hp}/{unit.MaxHp}", canSwitch,
+                string exp = unit.Instance.IsMaxLevel ? "EXP MAX" : $"EXP {unit.Instance.exp}/{unit.Instance.ExpToNext}";
+                AddOption(L10n.Text(unit.Name), $"Lv.{unit.Level}  HP {unit.Hp}/{unit.MaxHp} · {exp}", canSwitch,
                     () => Submit(BattleAction.Switch(BattleSide.Player, index)));
             }
             if (manager.PlayerUnits.Count <= 1 || candidates == 0)
