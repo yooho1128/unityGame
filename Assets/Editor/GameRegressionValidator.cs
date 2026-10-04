@@ -171,6 +171,17 @@ namespace ShadowTheater.EditorTools
                     instance.ExpToNext != 0 || !Mathf.Approximately(instance.ExpProgress, 1f) ||
                     instance.AddExp(9999) != 0)
                     result.errors.Add("그림자 최대 레벨·경험치 회귀 실패");
+
+                var full = new BattleUnit(new ShadowInstance(data, 5), BattleSide.Enemy);
+                var weakenedInstance = new ShadowInstance(data, 5) { currentHp = 1 };
+                var weakened = new BattleUnit(weakenedInstance, BattleSide.Enemy);
+                float fullChance = DamageCalculator.CaptureChance(full);
+                float weakChance = DamageCalculator.CaptureChance(weakened);
+                weakened.ApplyStatus(StatusEffectType.Freeze, 1);
+                float frozenChance = DamageCalculator.CaptureChance(weakened);
+                if (!(weakChance > fullChance && frozenChance > weakChance &&
+                      DamageCalculator.CaptureChance(weakened, 99f) <= 1f))
+                    result.errors.Add("각본 기록 성공률 계산 회귀 실패");
             }
             finally
             {
@@ -324,8 +335,9 @@ namespace ShadowTheater.EditorTools
                         var battleSo = new SerializedObject(battleUi);
                         if (battleSo.FindProperty("playerPartyStrip")?.objectReferenceValue == null ||
                             battleSo.FindProperty("enemyPartyStrip")?.objectReferenceValue == null ||
-                            battleSo.FindProperty("optionContent")?.objectReferenceValue == null)
-                            result.errors.Add($"{region.sceneName}: 전투 파티 스트립·선택 목록 참조 누락");
+                            battleSo.FindProperty("optionContent")?.objectReferenceValue == null ||
+                            battleSo.FindProperty("recordText")?.objectReferenceValue == null)
+                            result.errors.Add($"{region.sceneName}: 전투 파티 스트립·선택 목록·기록 확률 참조 누락");
                         foreach (BattlePartyStrip strip in battleUi.GetComponentsInChildren<BattlePartyStrip>(true))
                         {
                             SerializedProperty slots = new SerializedObject(strip).FindProperty("slots");

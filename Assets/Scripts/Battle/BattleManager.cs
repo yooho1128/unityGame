@@ -168,6 +168,10 @@ namespace ShadowTheater.Battle
 
         public int GetFp(BattleSide side) => _fp[(int)side];
         public int MaxFp => maxFp;
+        public bool CanRecordCurrent => Context != null && Context.CanCapture && _enemyUnits.Count > 0 &&
+                                        !EnemyActive.IsFainted && EnemyActive.Data.IsCapturable;
+        public float CurrentCaptureChance => CanRecordCurrent
+            ? DamageCalculator.CaptureChance(EnemyActive, _captureBonus) : 0f;
 
         public bool CanUseSkill(SkillData skill) =>
             skill != null && GetFp(BattleSide.Player) >= skill.fpCost;
@@ -343,10 +347,17 @@ namespace ShadowTheater.Battle
                 yield return _presenter.ShowMessage("다른 연출가의 그림자는 기록할 수 없다!");
                 yield break;
             }
+            if (!target.Data.IsCapturable)
+            {
+                yield return _presenter.ShowMessage("이 그림자의 기억은 아직 각본집에 담을 수 없다!");
+                yield break;
+            }
 
             float chance = DamageCalculator.CaptureChance(target, _captureBonus);
+            _captureBonus = 1f; // 특수 잉크는 다음 한 번의 기록 시도에만 적용한다.
             bool success = UnityEngine.Random.value < chance;
             yield return _presenter.PlayRecordAttempt(target, success);
+            OnUnitChanged?.Invoke(target);
 
             if (success)
             {
@@ -577,7 +588,7 @@ namespace ShadowTheater.Battle
                     if (!CanSwitchTo(a.switchIndex)) { reason = "교체 불가"; return false; }
                     return true;
                 case ActionType.Record:
-                    if (!Context.CanCapture) { reason = "기록 불가 전투"; return false; }
+                    if (!CanRecordCurrent) { reason = "기록할 수 없는 그림자"; return false; }
                     return true;
                 case ActionType.Item:
                     if (a.item == null || !a.item.usableInBattle) { reason = "사용 불가 도구"; return false; }

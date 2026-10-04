@@ -59,7 +59,7 @@ namespace ShadowTheater.EditorTools
             Set(so,"actionRoot",actions.gameObject); Set(so,"optionRoot",options.gameObject); Set(so,"optionContent",content);
             Set(so,"optionTemplate",template); Set(so,"messageText",message); Set(so,"fpText",fp); Set(so,"turnText",turn);
             Set(so,"autoText",auto.GetComponentInChildren<Text>()); Set(so,"speedText",speed.GetComponentInChildren<Text>());
-            Set(so,"recordButton",record); Set(so,"escapeButton",escape); so.ApplyModifiedPropertiesWithoutUndo();
+            Set(so,"recordText",record.GetComponentInChildren<Text>()); Set(so,"recordButton",record); Set(so,"escapeButton",escape); so.ApplyModifiedPropertiesWithoutUndo();
             var fx = new SerializedObject(fxDirector); Set(fx,"fxRoot",fxRoot); Set(fx,"stageRoot",root.GetComponent<RectTransform>()); Set(fx,"sfxPlayer",sfxPlayer); fx.ApplyModifiedPropertiesWithoutUndo();
             var bm = new SerializedObject(root.GetComponent<BattleManager>()); Set(bm,"presenterComponent",ui); bm.ApplyModifiedPropertiesWithoutUndo();
             UnityEditor.Events.UnityEventTools.AddPersistentListener(attack.onClick, ui.Attack);

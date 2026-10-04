@@ -25,6 +25,7 @@ namespace ShadowTheater.UI
         [SerializeField] private Text turnText;
         [SerializeField] private Text autoText;
         [SerializeField] private Text speedText;
+        [SerializeField] private Text recordText;
         [SerializeField] private Button recordButton;
         [SerializeField] private Button escapeButton;
         [SerializeField, Min(0f)] private float messageDuration = 0.55f;
@@ -169,11 +170,13 @@ namespace ShadowTheater.UI
             }
             else if (unit == manager.EnemyActive) enemyPanel.Bind(unit);
             RefreshPartyStrips();
+            RefreshLabels();
         }
         private void OnActiveChanged(BattleSide side, BattleUnit unit)
         {
             if (side == BattleSide.Player) playerPanel.Bind(unit); else enemyPanel.Bind(unit);
             RefreshPartyStrips();
+            RefreshLabels();
         }
 
         private void RefreshAll()
@@ -181,7 +184,7 @@ namespace ShadowTheater.UI
             if (manager.Context == null) return;
             playerPanel.Bind(manager.PlayerActive);
             enemyPanel.Bind(manager.EnemyActive);
-            if (recordButton != null) recordButton.interactable = manager.Context.CanCapture;
+            if (recordButton != null) recordButton.interactable = manager.CanRecordCurrent;
             if (escapeButton != null) escapeButton.interactable = manager.Context.CanEscape;
             RefreshPartyStrips();
             RefreshLabels();
@@ -200,6 +203,13 @@ namespace ShadowTheater.UI
                 fpText.text = $"FP {manager.GetFp(BattleSide.Player)} / {manager.MaxFp}";
             if (autoText != null) autoText.text = manager.IsAuto ? "AUTO ON" : "AUTO OFF";
             if (speedText != null) speedText.text = $"×{_speed:0}";
+            if (recordText != null && manager.Context != null)
+            {
+                if (!manager.Context.CanCapture) recordText.text = L10n.Get("battle.record_unavailable", "각본 기록\n불가");
+                else if (!manager.CanRecordCurrent) recordText.text = L10n.Get("battle.record_locked", "각본 기록\n봉인 불가");
+                else recordText.text = L10n.Format("battle.record_chance", "각본 기록\n성공률 {0}%",
+                    Mathf.RoundToInt(manager.CurrentCaptureChance * 100f));
+            }
         }
 
         private void ShowActions(bool show)
@@ -250,9 +260,18 @@ namespace ShadowTheater.UI
             BattleUnitPanel attacker = a.Side == BattleSide.Player ? playerPanel : enemyPanel;
             BattleUnitPanel defender = d.Side == BattleSide.Player ? playerPanel : enemyPanel;
             if (fxDirector != null) yield return fxDirector.Play(attacker, defender, s, hit, _speed);
-            yield return Say(hit.missed
-                ? L10n.Format("battle.missed", "{0}의 {1}! 빗나갔다.", L10n.Text(a.Name), L10n.Text(s.displayName))
-                : L10n.Format("battle.used_skill", "{0}의 {1}!", L10n.Text(a.Name), L10n.Text(s.displayName)));
+            if (hit.missed)
+            {
+                yield return Say(L10n.Format("battle.missed", "{0}의 {1}! 빗나갔다.", L10n.Text(a.Name), L10n.Text(s.displayName)));
+                yield break;
+            }
+
+            string message = L10n.Format("battle.used_skill", "{0}의 {1}!", L10n.Text(a.Name), L10n.Text(s.displayName));
+            if (hit.damage > 0) message += L10n.Format("battle.damage_detail", "\n{0} 피해", hit.damage);
+            if (hit.critical) message += L10n.Get("battle.critical", " · 치명타");
+            if (hit.IsEffective) message += L10n.Get("battle.effective", " · 효과가 굉장했다");
+            else if (hit.IsResisted) message += L10n.Get("battle.resisted", " · 효과가 약했다");
+            yield return Say(message);
         }
         public IEnumerator PlayHeal(BattleUnit unit, int amount) { yield return Say(L10n.Format("battle.heal", "{0}의 HP가 {1} 회복됐다.", L10n.Text(unit.Name), amount)); }
         public IEnumerator PlayStatusApplied(BattleUnit unit, StatusEffectType status) { yield return Say(L10n.Format("battle.status_applied", "{0}에게 {1} 상태가 걸렸다.", L10n.Text(unit.Name), StatusLabel(status))); }
