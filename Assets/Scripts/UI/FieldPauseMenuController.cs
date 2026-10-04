@@ -63,8 +63,27 @@ namespace ShadowTheater.UI
         private void Update()
         {
 #if ENABLE_LEGACY_INPUT_MANAGER && (UNITY_EDITOR || UNITY_STANDALONE)
-            if (Input.GetKeyDown(KeyCode.Escape)) Toggle();
+            if (Input.GetKeyDown(KeyCode.Escape)) HandleBack();
+#elif UNITY_ANDROID
+            if (Input.GetKeyDown(KeyCode.Escape)) HandleBack();
 #endif
+        }
+
+        private void HandleBack()
+        {
+            if (QuestLogController.Instance != null && QuestLogController.Instance.IsOpen)
+            { QuestLogController.Instance.Close(); return; }
+            if (FieldInventoryController.Instance != null && FieldInventoryController.Instance.IsOpen)
+            { FieldInventoryController.Instance.Close(); return; }
+            if (SettlementShopController.Instance != null && SettlementShopController.Instance.IsOpen)
+            { SettlementShopController.Instance.Close(); return; }
+            if (WorldMapController.Instance != null && WorldMapController.Instance.IsOpen)
+            { WorldMapController.Instance.Close(); return; }
+            if (PartyStorageController.Instance != null && PartyStorageController.Instance.IsOpen)
+            { PartyStorageController.Instance.Close(); return; }
+            if (ScriptBookController.Instance != null && ScriptBookController.Instance.IsOpen)
+            { ScriptBookController.Instance.Close(); return; }
+            Toggle();
         }
 
         public void Toggle()
