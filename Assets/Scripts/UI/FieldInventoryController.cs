@@ -133,6 +133,7 @@ namespace ShadowTheater.UI
             if (PartyStorageController.Instance != null && PartyStorageController.Instance.IsOpen) return false;
             if (WorldMapController.Instance != null && WorldMapController.Instance.IsOpen) return false;
             if (SettlementShopController.Instance != null && SettlementShopController.Instance.IsOpen) return false;
+            if (QuestLogController.Instance != null && QuestLogController.Instance.IsOpen) return false;
             return true;
         }
 

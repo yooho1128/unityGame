@@ -419,6 +419,15 @@ namespace ShadowTheater.EditorTools
                             if (inventorySo.FindProperty(property)?.objectReferenceValue == null)
                                 result.errors.Add($"{region.sceneName}: 도구 가방 {property} 참조 누락");
                     }
+                    QuestLogController questLog = roots.SelectMany(x => x.GetComponentsInChildren<QuestLogController>(true)).FirstOrDefault();
+                    if (questLog == null) result.errors.Add($"{region.sceneName}: 퀘스트 기록장 UI 누락");
+                    else
+                    {
+                        var questLogSo = new SerializedObject(questLog);
+                        foreach (string property in new[] { "root", "contentRoot", "entryTemplate", "titleText", "objectivesText", "rewardText" })
+                            if (questLogSo.FindProperty(property)?.objectReferenceValue == null)
+                                result.errors.Add($"{region.sceneName}: 퀘스트 기록장 {property} 참조 누락");
+                    }
                     FieldPauseMenuController pauseMenu = roots.SelectMany(x => x.GetComponentsInChildren<FieldPauseMenuController>(true)).FirstOrDefault();
                     if (pauseMenu == null) result.errors.Add($"{region.sceneName}: 필드 메뉴 누락");
                     else

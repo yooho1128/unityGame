@@ -51,8 +51,9 @@ namespace ShadowTheater.EditorTools
 
             var feedback = Text("Feedback", card, new Vector2(.07f,.30f), new Vector2(.93f,.35f), 21, "", TextAnchor.MiddleCenter);
             feedback.color = new Color(.55f,1f,.84f);
-            var party = Button("Party", card, new Vector2(.07f,.21f), new Vector2(.48f,.285f), "파티 · 서고", new Color(.18f,.12f,.34f));
-            var inventory = Button("Inventory", card, new Vector2(.52f,.21f), new Vector2(.93f,.285f), "도구 가방", new Color(.16f,.18f,.31f));
+            var party = Button("Party", card, new Vector2(.07f,.21f), new Vector2(.34f,.285f), "파티 · 서고", new Color(.18f,.12f,.34f));
+            var inventory = Button("Inventory", card, new Vector2(.365f,.21f), new Vector2(.635f,.285f), "도구 가방", new Color(.16f,.18f,.31f));
+            var quests = Button("QuestLog", card, new Vector2(.66f,.21f), new Vector2(.93f,.285f), "기억 여정", new Color(.20f,.13f,.30f));
             var save = Button("Save", card, new Vector2(.07f,.09f), new Vector2(.48f,.18f), "진행 상황 저장", new Color(.13f,.30f,.29f));
             var title = Button("ReturnTitle", card, new Vector2(.52f,.09f), new Vector2(.93f,.18f), "타이틀로 돌아가기", new Color(.29f,.10f,.19f));
 
@@ -78,6 +79,7 @@ namespace ShadowTheater.EditorTools
             UnityEventTools.AddPersistentListener(close.onClick, controller.Close);
             UnityEventTools.AddPersistentListener(party.onClick, controller.OpenPartyManagement);
             UnityEventTools.AddPersistentListener(inventory.onClick, controller.OpenInventory);
+            UnityEventTools.AddPersistentListener(quests.onClick, controller.OpenQuestLog);
             UnityEventTools.AddPersistentListener(save.onClick, controller.SaveNow);
             UnityEventTools.AddPersistentListener(title.onClick, controller.RequestReturnToTitle);
             UnityEventTools.AddPersistentListener(cancel.onClick, controller.CancelReturnToTitle);

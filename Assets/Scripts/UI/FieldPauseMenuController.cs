@@ -119,6 +119,12 @@ namespace ShadowTheater.UI
             FieldInventoryController.Instance?.Open();
         }
 
+        public void OpenQuestLog()
+        {
+            if (!IsOpen || _returning) return;
+            Close(); QuestLogController.Instance?.Open();
+        }
+
         public void RequestReturnToTitle()
         {
             if (!IsOpen || _returning) return;
@@ -166,6 +172,7 @@ namespace ShadowTheater.UI
             if (WorldMapController.Instance != null && WorldMapController.Instance.IsOpen) return false;
             if (SettlementShopController.Instance != null && SettlementShopController.Instance.IsOpen) return false;
             if (FieldInventoryController.Instance != null && FieldInventoryController.Instance.IsOpen) return false;
+            if (QuestLogController.Instance != null && QuestLogController.Instance.IsOpen) return false;
             return true;
         }
 
