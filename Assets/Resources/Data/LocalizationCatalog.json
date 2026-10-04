@@ -16,6 +16,7 @@
     {"key":"common.unknown_path","ko":"아직 걷지 않은 길","en":"An Untraveled Path"},
     {"key":"settings.master","ko":"전체 음량","en":"Master Volume"},
     {"key":"settings.ambience","ko":"환경음","en":"Ambience"},
+    {"key":"settings.music","ko":"음악","en":"Music"},
     {"key":"settings.sfx","ko":"효과음","en":"Sound Effects"},
     {"key":"settings.vibration","ko":"진동","en":"Vibration"},
     {"key":"settings.text_speed","ko":"대화 속도","en":"Text Speed"},

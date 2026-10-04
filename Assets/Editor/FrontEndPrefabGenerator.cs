@@ -17,6 +17,7 @@ namespace ShadowTheater.EditorTools
         [MenuItem("Tools/Shadow Theater/Generate Title and Starter UI")]
         public static void Generate()
         {
+            MusicAssetGenerator.Generate();
             EnsureFolder("Assets", "Prefabs");
             EnsureFolder("Assets/Prefabs", "UI");
             EnsureFolder("Assets/Prefabs", "Systems");
@@ -32,7 +33,13 @@ namespace ShadowTheater.EditorTools
         {
             var systems = new GameObject("CoreSystems", typeof(SaveManager), typeof(MapLoader),
                 typeof(EndingManager), typeof(GameSettings), typeof(LocalizationRuntime),
-                typeof(MobilePerformanceController));
+                typeof(MobilePerformanceController), typeof(AdaptiveMusicDirector));
+            var musicSo = new SerializedObject(systems.GetComponent<AdaptiveMusicDirector>());
+            AudioClip[] music = MusicAssetGenerator.LoadAll();
+            var musicClips = musicSo.FindProperty("clips");
+            musicClips.arraySize = music.Length;
+            for (int i = 0; i < music.Length; i++) musicClips.GetArrayElementAtIndex(i).objectReferenceValue = music[i];
+            musicSo.ApplyModifiedPropertiesWithoutUndo();
             PrefabUtility.SaveAsPrefabAsset(systems, SystemsFolder + "/CoreSystems.prefab");
             Object.DestroyImmediate(systems);
         }
@@ -127,14 +134,15 @@ namespace ShadowTheater.EditorTools
             var settingsPanel = CreateRect("Panel", settingsRoot, new Vector2(.10f,.19f), new Vector2(.90f,.79f));
             settingsPanel.gameObject.AddComponent<Image>().color = new Color(.045f,.03f,.085f,.97f);
 
-            Text masterValue, ambienceValue, sfxValue;
+            Text masterValue, ambienceValue, musicValue, sfxValue;
             var masterSlider = CreateSettingsSlider("Master", settingsPanel, .92f, "전체 음량", out masterValue);
-            var ambienceSlider = CreateSettingsSlider("Ambience", settingsPanel, .76f, "환경음", out ambienceValue);
-            var sfxSlider = CreateSettingsSlider("Sfx", settingsPanel, .60f, "효과음", out sfxValue);
+            var musicSlider = CreateSettingsSlider("Music", settingsPanel, .78f, "음악", out musicValue);
+            var ambienceSlider = CreateSettingsSlider("Ambience", settingsPanel, .64f, "환경음", out ambienceValue);
+            var sfxSlider = CreateSettingsSlider("Sfx", settingsPanel, .50f, "효과음", out sfxValue);
             Text vibrationValue, textSpeedValue, languageValue;
-            var vibrationButton = CreateSettingsChoice("Vibration", settingsPanel, .43f, "진동", out vibrationValue);
-            var speedButton = CreateSettingsChoice("TextSpeed", settingsPanel, .27f, "대화 속도", out textSpeedValue);
-            var languageButton = CreateSettingsChoice("Language", settingsPanel, .11f, "언어", out languageValue);
+            var vibrationButton = CreateSettingsChoice("Vibration", settingsPanel, .34f, "진동", out vibrationValue);
+            var speedButton = CreateSettingsChoice("TextSpeed", settingsPanel, .20f, "대화 속도", out textSpeedValue);
+            var languageButton = CreateSettingsChoice("Language", settingsPanel, .06f, "언어", out languageValue);
             var settingsBack = CreateButton("BackButton", settingsRoot, new Vector2(.30f,.07f),
                 new Vector2(.70f,.13f), "돌아가기", new Color(.08f,.065f,.14f,1f));
 
@@ -196,9 +204,11 @@ namespace ShadowTheater.EditorTools
             settingsSo.FindProperty("titleRoot").objectReferenceValue = titleRoot.gameObject;
             settingsSo.FindProperty("masterSlider").objectReferenceValue = masterSlider;
             settingsSo.FindProperty("ambienceSlider").objectReferenceValue = ambienceSlider;
+            settingsSo.FindProperty("musicSlider").objectReferenceValue = musicSlider;
             settingsSo.FindProperty("sfxSlider").objectReferenceValue = sfxSlider;
             settingsSo.FindProperty("masterValue").objectReferenceValue = masterValue;
             settingsSo.FindProperty("ambienceValue").objectReferenceValue = ambienceValue;
+            settingsSo.FindProperty("musicValue").objectReferenceValue = musicValue;
             settingsSo.FindProperty("sfxValue").objectReferenceValue = sfxValue;
             settingsSo.FindProperty("vibrationValue").objectReferenceValue = vibrationValue;
             settingsSo.FindProperty("textSpeedValue").objectReferenceValue = textSpeedValue;
@@ -214,6 +224,7 @@ namespace ShadowTheater.EditorTools
             UnityEditor.Events.UnityEventTools.AddPersistentListener(settingsBack.onClick, settings.Close);
             UnityEditor.Events.UnityEventTools.AddPersistentListener(masterSlider.onValueChanged, settings.SetMaster);
             UnityEditor.Events.UnityEventTools.AddPersistentListener(ambienceSlider.onValueChanged, settings.SetAmbience);
+            UnityEditor.Events.UnityEventTools.AddPersistentListener(musicSlider.onValueChanged, settings.SetMusic);
             UnityEditor.Events.UnityEventTools.AddPersistentListener(sfxSlider.onValueChanged, settings.SetSfx);
             UnityEditor.Events.UnityEventTools.AddPersistentListener(vibrationButton.onClick, settings.ToggleVibration);
             UnityEditor.Events.UnityEventTools.AddPersistentListener(speedButton.onClick, settings.CycleTextSpeed);

@@ -108,6 +108,10 @@ Unity 메뉴 **Tools → Shadow Theater → Preview Final Shadow Art**를 열면
 교체하면 됩니다. 자세한 내용은 [`Docs/FIELD_AUDIO_PIPELINE.md`](Docs/FIELD_AUDIO_PIPELINE.md)를
 참고하세요.
 
+타이틀·8개 막·일반/라이벌/보스 전투·엔딩에는 13개 적응형 BGM 큐가 연결됩니다. 필드와 전투가
+바뀔 때 두 음악 채널이 교차 페이드하며, 음악 음량은 환경음과 별도로 저장됩니다. 생성 및 교체 규칙은
+[`Docs/ADAPTIVE_MUSIC.md`](Docs/ADAPTIVE_MUSIC.md)를 참고하세요.
+
 ## 대화 시스템 빠른 설치
 1. Unity 메뉴 **Tools → Shadow Theater → Generate Dialogue UI Prefab** 실행
 2. 생성된 `Assets/Prefabs/UI/DialogueCanvas.prefab`을 필드 씬 최상위에 배치
@@ -146,9 +150,9 @@ Unity 메뉴 **Tools → Shadow Theater → Preview Final Shadow Art**를 열면
 
 ## 게임 설정
 
-`Generate Title and Starter UI`로 만든 타이틀에는 설정 화면이 포함됩니다. 전체 음량, 환경음, 효과음,
+`Generate Title and Starter UI`로 만든 타이틀에는 설정 화면이 포함됩니다. 전체 음량, 음악, 환경음, 효과음,
 진동, 대화 출력 속도, 언어를 조절할 수 있으며 값은 `PlayerPrefs`에 저장되어 세이브 슬롯과 회차에
-상관없이 유지됩니다. 환경음 슬라이더는 필드의 지속음과 간헐음을 즉시 갱신하고, 효과음은 전투 스킬과
+상관없이 유지됩니다. 음악 슬라이더는 적응형 BGM, 환경음 슬라이더는 필드의 지속음과 간헐음을 즉시 갱신하고, 효과음은 전투 스킬과
 필살기에 적용됩니다. 진동은 모바일 전투의 타격 순간에만 발생합니다. 한국어/English 전환은
 `LocalizationCatalog.json`을 통해 타이틀·전투·대화·퀘스트·각본집·파티·40개 지역·엔딩 UI에 즉시
 반영됩니다. Windows/macOS/Android/iOS의 설치 폰트에서 한글과 라틴 글꼴을 우선 탐색하고 없으면 Unity

@@ -17,7 +17,7 @@ Assets/Scripts/
   UI/      DialogueController, DialogueChoiceView, QuestHudController,
            TitleScreenController, StarterSelectionController, StarterCardView,
            EndingGalleryController, EndingGalleryEntryView, GameSettings, SettingsPanelController,
-           LocalizationService, MobilePerformanceController,
+           LocalizationService, MobilePerformanceController, AdaptiveMusicDirector,
            WorldMapController, RegionMapNodeView,
            ScriptBookController, ScriptBookEntryView, BattleUIController, BattleFxDirector,
            BattleSfxPlayer,
@@ -25,7 +25,7 @@ Assets/Scripts/
   Editor/  DialogueUIPrefabGenerator, QuestHudPrefabGenerator, FrontEndPrefabGenerator,
            ScriptBookPrefabGenerator, BattleUIPrefabGenerator, PartyStoragePrefabGenerator,
            WorldMapPrefabGenerator, CoreContentBatchGenerator, LegendaryGrowthBatchGenerator,
-           UltimateFxAssetGenerator, FieldAudioAssetGenerator, FinalPixelArtPipeline,
+           UltimateFxAssetGenerator, FieldAudioAssetGenerator, MusicAssetGenerator, FinalPixelArtPipeline,
            PlayablePrologueGenerator, GameRegressionValidator
 ```
 
@@ -207,6 +207,7 @@ Point 필터의 선명한 가장자리를 유지한다. 렌더 파이프라인 �
 설정은 게임 세이브 JSON이 아니라 `PlayerPrefs`에 별도로 저장되므로 새 게임과 다음 회차에서도 유지된다.
 
 - 전체 음량: `AudioListener.volume`에 즉시 반영
+- 음악: `AdaptiveMusicDirector`의 타이틀·필드·전투·엔딩 BGM에 즉시 반영
 - 환경음: `FieldAmbientAudio`의 지속음·간헐음에 즉시 반영
 - 효과음: `BattleSfxPlayer`의 스킬·필살기 음량에 반영
 - 진동: Android/iOS 전투 타격 프레임에서 실행
@@ -349,6 +350,7 @@ JSON 값을 바꾼 뒤 각 데이터 생성 메뉴를 다시 실행하면 된다
 1. 자동 생성 필살기 WAV를 전문 녹음·마스터링 음원으로 선택 교체
 2. 180종 초상·필드 프레임과 89개 타일의 최종 아트 제작 및 순차 투입
 3. 자동 생성 환경음·발걸음을 전문 녹음·마스터링 음원으로 선택 교체
+4. 자동 생성 적응형 BGM 13개를 작곡·마스터링 완성 음원으로 교체
 
 최종 아트는 `Assets/Art/Final`의 파일을 우선 사용하는 비파괴 교체 방식이다. 메뉴
 `Tools > Shadow Theater > Import and Validate Final Pixel Art`가 크기·이름·임포트 설정을 검사하고

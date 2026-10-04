@@ -9,9 +9,11 @@ namespace ShadowTheater.UI
         [SerializeField] private GameObject titleRoot;
         [SerializeField] private Slider masterSlider;
         [SerializeField] private Slider ambienceSlider;
+        [SerializeField] private Slider musicSlider;
         [SerializeField] private Slider sfxSlider;
         [SerializeField] private Text masterValue;
         [SerializeField] private Text ambienceValue;
+        [SerializeField] private Text musicValue;
         [SerializeField] private Text sfxValue;
         [SerializeField] private Text vibrationValue;
         [SerializeField] private Text textSpeedValue;
@@ -43,6 +45,12 @@ namespace ShadowTheater.UI
         {
             if (_refreshing || GameSettings.Instance == null) return;
             GameSettings.Instance.SetAmbienceVolume(value); RefreshLabels();
+        }
+
+        public void SetMusic(float value)
+        {
+            if (_refreshing || GameSettings.Instance == null) return;
+            GameSettings.Instance.SetMusicVolume(value); RefreshLabels();
         }
 
         public void SetSfx(float value)
@@ -79,6 +87,7 @@ namespace ShadowTheater.UI
             _refreshing = true;
             if (masterSlider != null) masterSlider.value = GameSettings.MasterVolume;
             if (ambienceSlider != null) ambienceSlider.value = GameSettings.AmbienceVolume;
+            if (musicSlider != null) musicSlider.value = GameSettings.MusicVolume;
             if (sfxSlider != null) sfxSlider.value = GameSettings.SfxVolume;
             _refreshing = false;
             RefreshLabels();
@@ -88,6 +97,7 @@ namespace ShadowTheater.UI
         {
             if (masterValue != null) masterValue.text = Percent(GameSettings.MasterVolume);
             if (ambienceValue != null) ambienceValue.text = Percent(GameSettings.AmbienceVolume);
+            if (musicValue != null) musicValue.text = Percent(GameSettings.MusicVolume);
             if (sfxValue != null) sfxValue.text = Percent(GameSettings.SfxVolume);
             if (vibrationValue != null) vibrationValue.text = GameSettings.Vibration
                 ? L10n.Get("settings.on", "켜짐") : L10n.Get("settings.off", "꺼짐");

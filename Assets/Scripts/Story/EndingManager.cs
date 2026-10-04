@@ -50,6 +50,7 @@ namespace ShadowTheater.Story
 
             var dialogue = DialogueController.Instance;
             if (dialogue == null || dialogue.IsPlaying) return false;
+            AdaptiveMusicDirector.Instance?.PlayEnding();
             return dialogue.Play(ending.dialogueId, endingAccent, () =>
             {
                 Unlock(ending);

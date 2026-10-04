@@ -14,6 +14,7 @@ namespace ShadowTheater.UI
         private const string Prefix = "shadow_theater.settings.";
         private float _masterVolume;
         private float _ambienceVolume;
+        private float _musicVolume;
         private float _sfxVolume;
         private bool _vibration;
         private float _textSpeed;
@@ -21,6 +22,7 @@ namespace ShadowTheater.UI
 
         public static float MasterVolume => Instance != null ? Instance._masterVolume : 0.9f;
         public static float AmbienceVolume => Instance != null ? Instance._ambienceVolume : 0.8f;
+        public static float MusicVolume => Instance != null ? Instance._musicVolume : 0.75f;
         public static float SfxVolume => Instance != null ? Instance._sfxVolume : 0.9f;
         public static bool Vibration => Instance == null || Instance._vibration;
         public static float TextSpeed => Instance != null ? Instance._textSpeed : 42f;
@@ -41,6 +43,7 @@ namespace ShadowTheater.UI
 
         public void SetMasterVolume(float value) { _masterVolume = Mathf.Clamp01(value); ApplyAndSave(); }
         public void SetAmbienceVolume(float value) { _ambienceVolume = Mathf.Clamp01(value); ApplyAndSave(); }
+        public void SetMusicVolume(float value) { _musicVolume = Mathf.Clamp01(value); ApplyAndSave(); }
         public void SetSfxVolume(float value) { _sfxVolume = Mathf.Clamp01(value); ApplyAndSave(); }
         public void SetVibration(bool value) { _vibration = value; ApplyAndSave(); }
         public void SetTextSpeed(float value) { _textSpeed = Mathf.Clamp(value, 20f, 90f); ApplyAndSave(); }
@@ -58,6 +61,7 @@ namespace ShadowTheater.UI
         {
             _masterVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(Prefix + "master", .9f));
             _ambienceVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(Prefix + "ambience", .8f));
+            _musicVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(Prefix + "music", .75f));
             _sfxVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(Prefix + "sfx", .9f));
             _vibration = PlayerPrefs.GetInt(Prefix + "vibration", 1) != 0;
             _textSpeed = Mathf.Clamp(PlayerPrefs.GetFloat(Prefix + "text_speed", 42f), 20f, 90f);
@@ -69,6 +73,7 @@ namespace ShadowTheater.UI
             Apply();
             PlayerPrefs.SetFloat(Prefix + "master", _masterVolume);
             PlayerPrefs.SetFloat(Prefix + "ambience", _ambienceVolume);
+            PlayerPrefs.SetFloat(Prefix + "music", _musicVolume);
             PlayerPrefs.SetFloat(Prefix + "sfx", _sfxVolume);
             PlayerPrefs.SetInt(Prefix + "vibration", _vibration ? 1 : 0);
             PlayerPrefs.SetFloat(Prefix + "text_speed", _textSpeed);

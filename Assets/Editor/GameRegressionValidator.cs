@@ -7,6 +7,7 @@ using ShadowTheater.Data;
 using ShadowTheater.Field;
 using ShadowTheater.Save;
 using ShadowTheater.Story;
+using ShadowTheater.UI;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.SceneManagement;
@@ -67,6 +68,7 @@ namespace ShadowTheater.EditorTools
             ValidateRoster(result);
             ValidateDatabase(result);
             ValidateFinalArt(result);
+            ValidateMusic(result);
             ValidateScenes(regions, result);
             ValidateBuildSettings(regions, result);
             return result;
@@ -170,6 +172,20 @@ namespace ShadowTheater.EditorTools
             result.warnings.Add($"최종 아트 교체율 — 초상 {report.portraitsReady}/{report.shadowCount}, " +
                                 $"필드 그림자 {report.fieldActorsReady}/{report.shadowCount}, " +
                                 $"플레이어 {report.playerFramesReady}/6, 타일 {report.tilesReady}/{report.tileCount}");
+        }
+
+        private static void ValidateMusic(ValidationReport result)
+        {
+            GameObject core = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Systems/CoreSystems.prefab");
+            AdaptiveMusicDirector director = core != null ? core.GetComponent<AdaptiveMusicDirector>() : null;
+            if (director == null) { result.errors.Add("CoreSystems 적응형 음악 감독 누락"); return; }
+            SerializedProperty clips = new SerializedObject(director).FindProperty("clips");
+            int expected = Enum.GetValues(typeof(MusicCue)).Length;
+            if (clips == null || clips.arraySize != expected)
+            { result.errors.Add($"음악 큐 수 불일치: {clips?.arraySize ?? 0}/{expected}"); return; }
+            for (int i = 0; i < clips.arraySize; i++)
+                if (clips.GetArrayElementAtIndex(i).objectReferenceValue == null)
+                    result.errors.Add($"음악 클립 누락: {(MusicCue)i}");
         }
 
         private static void ValidateScenes(List<RegionData> regions, ValidationReport result)

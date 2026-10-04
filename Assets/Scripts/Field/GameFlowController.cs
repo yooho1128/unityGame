@@ -5,6 +5,7 @@ using ShadowTheater.Battle;
 using ShadowTheater.Data;
 using ShadowTheater.Save;
 using ShadowTheater.Story;
+using ShadowTheater.UI;
 using UnityEngine;
 
 namespace ShadowTheater.Field
@@ -137,6 +138,7 @@ namespace ShadowTheater.Field
 
             // ── 진입 ──
             FieldAmbientAudio.Instance?.BeginFadeOut();
+            AdaptiveMusicDirector.Instance?.EnterBattle(ctx.mode);
             yield return new WaitForSeconds(encounterFlashTime);
             yield return ScreenFader.Instance.FadeOut();
 
@@ -161,6 +163,7 @@ namespace ShadowTheater.Field
             yield return ScreenFader.Instance.FadeOut();
             battleRoot.SetActive(false);
             fieldRoot.SetActive(true);
+            AdaptiveMusicDirector.Instance?.ReturnToField();
 
             if (symbol != null) symbol.OnBattleFinished(outcome.result); // fieldRoot 켜진 뒤 호출해야 코루틴 동작
 
