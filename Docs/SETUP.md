@@ -347,6 +347,18 @@ JSON 값을 바꾼 뒤 각 데이터 생성 메뉴를 다시 실행하면 된다
 - 이동·순서 변경 성공 시 즉시 안전 저장하며 HP와 기억 성장 단계도 그대로 유지한다.
 - 첫 번째 파티원이 전투의 선봉으로 사용되므로 순서 변경은 다음 인카운터부터 반영된다.
 
+## 정착지 상점·필드 회복 세팅
+
+1. Unity 메뉴 `Tools → Shadow Theater → Generate Settlement Shop UI` 실행
+2. 생성된 `Assets/Prefabs/UI/SettlementShopCanvas.prefab`을 각 필드 씬 최상위에 배치
+3. `RegionCatalog.json`에서 `isSettlement`가 `true`인 지역에만 상단 `상점` 버튼이 표시되는지 확인
+
+전체 프롤로그 생성기를 실행하면 위 작업은 40개 필드에 자동 적용된다. 도구의 `buyPrice`, `sellPrice`,
+`usableInField`는 `CoreContentCatalog.json`에서 관리한다. 파티 화면의 `회복`은 선택한 그림자에게 보유한
+회복 도구 중 낭비가 적은 하나를 사용하고, 상점의 `막간 휴식`은 30금화로 기절을 포함한 파티 전원을
+회복한다. 전투 전리품은 각 `ShadowData`의 `dropItemId`, `dropChance`, `dropMinCount`, `dropMaxCount`를
+따르며 전체 데이터 생성 시 역할·희귀도 기반 기본값이 자동 입력된다.
+
 ## 다음 작업 후보
 1. 자동 생성 필살기 WAV를 전문 녹음·마스터링 음원으로 선택 교체
 2. 180종 초상·필드 프레임과 89개 타일의 최종 아트 제작 및 순차 투입

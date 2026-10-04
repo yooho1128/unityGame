@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using ShadowTheater.Data;
 using ShadowTheater.Field;
@@ -41,6 +42,12 @@ namespace ShadowTheater.UI
             L10n.Changed += RefreshIfOpen;
             SaveManager.InventoryChanged += RefreshIfOpen;
             SaveManager.EconomyChanged += RefreshIfOpen;
+            RefreshAvailability();
+        }
+
+        private IEnumerator Start()
+        {
+            if (SaveManager.Current == null) yield return new WaitUntil(() => SaveManager.Current != null);
             RefreshAvailability();
         }
 
