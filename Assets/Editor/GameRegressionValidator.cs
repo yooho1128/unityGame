@@ -263,6 +263,16 @@ namespace ShadowTheater.EditorTools
                 if (item.usableInField && item.effectType != ItemEffectType.HealFlat && item.effectType != ItemEffectType.HealRatio)
                     result.warnings.Add($"{item.itemId}: 필드 사용 효과가 아직 지원되지 않음 ({item.effectType})");
             }
+            var itemIds = new HashSet<string>(database.items.Where(x => x != null).Select(x => x.itemId));
+            foreach (ShadowData shadow in database.shadows.Where(x => x != null))
+            {
+                if (string.IsNullOrEmpty(shadow.dropItemId) || !itemIds.Contains(shadow.dropItemId))
+                    result.errors.Add($"{shadow.shadowId}: 전리품 도구 ID 누락 또는 오류 ({shadow.dropItemId})");
+                if (shadow.dropChance <= 0f || shadow.dropChance > 1f)
+                    result.errors.Add($"{shadow.shadowId}: 전리품 확률 오류 ({shadow.dropChance})");
+                if (shadow.dropMinCount < 1 || shadow.dropMaxCount < shadow.dropMinCount)
+                    result.errors.Add($"{shadow.shadowId}: 전리품 수량 범위 오류");
+            }
         }
 
         private static void ValidateQuestRewards(ValidationReport result)

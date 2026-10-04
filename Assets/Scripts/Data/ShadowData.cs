@@ -67,6 +67,11 @@ namespace ShadowTheater.Data
         [Range(0f, 1f)] public float baseCaptureRate = 0.45f;
         public int expReward = 30;
         public int goldReward = 10;
+        [Tooltip("승리 시 확률적으로 획득하는 도구 ID")]
+        public string dropItemId;
+        [Range(0f, 1f)] public float dropChance;
+        [Min(1)] public int dropMinCount = 1;
+        [Min(1)] public int dropMaxCount = 1;
 
         [Header("도감 Lore")]
         [TextArea(3, 8)] public string loreLocked;    // 미수집 시 표시
@@ -96,6 +101,8 @@ namespace ShadowTheater.Data
         private void OnValidate()
         {
             if (string.IsNullOrEmpty(shadowId)) shadowId = name;
+            dropMinCount = Mathf.Max(1, dropMinCount);
+            dropMaxCount = Mathf.Max(dropMinCount, dropMaxCount);
         }
 #endif
     }

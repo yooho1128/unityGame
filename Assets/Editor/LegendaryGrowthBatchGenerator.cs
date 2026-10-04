@@ -147,6 +147,10 @@ namespace ShadowTheater.EditorTools
             shadow.baseCaptureRate = spec.baseCaptureRate;
             shadow.expReward = spec.expReward;
             shadow.goldReward = spec.goldReward;
+            shadow.dropItemId = "ink";
+            shadow.dropChance = .35f;
+            shadow.dropMinCount = 1;
+            shadow.dropMaxCount = 2;
             shadow.loreLocked = spec.loreLocked;
             shadow.loreUnlocked = spec.loreUnlocked;
             ApplyForm(shadow.restoredForm, spec.restored, SpriteFor(sprites, spec.shadowId, "restored"), skills);

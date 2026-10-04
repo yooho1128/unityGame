@@ -467,6 +467,7 @@ namespace ShadowTheater.Battle
                 if (next < 0)
                 {
                     foreach (var e in _enemyUnits) _outcome.goldGained += e.Data.goldReward;
+                    RollLoot();
                     Finish(BattleResult.Victory, BattleState.Victory);
                     yield break;
                 }
@@ -502,6 +503,20 @@ namespace ShadowTheater.Battle
 
                 yield return DoSwitch(BattleSide.Player, _pendingForcedSwitch);
                 _pendingForcedSwitch = -1;
+            }
+        }
+
+        private void RollLoot()
+        {
+            foreach (BattleUnit enemy in _enemyUnits)
+            {
+                ShadowData data = enemy.Data;
+                if (data == null || string.IsNullOrEmpty(data.dropItemId) || data.dropChance <= 0f ||
+                    UnityEngine.Random.value > data.dropChance) continue;
+                int count = UnityEngine.Random.Range(Mathf.Max(1, data.dropMinCount), Mathf.Max(data.dropMinCount, data.dropMaxCount) + 1);
+                BattleLoot existing = _outcome.loot.Find(x => x.itemId == data.dropItemId);
+                if (existing != null) existing.count += count;
+                else _outcome.loot.Add(new BattleLoot { itemId = data.dropItemId, count = count });
             }
         }
 

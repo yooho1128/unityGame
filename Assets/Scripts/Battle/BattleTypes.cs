@@ -97,7 +97,14 @@ namespace ShadowTheater.Battle
         public ShadowInstance capturedShadow;
         public int expGained;
         public int goldGained;
+        public List<BattleLoot> loot = new List<BattleLoot>();
         public List<string> leveledUpInstanceIds = new List<string>();
+    }
+
+    public class BattleLoot
+    {
+        public string itemId;
+        public int count;
     }
 
     /// <summary>데미지 계산 결과 (연출용)</summary>

@@ -298,6 +298,11 @@ namespace ShadowTheater.EditorTools
                 shadow.baseCaptureRate = spec.baseCaptureRate;
                 shadow.expReward = spec.expReward;
                 shadow.goldReward = spec.goldReward;
+                shadow.dropItemId = !string.IsNullOrEmpty(spec.dropItemId) ? spec.dropItemId : DefaultDropItem(spec);
+                shadow.dropChance = spec.dropChance > 0f ? Mathf.Clamp01(spec.dropChance)
+                    : (shadow.growthTier == GrowthTier.Rare ? .16f : .24f);
+                shadow.dropMinCount = Mathf.Max(1, spec.dropMinCount);
+                shadow.dropMaxCount = Mathf.Max(shadow.dropMinCount, spec.dropMaxCount);
                 shadow.loreLocked = spec.loreLocked;
                 shadow.loreUnlocked = spec.loreUnlocked;
                 shadow.restoredForm ??= new MemoryFormData();
@@ -310,6 +315,14 @@ namespace ShadowTheater.EditorTools
                 result.Add(shadow);
             }
             return result;
+        }
+
+        private static string DefaultDropItem(ShadowSpec spec)
+        {
+            if (spec.growthTier == "Rare") return "ink";
+            if (spec.role == "MagicNuker" || spec.role == "SpeedUtility") return "tonic";
+            if (spec.role == "Support") return "salve";
+            return "potion";
         }
 
         private static void ApplyForm(MemoryFormData target, FormSpec spec,
@@ -538,9 +551,9 @@ namespace ShadowTheater.EditorTools
         }
         [Serializable] private class ShadowSpec
         {
-            public string shadowId, displayName, title, growthTier, element, role, shape, accentColor;
-            public int baseHp, baseAtk, baseDef, baseSpd, expReward, goldReward;
-            public float critRate, evasion, hpGrowth, atkGrowth, defGrowth, spdGrowth, baseCaptureRate;
+            public string shadowId, displayName, title, growthTier, element, role, shape, accentColor, dropItemId;
+            public int baseHp, baseAtk, baseDef, baseSpd, expReward, goldReward, dropMinCount = 1, dropMaxCount = 1;
+            public float critRate, evasion, hpGrowth, atkGrowth, defGrowth, spdGrowth, baseCaptureRate, dropChance;
             public string basicAttack, loreLocked, loreUnlocked;
             public string[] skills;
             public FormSpec restored, salvation, grudge;

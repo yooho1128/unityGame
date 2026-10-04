@@ -282,7 +282,21 @@ namespace ShadowTheater.UI
         public IEnumerator PlayItem(BattleUnit target, ItemData item) { yield return Say(L10n.Format("battle.used_item", "{0} 사용!", L10n.Text(item.displayName))); }
         public IEnumerator PlayEscape(bool success) { yield return Say(success ? L10n.Get("battle.escaped", "무대에서 벗어났다.") : L10n.Get("battle.escape_failed", "도망칠 수 없다!")); }
         public IEnumerator ShowMessage(string message) { yield return Say(message); }
-        public IEnumerator PlayResult(BattleOutcome outcome) { yield return Say(L10n.Format("battle.result", "전투 {0}\nEXP +{1}  금화 +{2}", ResultLabel(outcome.result), outcome.expGained, outcome.goldGained), 1.4f); }
+        public IEnumerator PlayResult(BattleOutcome outcome)
+        {
+            string message = L10n.Format("battle.result", "전투 {0}\nEXP +{1}  금화 +{2}", ResultLabel(outcome.result), outcome.expGained, outcome.goldGained);
+            if (outcome.loot != null && outcome.loot.Count > 0)
+            {
+                var drops = new List<string>();
+                foreach (BattleLoot loot in outcome.loot)
+                {
+                    ItemData item = ShadowDatabase.Instance?.GetItem(loot.itemId);
+                    drops.Add($"{(item != null ? L10n.Text(item.displayName) : loot.itemId)} x{loot.count}");
+                }
+                message += "\n" + L10n.Get("battle.loot", "전리품") + " · " + string.Join(", ", drops);
+            }
+            yield return Say(message, 1.4f);
+        }
 
         private IEnumerator Say(string message, float multiplier = 1f)
         {
