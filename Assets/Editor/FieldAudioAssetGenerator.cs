@@ -80,14 +80,19 @@ namespace ShadowTheater.EditorTools
             if (importer == null) return;
             importer.forceToMono = true;
             importer.loadInBackground = streaming;
-            importer.preloadAudioData = !streaming;
-            importer.defaultSampleSettings = new AudioImporterSampleSettings
+            var sampleSettings = new AudioImporterSampleSettings
             {
                 loadType = streaming ? AudioClipLoadType.Streaming : AudioClipLoadType.CompressedInMemory,
                 compressionFormat = AudioCompressionFormat.Vorbis,
                 quality = streaming ? .62f : .76f,
                 sampleRateSetting = AudioSampleRateSetting.OptimizeSampleRate
             };
+#if UNITY_6000_0_OR_NEWER
+            sampleSettings.preloadAudioData = !streaming;
+#else
+            importer.preloadAudioData = !streaming;
+#endif
+            importer.defaultSampleSettings = sampleSettings;
             importer.SaveAndReimport();
         }
 

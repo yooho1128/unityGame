@@ -107,14 +107,19 @@ namespace ShadowTheater.EditorTools
             {
                 importer.forceToMono = true;
                 importer.loadInBackground = false;
-                importer.preloadAudioData = true;
-                importer.defaultSampleSettings = new AudioImporterSampleSettings
+                var sampleSettings = new AudioImporterSampleSettings
                 {
                     loadType = AudioClipLoadType.DecompressOnLoad,
                     compressionFormat = AudioCompressionFormat.PCM,
                     quality = 1f,
                     sampleRateSetting = AudioSampleRateSetting.OptimizeSampleRate
                 };
+#if UNITY_6000_0_OR_NEWER
+                sampleSettings.preloadAudioData = true;
+#else
+                importer.preloadAudioData = true;
+#endif
+                importer.defaultSampleSettings = sampleSettings;
                 importer.SaveAndReimport();
             }
             return AssetDatabase.LoadAssetAtPath<AudioClip>(path);
