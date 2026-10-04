@@ -1,6 +1,7 @@
 using System.Collections;
 using ShadowTheater.Save;
 using ShadowTheater.Story;
+using ShadowTheater.UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -95,7 +96,9 @@ namespace ShadowTheater.Field
             save.tileY = arrivalCell.y;
             save.facing = (int)facing;
             RegionProgress.MarkVisitedScene(sceneName);
-            if (setCheckpoint)
+            // 거점 지역은 어느 입구나 월드맵으로 도착해도 자동으로 새 부활 지점이 된다.
+            bool updateCheckpoint = setCheckpoint || RegionRepository.GetByScene(sceneName)?.isSettlement == true;
+            if (updateCheckpoint)
             {
                 save.checkpointMapId = sceneName;
                 save.checkpointX = arrivalCell.x;
@@ -125,6 +128,7 @@ namespace ShadowTheater.Field
 
             _travelEnabledAt = Time.unscaledTime + arrivalPortalCooldown;
             IsTransitioning = false;
+            SaveFeedbackController.Instance?.ShowSaved();
         }
     }
 }

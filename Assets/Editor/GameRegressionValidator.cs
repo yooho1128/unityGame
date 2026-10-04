@@ -214,6 +214,15 @@ namespace ShadowTheater.EditorTools
                             pauseSo.FindProperty("titleConfirmRoot")?.objectReferenceValue == null)
                             result.errors.Add($"{region.sceneName}: 필드 메뉴 참조 누락");
                     }
+                    SaveFeedbackController saveFeedback = roots.SelectMany(x => x.GetComponentsInChildren<SaveFeedbackController>(true)).FirstOrDefault();
+                    if (saveFeedback == null) result.errors.Add($"{region.sceneName}: 저장 완료 HUD 누락");
+                    else
+                    {
+                        var feedbackSo = new SerializedObject(saveFeedback);
+                        if (feedbackSo.FindProperty("root")?.objectReferenceValue == null ||
+                            feedbackSo.FindProperty("label")?.objectReferenceValue == null)
+                            result.errors.Add($"{region.sceneName}: 저장 완료 HUD 참조 누락");
+                    }
                     FieldAmbientAudio ambience = roots.SelectMany(x => x.GetComponentsInChildren<FieldAmbientAudio>(true)).FirstOrDefault();
                     if (ambience == null) result.errors.Add($"{region.sceneName}: 환경음 컨트롤러 누락");
                     else

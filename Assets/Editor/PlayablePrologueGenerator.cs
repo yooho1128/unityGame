@@ -741,7 +741,7 @@ namespace ShadowTheater.EditorTools
             InstantiatePrefab("Assets/Prefabs/UI/ScriptBookCanvas.prefab");
             InstantiatePrefab("Assets/Prefabs/UI/PartyStorageCanvas.prefab");
             InstantiatePrefab("Assets/Prefabs/UI/WorldMapCanvas.prefab");
-            InstantiatePrefab("Assets/Prefabs/UI/FieldPauseCanvas.prefab");
+            InstantiatePrefab("Assets/Prefabs/UI/FieldPauseCanvas.prefab", fieldRoot.transform);
             CreateFader();
             CreateEventSystem();
             return new FieldSceneContext { scene = scene, fieldRoot = fieldRoot.transform };

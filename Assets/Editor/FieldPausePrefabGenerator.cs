@@ -18,13 +18,19 @@ namespace ShadowTheater.EditorTools
         {
             Ensure("Assets", "Prefabs"); Ensure("Assets/Prefabs", "UI");
             var canvasRoot = new GameObject("FieldPauseCanvas", typeof(RectTransform), typeof(Canvas),
-                typeof(CanvasScaler), typeof(GraphicRaycaster), typeof(FieldPauseMenuController));
+                typeof(CanvasScaler), typeof(GraphicRaycaster), typeof(FieldPauseMenuController), typeof(SaveFeedbackController));
             var canvas = canvasRoot.GetComponent<Canvas>(); canvas.renderMode = RenderMode.ScreenSpaceOverlay; canvas.sortingOrder = 74;
             var scaler = canvasRoot.GetComponent<CanvasScaler>(); scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution = new Vector2(1080, 1920); scaler.matchWidthOrHeight = .5f;
 
             var open = Button("OpenMenu", canvasRoot.transform, new Vector2(.84f,.90f), new Vector2(.97f,.955f), "메뉴", Accent());
             open.gameObject.AddComponent<VirtualPauseButton>();
+
+            var saveToast = Rect("SaveToast", canvasRoot.transform, new Vector2(.60f,.835f), new Vector2(.97f,.89f));
+            saveToast.gameObject.AddComponent<Image>().color = new Color(.035f,.022f,.075f,.94f);
+            var saveToastGroup = saveToast.gameObject.AddComponent<CanvasGroup>();
+            var saveToastLabel = Text("Label", saveToast, new Vector2(.06f,0), new Vector2(.96f,1), 21,
+                "기억을 기록했습니다", TextAnchor.MiddleCenter);
 
             var root = Rect("Root", canvasRoot.transform, Vector2.zero, Vector2.one);
             root.gameObject.AddComponent<Image>().color = new Color(.006f,.004f,.018f,.94f);
@@ -62,6 +68,10 @@ namespace ShadowTheater.EditorTools
             Set(so,"masterSlider",master); Set(so,"musicSlider",music); Set(so,"ambienceSlider",ambience); Set(so,"sfxSlider",sfx);
             Set(so,"masterValue",masterValue); Set(so,"musicValue",musicValue); Set(so,"ambienceValue",ambienceValue); Set(so,"sfxValue",sfxValue);
             so.ApplyModifiedPropertiesWithoutUndo();
+
+            var toastSo = new SerializedObject(canvasRoot.GetComponent<SaveFeedbackController>());
+            Set(toastSo,"root",saveToastGroup); Set(toastSo,"label",saveToastLabel);
+            toastSo.ApplyModifiedPropertiesWithoutUndo();
 
             UnityEventTools.AddPersistentListener(close.onClick, controller.Close);
             UnityEventTools.AddPersistentListener(save.onClick, controller.SaveNow);

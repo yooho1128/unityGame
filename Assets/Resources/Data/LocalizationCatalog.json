@@ -43,6 +43,7 @@
     {"key":"menu.cancel","ko":"취소","en":"Cancel"},
     {"key":"menu.confirm","ko":"돌아가기","en":"Return"},
     {"key":"menu.returning","ko":"저장 후 타이틀로 돌아갑니다…","en":"Saving and returning to title…"},
+    {"key":"save.recorded","ko":"기억을 기록했습니다","en":"Memory recorded"},
     {"key":"battle.attack","ko":"공격","en":"Attack"},
     {"key":"battle.skill","ko":"스킬","en":"Skill"},
     {"key":"battle.switch","ko":"교체","en":"Switch"},

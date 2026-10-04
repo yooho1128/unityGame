@@ -18,6 +18,7 @@ Assets/Scripts/
            TitleScreenController, StarterSelectionController, StarterCardView,
            EndingGalleryController, EndingGalleryEntryView, GameSettings, SettingsPanelController,
            LocalizationService, MobilePerformanceController, AdaptiveMusicDirector, FieldPauseMenuController,
+           SaveFeedbackController,
            WorldMapController, RegionMapNodeView,
            ScriptBookController, ScriptBookEntryView, BattleUIController, BattleFxDirector,
            BattleSfxPlayer,
