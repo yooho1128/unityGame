@@ -56,6 +56,7 @@ namespace ShadowTheater.Battle
         private readonly int[] _fp = new int[2];
         private readonly int[] _lastVoluntarySwitchTurn = { -99, -99 };
         private readonly HashSet<BattleUnit> _playerParticipants = new HashSet<BattleUnit>();
+        private readonly HashSet<BattleUnit> _bossPhaseActivated = new HashSet<BattleUnit>();
 
         private BattleAction _pendingAction;
         private int _pendingForcedSwitch = -1;
@@ -119,6 +120,7 @@ namespace ShadowTheater.Battle
                 return;
             }
             _playerParticipants.Clear();
+            _bossPhaseActivated.Clear();
             _playerParticipants.Add(PlayerActive);
 
             _fp[0] = _fp[1] = startFp;
@@ -228,6 +230,14 @@ namespace ShadowTheater.Battle
                 Turn++;
                 AddFp(BattleSide.Player, fpPerTurn);
                 AddFp(BattleSide.Enemy, fpPerTurn);
+
+                if (Context.mode == BattleMode.Boss && !EnemyActive.IsFainted && EnemyActive.HpRatio <= .5f &&
+                    _bossPhaseActivated.Add(EnemyActive))
+                {
+                    AddFp(BattleSide.Enemy, 2);
+                    yield return _presenter.ShowMessage(L10n.Format("battle.boss_phase",
+                        "{0}의 비극이 폭주한다! 공연 열기가 치솟았다.", EnemyActive.Name));
+                }
 
                 // 1) 플레이어 입력
                 _pendingAction = null;
@@ -602,7 +612,10 @@ namespace ShadowTheater.Battle
                 int next = BattleAI.ChooseSwitchIndex(units, activeIndex, Opponent(side));
                 if (next >= 0) return BattleAction.Switch(side, next);
             }
-            return BattleAI.Choose(Active(side), Opponent(side), GetFp(side));
+            BattleAiProfile profile = BattleAiProfile.Normal;
+            if (side == BattleSide.Enemy && Context?.mode == BattleMode.Boss)
+                profile = Active(side).HpRatio <= .5f ? BattleAiProfile.BossDesperate : BattleAiProfile.Boss;
+            return BattleAI.Choose(Active(side), Opponent(side), GetFp(side), profile);
         }
 
         private static int FindNextAlive(List<BattleUnit> units, int exclude)

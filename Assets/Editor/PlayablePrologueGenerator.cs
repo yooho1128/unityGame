@@ -117,6 +117,7 @@ namespace ShadowTheater.EditorTools
             FieldAudioAssetGenerator.Generate();
             FrontEndPrefabGenerator.Generate();
             DialogueUIPrefabGenerator.Generate();
+            RegionArrivalPrefabGenerator.Generate();
             QuestHudPrefabGenerator.Generate();
             ScriptBookPrefabGenerator.Generate();
             PartyStoragePrefabGenerator.Generate();
@@ -740,6 +741,7 @@ namespace ShadowTheater.EditorTools
             battleRoot.SetActive(false);
 
             InstantiatePrefab("Assets/Prefabs/UI/DialogueCanvas.prefab");
+            InstantiatePrefab("Assets/Prefabs/UI/RegionArrivalCanvas.prefab");
             InstantiatePrefab("Assets/Prefabs/UI/QuestHUDCanvas.prefab");
             InstantiatePrefab("Assets/Prefabs/UI/ScriptBookCanvas.prefab");
             InstantiatePrefab("Assets/Prefabs/UI/PartyStorageCanvas.prefab");

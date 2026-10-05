@@ -35,6 +35,17 @@ namespace ShadowTheater.Story
                 { "legend_last_audience_truth", "boss_last_audience_story_complete" }
             };
 
+        private static readonly Dictionary<string, string> PersonalMemoryQuests =
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                { "memory_knight_restored", "memory_knight_vow" },
+                { "memory_mage_restored", "memory_mage_pages" },
+                { "memory_beast_restored", "memory_beast_trail" },
+                { "memory_puppet_restored", "memory_puppet_step" },
+                { "memory_crow_restored", "memory_crow_names" },
+                { "memory_mask_restored", "memory_mask_truth" }
+            };
+
         public static bool CanRestore(ShadowInstance instance, out string reason)
         {
             if (instance == null) { reason = "그림자를 선택해 주세요."; return false; }
@@ -70,6 +81,44 @@ namespace ShadowTheater.Story
             MaterializeMilestone(instance.Data.restoredForm);
             ApplyStage(instance, MemoryStage.Restored, AwakeningPath.None);
             message = $"{instance.DisplayName}의 기억이 복원되었습니다.";
+            return true;
+        }
+
+        public static bool CanStartMemoryQuest(ShadowInstance instance, out string questId)
+        {
+            questId = null;
+            if (instance == null || instance.memoryStage != MemoryStage.Echo || instance.Data.restoredForm?.enabled != true)
+                return false;
+            string requiredFlag = instance.Data.restoredForm.requiredFlag;
+            if (string.IsNullOrEmpty(requiredFlag) || RequirementMet(requiredFlag) ||
+                !PersonalMemoryQuests.TryGetValue(requiredFlag, out questId)) return false;
+            return QuestManager.Instance != null && QuestManager.Instance.GetProgress(questId) == null &&
+                   QuestRepository.TryGet(questId, out _);
+        }
+
+        public static bool IsMemoryQuestActive(ShadowInstance instance, out string questId)
+        {
+            questId = null;
+            if (instance?.Data.restoredForm == null ||
+                !PersonalMemoryQuests.TryGetValue(instance.Data.restoredForm.requiredFlag, out questId)) return false;
+            var progress = QuestManager.Instance?.GetProgress(questId);
+            return progress != null && !progress.completed;
+        }
+
+        public static bool TryStartMemoryQuest(ShadowInstance instance, out string message)
+        {
+            if (!CanStartMemoryQuest(instance, out string questId))
+            {
+                message = "지금 시작할 수 있는 개인 기억 여정이 없습니다.";
+                return false;
+            }
+            if (!QuestManager.Instance.TryStartQuest(questId))
+            {
+                message = "개인 기억 여정을 시작하지 못했습니다.";
+                return false;
+            }
+            QuestRepository.TryGet(questId, out var quest);
+            message = $"개인 기억 여정 시작 · {quest?.title ?? questId}";
             return true;
         }
 
@@ -116,6 +165,10 @@ namespace ShadowTheater.Story
 
         public static bool HasStoryMilestoneAlias(string requiredFlag) =>
             !string.IsNullOrEmpty(requiredFlag) && StoryMilestoneAliases.ContainsKey(requiredFlag);
+
+        public static bool IsRegisteredMemoryQuest(string questId, string completionFlag) =>
+            !string.IsNullOrEmpty(questId) && !string.IsNullOrEmpty(completionFlag) &&
+            PersonalMemoryQuests.TryGetValue(completionFlag, out string registered) && registered == questId;
 
         private static bool RequirementMet(string requiredFlag)
         {

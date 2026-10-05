@@ -377,6 +377,11 @@ RegionalBoss/Legendary는 구원·원한 진명과 개별 ID 필살기까지 자
 막타 여부를 평가하며, 대화창은 JSON의 `emotion` 값에 따라 색상·흔들림·맥동을 적용한다. 이후 수작업
 개인 퀘스트와 완성 아트를 추가하면 자동 보완 데이터보다 우선하도록 유지한다.
 
+초기 6종의 개인 기억 퀘스트는 각본집의 `기억 여정 시작`에서 수락한다. 메인 41개와 별도로 관리되어
+메인 HUD 추적을 방해하지 않으며 완료 시 해당 성장 플래그를 직접 설정한다. 보스는 HP 50% 이하에서
+2페이즈 AI와 FP 보너스를 사용한다. `Generate Region Arrival UI`는 막·지역·환경을 표시하는 진입 타이틀
+프리팹을 만들며 전체 게임 생성기가 모든 필드에 자동 배치한다.
+
 최종 아트는 `Assets/Art/Final`의 파일을 우선 사용하는 비파괴 교체 방식이다. 메뉴
 `Tools > Shadow Theater > Import and Validate Final Pixel Art`가 크기·이름·임포트 설정을 검사하고
 `FinalArtCoverage.json`에 현재 교체율을 기록한다. 전체 파일 규칙은

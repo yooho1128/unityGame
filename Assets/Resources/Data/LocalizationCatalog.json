@@ -99,6 +99,7 @@
     {"key":"battle.matchup_strong","ko":" · 효과적 ×1.5","en":" · Effective ×1.5"},
     {"key":"battle.matchup_weak","ko":" · 반감 ×0.75","en":" · Resisted ×0.75"},
     {"key":"battle.ultimate_tag","ko":" · 필살기","en":" · Ultimate"},
+    {"key":"battle.boss_phase","ko":"{0}의 비극이 폭주한다! 공연 열기가 치솟았다.","en":"{0}'s tragedy erupts! Its Focus surges."},
     {"key":"battle.victory","ko":"승리","en":"Victory"},
     {"key":"battle.defeat","ko":"패배","en":"Defeat"},
     {"key":"battle.record_success","ko":"기록 성공","en":"Recorded"},

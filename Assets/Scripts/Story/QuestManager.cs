@@ -125,6 +125,7 @@ namespace ShadowTheater.Story
                 progress.rewardClaimed = true;
             }
             SaveManager.SetFlag($"quest_{quest.questId}_complete");
+            if (!string.IsNullOrEmpty(quest.completionFlag)) SaveManager.SetFlag(quest.completionFlag);
             string itemReward = !string.IsNullOrEmpty(quest.rewardItemId) && quest.rewardItemCount > 0
                 ? $", {quest.rewardItemId} x{quest.rewardItemCount}" : string.Empty;
             Debug.Log($"[Quest] 완료: {quest.title} (+{quest.rewardGold} 금화{itemReward})");
@@ -139,7 +140,10 @@ namespace ShadowTheater.Story
             var save = SaveManager.Current;
             if (save == null) return null;
             foreach (var progress in save.quests)
-                if (!progress.completed && QuestRepository.TryGet(progress.questId, out var quest)) return quest;
+                if (!progress.completed && QuestRepository.TryGet(progress.questId, out var mainQuest) && !mainQuest.isSideQuest)
+                    return mainQuest;
+            foreach (var progress in save.quests)
+                if (!progress.completed && QuestRepository.TryGet(progress.questId, out var anyQuest)) return anyQuest;
             return null;
         }
 

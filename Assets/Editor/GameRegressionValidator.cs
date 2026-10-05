@@ -130,6 +130,7 @@ namespace ShadowTheater.EditorTools
 
                 var statusSkill = ScriptableObject.CreateInstance<SkillData>();
                 var damageSkill = ScriptableObject.CreateInstance<SkillData>();
+                var healSkill = ScriptableObject.CreateInstance<SkillData>();
                 try
                 {
                     statusSkill.skillId = "ai_status";
@@ -141,6 +142,11 @@ namespace ShadowTheater.EditorTools
                     damageSkill.damageMultiplier = .2f;
                     neutral.skills.Add(statusSkill);
                     neutral.skills.Add(damageSkill);
+                    healSkill.skillId = "ai_boss_heal";
+                    healSkill.damageType = DamageType.None;
+                    healSkill.target = SkillTarget.Self;
+                    healSkill.healRatio = .4f;
+                    neutral.skills.Add(healSkill);
 
                     damageSkill.element = ShadowElement.Flame;
                     int strongDamage = DamageCalculator.EstimateDamage(flameUnit, frostUnit, damageSkill);
@@ -155,11 +161,21 @@ namespace ShadowTheater.EditorTools
                     if (before.skill != statusSkill || after.skill != damageSkill ||
                         !neutralOpponent.HasStatus(StatusEffectType.AttackDown))
                         result.errors.Add("전투 AI 중복 상태 이상 회피 회귀 실패");
+
+                    var phaseInstance = new ShadowInstance(neutral, 5);
+                    phaseInstance.currentHp = Mathf.RoundToInt(phaseInstance.MaxHp * .55f);
+                    var phaseBoss = new BattleUnit(phaseInstance, BattleSide.Enemy);
+                    BattleAction normal = BattleAI.Choose(phaseBoss, neutralOpponent, 5);
+                    BattleAction desperate = BattleAI.Choose(phaseBoss, neutralOpponent, 5,
+                        BattleAiProfile.BossDesperate);
+                    if (normal.skill == healSkill || desperate.skill != healSkill)
+                        result.errors.Add("보스 2페이즈 회복 우선순위 회귀 실패");
                 }
                 finally
                 {
                     UnityEngine.Object.DestroyImmediate(statusSkill);
                     UnityEngine.Object.DestroyImmediate(damageSkill);
+                    UnityEngine.Object.DestroyImmediate(healSkill);
                 }
             }
             finally
@@ -371,6 +387,7 @@ namespace ShadowTheater.EditorTools
 
         private static string DeclaredStoryFlags => _declaredStoryFlags ??=
             File.ReadAllText("Assets/Resources/Data/DialogueCatalog.json") + "\n" +
+            File.ReadAllText("Assets/Resources/Data/QuestCatalog.json") + "\n" +
             File.ReadAllText("Assets/Editor/PlayablePrologueGenerator.cs");
 
         private static void ValidateTrueNameForm(ShadowData shadow, MemoryFormData form, string path,
@@ -392,7 +409,11 @@ namespace ShadowTheater.EditorTools
             var itemIds = new HashSet<string>(database.items.Where(x => x != null).Select(x => x.itemId));
             var catalog = JsonUtility.FromJson<QuestCatalogData>(File.ReadAllText(QuestPath));
             var quests = catalog?.quests ?? new List<QuestDefinition>();
-            if (quests.Count != 41) result.errors.Add($"퀘스트 데이터 수 불일치: {quests.Count}/41");
+            if (quests.Count != 47) result.errors.Add($"퀘스트 데이터 수 불일치: {quests.Count}/47");
+            var mainQuests = quests.Where(x => x != null && !x.isSideQuest).ToList();
+            var sideQuests = quests.Where(x => x != null && x.isSideQuest).ToList();
+            if (mainQuests.Count != 41 || sideQuests.Count != 6)
+                result.errors.Add($"메인/개인 기억 퀘스트 수 불일치: {mainQuests.Count}/41, {sideQuests.Count}/6");
             var ids = quests.Where(x => x != null && !string.IsNullOrEmpty(x.questId)).Select(x => x.questId).ToList();
             if (ids.Distinct().Count() != ids.Count) result.errors.Add("퀘스트 ID 중복");
             var byId = quests.Where(x => x != null && !string.IsNullOrEmpty(x.questId))
@@ -407,6 +428,8 @@ namespace ShadowTheater.EditorTools
                     result.errors.Add($"{quest.questId}: 선행 퀘스트 누락 {quest.prerequisiteQuestId}");
                 if (!string.IsNullOrEmpty(quest.nextQuestId) && !byId.ContainsKey(quest.nextQuestId))
                     result.errors.Add($"{quest.questId}: 다음 퀘스트 누락 {quest.nextQuestId}");
+                if (quest.isSideQuest && !MemoryAwakeningService.IsRegisteredMemoryQuest(quest.questId, quest.completionFlag))
+                    result.errors.Add($"{quest.questId}: 개인 기억 성장 플래그 연결 오류 ({quest.completionFlag})");
                 var objectiveIds = new HashSet<string>();
                 if (quest.objectives == null || quest.objectives.Count == 0)
                     result.errors.Add($"{quest.questId}: 목표가 없습니다");
@@ -419,8 +442,8 @@ namespace ShadowTheater.EditorTools
                 }
             }
 
-            QuestDefinition start = quests.FirstOrDefault(x => x != null && x.autoStart);
-            if (quests.Count(x => x != null && x.autoStart) != 1)
+            QuestDefinition start = mainQuests.FirstOrDefault(x => x.autoStart);
+            if (mainQuests.Count(x => x.autoStart) != 1 || sideQuests.Any(x => x.autoStart))
                 result.errors.Add("자동 시작 퀘스트는 정확히 1개여야 합니다");
             if (start == null) { result.errors.Add("자동 시작 퀘스트 누락"); return; }
             var reached = new HashSet<string>();
@@ -434,7 +457,8 @@ namespace ShadowTheater.EditorTools
                 current = next;
             }
             if (current != null) result.errors.Add($"퀘스트 순환 발견: {current.questId}");
-            if (reached.Count != quests.Count) result.errors.Add($"시작부터 도달 가능한 퀘스트: {reached.Count}/{quests.Count}");
+            if (reached.Count != mainQuests.Count)
+                result.errors.Add($"시작부터 도달 가능한 메인 퀘스트: {reached.Count}/{mainQuests.Count}");
         }
 
         private static void ValidateFinalArt(ValidationReport result)
@@ -542,6 +566,15 @@ namespace ShadowTheater.EditorTools
                             dialogueSo.FindProperty("dialogueBoxImage")?.objectReferenceValue == null ||
                             dialogueSo.FindProperty("accentBar")?.objectReferenceValue == null)
                             result.errors.Add($"{region.sceneName}: 감정 대화 연출 참조 누락");
+                    }
+                    RegionArrivalBanner arrival = roots.SelectMany(x => x.GetComponentsInChildren<RegionArrivalBanner>(true)).FirstOrDefault();
+                    if (arrival == null) result.errors.Add($"{region.sceneName}: 지역 진입 타이틀 누락");
+                    else
+                    {
+                        var arrivalSo = new SerializedObject(arrival);
+                        foreach (string property in new[] { "root", "card", "accent", "actText", "regionText", "environmentText" })
+                            if (arrivalSo.FindProperty(property)?.objectReferenceValue == null)
+                                result.errors.Add($"{region.sceneName}: 지역 진입 타이틀 {property} 참조 누락");
                     }
                     PartyStorageController partyStorage = roots.SelectMany(x => x.GetComponentsInChildren<PartyStorageController>(true)).FirstOrDefault();
                     if (partyStorage == null) result.errors.Add($"{region.sceneName}: 파티·각본 서고 UI 누락");

@@ -110,6 +110,11 @@ namespace ShadowTheater.UI
         public void RestoreSelected()
         {
             bool success = MemoryAwakeningService.TryRestore(_selectedInstance, out string message);
+            if (!success && MemoryAwakeningService.TryStartMemoryQuest(_selectedInstance, out string questMessage))
+            {
+                success = true;
+                message = questMessage;
+            }
             ShowAwakeningResult(message, success);
         }
 
@@ -254,11 +259,18 @@ namespace ShadowTheater.UI
             string salvationReason = string.Empty;
             string grudgeReason = string.Empty;
             bool canRestore = recorded && MemoryAwakeningService.CanRestore(_selectedInstance, out restoreReason);
+            bool canStartMemoryQuest = recorded && MemoryAwakeningService.CanStartMemoryQuest(_selectedInstance, out _);
+            bool memoryQuestActive = recorded && MemoryAwakeningService.IsMemoryQuestActive(_selectedInstance, out _);
             bool canSalvation = recorded && MemoryAwakeningService.CanAwaken(_selectedInstance,
                 AwakeningPath.Salvation, out salvationReason);
             bool canGrudge = recorded && MemoryAwakeningService.CanAwaken(_selectedInstance,
                 AwakeningPath.Grudge, out grudgeReason);
-            if (restoreButton != null) restoreButton.interactable = canRestore;
+            if (restoreButton != null)
+            {
+                restoreButton.interactable = canRestore || canStartMemoryQuest;
+                var label = restoreButton.GetComponentInChildren<Text>(true);
+                if (label != null) label.text = canStartMemoryQuest ? "기억 여정 시작" : "기억 복원";
+            }
             if (salvationButton != null) salvationButton.interactable = canSalvation;
             if (grudgeButton != null) grudgeButton.interactable = canGrudge;
 
@@ -266,7 +278,9 @@ namespace ShadowTheater.UI
             if (!recorded) awakeningFeedbackText.text = string.Empty;
             else if (_selectedInstance == null) awakeningFeedbackText.text = "보유 중인 개체가 없습니다.";
             else if (_selectedInstance.memoryStage == MemoryStage.Echo)
-                awakeningFeedbackText.text = canRestore ? "기억 복원 조건을 충족했습니다." : restoreReason;
+                awakeningFeedbackText.text = canRestore ? "기억 복원 조건을 충족했습니다."
+                    : memoryQuestActive ? "개인 기억 여정이 진행 중입니다. 기억 여정에서 목표를 확인하세요."
+                    : canStartMemoryQuest ? "이 그림자의 개인 기억 여정을 시작할 수 있습니다." : restoreReason;
             else if (_selectedInstance.memoryStage == MemoryStage.Restored)
                 awakeningFeedbackText.text = canSalvation || canGrudge
                     ? "진명 각성 방향을 선택할 수 있습니다."

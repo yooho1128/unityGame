@@ -27,6 +27,8 @@ namespace ShadowTheater.Story
         public string prerequisiteQuestId;
         public string nextQuestId;
         public bool autoStart;
+        public bool isSideQuest;
+        public string completionFlag;
         public int rewardGold;
         public string rewardItemId;
         public int rewardItemCount;
