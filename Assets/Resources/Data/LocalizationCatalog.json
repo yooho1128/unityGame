@@ -92,6 +92,7 @@
     {"key":"battle.escape_failed","ko":"도망칠 수 없다!","en":"You cannot escape!"},
     {"key":"battle.result","ko":"전투 {0}\nEXP +{1}  금화 +{2}","en":"Battle {0}\nEXP +{1}  Gold +{2}"},
     {"key":"battle.loot","ko":"전리품","en":"Loot"},
+    {"key":"battle.status_expired","ko":"{0}의 [{1}] 상태가 풀렸다.","en":"{0} recovered from [{1}]."},
     {"key":"battle.victory","ko":"승리","en":"Victory"},
     {"key":"battle.defeat","ko":"패배","en":"Defeat"},
     {"key":"battle.record_success","ko":"기록 성공","en":"Recorded"},

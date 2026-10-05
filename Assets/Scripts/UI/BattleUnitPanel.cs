@@ -12,6 +12,7 @@ namespace ShadowTheater.UI
         [SerializeField] private Image hpFill;
         [SerializeField] private Text nameText;
         [SerializeField] private Text levelText;
+        [SerializeField] private Text elementText;
         [SerializeField] private Text hpText;
         [SerializeField] private Text statusText;
 
@@ -58,13 +59,29 @@ namespace ShadowTheater.UI
                     : unit.HpRatio > 0.2f ? new Color(1f, 0.72f, 0.25f)
                     : new Color(1f, 0.28f, 0.36f);
             }
-            if (nameText != null) nameText.text = unit.Name;
+            if (nameText != null) nameText.text = L10n.Text(unit.Name);
             if (levelText != null) levelText.text = $"Lv.{unit.Level}";
+            if (elementText != null)
+            {
+                elementText.text = L10n.Get("element." + unit.Data.element.ToString().ToLowerInvariant(), unit.Data.element.ToString());
+                elementText.color = ElementColor(unit.Data.element);
+            }
             if (hpText != null) hpText.text = $"{unit.Hp} / {unit.MaxHp}";
             if (statusText != null)
             {
                 statusText.text = BattleStatusFormatter.Summary(unit);
                 statusText.color = unit.HasAnyStatus ? new Color(1f,.66f,.30f) : new Color(.75f,.72f,.82f);
+            }
+        }
+
+        private static Color ElementColor(ShadowElement element)
+        {
+            switch (element)
+            {
+                case ShadowElement.Flame: return new Color(1f,.42f,.28f);
+                case ShadowElement.Frost: return new Color(.35f,.82f,1f);
+                case ShadowElement.Shade: return new Color(.72f,.43f,1f);
+                default: return new Color(.76f,.73f,.82f);
             }
         }
 

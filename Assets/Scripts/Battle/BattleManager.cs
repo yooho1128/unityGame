@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using ShadowTheater.Data;
+using ShadowTheater.UI;
 using UnityEngine;
 
 namespace ShadowTheater.Battle
@@ -478,7 +479,8 @@ namespace ShadowTheater.Battle
 
                 var expired = unit.TickStatus();
                 foreach (var s in expired)
-                    yield return _presenter.ShowMessage($"{unit.Name}의 [{s}] 상태가 풀렸다.");
+                    yield return _presenter.ShowMessage(L10n.Format("battle.status_expired", "{0}의 [{1}] 상태가 풀렸다.",
+                        L10n.Text(unit.Name), BattleStatusFormatter.Label(s)));
 
                 OnUnitChanged?.Invoke(unit);
             }

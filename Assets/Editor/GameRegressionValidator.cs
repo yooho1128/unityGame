@@ -437,6 +437,13 @@ namespace ShadowTheater.EditorTools
                             if (slots == null || slots.arraySize != SaveData.MaxPartySize)
                                 result.errors.Add($"{region.sceneName}: 전투 파티 스트립 슬롯 수 불일치");
                         }
+                        foreach (BattleUnitPanel panel in battleUi.GetComponentsInChildren<BattleUnitPanel>(true))
+                        {
+                            var panelSo = new SerializedObject(panel);
+                            if (panelSo.FindProperty("elementText")?.objectReferenceValue == null ||
+                                panelSo.FindProperty("statusText")?.objectReferenceValue == null)
+                                result.errors.Add($"{region.sceneName}: 전투 유닛 속성·상태 UI 참조 누락");
+                        }
                     }
                     PartyStorageController partyStorage = roots.SelectMany(x => x.GetComponentsInChildren<PartyStorageController>(true)).FirstOrDefault();
                     if (partyStorage == null) result.errors.Add($"{region.sceneName}: 파티·각본 서고 UI 누락");

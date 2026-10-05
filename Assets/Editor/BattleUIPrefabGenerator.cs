@@ -80,14 +80,15 @@ namespace ShadowTheater.EditorTools
             var r=Rect(name,parent,min,max); var accent=Rect("Accent",r,Vector2.zero,new Vector2(0.015f,1)).gameObject.AddComponent<Image>();
             var portrait=Rect("Portrait",r,flip?new Vector2(0.62f,0):Vector2.zero,flip?Vector2.one:new Vector2(0.38f,1)).gameObject.AddComponent<Image>(); portrait.preserveAspect=true;
             var info=Rect("Info",r,flip?Vector2.zero:new Vector2(0.40f,0),flip?new Vector2(0.60f,1):Vector2.one);
-            var n=Text("Name",info,new Vector2(0.03f,0.68f),new Vector2(0.72f,0.98f),32,TextAnchor.MiddleLeft);
+            var n=Text("Name",info,new Vector2(0.03f,0.74f),new Vector2(0.70f,0.98f),29,TextAnchor.MiddleLeft);
+            var elem=Text("Element",info,new Vector2(0.03f,0.61f),new Vector2(0.70f,0.76f),16,TextAnchor.MiddleLeft);
             var lv=Text("Level",info,new Vector2(0.72f,0.68f),new Vector2(0.97f,0.98f),23,TextAnchor.MiddleRight);
             var bar=Rect("HpBar",info,new Vector2(0.03f,0.43f),new Vector2(0.97f,0.58f)); bar.gameObject.AddComponent<Image>().color=new Color(.12f,.1f,.18f);
             var fill=Rect("Fill",bar,Vector2.zero,Vector2.one).gameObject.AddComponent<Image>(); fill.type=Image.Type.Filled; fill.fillMethod=Image.FillMethod.Horizontal;
             var hp=Text("Hp",info,new Vector2(0.03f,0.20f),new Vector2(0.40f,0.42f),22,TextAnchor.MiddleLeft);
             var st=Text("Status",info,new Vector2(0.40f,0.18f),new Vector2(0.97f,0.43f),17,TextAnchor.MiddleRight);
             var p=r.gameObject.AddComponent<BattleUnitPanel>(); var so=new SerializedObject(p);
-            Set(so,"portrait",portrait); Set(so,"accent",accent); Set(so,"hpFill",fill); Set(so,"nameText",n); Set(so,"levelText",lv); Set(so,"hpText",hp); Set(so,"statusText",st); so.ApplyModifiedPropertiesWithoutUndo(); return p;
+            Set(so,"portrait",portrait); Set(so,"accent",accent); Set(so,"hpFill",fill); Set(so,"nameText",n); Set(so,"levelText",lv); Set(so,"elementText",elem); Set(so,"hpText",hp); Set(so,"statusText",st); so.ApplyModifiedPropertiesWithoutUndo(); return p;
         }
         private static BattleOptionButton OptionTemplate(Transform p){var r=Rect("OptionTemplate",p,Vector2.zero,Vector2.one);r.gameObject.AddComponent<LayoutElement>().preferredHeight=82;var i=r.gameObject.AddComponent<Image>();i.color=new Color(.11f,.07f,.19f);var b=r.gameObject.AddComponent<Button>();b.targetGraphic=i;var t=Text("Title",r,new Vector2(.03f,.42f),new Vector2(.97f,.95f),25,TextAnchor.MiddleLeft);var s=Text("Subtitle",r,new Vector2(.03f,.04f),new Vector2(.97f,.46f),18,TextAnchor.MiddleLeft);var v=r.gameObject.AddComponent<BattleOptionButton>();var so=new SerializedObject(v);Set(so,"button",b);Set(so,"titleText",t);Set(so,"subtitleText",s);so.ApplyModifiedPropertiesWithoutUndo();return v;}
         private static BattlePartyStrip PartyStrip(string n,Transform p,Vector2 min,Vector2 max){var r=Rect(n,p,min,max);var layout=r.gameObject.AddComponent<HorizontalLayoutGroup>();layout.spacing=6;layout.childAlignment=TextAnchor.MiddleCenter;layout.childControlWidth=true;layout.childControlHeight=true;layout.childForceExpandWidth=true;layout.childForceExpandHeight=true;var strip=r.gameObject.AddComponent<BattlePartyStrip>();var so=new SerializedObject(strip);var slots=so.FindProperty("slots");slots.arraySize=6;for(int i=0;i<6;i++){var slot=PartySlot($"Slot{i+1}",r);slots.GetArrayElementAtIndex(i).objectReferenceValue=slot;}so.ApplyModifiedPropertiesWithoutUndo();return strip;}
