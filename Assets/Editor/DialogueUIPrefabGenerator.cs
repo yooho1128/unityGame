@@ -86,6 +86,8 @@ namespace ShadowTheater.EditorTools
             serialized.FindProperty("bodyText").objectReferenceValue = body;
             serialized.FindProperty("continueText").objectReferenceValue = next;
             serialized.FindProperty("accentBar").objectReferenceValue = accent;
+            serialized.FindProperty("dialogueBox").objectReferenceValue = box;
+            serialized.FindProperty("dialogueBoxImage").objectReferenceValue = boxImage;
             serialized.FindProperty("choiceRoot").objectReferenceValue = choices.gameObject;
             var viewsProperty = serialized.FindProperty("choiceViews");
             viewsProperty.arraySize = choiceViews.Length;

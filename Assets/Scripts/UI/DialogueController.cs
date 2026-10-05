@@ -23,6 +23,8 @@ namespace ShadowTheater.UI
         [SerializeField] private Text bodyText;
         [SerializeField] private Text continueText;
         [SerializeField] private Image accentBar;
+        [SerializeField] private RectTransform dialogueBox;
+        [SerializeField] private Image dialogueBoxImage;
         [SerializeField] private GameObject choiceRoot;
         [SerializeField] private List<DialogueChoiceView> choiceViews = new List<DialogueChoiceView>();
         [SerializeField, Min(1f)] private float charactersPerSecond = 42f;
@@ -38,6 +40,9 @@ namespace ShadowTheater.UI
         private Action _onComplete;
         private readonly List<DialogueChoice> _visibleChoices = new List<DialogueChoice>();
         private bool _awaitingChoice;
+        private Coroutine _emotionRoutine;
+        private Vector2 _dialogueBoxHome;
+        private Color _baseAccent = new Color(.71f, .38f, 1f, 1f);
 
         private void Awake()
         {
@@ -47,6 +52,7 @@ namespace ShadowTheater.UI
                 return;
             }
             Instance = this;
+            if (dialogueBox != null) _dialogueBoxHome = dialogueBox.anchoredPosition;
             SetVisible(false);
         }
 
@@ -88,6 +94,7 @@ namespace ShadowTheater.UI
             _onComplete = onComplete;
             IsPlaying = true;
 
+            _baseAccent = accent;
             if (accentBar != null) accentBar.color = accent;
             if (PlayerController.Instance != null)
             {
@@ -173,6 +180,7 @@ namespace ShadowTheater.UI
         {
             var line = _sequence.lines[_lineIndex];
             if (!string.IsNullOrEmpty(line.setFlag)) SaveManager.SetFlag(line.setFlag, line.setFlagValue);
+            ApplyEmotion(line.emotion);
             if (speakerText != null) speakerText.text = L10n.Get(
                 $"dialogue.{_sequence.dialogueId}.{_lineIndex}.speaker", L10n.Text(line.speaker));
             _fullLine = L10n.Get($"dialogue.{_sequence.dialogueId}.{_lineIndex}.text", L10n.Text(line.text));
@@ -257,6 +265,7 @@ namespace ShadowTheater.UI
             IsPlaying = false;
             _sequence = null;
             _onComplete = null;
+            StopEmotionMotion();
             HideChoices();
             SetVisible(false);
             ReleasePlayerLock();
@@ -296,6 +305,80 @@ namespace ShadowTheater.UI
             canvasGroup.alpha = visible ? 1f : 0f;
             canvasGroup.interactable = visible;
             canvasGroup.blocksRaycasts = visible;
+        }
+
+        private void ApplyEmotion(string emotion)
+        {
+            string mood = (emotion ?? string.Empty).Trim().ToLowerInvariant();
+            Color color;
+            float shake = 0f;
+            bool pulse = false;
+            switch (mood)
+            {
+                case "rage": case "warning": case "bitter":
+                    color = new Color(.98f, .22f, .28f, 1f); shake = 9f; break;
+                case "fear": case "cold": case "mystery": case "guilt":
+                    color = new Color(.34f, .62f, 1f, 1f); shake = 3f; break;
+                case "hope": case "joy": case "relief": case "ending":
+                    color = new Color(1f, .79f, .32f, 1f); pulse = true; break;
+                case "sad": case "solemn":
+                    color = new Color(.55f, .58f, .86f, 1f); break;
+                case "resolve": case "serious":
+                    color = new Color(.78f, .42f, 1f, 1f); pulse = mood == "resolve"; break;
+                case "curious": case "question": case "surprised":
+                    color = new Color(.34f, .90f, .86f, 1f); pulse = mood == "surprised"; break;
+                default:
+                    color = _baseAccent; break;
+            }
+
+            Color accent = Color.Lerp(_baseAccent, color, .72f);
+            if (accentBar != null) accentBar.color = accent;
+            if (speakerText != null) speakerText.color = Color.Lerp(Color.white, color, .42f);
+            if (bodyText != null) bodyText.color = Color.Lerp(Color.white, color, .08f);
+            if (dialogueBoxImage != null)
+                dialogueBoxImage.color = Color.Lerp(new Color(.035f, .026f, .075f, .96f), color, .08f);
+
+            StopEmotionMotion();
+            if (dialogueBox != null && (shake > 0f || pulse))
+                _emotionRoutine = StartCoroutine(EmotionMotion(shake, pulse));
+        }
+
+        private IEnumerator EmotionMotion(float shake, bool pulse)
+        {
+            const float duration = .24f;
+            float elapsed = 0f;
+            while (elapsed < duration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                float fade = 1f - Mathf.Clamp01(elapsed / duration);
+                if (shake > 0f)
+                {
+                    float x = Mathf.Sin(elapsed * 115f) * shake * fade;
+                    dialogueBox.anchoredPosition = _dialogueBoxHome + new Vector2(x, 0f);
+                }
+                if (pulse)
+                {
+                    float scale = 1f + Mathf.Sin(Mathf.Clamp01(elapsed / duration) * Mathf.PI) * .018f;
+                    dialogueBox.localScale = new Vector3(scale, scale, 1f);
+                }
+                yield return null;
+            }
+            ResetDialogueBoxTransform();
+            _emotionRoutine = null;
+        }
+
+        private void StopEmotionMotion()
+        {
+            if (_emotionRoutine != null) StopCoroutine(_emotionRoutine);
+            _emotionRoutine = null;
+            ResetDialogueBoxTransform();
+        }
+
+        private void ResetDialogueBoxTransform()
+        {
+            if (dialogueBox == null) return;
+            dialogueBox.anchoredPosition = _dialogueBoxHome;
+            dialogueBox.localScale = Vector3.one;
         }
     }
 }

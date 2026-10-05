@@ -21,7 +21,8 @@ namespace ShadowTheater.Battle
             foreach (var s in self.Skills)
             {
                 if (s == null || s.fpCost > currentFp) continue;
-                candidates.Add((s, Score(self, opponent, s)));
+                float score = Score(self, opponent, s);
+                if (score > 0f) candidates.Add((s, score));
             }
 
             if (candidates.Count == 0)
@@ -30,7 +31,8 @@ namespace ShadowTheater.Battle
             // 가장 점수가 높은 스킬. 단, FP를 아끼기 위해 25% 확률로 기본 공격
             candidates.Sort((a, b) => b.score.CompareTo(a.score));
             var best = candidates[0];
-            if (basic != null && Random.value < 0.25f && !best.skill.isUltimate)
+            bool urgent = best.score >= 90f;
+            if (basic != null && Random.value < 0.25f && !best.skill.isUltimate && !urgent)
                 return BattleAction.Attack(self.Side, basic);
 
             return BattleAction.UseSkill(self.Side, best.skill);
@@ -90,8 +92,10 @@ namespace ShadowTheater.Battle
                 return s.healRatio > 0f && self.HpRatio < 0.4f ? 100f : 0f;
             }
 
-            ShadowElement elem = s.element != ShadowElement.None ? s.element : self.Data.element;
-            float score = s.damageMultiplier * s.accuracy * ElementChart.GetMultiplier(elem, opponent.Data.element) * 10f;
+            int expectedDamage = DamageCalculator.EstimateDamage(self, opponent, s);
+            float score = expectedDamage * s.accuracy / Mathf.Max(1f, opponent.MaxHp) * 100f;
+            if (expectedDamage >= opponent.Hp && expectedDamage > 0) score += 60f;
+            if (s.isUltimate && expectedDamage < opponent.Hp * .35f) score -= 8f;
 
             if (s.statusEffect != StatusEffectType.None)
             {

@@ -25,6 +25,7 @@ namespace ShadowTheater.EditorTools
         private const string RosterPath = "Assets/Resources/Data/RegionalRosterManifest.json";
         private const string DatabasePath = "Assets/Resources/ShadowDatabase.asset";
         private const string QuestPath = "Assets/Resources/Data/QuestCatalog.json";
+        private static string _declaredStoryFlags;
 
         [MenuItem("Tools/Shadow Theater/Validate Full Game")]
         public static void ValidateFromMenu()
@@ -140,6 +141,13 @@ namespace ShadowTheater.EditorTools
                     damageSkill.damageMultiplier = .2f;
                     neutral.skills.Add(statusSkill);
                     neutral.skills.Add(damageSkill);
+
+                    damageSkill.element = ShadowElement.Flame;
+                    int strongDamage = DamageCalculator.EstimateDamage(flameUnit, frostUnit, damageSkill);
+                    int weakDamage = DamageCalculator.EstimateDamage(flameUnit, shadeOpponent, damageSkill);
+                    if (strongDamage <= weakDamage)
+                        result.errors.Add("전투 기대 피해 속성 상성 회귀 실패");
+                    damageSkill.element = ShadowElement.None;
 
                     BattleAction before = BattleAI.Choose(emergencyParty[1], neutralOpponent, 5);
                     neutralOpponent.ApplyStatus(StatusEffectType.AttackDown, 2);
@@ -292,8 +300,18 @@ namespace ShadowTheater.EditorTools
             var ultimates = database.skills.Where(x => x != null && x.isUltimate).ToList();
             if (ultimates.Count == 0) result.errors.Add("진명 필살기 데이터 없음");
             foreach (SkillData skill in database.skills.Where(x => x != null))
+            {
                 if (skill.requiredLevel < 1 || skill.requiredLevel > ShadowInstance.MaxLevel)
                     result.errors.Add($"{skill.skillId}: 기술 해금 레벨 범위 오류 ({skill.requiredLevel})");
+                if (skill.fpCost < 0 || skill.fpCost > 5)
+                    result.errors.Add($"{skill.skillId}: FP 비용 범위 오류 ({skill.fpCost})");
+                if (skill.accuracy < .65f || skill.accuracy > 1f)
+                    result.errors.Add($"{skill.skillId}: 명중률 범위 오류 ({skill.accuracy})");
+                if (skill.DealsDamage && (skill.damageMultiplier < .25f || skill.damageMultiplier > 4.25f))
+                    result.errors.Add($"{skill.skillId}: 피해 계수 범위 오류 ({skill.damageMultiplier})");
+                if (skill.target == SkillTarget.Self && (skill.healRatio <= 0f || skill.healRatio > .8f))
+                    result.errors.Add($"{skill.skillId}: 회복 비율 범위 오류 ({skill.healRatio})");
+            }
             foreach (SkillData skill in ultimates)
             {
                 if (skill.ultimateFxStyle == UltimateFxStyle.None) result.errors.Add($"{skill.skillId}: 필살기 테마 누락");
@@ -321,7 +339,50 @@ namespace ShadowTheater.EditorTools
                     result.errors.Add($"{shadow.shadowId}: 전리품 확률 오류 ({shadow.dropChance})");
                 if (shadow.dropMinCount < 1 || shadow.dropMaxCount < shadow.dropMinCount)
                     result.errors.Add($"{shadow.shadowId}: 전리품 수량 범위 오류");
+                if (shadow.baseHp < 50 || shadow.baseHp > 450 || shadow.baseAtk < 5 || shadow.baseAtk > 90 ||
+                    shadow.baseDef < 0 || shadow.baseDef > 70 || shadow.baseSpd < 1 || shadow.baseSpd > 55)
+                    result.errors.Add($"{shadow.shadowId}: 기본 능력치 밸런스 범위 오류");
+                if (shadow.IsCapturable && (shadow.baseCaptureRate < .03f || shadow.baseCaptureRate > .6f))
+                    result.errors.Add($"{shadow.shadowId}: 기록 확률 범위 오류 ({shadow.baseCaptureRate})");
+
+                bool rare = shadow.growthTier == GrowthTier.Rare;
+                bool fullGrowth = shadow.growthTier == GrowthTier.RegionalBoss || shadow.growthTier == GrowthTier.Legendary;
+                if ((rare || fullGrowth) && shadow.restoredForm?.enabled != true)
+                    result.errors.Add($"{shadow.shadowId}: 등급 필수 기억 복원 데이터 누락");
+                if (fullGrowth)
+                {
+                    ValidateTrueNameForm(shadow, shadow.salvationForm, "구원", result);
+                    ValidateTrueNameForm(shadow, shadow.grudgeForm, "원한", result);
+                }
+                ValidateGrowthRequirement(shadow, shadow.restoredForm, "기억 복원", result);
+                ValidateGrowthRequirement(shadow, shadow.salvationForm, "구원", result);
+                ValidateGrowthRequirement(shadow, shadow.grudgeForm, "원한", result);
             }
+        }
+
+        private static void ValidateGrowthRequirement(ShadowData shadow, MemoryFormData form, string stage,
+            ValidationReport result)
+        {
+            if (form?.enabled != true || string.IsNullOrEmpty(form.requiredFlag)) return;
+            if (MemoryAwakeningService.HasStoryMilestoneAlias(form.requiredFlag)) return;
+            if (!DeclaredStoryFlags.Contains(form.requiredFlag))
+                result.errors.Add($"{shadow.shadowId}: {stage} 해금 플래그를 설정하는 스토리 없음 ({form.requiredFlag})");
+        }
+
+        private static string DeclaredStoryFlags => _declaredStoryFlags ??=
+            File.ReadAllText("Assets/Resources/Data/DialogueCatalog.json") + "\n" +
+            File.ReadAllText("Assets/Editor/PlayablePrologueGenerator.cs");
+
+        private static void ValidateTrueNameForm(ShadowData shadow, MemoryFormData form, string path,
+            ValidationReport result)
+        {
+            if (form?.enabled != true)
+            {
+                result.errors.Add($"{shadow.shadowId}: {path} 진명 데이터 누락");
+                return;
+            }
+            if (form.bonusSkills == null || !form.bonusSkills.Any(x => x != null && x.isUltimate))
+                result.errors.Add($"{shadow.shadowId}: {path} 진명 필살기 누락");
         }
 
         private static void ValidateQuestRewards(ValidationReport result)
@@ -471,6 +532,16 @@ namespace ShadowTheater.EditorTools
                                 panelSo.FindProperty("statusText")?.objectReferenceValue == null)
                                 result.errors.Add($"{region.sceneName}: 전투 유닛 속성·상태 UI 참조 누락");
                         }
+                    }
+                    DialogueController dialogue = roots.SelectMany(x => x.GetComponentsInChildren<DialogueController>(true)).FirstOrDefault();
+                    if (dialogue == null) result.errors.Add($"{region.sceneName}: 대화 UI 누락");
+                    else
+                    {
+                        var dialogueSo = new SerializedObject(dialogue);
+                        if (dialogueSo.FindProperty("dialogueBox")?.objectReferenceValue == null ||
+                            dialogueSo.FindProperty("dialogueBoxImage")?.objectReferenceValue == null ||
+                            dialogueSo.FindProperty("accentBar")?.objectReferenceValue == null)
+                            result.errors.Add($"{region.sceneName}: 감정 대화 연출 참조 누락");
                     }
                     PartyStorageController partyStorage = roots.SelectMany(x => x.GetComponentsInChildren<PartyStorageController>(true)).FirstOrDefault();
                     if (partyStorage == null) result.errors.Add($"{region.sceneName}: 파티·각본 서고 UI 누락");

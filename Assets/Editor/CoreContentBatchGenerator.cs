@@ -52,6 +52,7 @@ namespace ShadowTheater.EditorTools
             var baseCatalog = Merge(catalogs);
             catalogs.Add(BuildRegionalExpansion(baseCatalog));
             var catalog = Merge(catalogs);
+            int generatedGrowthForms = ApplyTierGrowthPolicy(catalog);
             if (catalog.shadows == null || catalog.shadows.Length != TargetCoreShadowCount)
             {
                 Debug.LogError($"[CoreContent] 목표 로스터 불일치: {catalog.shadows?.Length ?? 0}/{TargetCoreShadowCount}");
@@ -71,7 +72,94 @@ namespace ShadowTheater.EditorTools
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             Selection.activeObject = shadows.FirstOrDefault();
-            Debug.Log($"[CoreContent] 생성 완료: 그림자 {shadows.Count}종, 스킬 {skills.Count}개, 도구 {items.Count}개");
+            Debug.Log($"[CoreContent] 생성 완료: 그림자 {shadows.Count}종, 스킬 {skills.Count}개, " +
+                      $"도구 {items.Count}개, 등급 기반 성장 형태 {generatedGrowthForms}개 보완");
+        }
+
+        /// <summary>
+        /// 수작업 성장 데이터가 없는 그림자만 등급 원칙으로 보완한다.
+        /// Standard는 단일 형태, Rare는 기억 복원, RegionalBoss/Legendary는 양쪽 진명까지 제공한다.
+        /// </summary>
+        private static int ApplyTierGrowthPolicy(CoreCatalog catalog)
+        {
+            if (catalog?.shadows == null) return 0;
+            var skills = new List<SkillSpec>(catalog.skills ?? Array.Empty<SkillSpec>());
+            var skillIds = new HashSet<string>(skills.Select(x => x.skillId), StringComparer.Ordinal);
+            int forms = 0;
+            foreach (ShadowSpec shadow in catalog.shadows)
+            {
+                if (shadow == null || shadow.growthTier == "Standard") continue;
+                bool fullGrowth = shadow.growthTier == "RegionalBoss" || shadow.growthTier == "Legendary";
+                int restoreLevel = Mathf.Clamp(14 + shadow.expReward / 12, 18, 62);
+                int trueNameLevel = Mathf.Clamp(restoreLevel + (fullGrowth ? 12 : 0), 30, 75);
+
+                if (shadow.restored == null)
+                {
+                    shadow.restored = AutoForm($"기억을 되찾은 {shadow.displayName}", shadow.accentColor,
+                        restoreLevel, 1.22f, 1.18f, 1.16f, 1.10f,
+                        $"흩어진 장면이 이어지며 {shadow.displayName}은(는) 자신이 지키려 했던 마지막 약속을 기억했다.");
+                    forms++;
+                }
+                if (!fullGrowth) continue;
+
+                if (shadow.salvation == null)
+                {
+                    string skillId = shadow.shadowId + "_salvation_ultimate";
+                    if (skillIds.Add(skillId)) skills.Add(AutoUltimate(shadow, skillId, trueNameLevel, true));
+                    shadow.salvation = AutoForm($"진명·새벽의 {shadow.displayName}", "#F7E7A9", trueNameLevel,
+                        1.48f, 1.42f, 1.38f, 1.20f,
+                        "비극을 지우지 않고 품어 낸 진명이 다음 장면을 비추기 시작했다.", skillId);
+                    shadow.salvation.bonusCritRate = .06f;
+                    shadow.salvation.bonusEvasion = .03f;
+                    forms++;
+                }
+                if (shadow.grudge == null)
+                {
+                    string skillId = shadow.shadowId + "_grudge_ultimate";
+                    if (skillIds.Add(skillId)) skills.Add(AutoUltimate(shadow, skillId, trueNameLevel, false));
+                    shadow.grudge = AutoForm($"진명·심연의 {shadow.displayName}", "#B62E68", trueNameLevel,
+                        1.34f, 1.62f, 1.24f, 1.32f,
+                        "상처를 놓지 않은 진명이 원한을 칼날로 벼려 마지막 막을 찢는다.", skillId);
+                    shadow.grudge.bonusCritRate = .13f;
+                    shadow.grudge.bonusEvasion = .05f;
+                    forms++;
+                }
+            }
+            catalog.skills = skills.ToArray();
+            return forms;
+        }
+
+        private static FormSpec AutoForm(string name, string color, int level, float hp, float atk,
+            float def, float spd, string lore, params string[] bonusSkills) => new FormSpec
+        {
+            formName = name, accentColor = color, requiredLevel = level, requiredFlag = string.Empty,
+            hpMultiplier = hp, atkMultiplier = atk, defMultiplier = def, spdMultiplier = spd,
+            bonusSkills = bonusSkills ?? Array.Empty<string>(), loreAppend = lore
+        };
+
+        private static SkillSpec AutoUltimate(ShadowSpec shadow, string id, int level, bool salvation)
+        {
+            string style = shadow.element == "Flame" ? "FlameCrown"
+                : shadow.element == "Frost" ? "FrozenArchive"
+                : shadow.element == "Shade" ? "LivingScript" : "CosmicAudience";
+            bool magical = shadow.role == "MagicNuker" || shadow.role == "Support";
+            return new SkillSpec
+            {
+                skillId = id,
+                displayName = salvation ? $"진명·{shadow.displayName}의 새벽" : $"진명·{shadow.displayName}의 심연",
+                description = salvation ? "되찾은 이름으로 비극을 가르고 다음 장면을 연다."
+                    : "지워지지 않은 원한을 한순간에 폭발시킨다.",
+                requiredLevel = level, fpCost = 4, damageType = magical ? "Magical" : "Physical",
+                element = string.IsNullOrEmpty(shadow.element) ? "None" : shadow.element,
+                damageMultiplier = salvation ? 3.25f : 3.5f, accuracy = salvation ? 1f : .94f,
+                bonusCritRate = salvation ? .08f : .16f, target = "Enemy",
+                statusEffect = salvation ? "DefenseDown" : "Bleed", statusChance = salvation ? 1f : .85f,
+                statusDuration = 3, isUltimate = true, ultimateFxStyle = style,
+                primaryFxColor = salvation ? "#FFF0B5" : "#C12E72",
+                secondaryFxColor = string.IsNullOrEmpty(shadow.accentColor) ? "#8F7CC9" : shadow.accentColor,
+                ultimateBurstCount = salvation ? 32 : 38, cameraShake = salvation ? 1.05f : 1.25f,
+                hitStopDuration = .09f, sfxVolume = .95f, sfxPitch = salvation ? 1.08f : .92f
+            };
         }
 
         private static CoreCatalog BuildRegionalExpansion(CoreCatalog source)

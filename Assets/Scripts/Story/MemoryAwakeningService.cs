@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using ShadowTheater.Data;
 using ShadowTheater.Save;
 using UnityEngine;
@@ -9,6 +10,30 @@ namespace ShadowTheater.Story
     public static class MemoryAwakeningService
     {
         public static event Action<ShadowInstance> StageChanged;
+
+        // 초기 6종의 전용 플래그는 기존 세이브와 데이터 ID를 유지하면서 실제 스토리 이정표에 연결한다.
+        private static readonly Dictionary<string, string> StoryMilestoneAliases =
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                { "memory_knight_restored", "boss_moonlit_story_complete" },
+                { "truth_knight_revealed", "truth_ash_king_revealed" },
+                { "memory_mage_restored", "memory_ferry_manifest" },
+                { "truth_mage_revealed", "truth_first_forbidden_book" },
+                { "memory_beast_restored", "howl_village_truth" },
+                { "truth_beast_revealed", "truth_first_howl" },
+                { "memory_puppet_restored", "clock_alley_released" },
+                { "truth_puppet_revealed", "truth_puppet_origin" },
+                { "memory_crow_restored", "boss_moonlit_story_complete" },
+                { "truth_crow_revealed", "truth_first_howl" },
+                { "memory_mask_restored", "mirror_truth_seen" },
+                { "truth_mask_revealed", "truth_nox_family" },
+                { "boss_nox_story_complete", "boss_high_censor_nox_story_complete" },
+                { "memory_moonlit_truth", "boss_true_name_selene_story_complete" },
+                { "legend_first_actor_found", "boss_first_actor_story_complete" },
+                { "legend_first_actor_truth", "boss_first_actor_story_complete" },
+                { "legend_last_audience_found", "boss_last_audience_story_complete" },
+                { "legend_last_audience_truth", "boss_last_audience_story_complete" }
+            };
 
         public static bool CanRestore(ShadowInstance instance, out string reason)
         {
@@ -42,6 +67,7 @@ namespace ShadowTheater.Story
         public static bool TryRestore(ShadowInstance instance, out string message)
         {
             if (!CanRestore(instance, out message)) return false;
+            MaterializeMilestone(instance.Data.restoredForm);
             ApplyStage(instance, MemoryStage.Restored, AwakeningPath.None);
             message = $"{instance.DisplayName}의 기억이 복원되었습니다.";
             return true;
@@ -50,6 +76,7 @@ namespace ShadowTheater.Story
         public static bool TryAwaken(ShadowInstance instance, AwakeningPath path, out string message)
         {
             if (!CanAwaken(instance, path, out message)) return false;
+            MaterializeMilestone(path == AwakeningPath.Grudge ? instance.Data.grudgeForm : instance.Data.salvationForm);
             ApplyStage(instance, MemoryStage.TrueName, path);
             message = path == AwakeningPath.Salvation
                 ? $"{instance.DisplayName}이 구원의 진명을 되찾았습니다."
@@ -78,13 +105,29 @@ namespace ShadowTheater.Story
                 reason = $"레벨 {form.requiredLevel}이 필요합니다. (현재 {instance.level})";
                 return false;
             }
-            if (!string.IsNullOrEmpty(form.requiredFlag) && !SaveManager.HasFlag(form.requiredFlag))
+            if (!string.IsNullOrEmpty(form.requiredFlag) && !RequirementMet(form.requiredFlag))
             {
                 reason = "아직 되찾지 못한 개인 기억이 있습니다.";
                 return false;
             }
             reason = string.Empty;
             return true;
+        }
+
+        public static bool HasStoryMilestoneAlias(string requiredFlag) =>
+            !string.IsNullOrEmpty(requiredFlag) && StoryMilestoneAliases.ContainsKey(requiredFlag);
+
+        private static bool RequirementMet(string requiredFlag)
+        {
+            if (SaveManager.HasFlag(requiredFlag)) return true;
+            return StoryMilestoneAliases.TryGetValue(requiredFlag, out string sourceFlag) &&
+                   SaveManager.HasFlag(sourceFlag);
+        }
+
+        private static void MaterializeMilestone(MemoryFormData form)
+        {
+            if (form == null || string.IsNullOrEmpty(form.requiredFlag) || SaveManager.HasFlag(form.requiredFlag)) return;
+            if (RequirementMet(form.requiredFlag)) SaveManager.SetFlag(form.requiredFlag);
         }
 
         private static void ApplyStage(ShadowInstance instance, MemoryStage stage, AwakeningPath path)

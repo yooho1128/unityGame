@@ -48,6 +48,20 @@ namespace ShadowTheater.Battle
             return r;
         }
 
+        /// <summary>AI와 전투 정보 UI가 사용할 평균 기대 피해. 난수·실제 HP 변경은 발생시키지 않는다.</summary>
+        public static int EstimateDamage(BattleUnit attacker, BattleUnit defender, SkillData skill)
+        {
+            if (attacker == null || defender == null || skill == null || !skill.DealsDamage) return 0;
+            float defense = defender.Def * (skill.damageType == DamageType.Magical ? MagicDefenseFactor : 1f);
+            float reduced = DefenseConstant / (DefenseConstant + Mathf.Max(0f, defense));
+            ShadowElement element = skill.element != ShadowElement.None ? skill.element : attacker.Data.element;
+            float criticalChance = Mathf.Clamp01(attacker.CritRate + skill.bonusCritRate);
+            float expectedCritical = 1f + criticalChance * (CritMultiplier - 1f);
+            float raw = attacker.Atk * skill.damageMultiplier * reduced *
+                        ElementChart.GetMultiplier(element, defender.Data.element) * .95f * expectedCritical;
+            return Mathf.Max(1, Mathf.RoundToInt(raw));
+        }
+
         /// <summary>
         /// 각본 기록(포획) 성공 확률. HP가 낮을수록, 상태 이상일수록 높음.
         /// HP 100% → base x 0.33, HP 1 → base x ~1.0
