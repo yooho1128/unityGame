@@ -93,8 +93,14 @@ namespace ShadowTheater.Battle
             ShadowElement elem = s.element != ShadowElement.None ? s.element : self.Data.element;
             float score = s.damageMultiplier * s.accuracy * ElementChart.GetMultiplier(elem, opponent.Data.element) * 10f;
 
-            if (s.statusEffect != StatusEffectType.None && opponent.MajorStatus == null)
-                score += s.statusChance * 5f;
+            if (s.statusEffect != StatusEffectType.None)
+            {
+                if (!opponent.HasStatus(s.statusEffect) &&
+                    (!BattleUnit.IsMajor(s.statusEffect) || opponent.MajorStatus == null))
+                    score += s.statusChance * 5f;
+                else if (!s.DealsDamage)
+                    score -= 5f;
+            }
 
             return score;
         }

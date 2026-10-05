@@ -126,6 +126,33 @@ namespace ShadowTheater.EditorTools
                 };
                 if (BattleAI.ChooseSwitchIndex(emergencyParty, 0, neutralOpponent) != 1)
                     result.errors.Add("전투 AI 위험 HP 교체 회귀 실패");
+
+                var statusSkill = ScriptableObject.CreateInstance<SkillData>();
+                var damageSkill = ScriptableObject.CreateInstance<SkillData>();
+                try
+                {
+                    statusSkill.skillId = "ai_status";
+                    statusSkill.damageType = DamageType.None;
+                    statusSkill.damageMultiplier = 0f;
+                    statusSkill.statusEffect = StatusEffectType.AttackDown;
+                    statusSkill.statusChance = 1f;
+                    damageSkill.skillId = "ai_damage";
+                    damageSkill.damageMultiplier = .2f;
+                    neutral.skills.Add(statusSkill);
+                    neutral.skills.Add(damageSkill);
+
+                    BattleAction before = BattleAI.Choose(emergencyParty[1], neutralOpponent, 5);
+                    neutralOpponent.ApplyStatus(StatusEffectType.AttackDown, 2);
+                    BattleAction after = BattleAI.Choose(emergencyParty[1], neutralOpponent, 5);
+                    if (before.skill != statusSkill || after.skill != damageSkill ||
+                        !neutralOpponent.HasStatus(StatusEffectType.AttackDown))
+                        result.errors.Add("전투 AI 중복 상태 이상 회피 회귀 실패");
+                }
+                finally
+                {
+                    UnityEngine.Object.DestroyImmediate(statusSkill);
+                    UnityEngine.Object.DestroyImmediate(damageSkill);
+                }
             }
             finally
             {

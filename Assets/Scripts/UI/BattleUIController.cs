@@ -69,13 +69,35 @@ namespace ShadowTheater.UI
             {
                 if (skill == null) continue;
                 var captured = skill;
-                AddOption(L10n.Text(skill.displayName), L10n.Format("battle.skill_info", "FP {0} · 위력 {1:0.0}", skill.fpCost, skill.damageMultiplier),
+                AddOption(L10n.Text(skill.displayName), SkillDetail(skill),
                     manager.CanUseSkill(skill), () => Submit(BattleAction.UseSkill(BattleSide.Player, captured)));
             }
             if (_options.Count == 0)
                 AddOption(L10n.Get("battle.no_unlocked_skills", "아직 깨달은 기술이 없습니다"),
                     L10n.Get("battle.skill_unlock_hint", "레벨을 올리면 새로운 기술을 깨달을 수 있습니다"), false, null);
             RebuildOptionsLayout();
+        }
+
+        private string SkillDetail(SkillData skill)
+        {
+            string detail = $"FP {skill.fpCost}";
+            if (skill.target == SkillTarget.Self && skill.healRatio > 0f)
+                detail += L10n.Format("battle.skill_heal_info", " · 회복 {0}%", Mathf.RoundToInt(skill.healRatio * 100f));
+            else if (skill.DealsDamage)
+            {
+                ShadowElement element = skill.element != ShadowElement.None ? skill.element : manager.PlayerActive.Data.element;
+                float matchup = ElementChart.GetMultiplier(element, manager.EnemyActive.Data.element);
+                detail += L10n.Format("battle.skill_damage_info", " · 위력 {0:0.0} · 명중 {1}% · {2}",
+                    skill.damageMultiplier, Mathf.RoundToInt(skill.accuracy * 100f),
+                    L10n.Get("element." + element.ToString().ToLowerInvariant(), element.ToString()));
+                if (matchup > 1f) detail += L10n.Get("battle.matchup_strong", " · 효과적 ×1.5");
+                else if (matchup < 1f) detail += L10n.Get("battle.matchup_weak", " · 반감 ×0.75");
+            }
+            if (skill.statusEffect != StatusEffectType.None && skill.statusChance > 0f)
+                detail += L10n.Format("battle.skill_status_info", "\n{0} {1}% · {2}턴",
+                    BattleStatusFormatter.Label(skill.statusEffect), Mathf.RoundToInt(skill.statusChance * 100f), skill.statusDuration);
+            if (skill.isUltimate) detail += L10n.Get("battle.ultimate_tag", " · 필살기");
+            return detail;
         }
 
         public void OpenSwitches()
