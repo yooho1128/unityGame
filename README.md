@@ -330,6 +330,13 @@ ID·목표 타입·선행/다음 연결·순환·최종막 도달 가능 여부,
 함께 적용됩니다. 자세한 교체·재생성 방법은
 [`Docs/ULTIMATE_FX_PIPELINE.md`](Docs/ULTIMATE_FX_PIPELINE.md)를 참고하세요.
 
+전투 화면은 1920×1080 가로 기준의 포켓몬식 대각선 구도입니다. 적은 우상단, 아군은 좌하단에
+배치하고 양측 파티 슬롯, 전투 메시지, 여섯 행동 버튼을 서로 겹치지 않는 독립 영역으로 분리했습니다.
+기기 노치와 둥근 모서리는 `MobileSafeArea`가 자동 보정하며 16:9뿐 아니라 4:3에 가까운 Game 뷰에서도
+핵심 정보와 버튼이 잘리지 않습니다. 필드 전용 Canvas는 `FieldRoot` 아래에 생성되므로 전투 중 각본집·
+파티·월드맵·상점·퀘스트 버튼이 전투 UI 위에 남지 않습니다. 기존에 생성한 씬에는 구조 변경이 자동으로
+들어가지 않으므로 **Tools → Shadow Theater → Generate and Validate Full Game**을 한 번 다시 실행해야 합니다.
+
 ## 파티·각본 서고 빠른 설치
 1. Unity 메뉴 **Tools → Shadow Theater → Generate Party and Storage UI** 실행
 2. 생성된 `Assets/Prefabs/UI/PartyStorageCanvas.prefab`을 각 필드 씬 최상위에 배치

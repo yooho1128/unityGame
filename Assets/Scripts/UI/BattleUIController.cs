@@ -20,7 +20,9 @@ namespace ShadowTheater.UI
         [SerializeField] private GameObject optionRoot;
         [SerializeField] private Transform optionContent;
         [SerializeField] private BattleOptionButton optionTemplate;
+        [SerializeField] private GameObject messageRoot;
         [SerializeField] private Text messageText;
+        [SerializeField] private Text optionPromptText;
         [SerializeField] private Text fpText;
         [SerializeField] private Text turnText;
         [SerializeField] private Text autoText;
@@ -153,6 +155,7 @@ namespace ShadowTheater.UI
             }
             ClearOptions();
             if (optionRoot != null) optionRoot.SetActive(false);
+            if (messageRoot != null) messageRoot.SetActive(true);
             if (actionRoot != null) actionRoot.SetActive(manager.State == BattleState.WaitingForInput);
         }
 
@@ -241,12 +244,15 @@ namespace ShadowTheater.UI
         {
             if (actionRoot != null) actionRoot.SetActive(show);
             if (!show && optionRoot != null) optionRoot.SetActive(false);
+            if (messageRoot != null) messageRoot.SetActive(true);
         }
 
         private void OpenOptions(string prompt)
         {
             ClearOptions();
             if (messageText != null) messageText.text = prompt;
+            if (optionPromptText != null) optionPromptText.text = prompt;
+            if (messageRoot != null) messageRoot.SetActive(false);
             if (actionRoot != null) actionRoot.SetActive(false);
             if (optionRoot != null) optionRoot.SetActive(true);
         }

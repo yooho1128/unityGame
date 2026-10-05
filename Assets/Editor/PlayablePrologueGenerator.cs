@@ -740,15 +740,17 @@ namespace ShadowTheater.EditorTools
             flowSo.ApplyModifiedPropertiesWithoutUndo();
             battleRoot.SetActive(false);
 
-            InstantiatePrefab("Assets/Prefabs/UI/DialogueCanvas.prefab");
-            InstantiatePrefab("Assets/Prefabs/UI/RegionArrivalCanvas.prefab");
-            InstantiatePrefab("Assets/Prefabs/UI/QuestHUDCanvas.prefab");
-            InstantiatePrefab("Assets/Prefabs/UI/ScriptBookCanvas.prefab");
-            InstantiatePrefab("Assets/Prefabs/UI/PartyStorageCanvas.prefab");
-            InstantiatePrefab("Assets/Prefabs/UI/WorldMapCanvas.prefab");
-            InstantiatePrefab("Assets/Prefabs/UI/SettlementShopCanvas.prefab");
-            InstantiatePrefab("Assets/Prefabs/UI/FieldInventoryCanvas.prefab");
-            InstantiatePrefab("Assets/Prefabs/UI/QuestLogCanvas.prefab");
+            // 필드 전용 Canvas는 반드시 FieldRoot 아래에 둔다. 그래야 전투 진입 시
+            // 각본집/파티/월드맵/상점 버튼이 전투 UI 위에 남지 않는다.
+            InstantiatePrefab("Assets/Prefabs/UI/DialogueCanvas.prefab", fieldRoot.transform);
+            InstantiatePrefab("Assets/Prefabs/UI/RegionArrivalCanvas.prefab", fieldRoot.transform);
+            InstantiatePrefab("Assets/Prefabs/UI/QuestHUDCanvas.prefab", fieldRoot.transform);
+            InstantiatePrefab("Assets/Prefabs/UI/ScriptBookCanvas.prefab", fieldRoot.transform);
+            InstantiatePrefab("Assets/Prefabs/UI/PartyStorageCanvas.prefab", fieldRoot.transform);
+            InstantiatePrefab("Assets/Prefabs/UI/WorldMapCanvas.prefab", fieldRoot.transform);
+            InstantiatePrefab("Assets/Prefabs/UI/SettlementShopCanvas.prefab", fieldRoot.transform);
+            InstantiatePrefab("Assets/Prefabs/UI/FieldInventoryCanvas.prefab", fieldRoot.transform);
+            InstantiatePrefab("Assets/Prefabs/UI/QuestLogCanvas.prefab", fieldRoot.transform);
             InstantiatePrefab("Assets/Prefabs/UI/FieldPauseCanvas.prefab", fieldRoot.transform);
             CreateFader();
             CreateEventSystem();

@@ -533,16 +533,24 @@ namespace ShadowTheater.EditorTools
                     if (!roots.Any(x => x.GetComponentInChildren<FieldGrid>(true) != null)) result.errors.Add($"{region.sceneName}: FieldGrid 누락");
                     if (!roots.Any(x => x.GetComponentInChildren<PlayerController>(true) != null)) result.errors.Add($"{region.sceneName}: Player 누락");
                     if (!roots.Any(x => x.GetComponentInChildren<GameFlowController>(true) != null)) result.errors.Add($"{region.sceneName}: GameFlow 누락");
+                    GameObject fieldRoot = roots.FirstOrDefault(x => x.GetComponentInChildren<FieldGrid>(true) != null);
                     BattleUIController battleUi = roots.SelectMany(x => x.GetComponentsInChildren<BattleUIController>(true)).FirstOrDefault();
                     if (battleUi == null) result.errors.Add($"{region.sceneName}: 전투 UI 누락");
                     else
                     {
+                        CanvasScaler battleScaler = battleUi.GetComponent<CanvasScaler>();
+                        if (battleScaler == null || battleScaler.referenceResolution != new Vector2(1920f, 1080f))
+                            result.errors.Add($"{region.sceneName}: 전투 UI 가로 기준 해상도 불일치");
+                        if (battleUi.GetComponentInChildren<MobileSafeArea>(true) == null)
+                            result.errors.Add($"{region.sceneName}: 전투 UI 안전영역 보정 누락");
                         var battleSo = new SerializedObject(battleUi);
                         if (battleSo.FindProperty("playerPartyStrip")?.objectReferenceValue == null ||
                             battleSo.FindProperty("enemyPartyStrip")?.objectReferenceValue == null ||
                             battleSo.FindProperty("optionContent")?.objectReferenceValue == null ||
+                            battleSo.FindProperty("messageRoot")?.objectReferenceValue == null ||
+                            battleSo.FindProperty("optionPromptText")?.objectReferenceValue == null ||
                             battleSo.FindProperty("recordText")?.objectReferenceValue == null)
-                            result.errors.Add($"{region.sceneName}: 전투 파티 스트립·선택 목록·기록 확률 참조 누락");
+                            result.errors.Add($"{region.sceneName}: 전투 파티 스트립·선택 목록·메시지·기록 확률 참조 누락");
                         foreach (BattlePartyStrip strip in battleUi.GetComponentsInChildren<BattlePartyStrip>(true))
                         {
                             SerializedProperty slots = new SerializedObject(strip).FindProperty("slots");
@@ -566,6 +574,16 @@ namespace ShadowTheater.EditorTools
                             dialogueSo.FindProperty("dialogueBoxImage")?.objectReferenceValue == null ||
                             dialogueSo.FindProperty("accentBar")?.objectReferenceValue == null)
                             result.errors.Add($"{region.sceneName}: 감정 대화 연출 참조 누락");
+                    }
+                    if (fieldRoot != null)
+                    {
+                        foreach (Canvas fieldCanvas in roots.SelectMany(x => x.GetComponentsInChildren<Canvas>(true))
+                                     .Where(x => x.GetComponent<BattleUIController>() == null &&
+                                                 x.GetComponent<ScreenFader>() == null))
+                        {
+                            if (!fieldCanvas.transform.IsChildOf(fieldRoot.transform))
+                                result.errors.Add($"{region.sceneName}: 전투 중 남을 수 있는 필드 Canvas: {fieldCanvas.name}");
+                        }
                     }
                     RegionArrivalBanner arrival = roots.SelectMany(x => x.GetComponentsInChildren<RegionArrivalBanner>(true)).FirstOrDefault();
                     if (arrival == null) result.errors.Add($"{region.sceneName}: 지역 진입 타이틀 누락");
