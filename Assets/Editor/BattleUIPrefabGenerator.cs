@@ -84,8 +84,8 @@ namespace ShadowTheater.EditorTools
             var lv=Text("Level",info,new Vector2(0.72f,0.68f),new Vector2(0.97f,0.98f),23,TextAnchor.MiddleRight);
             var bar=Rect("HpBar",info,new Vector2(0.03f,0.43f),new Vector2(0.97f,0.58f)); bar.gameObject.AddComponent<Image>().color=new Color(.12f,.1f,.18f);
             var fill=Rect("Fill",bar,Vector2.zero,Vector2.one).gameObject.AddComponent<Image>(); fill.type=Image.Type.Filled; fill.fillMethod=Image.FillMethod.Horizontal;
-            var hp=Text("Hp",info,new Vector2(0.03f,0.20f),new Vector2(0.65f,0.42f),22,TextAnchor.MiddleLeft);
-            var st=Text("Status",info,new Vector2(0.65f,0.20f),new Vector2(0.97f,0.42f),22,TextAnchor.MiddleRight);
+            var hp=Text("Hp",info,new Vector2(0.03f,0.20f),new Vector2(0.40f,0.42f),22,TextAnchor.MiddleLeft);
+            var st=Text("Status",info,new Vector2(0.40f,0.18f),new Vector2(0.97f,0.43f),17,TextAnchor.MiddleRight);
             var p=r.gameObject.AddComponent<BattleUnitPanel>(); var so=new SerializedObject(p);
             Set(so,"portrait",portrait); Set(so,"accent",accent); Set(so,"hpFill",fill); Set(so,"nameText",n); Set(so,"levelText",lv); Set(so,"hpText",hp); Set(so,"statusText",st); so.ApplyModifiedPropertiesWithoutUndo(); return p;
         }

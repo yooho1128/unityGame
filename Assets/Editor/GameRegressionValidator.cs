@@ -58,6 +58,7 @@ namespace ShadowTheater.EditorTools
             ValidateMigration(result);
             ValidateBattleAi(result);
             ValidateBattleRewards(result);
+            ValidateBattleStatusDisplay(result);
             if (!File.Exists(RegionPath))
             {
                 result.errors.Add("RegionCatalog.json 누락");
@@ -190,6 +191,21 @@ namespace ShadowTheater.EditorTools
                 UnityEngine.Object.DestroyImmediate(unlockSkill);
                 UnityEngine.Object.DestroyImmediate(data);
             }
+        }
+
+        private static void ValidateBattleStatusDisplay(ValidationReport result)
+        {
+            ShadowData data = CreateAiTestShadow("status_display_test", ShadowElement.None);
+            try
+            {
+                var unit = new BattleUnit(new ShadowInstance(data, 5), BattleSide.Player);
+                unit.ApplyStatus(StatusEffectType.Burn, 3);
+                unit.ApplyStatus(StatusEffectType.AttackDown, 2);
+                string summary = BattleStatusFormatter.Summary(unit);
+                if (!summary.Contains("3T") || !summary.Contains("2T") || !unit.HasAnyStatus || unit.Debuffs.Count != 1)
+                    result.errors.Add("전투 상태 이상 복합 표시 회귀 실패");
+            }
+            finally { UnityEngine.Object.DestroyImmediate(data); }
         }
 
         private static void ValidateRegionGraph(List<RegionData> regions, ValidationReport result)

@@ -61,8 +61,11 @@ namespace ShadowTheater.UI
             if (nameText != null) nameText.text = unit.Name;
             if (levelText != null) levelText.text = $"Lv.{unit.Level}";
             if (hpText != null) hpText.text = $"{unit.Hp} / {unit.MaxHp}";
-            if (statusText != null) statusText.text = unit.MajorStatus != null
-                ? StatusLabel(unit.MajorStatus.type) : string.Empty;
+            if (statusText != null)
+            {
+                statusText.text = BattleStatusFormatter.Summary(unit);
+                statusText.color = unit.HasAnyStatus ? new Color(1f,.66f,.30f) : new Color(.75f,.72f,.82f);
+            }
         }
 
         private void LateUpdate()
@@ -80,15 +83,5 @@ namespace ShadowTheater.UI
             portrait.rectTransform.localRotation = _portraitRotation * Quaternion.Euler(0f, 0f, tilt);
         }
 
-        private static string StatusLabel(StatusEffectType status)
-        {
-            switch (status)
-            {
-                case StatusEffectType.Freeze: return "빙결";
-                case StatusEffectType.Burn: return "화상";
-                case StatusEffectType.Bleed: return "출혈";
-                default: return status.ToString();
-            }
-        }
     }
 }

@@ -22,6 +22,7 @@ namespace ShadowTheater.Battle
 
         public StatusState MajorStatus { get; private set; } // Freeze/Burn/Bleed 중 1개
         private readonly List<StatusState> _debuffs = new List<StatusState>();
+        public IReadOnlyList<StatusState> Debuffs => _debuffs;
 
         public BattleUnit(ShadowInstance instance, BattleSide side)
         {

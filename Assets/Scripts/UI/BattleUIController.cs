@@ -320,7 +320,6 @@ namespace ShadowTheater.UI
             }
         }
 
-        private static string StatusLabel(StatusEffectType status) =>
-            L10n.Get("status." + status.ToString().ToLowerInvariant(), status.ToString());
+        private static string StatusLabel(StatusEffectType status) => BattleStatusFormatter.Label(status);
     }
 }
