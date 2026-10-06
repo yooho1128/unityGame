@@ -26,6 +26,7 @@ namespace ShadowTheater.EditorTools
         private const string DatabasePath = "Assets/Resources/ShadowDatabase.asset";
         private const string QuestPath = "Assets/Resources/Data/QuestCatalog.json";
         private static string _declaredStoryFlags;
+        private static string _worldSource;
 
         [MenuItem("Tools/Shadow Theater/Validate Full Game")]
         public static void ValidateFromMenu()
@@ -275,6 +276,8 @@ namespace ShadowTheater.EditorTools
                 if (!orders.Add(region.order)) result.errors.Add("중복 지역 순서: " + region.order);
                 if (region.recommendedLevelMin > region.recommendedLevelMax)
                     result.errors.Add("권장 레벨 역전: " + region.regionId);
+                if (!string.IsNullOrEmpty(region.requiredFlag) && !IsDeclaredStoryFlag(region.requiredFlag))
+                    result.errors.Add($"{region.regionId}: 생성되지 않는 지역 해금 플래그 {region.requiredFlag}");
             }
             foreach (var region in regions.Where(x => x != null))
                 foreach (string connected in region.connectedRegionIds ?? Array.Empty<string>())
@@ -391,6 +394,21 @@ namespace ShadowTheater.EditorTools
             File.ReadAllText("Assets/Resources/Data/QuestCatalog.json") + "\n" +
             File.ReadAllText("Assets/Editor/PlayablePrologueGenerator.cs");
 
+        private static string WorldSource => _worldSource ??=
+            File.ReadAllText("Assets/Editor/PlayablePrologueGenerator.cs") + "\n" +
+            File.ReadAllText("Assets/Scripts/Story/BossEncounterTrigger.cs");
+
+        private static bool IsDeclaredStoryFlag(string flag)
+        {
+            if (string.IsNullOrEmpty(flag) || DeclaredStoryFlags.Contains(flag)) return true;
+            const string prefix = "quest_";
+            const string suffix = "_complete";
+            if (!flag.StartsWith(prefix, StringComparison.Ordinal) || !flag.EndsWith(suffix, StringComparison.Ordinal))
+                return false;
+            string questId = flag.Substring(prefix.Length, flag.Length - prefix.Length - suffix.Length);
+            return File.ReadAllText(QuestPath).Contains($"\"questId\": \"{questId}\"");
+        }
+
         private static void ValidateTrueNameForm(ShadowData shadow, MemoryFormData form, string path,
             ValidationReport result)
         {
@@ -440,6 +458,12 @@ namespace ShadowTheater.EditorTools
                         result.errors.Add($"{quest.questId}: 목표 ID 누락 또는 중복");
                     if (!objective.TryGetType(out _)) result.errors.Add($"{quest.questId}: 목표 타입 오류 {objective.type}");
                     if (string.IsNullOrEmpty(objective.targetId)) result.errors.Add($"{quest.questId}: 목표 대상 누락 ({objective.objectiveId})");
+                    if (objective.TryGetType(out QuestObjectiveType type) && objective.targetId != "*")
+                    {
+                        if ((type == QuestObjectiveType.Talk || type == QuestObjectiveType.Reach ||
+                             type == QuestObjectiveType.Defeat) && !WorldSource.Contains($"\"{objective.targetId}\""))
+                            result.errors.Add($"{quest.questId}: 필드에 배치되지 않은 {type} 대상 {objective.targetId}");
+                    }
                 }
             }
 

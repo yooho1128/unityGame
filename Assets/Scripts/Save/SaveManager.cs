@@ -32,6 +32,8 @@ namespace ShadowTheater.Save
 
         /// <summary>저장 직전 (플레이어 좌표 등 런타임 값을 SaveData에 써넣을 기회)</summary>
         public static event Action BeforeSave;
+        /// <summary>새 게임/회차 시작 또는 불러오기로 현재 세이브 객체가 교체된 직후.</summary>
+        public static event Action CurrentChanged;
         public event Action OnSaved;
         public event Action OnLoaded;
         public static event Action PartyChanged;
@@ -116,6 +118,7 @@ namespace ShadowTheater.Save
             var inst = new ShadowInstance(starter, starterLevel);
             _current.party.Add(inst);
             MarkRecorded(starter.shadowId);
+            CurrentChanged?.Invoke();
             return _current;
         }
 
@@ -202,6 +205,7 @@ namespace ShadowTheater.Save
 
             _current = data;
             RegionProgress.SyncCurrentMap();
+            CurrentChanged?.Invoke();
             OnLoaded?.Invoke();
             if (LastLoadUsedBackup && File.Exists(SavePath))
             {
@@ -228,6 +232,7 @@ namespace ShadowTheater.Save
             foreach (var p in new[] { SavePath, BackupPath, TempPath })
                 if (File.Exists(p)) File.Delete(p);
             _current = null;
+            CurrentChanged?.Invoke();
         }
 
         private static SaveData TryRead(string path, out bool futureVersion)

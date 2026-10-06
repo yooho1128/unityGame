@@ -47,7 +47,11 @@ namespace ShadowTheater.Story
                 silhouette.sprite = enemyParty[0].silhouetteSprite;
 
             yield return new WaitUntil(() => SaveManager.Current != null);
-            if (SaveManager.IsEncounterCleared(encounterId)) gameObject.SetActive(false);
+            if (SaveManager.IsEncounterCleared(encounterId))
+            {
+                RecoverInterruptedVictory();
+                gameObject.SetActive(false);
+            }
         }
 
         public void Interact(PlayerController player)
@@ -129,6 +133,47 @@ namespace ShadowTheater.Story
             SaveManager.Instance.Save();
             _busy = false;
             gameObject.SetActive(false);
+        }
+
+        /// <summary>
+        /// 전투 결과 저장 뒤 승리 대사 도중 앱이 종료된 경우, 재입장 시 보스가 사라지기 전에
+        /// 보상과 출구/막 완료 플래그를 복구한다. 조건 없는 승리 대사의 setFlag만 확정한다.
+        /// </summary>
+        private void RecoverInterruptedVictory()
+        {
+            bool changed = false;
+            if (!string.IsNullOrEmpty(victoryFlag) && !SaveManager.HasFlag(victoryFlag))
+            {
+                SaveManager.SetFlag(victoryFlag);
+                changed = true;
+            }
+
+            if (!string.IsNullOrEmpty(victoryDialogueId) &&
+                DialogueRepository.TryGet(victoryDialogueId, out var sequence) && sequence.lines != null)
+            {
+                foreach (var line in sequence.lines)
+                {
+                    if (line == null || string.IsNullOrEmpty(line.setFlag) ||
+                        !string.IsNullOrEmpty(line.requiredFlag) || !string.IsNullOrEmpty(line.blockedFlag) ||
+                        SaveManager.GetFlag(line.setFlag) == line.setFlagValue) continue;
+                    SaveManager.SetFlag(line.setFlag, line.setFlagValue);
+                    changed = true;
+                }
+            }
+
+            // 복구는 여러 번 실행돼도 안전해야 하므로 지급 완료 플래그가 있는 보상만 재처리한다.
+            bool rewardMissing = purificationReward != null && !string.IsNullOrEmpty(purificationRewardFlag) &&
+                                 !SaveManager.HasFlag(purificationRewardFlag);
+            if (rewardMissing)
+            {
+                GrantPurificationReward();
+                changed = true;
+            }
+            if (changed)
+            {
+                SaveManager.Instance.Save(false);
+                Debug.LogWarning($"[Boss:{encounterId}] 중단된 승리 후처리를 저장 기록에서 복구했습니다.");
+            }
         }
     }
 }
