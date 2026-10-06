@@ -30,15 +30,26 @@ namespace ShadowTheater.UI
         [SerializeField] private Text recordText;
         [SerializeField] private Button recordButton;
         [SerializeField] private Button escapeButton;
+        [Header("전투 결과 카드")]
+        [SerializeField] private GameObject resultRoot;
+        [SerializeField] private CanvasGroup resultGroup;
+        [SerializeField] private RectTransform resultCard;
+        [SerializeField] private Image resultAccent;
+        [SerializeField] private Text resultTitleText;
+        [SerializeField] private Text resultSummaryText;
+        [SerializeField] private Text resultDetailsText;
+        [SerializeField] private Text resultContinueText;
         [SerializeField, Min(0f)] private float messageDuration = 0.55f;
 
         private readonly List<GameObject> _options = new List<GameObject>();
         private float _speed = 1f;
+        private bool _resultAcknowledged;
 
         private void Awake()
         {
             if (manager == null) manager = GetComponent<BattleManager>();
             if (optionTemplate != null) optionTemplate.gameObject.SetActive(false);
+            if (resultRoot != null) resultRoot.SetActive(false);
             ShowActions(false);
         }
 
@@ -53,6 +64,8 @@ namespace ShadowTheater.UI
 
         private void OnDisable()
         {
+            _resultAcknowledged = true;
+            if (resultRoot != null) resultRoot.SetActive(false);
             if (manager == null) return;
             manager.OnStateChanged -= OnStateChanged;
             manager.OnFpChanged -= OnFpChanged;
@@ -172,6 +185,8 @@ namespace ShadowTheater.UI
             SetSpeed(next);
             RefreshLabels();
         }
+
+        public void ConfirmResult() => _resultAcknowledged = true;
 
         private void Submit(BattleAction action)
         {
@@ -315,7 +330,52 @@ namespace ShadowTheater.UI
         public IEnumerator ShowMessage(string message) { yield return Say(message); }
         public IEnumerator PlayResult(BattleOutcome outcome)
         {
-            string message = L10n.Format("battle.result", "전투 {0}\nEXP +{1}  금화 +{2}", ResultLabel(outcome.result), outcome.expGained, outcome.goldGained);
+            if (resultRoot == null)
+            {
+                yield return Say(BuildLegacyResult(outcome), 1.4f);
+                yield break;
+            }
+
+            ShowActions(false);
+            if (messageRoot != null) messageRoot.SetActive(false);
+            _resultAcknowledged = false;
+            resultRoot.SetActive(true);
+            if (resultTitleText != null) resultTitleText.text = ResultLabel(outcome.result);
+            if (resultSummaryText != null) resultSummaryText.text = L10n.Format("battle.result_rewards",
+                "EXP +{0}   ·   금화 +{1}", outcome.expGained, outcome.goldGained);
+            if (resultDetailsText != null) resultDetailsText.text = BuildResultDetails(outcome);
+            if (resultContinueText != null) resultContinueText.text = L10n.Get("battle.result_continue", "계속");
+            if (resultAccent != null) resultAccent.color = ResultColor(outcome.result);
+
+            yield return AnimateResult(true);
+            yield return new WaitUntil(() => _resultAcknowledged);
+            yield return AnimateResult(false);
+            resultRoot.SetActive(false);
+        }
+
+        private string BuildLegacyResult(BattleOutcome outcome)
+        {
+            string message = L10n.Format("battle.result", "전투 {0}\nEXP +{1}  금화 +{2}",
+                ResultLabel(outcome.result), outcome.expGained, outcome.goldGained);
+            string details = BuildResultDetails(outcome);
+            return string.IsNullOrEmpty(details) ? message : message + "\n" + details;
+        }
+
+        private string BuildResultDetails(BattleOutcome outcome)
+        {
+            var lines = new List<string>();
+            if (outcome.capturedShadow != null)
+                lines.Add(L10n.Format("battle.result_recorded", "기억 기록 · {0}",
+                    L10n.Text(outcome.capturedShadow.DisplayName)));
+
+            if (outcome.leveledUpInstanceIds != null && outcome.leveledUpInstanceIds.Count > 0)
+            {
+                var names = new List<string>();
+                foreach (BattleUnit unit in manager.PlayerUnits)
+                    if (outcome.leveledUpInstanceIds.Contains(unit.Instance.instanceId)) names.Add(L10n.Text(unit.Name));
+                if (names.Count > 0) lines.Add(L10n.Format("battle.result_levelups", "레벨 상승 · {0}", string.Join(", ", names)));
+            }
+
             if (outcome.loot != null && outcome.loot.Count > 0)
             {
                 var drops = new List<string>();
@@ -324,9 +384,48 @@ namespace ShadowTheater.UI
                     ItemData item = ShadowDatabase.Instance?.GetItem(loot.itemId);
                     drops.Add($"{(item != null ? L10n.Text(item.displayName) : loot.itemId)} x{loot.count}");
                 }
-                message += "\n" + L10n.Get("battle.loot", "전리품") + " · " + string.Join(", ", drops);
+                lines.Add(L10n.Get("battle.loot", "전리품") + " · " + string.Join(", ", drops));
             }
-            yield return Say(message, 1.4f);
+
+            if (outcome.result == BattleResult.Defeat)
+                lines.Add(L10n.Get("battle.result_defeat_hint", "마지막 거점에서 파티를 회복합니다."));
+            else if (outcome.result == BattleResult.Escaped)
+                lines.Add(L10n.Get("battle.result_escape_hint", "기억의 무대에서 안전하게 벗어났습니다."));
+            else if (lines.Count == 0)
+                lines.Add(L10n.Get("battle.result_no_loot", "추가 전리품은 없습니다."));
+            return string.Join("\n", lines);
+        }
+
+        private IEnumerator AnimateResult(bool showing)
+        {
+            if (resultGroup == null || resultCard == null) yield break;
+            float duration = .18f;
+            float startAlpha = showing ? 0f : 1f;
+            float endAlpha = showing ? 1f : 0f;
+            Vector3 startScale = Vector3.one * (showing ? .92f : 1f);
+            Vector3 endScale = Vector3.one * (showing ? 1f : .96f);
+            resultGroup.alpha = startAlpha;
+            resultCard.localScale = startScale;
+            for (float elapsed=0f; elapsed<duration; elapsed+=Time.unscaledDeltaTime)
+            {
+                float t = 1f - Mathf.Pow(1f - Mathf.Clamp01(elapsed / duration), 3f);
+                resultGroup.alpha = Mathf.Lerp(startAlpha, endAlpha, t);
+                resultCard.localScale = Vector3.LerpUnclamped(startScale, endScale, t);
+                yield return null;
+            }
+            resultGroup.alpha = endAlpha;
+            resultCard.localScale = endScale;
+        }
+
+        private static Color ResultColor(BattleResult result)
+        {
+            switch (result)
+            {
+                case BattleResult.Victory: return new Color(1f,.72f,.28f);
+                case BattleResult.Captured: return new Color(.48f,.86f,1f);
+                case BattleResult.Defeat: return new Color(.92f,.22f,.34f);
+                default: return new Color(.66f,.48f,.94f);
+            }
         }
 
         private IEnumerator Say(string message, float multiplier = 1f)
