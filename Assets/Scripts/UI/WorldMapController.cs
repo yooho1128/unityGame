@@ -52,10 +52,7 @@ namespace ShadowTheater.UI
         public void Open()
         {
             if (IsOpen || SaveManager.Current == null) return;
-            if (GameFlowController.Instance != null && GameFlowController.Instance.IsInBattle) return;
-            if (DialogueController.Instance != null && DialogueController.Instance.IsPlaying) return;
-            if (ScriptBookController.Instance != null && ScriptBookController.Instance.IsOpen) return;
-            if (PartyStorageController.Instance != null && PartyStorageController.Instance.IsOpen) return;
+            if (!FieldUiModalState.CanOpen(FieldUiModal.WorldMap)) return;
             IsOpen = true;
             root?.SetActive(true);
             if (PlayerController.Instance != null)

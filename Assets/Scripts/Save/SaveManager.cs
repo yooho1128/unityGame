@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using ShadowTheater.Battle;
 using ShadowTheater.Data;
+using ShadowTheater.Field;
 using ShadowTheater.Story;
 using UnityEngine;
 
@@ -56,12 +58,12 @@ namespace ShadowTheater.Save
 
         private void OnApplicationPause(bool paused)
         {
-            if (paused && autoSaveOnPause && _current != null) Save();
+            if (paused && autoSaveOnPause && _current != null) SaveForSuspend();
         }
 
         private void OnApplicationQuit()
         {
-            if (_current != null) Save();
+            if (_current != null) SaveForSuspend();
         }
 
         #endregion
@@ -142,6 +144,20 @@ namespace ShadowTheater.Save
             }
         }
 
+        /// <summary>
+        /// OS 백그라운드·저메모리·종료 시 사용하는 안전 저장.
+        /// 전투 도중에는 HP만 반영되고 소비품/보상이 아직 정산되지 않은 상태이므로,
+        /// 전투 직전에 만든 체크포인트 파일을 보존한다.
+        /// </summary>
+        public void SaveForSuspend()
+        {
+            if (_current == null) return;
+            if (GameFlowController.Instance != null && GameFlowController.Instance.IsInBattle) return;
+            if (GameFlowController.Instance == null && BattleManager.Instance != null &&
+                BattleManager.Instance.Context != null && BattleManager.Instance.State != BattleState.None) return;
+            Save();
+        }
+
         public bool Load()
         {
             LastLoadUsedBackup = false;
@@ -158,6 +174,7 @@ namespace ShadowTheater.Save
             int sourceVersion = data.version;
             Migrate(data, out string migrationReport);
             LastMigrationReport = migrationReport;
+            int removedUnknownShadows = RepairUnknownShadowReferences(data);
             foreach (var s in data.party) s.EnsureHp();
             foreach (var s in data.storage) s.EnsureHp();
             int restoredShadows = RepairRecordedOwnership(data);
@@ -176,7 +193,12 @@ namespace ShadowTheater.Save
                 LastMigrationReport += $" · 누락 그림자 {restoredShadows}종 복구";
                 Debug.LogWarning($"[SaveManager] 도감에는 기록됐지만 보유 목록에서 누락된 그림자 {restoredShadows}종을 파티/각본 서고에 복구했습니다.");
             }
-            if (sourceVersion < SaveData.CurrentVersion || LastLoadUsedBackup || restoredShadows > 0) Save(false);
+            if (removedUnknownShadows > 0)
+            {
+                LastMigrationReport += $" · 알 수 없는 그림자 {removedUnknownShadows}개 정리";
+                Debug.LogWarning($"[SaveManager] 현재 데이터베이스에 없는 그림자 {removedUnknownShadows}개를 세이브에서 격리했습니다.");
+            }
+            if (sourceVersion < SaveData.CurrentVersion || LastLoadUsedBackup || restoredShadows > 0 || removedUnknownShadows > 0) Save(false);
             return true;
         }
 
@@ -430,6 +452,37 @@ namespace ShadowTheater.Save
             Current.storage.Add(shadow);
             PartyChanged?.Invoke();
             return false;
+        }
+
+        /// <summary>현재 콘텐츠에 없는 개체 ID를 제거하고 전투 가능한 파티 슬롯을 복구한다.</summary>
+        private static int RepairUnknownShadowReferences(SaveData data)
+        {
+            ShadowDatabase database = ShadowDatabase.Instance;
+            if (database == null) return 0;
+            int before = data.party.Count + data.storage.Count;
+            data.party.RemoveAll(x => x == null || database.GetShadow(x.shadowId) == null);
+            data.storage.RemoveAll(x => x == null || database.GetShadow(x.shadowId) == null);
+            int removed = before - data.party.Count - data.storage.Count;
+
+            if (data.party.Count == 0 && data.storage.Count > 0)
+            {
+                data.party.Add(data.storage[0]);
+                data.storage.RemoveAt(0);
+            }
+            if (data.party.Count == 0)
+            {
+                ShadowData fallback = database.GetShadow(data.starterShadowId)
+                                      ?? database.GetShadow("knight")
+                                      ?? database.shadows.Find(x => x != null);
+                if (fallback != null)
+                {
+                    data.party.Add(new ShadowInstance(fallback, 5));
+                    data.starterShadowId = fallback.shadowId;
+                    if (!data.seenShadowIds.Contains(fallback.shadowId)) data.seenShadowIds.Add(fallback.shadowId);
+                    if (!data.recordedShadowIds.Contains(fallback.shadowId)) data.recordedShadowIds.Add(fallback.shadowId);
+                }
+            }
+            return Mathf.Max(0, removed);
         }
 
         /// <summary>도감 기록은 남았지만 파티·서고에서 사라진 구버전 포획 개체를 복구한다.</summary>

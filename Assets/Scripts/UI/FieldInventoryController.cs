@@ -127,14 +127,7 @@ namespace ShadowTheater.UI
 
         private bool CanOpen()
         {
-            if (GameFlowController.Instance != null && GameFlowController.Instance.IsInBattle) return false;
-            if (DialogueController.Instance != null && DialogueController.Instance.IsPlaying) return false;
-            if (ScriptBookController.Instance != null && ScriptBookController.Instance.IsOpen) return false;
-            if (PartyStorageController.Instance != null && PartyStorageController.Instance.IsOpen) return false;
-            if (WorldMapController.Instance != null && WorldMapController.Instance.IsOpen) return false;
-            if (SettlementShopController.Instance != null && SettlementShopController.Instance.IsOpen) return false;
-            if (QuestLogController.Instance != null && QuestLogController.Instance.IsOpen) return false;
-            return true;
+            return FieldUiModalState.CanOpen(FieldUiModal.Inventory);
         }
 
         private static void Rebuild(Transform parent)

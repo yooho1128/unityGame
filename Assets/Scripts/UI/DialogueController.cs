@@ -82,6 +82,7 @@ namespace ShadowTheater.UI
         public bool Play(string dialogueId, Color accent, Action onComplete = null)
         {
             if (IsPlaying) return false;
+            if (!FieldUiModalState.CanOpen(FieldUiModal.Dialogue)) return false;
             if (!DialogueRepository.TryGet(dialogueId, out var sequence) || !HasContent(sequence))
             {
                 Debug.LogWarning($"[Dialogue] 비어 있거나 존재하지 않는 대화: {dialogueId}");

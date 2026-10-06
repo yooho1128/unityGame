@@ -92,18 +92,18 @@ namespace ShadowTheater.Battle
         #region Public API
 
         /// <summary>전투 시작. EncounterTrigger → (Fade Out) → 이 메서드 호출</summary>
-        public void StartBattle(BattleContext context)
+        public bool StartBattle(BattleContext context)
         {
             if (State != BattleState.None && !IsEnded)
             {
                 Debug.LogWarning("[BattleManager] 이미 전투 중");
-                return;
+                return false;
             }
             if (context?.playerParty == null || context.enemyParty == null ||
                 context.playerParty.Count == 0 || context.enemyParty.Count == 0)
             {
                 Debug.LogError("[BattleManager] BattleContext 파티 정보 누락");
-                return;
+                return false;
             }
 
             Context = context;
@@ -117,7 +117,7 @@ namespace ShadowTheater.Battle
             if (_playerIdx < 0)
             {
                 Debug.LogError("[BattleManager] 싸울 수 있는 그림자가 없음");
-                return;
+                return false;
             }
             _playerParticipants.Clear();
             _bossPhaseActivated.Clear();
@@ -136,6 +136,7 @@ namespace ShadowTheater.Battle
             _presenter.SetSpeed(context.timeScale);
             if (_routine != null) StopCoroutine(_routine);
             _routine = StartCoroutine(BattleRoutine());
+            return true;
         }
 
         /// <summary>UI 버튼 → 플레이어 행동 제출. 유효하지 않으면 false</summary>

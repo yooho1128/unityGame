@@ -136,6 +136,10 @@ namespace ShadowTheater.Field
 
             foreach (var e in ctx.enemyParty) SaveManager.MarkSeen(e.shadowId);
 
+            // BattleUnit은 SaveData의 ShadowInstance HP를 직접 변경한다. 앱이 전투 도중 종료돼도
+            // 절반만 정산된 상태가 저장되지 않도록 전투 시작 직전의 일관된 체크포인트를 남긴다.
+            SaveManager.Instance?.Save();
+
             // ── 진입 ──
             FieldAmbientAudio.Instance?.BeginFadeOut();
             AdaptiveMusicDirector.Instance?.EnterBattle(ctx.mode);
@@ -148,7 +152,19 @@ namespace ShadowTheater.Field
             BattleOutcome outcome = null;
             void Handler(BattleOutcome o) => outcome = o;
             battleManager.OnBattleEnded += Handler;
-            battleManager.StartBattle(ctx);
+            if (!battleManager.StartBattle(ctx))
+            {
+                battleManager.OnBattleEnded -= Handler;
+                Debug.LogError($"[GameFlow] 전투 시작 실패, 필드로 복구합니다: {ctx.encounterId}");
+                battleRoot.SetActive(false);
+                fieldRoot.SetActive(true);
+                AdaptiveMusicDirector.Instance?.ReturnToField();
+                symbol?.Freeze(false);
+                player.Unlock();
+                IsInBattle = false;
+                yield return ScreenFader.Instance.FadeIn();
+                yield break;
+            }
 
             yield return ScreenFader.Instance.FadeIn();
 

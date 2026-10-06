@@ -55,8 +55,7 @@ namespace ShadowTheater.UI
         public void Open()
         {
             if (IsOpen || SaveManager.Current == null) return;
-            if (GameFlowController.Instance != null && GameFlowController.Instance.IsInBattle) return;
-            if (DialogueController.Instance != null && DialogueController.Instance.IsPlaying) return;
+            if (!FieldUiModalState.CanOpen(FieldUiModal.Party)) return;
             IsOpen = true; root?.SetActive(true);
             if (PlayerController.Instance != null) { PlayerController.Instance.MoveInput = Vector2.zero; PlayerController.Instance.Lock(); _lockedPlayer = true; }
             _selected = null; Refresh();

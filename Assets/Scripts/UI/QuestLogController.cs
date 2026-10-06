@@ -75,7 +75,7 @@ namespace ShadowTheater.UI
                 rewardText.text=(_selectedProgress.completed?L10n.Get("questlog.received","획득 완료"):L10n.Get("questlog.reward","완료 보상"))+" · "+reward;
             }
         }
-        private bool CanOpen(){if(GameFlowController.Instance!=null&&GameFlowController.Instance.IsInBattle)return false;if(DialogueController.Instance!=null&&DialogueController.Instance.IsPlaying)return false;if(ScriptBookController.Instance!=null&&ScriptBookController.Instance.IsOpen)return false;if(PartyStorageController.Instance!=null&&PartyStorageController.Instance.IsOpen)return false;if(WorldMapController.Instance!=null&&WorldMapController.Instance.IsOpen)return false;if(SettlementShopController.Instance!=null&&SettlementShopController.Instance.IsOpen)return false;if(FieldInventoryController.Instance!=null&&FieldInventoryController.Instance.IsOpen)return false;return true;}
+        private bool CanOpen()=>FieldUiModalState.CanOpen(FieldUiModal.QuestLog);
         private void RefreshIfOpen(){if(IsOpen)Refresh();}private void ReleasePlayer(){if(!_lockedPlayer)return;PlayerController.Instance?.Unlock();_lockedPlayer=false;}
     }
 }

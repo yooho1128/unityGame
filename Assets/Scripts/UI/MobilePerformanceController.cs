@@ -71,7 +71,7 @@ namespace ShadowTheater.UI
 
         private void OnLowMemory()
         {
-            SaveManager.Instance?.Save();
+            SaveManager.Instance?.SaveForSuspend();
             StartCoroutine(ReleaseUnusedAssets(true));
         }
 
