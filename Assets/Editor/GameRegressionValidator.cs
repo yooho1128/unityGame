@@ -76,6 +76,7 @@ namespace ShadowTheater.EditorTools
             ValidateQuestRewards(result);
             ValidateFinalArt(result);
             ValidateMusic(result);
+            ValidateFrontEnd(result);
             ValidateScenes(regions, result);
             ValidateBuildSettings(regions, result);
             return result;
@@ -515,6 +516,25 @@ namespace ShadowTheater.EditorTools
             for (int i = 0; i < clips.arraySize; i++)
                 if (clips.GetArrayElementAtIndex(i).objectReferenceValue == null)
                     result.errors.Add($"음악 클립 누락: {(MusicCue)i}");
+        }
+
+        private static void ValidateFrontEnd(ValidationReport result)
+        {
+            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/UI/TitleCanvas.prefab");
+            TitleScreenController title = prefab != null ? prefab.GetComponent<TitleScreenController>() : null;
+            if (title == null)
+            {
+                result.errors.Add("TitleCanvas 또는 TitleScreenController 누락");
+                return;
+            }
+            var so = new SerializedObject(title);
+            foreach (string property in new[]
+                     {
+                         "titleRoot", "continueButton", "newCycleButton", "newGameConfirmRoot",
+                         "saveSummaryText", "feedbackText", "starterSelection", "endingGallery", "settingsPanel"
+                     })
+                if (so.FindProperty(property)?.objectReferenceValue == null)
+                    result.errors.Add($"타이틀 UI {property} 참조 누락");
         }
 
         private static void ValidateScenes(List<RegionData> regions, ValidationReport result)

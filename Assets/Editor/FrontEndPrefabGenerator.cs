@@ -74,6 +74,9 @@ namespace ShadowTheater.EditorTools
                 new Vector2(0.88f, 0.57f), 25, FontStyle.Normal, TextAnchor.MiddleCenter);
             subtitle.text = "잊힌 비극의 마지막 장면을 기록하라";
             subtitle.color = new Color(0.66f, 0.62f, 0.76f, 1f);
+            var saveSummary = CreateText("SaveSummary", titleRoot, new Vector2(.12f,.425f), new Vector2(.88f,.485f),
+                21, FontStyle.Normal, TextAnchor.MiddleCenter);
+            saveSummary.color = new Color(.62f,.78f,.88f,1f);
 
             var newButton = CreateButton("NewGameButton", titleRoot, new Vector2(0.19f, 0.34f),
                 new Vector2(0.81f, 0.41f), "새로운 기억", new Color(0.38f, 0.20f, 0.65f, 1f));
@@ -85,6 +88,24 @@ namespace ShadowTheater.EditorTools
                 new Vector2(0.49f, 0.14f), "엔딩 기록관", new Color(0.10f, 0.08f, 0.18f, 1f));
             var settingsButton = CreateButton("SettingsButton", titleRoot, new Vector2(0.51f, 0.07f),
                 new Vector2(0.81f, 0.14f), "설정", new Color(0.10f, 0.08f, 0.18f, 1f));
+            var titleFeedback = CreateText("Feedback", titleRoot, new Vector2(.08f,.015f), new Vector2(.92f,.06f),
+                18, FontStyle.Bold, TextAnchor.MiddleCenter);
+
+            var newGameConfirm = CreateRect("NewGameConfirm", root.transform, Vector2.zero, Vector2.one);
+            newGameConfirm.gameObject.AddComponent<Image>().color = new Color(.008f,.005f,.02f,.88f);
+            var confirmCard = CreateRect("Card", newGameConfirm, new Vector2(.16f,.35f), new Vector2(.84f,.66f));
+            confirmCard.gameObject.AddComponent<Image>().color = new Color(.055f,.034f,.095f,.995f);
+            var confirmTitle = CreateText("Title", confirmCard, new Vector2(.07f,.68f), new Vector2(.93f,.92f),
+                34, FontStyle.Bold, TextAnchor.MiddleCenter);
+            confirmTitle.text = "기존 기억을 덮어쓸까요?";
+            var confirmBody = CreateText("Body", confirmCard, new Vector2(.08f,.37f), new Vector2(.92f,.68f),
+                22, FontStyle.Normal, TextAnchor.MiddleCenter);
+            confirmBody.text = "새로운 기억을 시작하면 현재 진행은 교체됩니다.\n엔딩을 완료했다면 다음 회차 시작을 이용하세요.";
+            confirmBody.color = new Color(.78f,.73f,.84f);
+            var confirmCancel = CreateButton("Cancel", confirmCard, new Vector2(.08f,.09f), new Vector2(.45f,.29f),
+                "취소", new Color(.09f,.07f,.16f,1f));
+            var confirmAccept = CreateButton("Accept", confirmCard, new Vector2(.55f,.09f), new Vector2(.92f,.29f),
+                "새 게임", new Color(.48f,.16f,.30f,1f));
 
             var galleryRoot = CreateRect("EndingGalleryRoot", root.transform, Vector2.zero, Vector2.one);
             galleryRoot.gameObject.AddComponent<Image>().color = new Color(.018f,.012f,.045f,.98f);
@@ -180,6 +201,9 @@ namespace ShadowTheater.EditorTools
             controllerSo.FindProperty("titleRoot").objectReferenceValue = titleRoot.gameObject;
             controllerSo.FindProperty("continueButton").objectReferenceValue = continueButton;
             controllerSo.FindProperty("newCycleButton").objectReferenceValue = cycleButton;
+            controllerSo.FindProperty("newGameConfirmRoot").objectReferenceValue = newGameConfirm.gameObject;
+            controllerSo.FindProperty("saveSummaryText").objectReferenceValue = saveSummary;
+            controllerSo.FindProperty("feedbackText").objectReferenceValue = titleFeedback;
             controllerSo.FindProperty("starterSelection").objectReferenceValue = selection;
             controllerSo.FindProperty("endingGallery").objectReferenceValue = root.GetComponent<EndingGalleryController>();
             controllerSo.FindProperty("settingsPanel").objectReferenceValue = root.GetComponent<SettingsPanelController>();
@@ -216,6 +240,8 @@ namespace ShadowTheater.EditorTools
             settingsSo.ApplyModifiedPropertiesWithoutUndo();
 
             UnityEditor.Events.UnityEventTools.AddPersistentListener(newButton.onClick, controller.NewGame);
+            UnityEditor.Events.UnityEventTools.AddPersistentListener(confirmCancel.onClick, controller.CancelNewGame);
+            UnityEditor.Events.UnityEventTools.AddPersistentListener(confirmAccept.onClick, controller.ConfirmNewGame);
             UnityEditor.Events.UnityEventTools.AddPersistentListener(continueButton.onClick, controller.ContinueGame);
             UnityEditor.Events.UnityEventTools.AddPersistentListener(cycleButton.onClick, controller.NewCycle);
             UnityEditor.Events.UnityEventTools.AddPersistentListener(galleryButton.onClick, gallery.Open);
@@ -234,6 +260,7 @@ namespace ShadowTheater.EditorTools
             starterRoot.gameObject.SetActive(false);
             galleryRoot.gameObject.SetActive(false);
             settingsRoot.gameObject.SetActive(false);
+            newGameConfirm.gameObject.SetActive(false);
 
             PrefabUtility.SaveAsPrefabAsset(root, UiFolder + "/TitleCanvas.prefab");
             Object.DestroyImmediate(root);

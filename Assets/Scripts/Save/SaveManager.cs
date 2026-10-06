@@ -9,6 +9,8 @@ using UnityEngine;
 
 namespace ShadowTheater.Save
 {
+    public enum SaveLoadFailure { None, NoFile, Corrupt, FutureVersion }
+
     /// <summary>
     /// 세이브/로드 + 진행 상태 조회 창구. 게임 전체에서 SaveManager.Current로 현재 진행 데이터에 접근.
     ///
@@ -22,6 +24,7 @@ namespace ShadowTheater.Save
         public static SaveData Current => Instance != null ? Instance._current : null;
         public bool LastLoadUsedBackup { get; private set; }
         public string LastMigrationReport { get; private set; }
+        public SaveLoadFailure LastLoadFailure { get; private set; }
 
         [SerializeField] private int slot = 0;
         [SerializeField] private bool autoSaveOnPause = true;
@@ -161,15 +164,33 @@ namespace ShadowTheater.Save
         public bool Load()
         {
             LastLoadUsedBackup = false;
+            LastLoadFailure = SaveLoadFailure.None;
+            if (!HasSave())
+            {
+                LastLoadFailure = SaveLoadFailure.NoFile;
+                return false;
+            }
             var data = TryRead(SavePath, out bool futureVersion);
-            if (futureVersion) return false;
+            if (futureVersion)
+            {
+                LastLoadFailure = SaveLoadFailure.FutureVersion;
+                return false;
+            }
             if (data == null)
             {
                 data = TryRead(BackupPath, out futureVersion);
-                if (futureVersion) return false;
+                if (futureVersion)
+                {
+                    LastLoadFailure = SaveLoadFailure.FutureVersion;
+                    return false;
+                }
                 LastLoadUsedBackup = data != null;
             }
-            if (data == null) return false;
+            if (data == null)
+            {
+                LastLoadFailure = SaveLoadFailure.Corrupt;
+                return false;
+            }
 
             int sourceVersion = data.version;
             Migrate(data, out string migrationReport);
