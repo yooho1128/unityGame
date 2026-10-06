@@ -717,6 +717,7 @@ namespace ShadowTheater.EditorTools
                         var pauseSo = new SerializedObject(pauseMenu);
                         if (pauseSo.FindProperty("root")?.objectReferenceValue == null ||
                             pauseSo.FindProperty("masterSlider")?.objectReferenceValue == null ||
+                            pauseSo.FindProperty("recoverPositionButton")?.objectReferenceValue == null ||
                             pauseSo.FindProperty("titleConfirmRoot")?.objectReferenceValue == null)
                             result.errors.Add($"{region.sceneName}: 필드 메뉴 참조 누락");
                     }

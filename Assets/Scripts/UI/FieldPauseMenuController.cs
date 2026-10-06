@@ -27,6 +27,7 @@ namespace ShadowTheater.UI
         [SerializeField] private Text musicValue;
         [SerializeField] private Text ambienceValue;
         [SerializeField] private Text sfxValue;
+        [SerializeField] private Button recoverPositionButton;
 
         private bool _lockedPlayer;
         private bool _refreshing;
@@ -124,6 +125,47 @@ namespace ShadowTheater.UI
             RefreshStatus();
         }
 
+        public void RecoverSafePosition()
+        {
+            var save = SaveManager.Current;
+            var player = PlayerController.Instance;
+            if (!IsOpen || _returning || save == null || player == null) return;
+
+            string currentMap = FieldGrid.Current != null ? FieldGrid.Current.MapId : save.mapId;
+            if (!string.IsNullOrEmpty(save.checkpointMapId) && save.checkpointMapId != currentMap)
+            {
+                string checkpointMap = save.checkpointMapId;
+                var checkpoint = new Vector2Int(save.checkpointX, save.checkpointY);
+                Close();
+                if (MapLoader.Instance != null && MapLoader.Instance.TravelTo(
+                        checkpointMap, checkpoint, FacingDir.Down, true)) return;
+                Open();
+                if (feedbackText != null)
+                    feedbackText.text = L10n.Get("menu.recover_failed", "안전 위치로 이동할 수 없습니다.");
+                return;
+            }
+
+            var requested = new Vector2Int(save.checkpointX, save.checkpointY);
+            var region = RegionRepository.GetByScene(currentMap);
+            var fallback = region != null ? region.ArrivalCell : player.Cell;
+            if (!player.SnapToSafeCell(requested, fallback, out Vector2Int resolved))
+            {
+                if (feedbackText != null)
+                    feedbackText.text = L10n.Get("menu.recover_failed", "안전 위치로 이동할 수 없습니다.");
+                return;
+            }
+
+            save.mapId = currentMap;
+            save.tileX = save.checkpointX = resolved.x;
+            save.tileY = save.checkpointY = resolved.y;
+            save.checkpointMapId = currentMap;
+            player.SetFacing(FacingDir.Down);
+            SaveManager.Instance.Save(false);
+            if (feedbackText != null)
+                feedbackText.text = L10n.Get("menu.recovered", "가까운 안전 위치로 복귀했습니다.");
+            RefreshStatus();
+        }
+
         public void OpenPartyManagement()
         {
             if (!IsOpen || _returning) return;
@@ -208,6 +250,7 @@ namespace ShadowTheater.UI
                 playTimeText.text = L10n.Format("menu.playtime_value", "플레이 시간 · {0}", time);
             }
             if (goldText != null) goldText.text = L10n.Format("menu.gold_value", "보유 금화 · {0:N0}", save.gold);
+            if (recoverPositionButton != null) recoverPositionButton.interactable = !_returning;
         }
 
         private void RefreshAudio()
