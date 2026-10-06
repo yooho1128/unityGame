@@ -10,6 +10,7 @@ Unity 메뉴 `Tools > Shadow Theater > Generate and Validate Full Game`을 실�
 - 지역 확장 로스터 97종과 최종 ShadowDatabase 180종이 중복 없이 생성됐는지
 - 40개 필드마다 FieldGrid, Player, GameFlow, 포털이 있는지
 - 모든 포털의 대상 씬이 실제 40개 지역 중 하나인지
+- 40개 씬의 바닥/충돌 Tilemap 참조, 월드맵 및 모든 포털 도착 좌표가 실제 이동 가능한 타일인지
 - 심볼 인카운터에 ShadowData가 연결됐는지
 - Missing Script가 남아 있지 않은지
 - Title과 40개 필드가 Build Settings에서 활성화됐는지
@@ -30,6 +31,8 @@ CI에서는 Unity batchmode에 아래 메서드를 지정하면 오류가 하나
 - 주 파일을 읽지 못하면 `.bak`을 복구하고 손상본은 `.corrupt_yyyyMMddHHmmss`로 남긴다.
 - 현재 `ShadowDatabase`에 없는 그림자 개체는 로드 전에 제거하고, 빈 파티는 서고·스타터·기본 기사
   순서로 복구해 능력치 계산 예외와 이어하기 불가를 막는다.
+- 저장 좌표나 체크포인트가 맵 수정 뒤 벽·절벽·물·바닥 밖이 되면 같은 맵의 가장 가까운 이동 가능 칸으로
+  교정하고 즉시 다시 저장한다.
 - 전투 시작 직전에 일관된 체크포인트를 저장하고, 전투 중 앱 중단 저장은 건너뛰어 HP·소모품·보상이
   절반만 반영되는 상태를 방지한다.
 

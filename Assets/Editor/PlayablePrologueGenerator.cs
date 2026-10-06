@@ -713,6 +713,7 @@ namespace ShadowTheater.EditorTools
 
             var gridSo = new SerializedObject(gridObject.GetComponent<FieldGrid>());
             Set(gridSo, "mapId", mapId);
+            Set(gridSo, "groundTilemap", ground);
             Set(gridSo, "collisionTilemap", collision);
             gridSo.FindProperty("unitMask").intValue = 1 << 0;
             gridSo.ApplyModifiedPropertiesWithoutUndo();

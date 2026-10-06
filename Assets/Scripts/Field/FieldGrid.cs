@@ -15,6 +15,8 @@ namespace ShadowTheater.Field
         public static FieldGrid Current { get; private set; }
 
         [SerializeField] private string mapId = "Prologue";
+        [Tooltip("이동 가능한 바닥을 그린 Tilemap. 지정하면 바닥이 없는 맵 밖 좌표도 차단")]
+        [SerializeField] private Tilemap groundTilemap;
         [Tooltip("벽/물 등 이동 불가 타일을 그린 Tilemap (렌더러 꺼둬도 됨)")]
         [SerializeField] private Tilemap collisionTilemap;
         [Tooltip("나무, 상자 등 오브젝트 콜라이더 레이어")]
@@ -54,6 +56,8 @@ namespace ShadowTheater.Field
         /// <param name="self">판정에서 제외할 자기 자신 콜라이더</param>
         public bool IsBlocked(Vector2Int cell, Collider2D self = null, bool checkUnits = true)
         {
+            if (groundTilemap != null && !groundTilemap.HasTile(new Vector3Int(cell.x, cell.y, 0)))
+                return true;
             if (collisionTilemap != null && collisionTilemap.HasTile(new Vector3Int(cell.x, cell.y, 0)))
                 return true;
 
@@ -69,6 +73,37 @@ namespace ShadowTheater.Field
                 foreach (var h in hits)
                     if (h != self && !h.isTrigger) return true;
             }
+            return false;
+        }
+
+        /// <summary>
+        /// 저장 좌표나 포털 도착점이 맵 수정으로 막혔을 때 가장 가까운 이동 가능 칸을 찾는다.
+        /// 같은 거리에서는 아래→좌→우→위 순으로 안정적으로 선택해 실행마다 위치가 달라지지 않는다.
+        /// </summary>
+        public bool TryFindNearestWalkable(Vector2Int requested, out Vector2Int resolved,
+                                           Collider2D self = null, int maxRadius = 12, bool checkUnits = true)
+        {
+            if (!IsBlocked(requested, self, checkUnits)) { resolved = requested; return true; }
+            int limit = Mathf.Max(1, maxRadius);
+            Vector2Int[] directions = { Vector2Int.down, Vector2Int.left, Vector2Int.right, Vector2Int.up };
+            for (int radius = 1; radius <= limit; radius++)
+            {
+                foreach (Vector2Int direction in directions)
+                {
+                    Vector2Int edge = requested + direction * radius;
+                    if (!IsBlocked(edge, self, checkUnits)) { resolved = edge; return true; }
+                }
+                for (int y = -radius; y <= radius; y++)
+                {
+                    int x = radius - Mathf.Abs(y);
+                    if (x <= 0) continue;
+                    var left = requested + new Vector2Int(-x, y);
+                    if (!IsBlocked(left, self, checkUnits)) { resolved = left; return true; }
+                    var right = requested + new Vector2Int(x, y);
+                    if (!IsBlocked(right, self, checkUnits)) { resolved = right; return true; }
+                }
+            }
+            resolved = requested;
             return false;
         }
 

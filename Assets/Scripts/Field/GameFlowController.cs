@@ -81,7 +81,25 @@ namespace ShadowTheater.Field
 
             yield return null;
             var save = SaveManager.Current;
-            PlayerController.Instance.SnapToCell(new Vector2Int(save.tileX, save.tileY));
+            var requested = new Vector2Int(save.tileX, save.tileY);
+            var region = RegionRepository.GetByScene(FieldGrid.Current != null ? FieldGrid.Current.MapId : save.mapId);
+            var fallback = region != null ? region.ArrivalCell : PlayerController.Instance.Cell;
+            if (PlayerController.Instance.SnapToSafeCell(requested, fallback, out Vector2Int resolved) &&
+                resolved != requested)
+            {
+                save.tileX = resolved.x;
+                save.tileY = resolved.y;
+                if (save.checkpointMapId == save.mapId && save.checkpointX == requested.x &&
+                    save.checkpointY == requested.y)
+                {
+                    save.checkpointX = resolved.x;
+                    save.checkpointY = resolved.y;
+                }
+                Debug.LogWarning($"[GameFlow] 막힌 저장 좌표 {requested}를 {resolved}(으)로 복구했습니다.");
+                SaveManager.Instance.Save(false);
+                SaveFeedbackController.Instance?.ShowMessage(
+                    L10n.Get("save.position_recovered", "막힌 위치에서 가까운 안전한 길로 이동했습니다."));
+            }
             PlayerController.Instance.SetFacing((FacingDir)save.facing);
         }
 
@@ -236,7 +254,16 @@ namespace ShadowTheater.Field
         private void RespawnAtCheckpoint()
         {
             var save = SaveManager.Current;
-            PlayerController.Instance.SnapToCell(new Vector2Int(save.checkpointX, save.checkpointY));
+            var requested = new Vector2Int(save.checkpointX, save.checkpointY);
+            var region = RegionRepository.GetByScene(save.mapId);
+            var fallback = region != null ? region.ArrivalCell : Vector2Int.zero;
+            if (PlayerController.Instance.SnapToSafeCell(requested, fallback, out Vector2Int resolved))
+            {
+                save.checkpointX = resolved.x;
+                save.checkpointY = resolved.y;
+                save.tileX = resolved.x;
+                save.tileY = resolved.y;
+            }
             PlayerController.Instance.SetFacing(FacingDir.Down);
         }
 

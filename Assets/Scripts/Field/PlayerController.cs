@@ -74,6 +74,21 @@ namespace ShadowTheater.Field
             transform.position = FieldGrid.Current.CellToWorld(cell);
         }
 
+        /// <summary>요청 칸이 벽·절벽·맵 밖이면 주변, 그다음 안전 기준점 주변으로 복구한다.</summary>
+        public bool SnapToSafeCell(Vector2Int requested, Vector2Int fallback, out Vector2Int resolved)
+        {
+            var grid = FieldGrid.Current;
+            if (grid != null && (grid.TryFindNearestWalkable(requested, out resolved, _collider) ||
+                                 grid.TryFindNearestWalkable(fallback, out resolved, _collider)))
+            {
+                SnapToCell(resolved);
+                return true;
+            }
+            resolved = fallback;
+            Debug.LogError($"[Player] 이동 가능한 복구 좌표를 찾지 못했습니다: {requested} / {fallback}");
+            return false;
+        }
+
         public void SetFacing(FacingDir dir)
         {
             Facing = dir;

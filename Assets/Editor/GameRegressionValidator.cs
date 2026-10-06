@@ -563,6 +563,7 @@ namespace ShadowTheater.EditorTools
 
         private static void ValidateScenes(List<RegionData> regions, ValidationReport result)
         {
+            var portalLinks = new List<PortalValidationLink>();
             foreach (var region in regions)
             {
                 string path = $"{SceneFolder}/{region.sceneName}.unity";
@@ -574,7 +575,19 @@ namespace ShadowTheater.EditorTools
                 try
                 {
                     var roots = scene.GetRootGameObjects();
-                    if (!roots.Any(x => x.GetComponentInChildren<FieldGrid>(true) != null)) result.errors.Add($"{region.sceneName}: FieldGrid 누락");
+                    FieldGrid fieldGrid = roots.SelectMany(x => x.GetComponentsInChildren<FieldGrid>(true)).FirstOrDefault();
+                    if (fieldGrid == null) result.errors.Add($"{region.sceneName}: FieldGrid 누락");
+                    else
+                    {
+                        var gridSo = new SerializedObject(fieldGrid);
+                        if (gridSo.FindProperty("groundTilemap")?.objectReferenceValue == null ||
+                            gridSo.FindProperty("collisionTilemap")?.objectReferenceValue == null)
+                            result.errors.Add($"{region.sceneName}: 바닥/충돌 Tilemap 참조 누락");
+                        if (!fieldGrid.TryFindNearestWalkable(region.ArrivalCell, out Vector2Int arrival,
+                                null, 12, false) ||
+                            arrival != region.ArrivalCell)
+                            result.errors.Add($"{region.sceneName}: 월드맵 도착 좌표가 막힘 {region.ArrivalCell}");
+                    }
                     if (!roots.Any(x => x.GetComponentInChildren<PlayerController>(true) != null)) result.errors.Add($"{region.sceneName}: Player 누락");
                     if (!roots.Any(x => x.GetComponentInChildren<GameFlowController>(true) != null)) result.errors.Add($"{region.sceneName}: GameFlow 누락");
                     GameObject fieldRoot = roots.FirstOrDefault(x => x.GetComponentInChildren<FieldGrid>(true) != null);
@@ -761,12 +774,50 @@ namespace ShadowTheater.EditorTools
                         string target = so.FindProperty("targetScene")?.stringValue;
                         if (string.IsNullOrEmpty(target) || !regions.Any(x => x.sceneName == target))
                             result.errors.Add($"{region.sceneName}: 잘못된 포털 대상 {target}");
+                        else
+                        {
+                            SerializedProperty arrivalProperty = so.FindProperty("arrivalCell");
+                            if (arrivalProperty != null)
+                                portalLinks.Add(new PortalValidationLink
+                                {
+                                    sourceScene = region.sceneName,
+                                    portalName = portal.name,
+                                    targetScene = target,
+                                    arrivalCell = arrivalProperty.vector2IntValue
+                                });
+                        }
                     }
                     foreach (EncounterSymbol encounter in encounters)
                     {
                         var so = new SerializedObject(encounter);
                         if (so.FindProperty("leadShadow")?.objectReferenceValue == null)
                             result.errors.Add($"{region.sceneName}: {encounter.name} 적 데이터 누락");
+                    }
+                }
+                finally { if (closeAfter) EditorSceneManager.CloseScene(scene, true); }
+            }
+            ValidatePortalArrivals(portalLinks, result);
+        }
+
+        private static void ValidatePortalArrivals(List<PortalValidationLink> links, ValidationReport result)
+        {
+            foreach (var group in links.GroupBy(x => x.targetScene))
+            {
+                string path = $"{SceneFolder}/{group.Key}.unity";
+                if (!File.Exists(path)) continue;
+                Scene scene = SceneManager.GetSceneByPath(path);
+                bool closeAfter = !scene.IsValid() || !scene.isLoaded;
+                if (closeAfter) scene = EditorSceneManager.OpenScene(path, OpenSceneMode.Additive);
+                try
+                {
+                    FieldGrid grid = scene.GetRootGameObjects()
+                        .SelectMany(x => x.GetComponentsInChildren<FieldGrid>(true)).FirstOrDefault();
+                    if (grid == null) continue;
+                    foreach (PortalValidationLink link in group)
+                    {
+                        if (grid.TryFindNearestWalkable(link.arrivalCell, out Vector2Int resolved,
+                                null, 12, false) && resolved == link.arrivalCell) continue;
+                        result.errors.Add($"{link.sourceScene}/{link.portalName}: {link.targetScene} 도착 좌표가 막힘 {link.arrivalCell}");
                     }
                 }
                 finally { if (closeAfter) EditorSceneManager.CloseScene(scene, true); }
@@ -794,6 +845,11 @@ namespace ShadowTheater.EditorTools
 
         [Serializable] private class RosterManifest { public List<RosterEntry> entries; }
         [Serializable] private class RosterEntry { public string shadowId, regionId, sceneName; public int minLevel, maxLevel; }
+        private class PortalValidationLink
+        {
+            public string sourceScene, portalName, targetScene;
+            public Vector2Int arrivalCell;
+        }
         private class ValidationReport
         {
             public int regions, scenes, shadows, portals, encounters;
