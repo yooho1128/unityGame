@@ -554,8 +554,12 @@ namespace ShadowTheater.EditorTools
                             battleSo.FindProperty("resultTitleText")?.objectReferenceValue == null ||
                             battleSo.FindProperty("resultSummaryText")?.objectReferenceValue == null ||
                             battleSo.FindProperty("resultDetailsText")?.objectReferenceValue == null ||
+                            battleSo.FindProperty("tutorialRoot")?.objectReferenceValue == null ||
+                            battleSo.FindProperty("tutorialStepText")?.objectReferenceValue == null ||
+                            battleSo.FindProperty("tutorialTitleText")?.objectReferenceValue == null ||
+                            battleSo.FindProperty("tutorialBodyText")?.objectReferenceValue == null ||
                             battleSo.FindProperty("recordText")?.objectReferenceValue == null)
-                            result.errors.Add($"{region.sceneName}: 전투 파티 스트립·선택 목록·메시지·결과 카드·기록 확률 참조 누락");
+                            result.errors.Add($"{region.sceneName}: 전투 파티 스트립·선택 목록·메시지·결과 카드·튜토리얼·기록 확률 참조 누락");
                         foreach (BattlePartyStrip strip in battleUi.GetComponentsInChildren<BattlePartyStrip>(true))
                         {
                             SerializedProperty slots = new SerializedObject(strip).FindProperty("slots");

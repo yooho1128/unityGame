@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using ShadowTheater.Battle;
 using ShadowTheater.Data;
+using ShadowTheater.Save;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -39,17 +40,26 @@ namespace ShadowTheater.UI
         [SerializeField] private Text resultSummaryText;
         [SerializeField] private Text resultDetailsText;
         [SerializeField] private Text resultContinueText;
+        [Header("첫 전투 안내")]
+        [SerializeField] private GameObject tutorialRoot;
+        [SerializeField] private Text tutorialStepText;
+        [SerializeField] private Text tutorialTitleText;
+        [SerializeField] private Text tutorialBodyText;
+        [SerializeField] private Text tutorialNextText;
         [SerializeField, Min(0f)] private float messageDuration = 0.55f;
 
         private readonly List<GameObject> _options = new List<GameObject>();
         private float _speed = 1f;
         private bool _resultAcknowledged;
+        private int _tutorialStep = -1;
+        private const string BattleTutorialFlag = "tutorial_battle_complete";
 
         private void Awake()
         {
             if (manager == null) manager = GetComponent<BattleManager>();
             if (optionTemplate != null) optionTemplate.gameObject.SetActive(false);
             if (resultRoot != null) resultRoot.SetActive(false);
+            if (tutorialRoot != null) tutorialRoot.SetActive(false);
             ShowActions(false);
         }
 
@@ -66,6 +76,8 @@ namespace ShadowTheater.UI
         {
             _resultAcknowledged = true;
             if (resultRoot != null) resultRoot.SetActive(false);
+            if (tutorialRoot != null) tutorialRoot.SetActive(false);
+            _tutorialStep = -1;
             if (manager == null) return;
             manager.OnStateChanged -= OnStateChanged;
             manager.OnFpChanged -= OnFpChanged;
@@ -188,6 +200,16 @@ namespace ShadowTheater.UI
 
         public void ConfirmResult() => _resultAcknowledged = true;
 
+        public void NextTutorial()
+        {
+            if (_tutorialStep < 0) return;
+            _tutorialStep++;
+            if (_tutorialStep >= 3) CompleteTutorial();
+            else RefreshTutorial();
+        }
+
+        public void SkipTutorial() => CompleteTutorial();
+
         private void Submit(BattleAction action)
         {
             if (!manager.SubmitAction(action)) return;
@@ -202,6 +224,41 @@ namespace ShadowTheater.UI
             else if (state == BattleState.ForcedSwitch) { ShowActions(false); OpenSwitches(); }
             else ShowActions(false);
             RefreshAll();
+            if (state == BattleState.WaitingForInput) TryOpenTutorial();
+        }
+
+        private void TryOpenTutorial()
+        {
+            if (tutorialRoot == null || manager.IsAuto || SaveManager.Current == null ||
+                SaveManager.HasFlag(BattleTutorialFlag) || _tutorialStep >= 0) return;
+            _tutorialStep = 0;
+            tutorialRoot.SetActive(true);
+            RefreshTutorial();
+        }
+
+        private void RefreshTutorial()
+        {
+            if (tutorialStepText != null) tutorialStepText.text = L10n.Format("battle.tutorial_step", "전투 안내 {0} / 3", _tutorialStep + 1);
+            if (tutorialTitleText != null) tutorialTitleText.text = L10n.Get("battle.tutorial_title_" + _tutorialStep,
+                _tutorialStep == 0 ? "공연 열기" : _tutorialStep == 1 ? "기술과 교체" : "각본 기록");
+            if (tutorialBodyText != null) tutorialBodyText.text = L10n.Get("battle.tutorial_body_" + _tutorialStep,
+                _tutorialStep == 0
+                    ? "기본 공격은 피해를 주고 FP를 1 생성합니다. 턴이 시작될 때도 FP를 1 얻습니다."
+                    : _tutorialStep == 1
+                        ? "FP를 소비해 고유 기술을 사용합니다. 불리하거나 HP가 낮다면 교체와 도구를 활용하세요."
+                        : "야생 그림자의 HP를 낮추면 기록 성공률이 올라갑니다. 각본 기록으로 동료를 수집하세요.");
+            if (tutorialNextText != null) tutorialNextText.text = _tutorialStep >= 2
+                ? L10n.Get("battle.tutorial_start", "전투 시작")
+                : L10n.Get("battle.tutorial_next", "다음");
+        }
+
+        private void CompleteTutorial()
+        {
+            if (_tutorialStep < 0) return;
+            _tutorialStep = -1;
+            if (tutorialRoot != null) tutorialRoot.SetActive(false);
+            SaveManager.SetFlag(BattleTutorialFlag);
+            SaveManager.Instance?.Save();
         }
 
         private void OnFpChanged(BattleSide side, int value) { if (side == BattleSide.Player) RefreshLabels(); }

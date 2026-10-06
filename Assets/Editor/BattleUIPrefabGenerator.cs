@@ -81,6 +81,22 @@ namespace ShadowTheater.EditorTools
             var resultContinue = Button("Continue", resultCard, new Vector2(0.30f, 0.07f), new Vector2(0.70f, 0.21f), "계속");
             result.gameObject.SetActive(false);
 
+            var tutorial = Rect("Tutorial", safeArea, Vector2.zero, Vector2.one);
+            tutorial.gameObject.AddComponent<Image>().color = new Color(0.008f, 0.005f, 0.02f, 0.82f);
+            var tutorialCard = Rect("Card", tutorial, new Vector2(0.25f, 0.20f), new Vector2(0.75f, 0.80f));
+            tutorialCard.gameObject.AddComponent<Image>().color = new Color(0.05f, 0.032f, 0.095f, 0.995f);
+            var tutorialAccent = Rect("Accent", tutorialCard, new Vector2(0f, 0.95f), Vector2.one).gameObject.AddComponent<Image>();
+            tutorialAccent.color = new Color(.48f,.78f,1f);
+            var tutorialStep = Text("Step", tutorialCard, new Vector2(.07f,.82f), new Vector2(.93f,.94f), 21, TextAnchor.MiddleCenter);
+            tutorialStep.color = new Color(.55f,.78f,1f);
+            var tutorialTitle = Text("Title", tutorialCard, new Vector2(.07f,.65f), new Vector2(.93f,.84f), 38, TextAnchor.MiddleCenter);
+            var tutorialBody = Text("Body", tutorialCard, new Vector2(.09f,.29f), new Vector2(.91f,.65f), 25, TextAnchor.MiddleCenter);
+            tutorialBody.horizontalOverflow = HorizontalWrapMode.Wrap;
+            tutorialBody.verticalOverflow = VerticalWrapMode.Truncate;
+            var tutorialSkip = Button("Skip", tutorialCard, new Vector2(.08f,.08f), new Vector2(.34f,.22f), "건너뛰기");
+            var tutorialNext = Button("Next", tutorialCard, new Vector2(.50f,.08f), new Vector2(.92f,.22f), "다음");
+            tutorial.gameObject.SetActive(false);
+
             var ui = root.GetComponent<BattleUIController>(); var so = new SerializedObject(ui);
             Set(so,"manager",root.GetComponent<BattleManager>()); Set(so,"playerPanel",player); Set(so,"enemyPanel",enemy);
             Set(so,"playerPartyStrip",playerParty); Set(so,"enemyPartyStrip",enemyParty);
@@ -93,6 +109,9 @@ namespace ShadowTheater.EditorTools
             so.Update(); Set(so,"resultRoot",result.gameObject); Set(so,"resultGroup",resultGroup); Set(so,"resultCard",resultCard);
             Set(so,"resultAccent",resultAccent); Set(so,"resultTitleText",resultTitle); Set(so,"resultSummaryText",resultSummary);
             Set(so,"resultDetailsText",resultDetails); Set(so,"resultContinueText",resultContinue.GetComponentInChildren<Text>()); so.ApplyModifiedPropertiesWithoutUndo();
+            so.Update(); Set(so,"tutorialRoot",tutorial.gameObject); Set(so,"tutorialStepText",tutorialStep);
+            Set(so,"tutorialTitleText",tutorialTitle); Set(so,"tutorialBodyText",tutorialBody);
+            Set(so,"tutorialNextText",tutorialNext.GetComponentInChildren<Text>()); so.ApplyModifiedPropertiesWithoutUndo();
             // 전투 연출은 UI보다 위에 그리되 좌표 계산은 안전영역을 기준으로 한다.
             var fxRoot = Rect("BattleFx", root.transform, Vector2.zero, Vector2.one);
             fxRoot.SetAsLastSibling();
@@ -108,6 +127,8 @@ namespace ShadowTheater.EditorTools
             UnityEditor.Events.UnityEventTools.AddPersistentListener(auto.onClick, ui.ToggleAuto);
             UnityEditor.Events.UnityEventTools.AddPersistentListener(speed.onClick, ui.CycleSpeed);
             UnityEditor.Events.UnityEventTools.AddPersistentListener(resultContinue.onClick, ui.ConfirmResult);
+            UnityEditor.Events.UnityEventTools.AddPersistentListener(tutorialNext.onClick, ui.NextTutorial);
+            UnityEditor.Events.UnityEventTools.AddPersistentListener(tutorialSkip.onClick, ui.SkipTutorial);
             PrefabUtility.SaveAsPrefabAsset(root, Path); Object.DestroyImmediate(root); AssetDatabase.SaveAssets(); AssetDatabase.Refresh();
             EditorGUIUtility.PingObject(AssetDatabase.LoadAssetAtPath<GameObject>(Path));
         }
