@@ -48,7 +48,10 @@ namespace ShadowTheater.EditorTools
 
         public static void ValidateImported(List<string> errors, List<string> warnings, bool requireBothPlatforms)
         {
-            var reports = LoadAll();
+            var invalidFiles = new List<string>();
+            var reports = LoadAll(invalidFiles);
+            foreach (string invalid in invalidFiles)
+                errors.Add("손상되었거나 지원하지 않는 실기기 QA 리포트: " + invalid);
             if (reports.Count == 0)
             {
                 (requireBothPlatforms ? errors : warnings).Add("가져온 실기기 QA 리포트가 없습니다");
@@ -75,7 +78,7 @@ namespace ShadowTheater.EditorTools
             if (!ios) errors.Add("통과한 iOS 실기기 QA 리포트가 없습니다");
         }
 
-        private static List<ReportFile> LoadAll()
+        private static List<ReportFile> LoadAll(List<string> invalidFiles = null)
         {
             var result = new List<ReportFile>();
             if (!Directory.Exists(ReportFolder)) return result;
@@ -83,6 +86,7 @@ namespace ShadowTheater.EditorTools
             {
                 DeviceValidationReport report = Parse(file);
                 if (report != null) result.Add(new ReportFile { path = file, report = report });
+                else invalidFiles?.Add(file);
             }
             return result;
         }
@@ -104,9 +108,13 @@ namespace ShadowTheater.EditorTools
         private static void WriteSummary()
         {
             Directory.CreateDirectory(Path.GetDirectoryName(SummaryPath));
-            var reports = LoadAll();
+            var invalidFiles = new List<string>();
+            var reports = LoadAll(invalidFiles);
             var text = new StringBuilder("# 실기기 QA 리포트\n\n");
             if (reports.Count == 0) text.AppendLine("가져온 리포트가 없습니다.");
+            foreach (string invalid in invalidFiles)
+                text.AppendLine("- INVALID · " + invalid);
+            if (invalidFiles.Count > 0) text.AppendLine();
             foreach (ReportFile item in reports.OrderByDescending(x => x.path))
             {
                 DeviceValidationReport r = item.report;
