@@ -49,6 +49,11 @@ Unity 메뉴 `Tools > Shadow Theater > Localization > Validate Full Coverage`는
 `Docs/Generated/LOCALIZATION_MISSING.tsv`에 생성된다. 이 검사는 전체 회귀 검증과 모바일 출시 게이트에도
 포함되므로 미번역 상태로 Release 검증을 통과할 수 없다.
 
+TSV의 `en` 열을 채운 뒤 `Localization > Import Completed Translation TSV`로 다시 가져온다.
+빈 번역 행은 건너뛰고 전체 파일의 중복 키·열 수·서식 변수를 검사한 뒤 반영한다. 줄바꿈 표시 ` ↵ `는
+실제 줄바꿈으로 복원되며, 기존 JSON은 `Docs/Generated/LocalizationBackup_날짜.json`에 백업된다.
+가져오기 후 커버리지 검사를 다시 실행한다.
+
 ## 폰트 폴백
 
 한국어는 `Malgun Gothic`, `Apple SD Gothic Neo`, `Noto Sans CJK KR`, `Noto Sans KR` 순서로 찾고,

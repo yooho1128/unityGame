@@ -299,6 +299,8 @@ ID·목표 타입·선행/다음 연결·순환·최종막 도달 가능 여부,
 [`Docs/MOBILE_RELEASE_VALIDATION.md`](Docs/MOBILE_RELEASE_VALIDATION.md)를 참고하세요.
 실기기 리포트는 가져올 때 측정값으로 다시 판정하므로 JSON의 PASS 표시만으로 출시를 통과할 수 없습니다.
 기기와 에디터는 동일한 최소 기준을 사용하고, 잘못된 FPS·시간 값이나 누락된 기기/생성 시각도 차단합니다.
+누락 TSV 번역은 `Localization → Import Completed Translation TSV`로 반영하며, 원본 백업과 재검사를
+자동 실행합니다. 이어서 개발할 우선순위는 `Docs/DEVELOPMENT_QUEUE.md`에 기록합니다.
 
 ## 40개 지역 월드맵
 
