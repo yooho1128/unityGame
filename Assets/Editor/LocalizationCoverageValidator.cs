@@ -42,6 +42,11 @@ namespace ShadowTheater.EditorTools
             RegexOptions.Compiled);
         private static readonly Regex StaticTextRegex = new Regex(
             "L10n\\.Text\\(\\s*\"((?:\\\\.|[^\"])*)\"\\s*\\)", RegexOptions.Compiled);
+        private static readonly Regex GeneratedTextRegex = new Regex(
+            "\\.text\\s*=\\s*\"((?:\\\\.|[^\"])*)\"", RegexOptions.Compiled);
+        private static readonly Regex GeneratedButtonRegex = new Regex(
+            "CreateButton\\([^;]*?,\\s*\"((?:\\\\.|[^\"])*)\"\\s*,\\s*new\\s+Color\\s*\\(",
+            RegexOptions.Compiled | RegexOptions.Singleline);
         private static readonly Regex PlaceholderRegex = new Regex("\\{(\\d+)(?:[^}]*)?\\}", RegexOptions.Compiled);
 
         [MenuItem("Tools/Shadow Theater/Localization/Validate Full Coverage")]
@@ -154,6 +159,15 @@ namespace ShadowTheater.EditorTools
                 Add("battle.tutorial_body_" + i, "전투 안내", "ui");
             }
 
+            foreach (string file in Directory.GetFiles("Assets/Editor", "*Generator.cs", SearchOption.TopDirectoryOnly))
+            {
+                string source = File.ReadAllText(file);
+                foreach (Match match in GeneratedTextRegex.Matches(source))
+                    AddGeneratedLiteral(match.Groups[1].Value, Add);
+                foreach (Match match in GeneratedButtonRegex.Matches(source))
+                    AddGeneratedLiteral(match.Groups[1].Value, Add);
+            }
+
             var dialogues = Load<DialogueCatalogData>(DialoguePath, result)?.dialogues ?? new List<DialogueSequence>();
             foreach (DialogueSequence dialogue in dialogues.Where(x => x != null))
             {
@@ -231,6 +245,14 @@ namespace ShadowTheater.EditorTools
             if (form?.enabled != true) return;
             add($"shadow.{shadowId}.{stage}.name", form.formName, "shadow", false);
             add($"shadow.{shadowId}.{stage}.lore", form.loreAppend, "shadow", false);
+        }
+
+        private static void AddGeneratedLiteral(string escaped,
+            Action<string, string, string, bool> add)
+        {
+            string value = Regex.Unescape(escaped ?? string.Empty);
+            if (string.IsNullOrWhiteSpace(value)) return;
+            add("generated." + StableHash(value), value, "generated-ui", false);
         }
 
         private static T Load<T>(string path, LocalizationAuditResult result) where T : class
