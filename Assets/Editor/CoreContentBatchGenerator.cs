@@ -93,7 +93,7 @@ namespace ShadowTheater.EditorTools
                 int restoreLevel = Mathf.Clamp(14 + shadow.expReward / 12, 18, 62);
                 int trueNameLevel = Mathf.Clamp(restoreLevel + (fullGrowth ? 12 : 0), 30, 75);
 
-                if (shadow.restored == null)
+                if (shadow.restored == null || string.IsNullOrWhiteSpace(shadow.restored.formName))
                 {
                     shadow.restored = AutoForm($"기억을 되찾은 {shadow.displayName}", shadow.accentColor,
                         restoreLevel, 1.22f, 1.18f, 1.16f, 1.10f,
@@ -102,7 +102,7 @@ namespace ShadowTheater.EditorTools
                 }
                 if (!fullGrowth) continue;
 
-                if (shadow.salvation == null)
+                if (shadow.salvation == null || string.IsNullOrWhiteSpace(shadow.salvation.formName))
                 {
                     string skillId = shadow.shadowId + "_salvation_ultimate";
                     if (skillIds.Add(skillId)) skills.Add(AutoUltimate(shadow, skillId, trueNameLevel, true));
@@ -113,7 +113,7 @@ namespace ShadowTheater.EditorTools
                     shadow.salvation.bonusEvasion = .03f;
                     forms++;
                 }
-                if (shadow.grudge == null)
+                if (shadow.grudge == null || string.IsNullOrWhiteSpace(shadow.grudge.formName))
                 {
                     string skillId = shadow.shadowId + "_grudge_ultimate";
                     if (skillIds.Add(skillId)) skills.Add(AutoUltimate(shadow, skillId, trueNameLevel, false));
@@ -124,9 +124,25 @@ namespace ShadowTheater.EditorTools
                     shadow.grudge.bonusEvasion = .05f;
                     forms++;
                 }
+                EnsureTrueNameUltimate(shadow, shadow.salvation, skills, skillIds, trueNameLevel, true);
+                EnsureTrueNameUltimate(shadow, shadow.grudge, skills, skillIds, trueNameLevel, false);
             }
             catalog.skills = skills.ToArray();
             return forms;
+        }
+
+        private static void EnsureTrueNameUltimate(ShadowSpec shadow, FormSpec form, List<SkillSpec> skills,
+            HashSet<string> skillIds, int fallbackLevel, bool salvation)
+        {
+            // JsonUtility가 null 성장 항목을 빈 객체로 복원하거나 수작업 형태에 기술이 없는 경우도 보완한다.
+            if (form == null) return;
+            var bonus = new List<string>(form.bonusSkills ?? Array.Empty<string>());
+            if (skills.Any(x => x != null && x.isUltimate && bonus.Contains(x.skillId))) return;
+            string id = shadow.shadowId + (salvation ? "_salvation_ultimate" : "_grudge_ultimate");
+            int level = form.requiredLevel > 0 ? form.requiredLevel : fallbackLevel;
+            if (skillIds.Add(id)) skills.Add(AutoUltimate(shadow, id, level, salvation));
+            if (!bonus.Contains(id)) bonus.Add(id);
+            form.bonusSkills = bonus.ToArray();
         }
 
         private static FormSpec AutoForm(string name, string color, int level, float hp, float atk,

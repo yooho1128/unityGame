@@ -413,7 +413,8 @@ namespace ShadowTheater.EditorTools
                 if (shadow.baseHp < 50 || shadow.baseHp > 450 || shadow.baseAtk < 5 || shadow.baseAtk > 90 ||
                     shadow.baseDef < 0 || shadow.baseDef > 70 || shadow.baseSpd < 1 || shadow.baseSpd > 55)
                     result.errors.Add($"{shadow.shadowId}: 기본 능력치 밸런스 범위 오류");
-                if (shadow.IsCapturable && (shadow.baseCaptureRate < .03f || shadow.baseCaptureRate > .6f))
+                float minimumCaptureRate = shadow.growthTier == GrowthTier.Legendary ? .01f : .03f;
+                if (shadow.IsCapturable && (shadow.baseCaptureRate < minimumCaptureRate || shadow.baseCaptureRate > .6f))
                     result.errors.Add($"{shadow.shadowId}: 기록 확률 범위 오류 ({shadow.baseCaptureRate})");
 
                 bool rare = shadow.growthTier == GrowthTier.Rare;
