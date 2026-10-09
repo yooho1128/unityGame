@@ -12,7 +12,9 @@ namespace ShadowTheater.UI
             if (report == null) { failures.Add("리포트 누락"); return failures; }
             if (!Finite(report.sessionSeconds) || report.sessionSeconds < 1200f) failures.Add("플레이 시간 20분 미만 또는 잘못된 값");
             if (!Finite(report.averageFps) || report.averageFps < 25f) failures.Add("평균 FPS 25 미만 또는 잘못된 값");
+            if (!Finite(report.minimumOneSecondFps) || report.minimumOneSecondFps < 10f) failures.Add("1초 구간 최저 FPS 10 미만 또는 잘못된 값");
             if (report.sceneLoads < 5) failures.Add("씬 이동 5회 미만");
+            if (report.uniqueScenes < 3) failures.Add("서로 다른 씬 방문 3개 미만");
             if (report.battlesCompleted < 3) failures.Add("전투 완료 3회 미만");
             if (report.savesCompleted < 3) failures.Add("저장 3회 미만");
             if (report.pauseCount < 1 || report.resumeCount < 1) failures.Add("백그라운드 전환·복귀 미검증");

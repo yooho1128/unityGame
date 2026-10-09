@@ -117,7 +117,8 @@ namespace ShadowTheater.EditorTools
             var sample = new DeviceValidationReport
             {
                 generatedAtUtc = DateTime.UtcNow.ToString("O"), deviceModel = "Regression device", buildGuid = "regression-build",
-                sessionSeconds = 1200f, averageFps = 25f, sceneLoads = 5,
+                sessionSeconds = 1200f, averageFps = 25f, minimumOneSecondFps = 10f,
+                sceneLoads = 5, uniqueScenes = 3,
                 battlesCompleted = 3, savesCompleted = 3, pauseCount = 1, resumeCount = 1
             };
             if (DeviceValidationPolicy.Evaluate(sample).Count != 0)
@@ -134,6 +135,10 @@ namespace ShadowTheater.EditorTools
             sample.resumeCount = 0;
             if (DeviceValidationPolicy.Evaluate(sample).Count == 0)
                 result.errors.Add("실기기 QA 정책: 복귀 미검증 리포트가 통과함");
+            sample.resumeCount = 1;
+            sample.uniqueScenes = 1;
+            if (DeviceValidationPolicy.Evaluate(sample).Count == 0)
+                result.errors.Add("실기기 QA 정책: 단일 지역 반복 리포트가 통과함");
         }
 
         private static void ValidateMigration(ValidationReport result)
