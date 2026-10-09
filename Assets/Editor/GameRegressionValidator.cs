@@ -14,6 +14,7 @@ using UnityEditor.Build;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace ShadowTheater.EditorTools
 {
@@ -660,9 +661,9 @@ namespace ShadowTheater.EditorTools
                         if (gridSo.FindProperty("groundTilemap")?.objectReferenceValue == null ||
                             gridSo.FindProperty("collisionTilemap")?.objectReferenceValue == null)
                             result.errors.Add($"{region.sceneName}: 바닥/충돌 Tilemap 참조 누락");
-                        if (!fieldGrid.TryFindNearestWalkable(region.ArrivalCell, out Vector2Int arrival,
+                        if (!fieldGrid.TryFindNearestWalkable(region.ArrivalCell, out Vector2Int walkableArrival,
                                 null, 12, false) ||
-                            arrival != region.ArrivalCell)
+                            walkableArrival != region.ArrivalCell)
                             result.errors.Add($"{region.sceneName}: 월드맵 도착 좌표가 막힘 {region.ArrivalCell}");
                     }
                     if (!roots.Any(x => x.GetComponentInChildren<PlayerController>(true) != null)) result.errors.Add($"{region.sceneName}: Player 누락");

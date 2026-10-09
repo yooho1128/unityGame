@@ -305,6 +305,7 @@ QA 리포트 v2는 Unity 빌드 GUID를 기록해 식별되지 않는 예전 빌
 실기기 결과의 유효기간은 14일이며 기기 시간이 10분 이상 미래인 리포트도 차단합니다.
 빌드 전 Title 선두와 활성 씬 41개·중복·빈 경로를 검사합니다. 출시 CI는
 `GameRegressionValidator.ValidateReleaseForCi`를 실행하면 Android/iOS 최신 PASS까지 필수로 검사합니다.
+Unity 2022.3의 API 호환성 enum에 맞춰 Android/iOS 모두 .NET Standard 프로필을 적용합니다.
 누락 TSV 번역은 `Localization → Import Completed Translation TSV`로 반영하며, 원본 백업과 재검사를
 자동 실행합니다. 이어서 개발할 우선순위는 `Docs/DEVELOPMENT_QUEUE.md`에 기록합니다.
 전체 회귀 검증은 TSV 정상 행과 미완성 행 처리, 줄바꿈 복원, 잘못된 헤더·중복 키·열 수·서식 변수 차단도

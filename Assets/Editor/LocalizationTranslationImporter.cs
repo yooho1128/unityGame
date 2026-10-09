@@ -36,7 +36,7 @@ namespace ShadowTheater.EditorTools
                 }
                 File.WriteAllText(CatalogPath, JsonUtility.ToJson(catalog, true));
                 AssetDatabase.ImportAsset(CatalogPath, ImportAssetOptions.ForceSynchronousImport);
-                L10n.Reload();
+                ShadowTheater.UI.L10n.Reload();
                 LocalizationCoverageValidator.ValidateFromMenu();
                 Debug.Log($"[Localization] 번역 {updates.Count}개 반영 · 원본 백업: {backup}");
             }
