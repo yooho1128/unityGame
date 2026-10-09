@@ -49,6 +49,7 @@ Unity 메뉴 `Tools > Shadow Theater > Localization > Validate Full Coverage`는
 `Docs/Generated/LOCALIZATION_COVERAGE.md`, 번역 작업용 탭 구분 파일은
 `Docs/Generated/LOCALIZATION_MISSING.tsv`에 생성된다. 이 검사는 전체 회귀 검증과 모바일 출시 게이트에도
 포함되므로 미번역 상태로 Release 검증을 통과할 수 없다.
+카탈로그의 null 항목·빈 키와 동일 한국어/영문 원문이 서로 다른 번역을 가리키는 모호성도 실패 처리한다.
 
 TSV의 `en` 열을 채운 뒤 `Localization > Import Completed Translation TSV`로 다시 가져온다.
 빈 번역 행은 건너뛰고 전체 파일의 중복 키·열 수·서식 변수를 검사한 뒤 반영한다. 줄바꿈 표시 ` ↵ `는

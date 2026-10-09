@@ -103,6 +103,15 @@ namespace ShadowTheater.EditorTools
                 .GroupBy(x => x.key).Where(x => x.Count() > 1).Select(x => x.Key).ToList();
             foreach (string duplicate in duplicateKeys)
             { result.formatErrors++; result.issues.Add("[catalog] DUPLICATE KEY · " + duplicate); }
+            int invalidEntries = entries.Count(x => x == null || string.IsNullOrWhiteSpace(x.key));
+            if (invalidEntries > 0)
+            { result.formatErrors += invalidEntries; result.issues.Add($"[catalog] NULL OR EMPTY KEY · {invalidEntries}개"); }
+            foreach (var group in entries.Where(x => x != null && !string.IsNullOrWhiteSpace(x.ko))
+                         .GroupBy(x => x.ko).Where(x => x.Select(y => y.en).Distinct().Count() > 1))
+            { result.formatErrors++; result.issues.Add("[catalog] AMBIGUOUS KO · " + OneLine(group.Key)); }
+            foreach (var group in entries.Where(x => x != null && !string.IsNullOrWhiteSpace(x.en))
+                         .GroupBy(x => x.en).Where(x => x.Select(y => y.ko).Distinct().Count() > 1))
+            { result.formatErrors++; result.issues.Add("[catalog] AMBIGUOUS EN · " + OneLine(group.Key)); }
             if (writeReport) WriteReport(result, required.Values);
             return result;
         }
