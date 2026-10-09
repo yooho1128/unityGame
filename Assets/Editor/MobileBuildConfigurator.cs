@@ -18,6 +18,7 @@ namespace ShadowTheater.EditorTools
         public const int AndroidVersionCode = 1;
         public const string IosBuildNumber = "1";
         private const string BuildRoot = "Builds";
+        private const string TitleScenePath = "Assets/Scenes/Prologue/Title.unity";
 
         [MenuItem("Tools/Shadow Theater/Mobile/Configure Android and iOS")]
         public static void Apply()
@@ -80,6 +81,33 @@ namespace ShadowTheater.EditorTools
             if (PlayerSettings.GetScriptingBackend(NamedBuildTarget.Android) != ScriptingImplementation.IL2CPP ||
                 PlayerSettings.GetScriptingBackend(NamedBuildTarget.iOS) != ScriptingImplementation.IL2CPP)
                 errors.Add("Android/iOS Scripting Backend는 IL2CPP여야 합니다");
+            ValidateScenePaths(EditorBuildSettings.scenes.Where(x => x.enabled).Select(x => x.path).ToList(), errors);
+        }
+
+        public static void ValidateScenePolicyRegression(List<string> errors)
+        {
+            var valid = new List<string> { TitleScenePath };
+            for (int i = 0; i < 40; i++) valid.Add($"Assets/Scenes/Prologue/Field{i:00}.unity");
+            var validErrors = new List<string>();
+            ValidateScenePaths(valid, validErrors);
+            if (validErrors.Count != 0) errors.Add("모바일 빌드 씬 정책: 정상 목록이 실패함");
+            var invalid = new List<string>(valid) { valid[1] };
+            invalid[0] = valid[1];
+            var invalidErrors = new List<string>();
+            ValidateScenePaths(invalid, invalidErrors);
+            if (invalidErrors.Count < 3) errors.Add("모바일 빌드 씬 정책: 수·첫 씬·중복 오류 검출 실패");
+        }
+
+        private static void ValidateScenePaths(IReadOnlyList<string> scenes, List<string> errors)
+        {
+            if (scenes == null || scenes.Count != 41)
+                errors.Add($"Build Settings 활성 씬 수 불일치: {scenes?.Count ?? 0}/41");
+            if (scenes == null || scenes.Count == 0 || scenes[0] != TitleScenePath)
+                errors.Add("Build Settings 첫 씬은 Title이어야 합니다");
+            if (scenes != null && scenes.Any(string.IsNullOrWhiteSpace))
+                errors.Add("Build Settings에 빈 씬 경로가 있습니다");
+            if (scenes != null && scenes.Distinct(StringComparer.Ordinal).Count() != scenes.Count)
+                errors.Add("Build Settings 활성 씬 경로가 중복되었습니다");
         }
 
         [MenuItem("Tools/Shadow Theater/Mobile/Build Android QA APK")]
@@ -136,9 +164,11 @@ namespace ShadowTheater.EditorTools
         private static void Build(BuildTarget target, string output, BuildOptions options)
         {
             string[] scenes = EditorBuildSettings.scenes.Where(x => x.enabled).Select(x => x.path).ToArray();
-            if (scenes.Length != 41)
+            var sceneErrors = new List<string>();
+            ValidateScenePaths(scenes, sceneErrors);
+            if (sceneErrors.Count > 0)
             {
-                Debug.LogError($"[MobileBuild] Build Settings 씬 수가 41개가 아닙니다: {scenes.Length}");
+                Debug.LogError("[MobileBuild] 씬 구성 오류\n- " + string.Join("\n- ", sceneErrors));
                 return;
             }
             string directory = target == BuildTarget.iOS ? output : Path.GetDirectoryName(output);

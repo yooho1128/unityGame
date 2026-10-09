@@ -55,6 +55,13 @@ namespace ShadowTheater.EditorTools
                 throw new BuildFailedException("Shadow Theater regression failed:\n" + string.Join("\n", report.errors));
         }
 
+        public static void ValidateReleaseForCi()
+        {
+            var report = Run(true);
+            if (report.errors.Count > 0)
+                throw new BuildFailedException("Shadow Theater release gate failed:\n" + string.Join("\n", report.errors));
+        }
+
         [MenuItem("Tools/Shadow Theater/Mobile/Validate Release Gate")]
         public static void ValidateReleaseGate()
         {
@@ -79,6 +86,7 @@ namespace ShadowTheater.EditorTools
             ValidateDevicePolicy(result);
             CoreContentBatchGenerator.ValidateGrowthPolicyRegression(result.errors);
             LocalizationTranslationImporter.ValidateRegression(result.errors);
+            MobileBuildConfigurator.ValidateScenePolicyRegression(result.errors);
             MobileBuildConfigurator.ValidateSettings(result.errors);
             ValidateMigration(result);
             ValidateBattleAi(result);

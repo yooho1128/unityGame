@@ -43,6 +43,13 @@ CI에서는 Unity batchmode에 아래 메서드를 지정하면 오류가 하나
 
 `ShadowTheater.EditorTools.GameRegressionValidator.ValidateForCi`
 
+실제 출시 CI는 Android/iOS 최신 PASS 리포트까지 요구하는 아래 메서드를 사용한다.
+
+`ShadowTheater.EditorTools.GameRegressionValidator.ValidateReleaseForCi`
+
+활성 빌드 씬은 Title이 첫 번째이고 정확히 41개여야 하며, 빈 경로와 중복 경로가 있으면 QA·Release
+빌드를 시작하지 않는다.
+
 ## 세이브 v7
 
 - `saveGuid`로 세이브 정체성을 유지한다.
