@@ -96,6 +96,12 @@ namespace ShadowTheater.EditorTools
                     result.formatErrors++; result.issues.Add($"[{item.category}] FORMAT MISMATCH · {item.key}");
                     AddIncomplete(result, item, entry.ko, entry.en, "FORMAT_MISMATCH"); valid = false;
                 }
+                if ((!string.IsNullOrEmpty(entry.ko) && !ValidCompositeFormat(entry.ko)) ||
+                    (!string.IsNullOrEmpty(entry.en) && !ValidCompositeFormat(entry.en)))
+                {
+                    result.formatErrors++; result.issues.Add($"[{item.category}] MALFORMED FORMAT · {item.key}");
+                    AddIncomplete(result, item, entry.ko, entry.en, "MALFORMED_FORMAT"); valid = false;
+                }
                 if (valid) result.translated++;
             }
 
@@ -234,6 +240,22 @@ namespace ShadowTheater.EditorTools
 
         private static HashSet<string> Placeholders(string value) => new HashSet<string>(
             PlaceholderRegex.Matches(value ?? string.Empty).Cast<Match>().Select(x => x.Groups[1].Value));
+
+        private static bool ValidCompositeFormat(string value)
+        {
+            try
+            {
+                int max = -1;
+                foreach (Match match in PlaceholderRegex.Matches(value ?? string.Empty))
+                {
+                    if (!int.TryParse(match.Groups[1].Value, out int index) || index > 255) return false;
+                    max = Mathf.Max(max, index);
+                }
+                string.Format(value ?? string.Empty, Enumerable.Repeat<object>(string.Empty, max + 1).ToArray());
+                return true;
+            }
+            catch (FormatException) { return false; }
+        }
 
         private static string OneLine(string value) => (value ?? string.Empty).Replace("\n", " ↵ ");
 

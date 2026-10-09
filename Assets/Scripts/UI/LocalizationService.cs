@@ -45,8 +45,17 @@ namespace ShadowTheater.UI
             return _byText.TryGetValue(source, out var entry) ? Pick(entry, source) : source;
         }
 
-        public static string Format(string key, string fallback, params object[] args) =>
-            string.Format(Get(key, fallback), args);
+        public static string Format(string key, string fallback, params object[] args)
+        {
+            string translated = Get(key, fallback);
+            try { return string.Format(translated, args ?? Array.Empty<object>()); }
+            catch (FormatException e)
+            {
+                Debug.LogError($"[Localization] 서식 오류: {key} · {e.Message}");
+                try { return string.Format(fallback ?? string.Empty, args ?? Array.Empty<object>()); }
+                catch (FormatException) { return fallback ?? string.Empty; }
+            }
+        }
 
         public static void Reload()
         {
