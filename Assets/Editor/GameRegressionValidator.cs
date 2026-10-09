@@ -78,6 +78,7 @@ namespace ShadowTheater.EditorTools
             var result = new ValidationReport();
             ValidateDevicePolicy(result);
             CoreContentBatchGenerator.ValidateGrowthPolicyRegression(result.errors);
+            LocalizationTranslationImporter.ValidateRegression(result.errors);
             MobileBuildConfigurator.ValidateSettings(result.errors);
             ValidateMigration(result);
             ValidateBattleAi(result);

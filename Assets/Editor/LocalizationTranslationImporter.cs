@@ -45,6 +45,7 @@ namespace ShadowTheater.EditorTools
 
         public static List<LocalizedStringEntry> Parse(string text)
         {
+            if (string.IsNullOrEmpty(text)) throw new InvalidDataException("빈 TSV");
             var rows = new List<LocalizedStringEntry>();
             var keys = new HashSet<string>(StringComparer.Ordinal);
             string[] lines = text.Replace("\r\n", "\n").Split('\n');
@@ -67,6 +68,38 @@ namespace ShadowTheater.EditorTools
                 rows.Add(new LocalizedStringEntry { key = id, ko = korean, en = english });
             }
             return rows;
+        }
+
+        public static void ValidateRegression(List<string> errors)
+        {
+            const string valid = "key\tcategory\tko\ten\tissue\n" +
+                                 "ui.test\tui\t첫 줄 ↵ 둘째 줄 {0}\tFirst line ↵ Second line {0}\tMISSING_KEY\n" +
+                                 "ui.empty\tui\t미완성\t\tMISSING_KEY\n";
+            try
+            {
+                List<LocalizedStringEntry> rows = Parse(valid);
+                if (rows.Count != 1 || rows[0].key != "ui.test" ||
+                    rows[0].ko != "첫 줄\n둘째 줄 {0}" || rows[0].en != "First line\nSecond line {0}")
+                    errors.Add("현지화 TSV: 완료 행 선별 또는 줄바꿈 복원 오류");
+            }
+            catch (Exception e) { errors.Add("현지화 TSV: 정상 샘플 파싱 실패 (" + e.Message + ")"); }
+
+            ExpectInvalid(string.Empty, "빈 파일", errors);
+            ExpectInvalid("key\tko\nui.test\t문장\n", "필수 헤더", errors);
+            ExpectInvalid("key\tko\ten\na\t가\tA\na\t나\tB\n", "중복 키", errors);
+            ExpectInvalid("key\tko\ten\na\t가\n", "열 수", errors);
+            ExpectInvalid("key\tko\ten\na\t수치 {0}\tValue {1}\n", "서식 변수", errors);
+        }
+
+        private static void ExpectInvalid(string value, string label, List<string> errors)
+        {
+            try
+            {
+                Parse(value);
+                errors.Add("현지화 TSV: " + label + " 오류가 통과함");
+            }
+            catch (InvalidDataException) { }
+            catch (Exception e) { errors.Add($"현지화 TSV: {label} 검사에서 잘못된 예외 ({e.GetType().Name})"); }
         }
 
         private static HashSet<string> Indices(string text) => new HashSet<string>(
