@@ -123,6 +123,8 @@ namespace ShadowTheater.EditorTools
             };
             if (DeviceValidationPolicy.Evaluate(sample).Count != 0)
                 result.errors.Add("실기기 QA 정책: 최소 통과 기준 오류");
+            if (!DeviceValidationReportUtility.IsFresh(sample, DateTime.UtcNow))
+                result.errors.Add("실기기 QA 정책: 현재 리포트 유효기간 오류");
             sample.passed = true;
             sample.averageFps = float.NaN;
             if (DeviceValidationPolicy.Evaluate(sample).Count == 0)
@@ -139,6 +141,12 @@ namespace ShadowTheater.EditorTools
             sample.uniqueScenes = 1;
             if (DeviceValidationPolicy.Evaluate(sample).Count == 0)
                 result.errors.Add("실기기 QA 정책: 단일 지역 반복 리포트가 통과함");
+            sample.generatedAtUtc = DateTime.UtcNow.AddDays(-15).ToString("O");
+            if (DeviceValidationReportUtility.IsFresh(sample, DateTime.UtcNow))
+                result.errors.Add("실기기 QA 정책: 만료 리포트가 통과함");
+            sample.generatedAtUtc = DateTime.UtcNow.AddMinutes(11).ToString("O");
+            if (DeviceValidationReportUtility.IsFresh(sample, DateTime.UtcNow))
+                result.errors.Add("실기기 QA 정책: 미래 시각 리포트가 통과함");
         }
 
         private static void ValidateMigration(ValidationReport result)

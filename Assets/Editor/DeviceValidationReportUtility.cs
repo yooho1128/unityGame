@@ -15,6 +15,7 @@ namespace ShadowTheater.EditorTools
     {
         public const string ReportFolder = "Docs/DeviceValidationReports";
         public const string SummaryPath = "Docs/Generated/DEVICE_VALIDATION_SUMMARY.md";
+        private const int MaximumReportAgeDays = 14;
 
         [MenuItem("Tools/Shadow Theater/Mobile/Import Device QA Report")]
         public static void Import()
@@ -68,11 +69,15 @@ namespace ShadowTheater.EditorTools
                 if (!pair.report.passed)
                     errors.Add($"최신 실기기 QA 실패: {pair.report.platform}/{pair.report.deviceModel} " +
                                $"({string.Join(", ", pair.report.failedCriteria ?? new List<string>())})");
+                if (!IsFresh(pair.report, DateTime.UtcNow))
+                    errors.Add($"실기기 QA 생성 시각이 허용 범위 밖입니다: {pair.report.platform}/{pair.report.generatedAtUtc}");
             }
             if (!requireBothPlatforms) return;
-            bool android = latest.Any(x => x.report.passed && x.report.applicationVersion == MobileBuildConfigurator.Version &&
+            bool android = latest.Any(x => x.report.passed && IsFresh(x.report, DateTime.UtcNow) &&
+                                           x.report.applicationVersion == MobileBuildConfigurator.Version &&
                                            PlatformFamily(x.report.platform) == "Android");
-            bool ios = latest.Any(x => x.report.passed && x.report.applicationVersion == MobileBuildConfigurator.Version &&
+            bool ios = latest.Any(x => x.report.passed && IsFresh(x.report, DateTime.UtcNow) &&
+                                       x.report.applicationVersion == MobileBuildConfigurator.Version &&
                                        PlatformFamily(x.report.platform) == "iOS");
             if (!android) errors.Add("통과한 Android 실기기 QA 리포트가 없습니다");
             if (!ios) errors.Add("통과한 iOS 실기기 QA 리포트가 없습니다");
@@ -150,6 +155,14 @@ namespace ShadowTheater.EditorTools
 
         private static DateTime ReportTime(DeviceValidationReport report) =>
             DateTime.TryParse(report.generatedAtUtc, out DateTime value) ? value.ToUniversalTime() : DateTime.MinValue;
+
+        public static bool IsFresh(DeviceValidationReport report, DateTime utcNow)
+        {
+            DateTime generated = ReportTime(report);
+            if (generated == DateTime.MinValue) return false;
+            return generated >= utcNow.ToUniversalTime().AddDays(-MaximumReportAgeDays) &&
+                   generated <= utcNow.ToUniversalTime().AddMinutes(10);
+        }
 
         private class ReportFile { public string path; public DeviceValidationReport report; }
     }
