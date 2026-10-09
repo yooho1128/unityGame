@@ -15,10 +15,11 @@ namespace ShadowTheater.EditorTools
 {
     public class LocalizationAuditResult
     {
-        public int required, translated, missingKeys, missingKorean, missingEnglish, formatErrors;
+        public int required, translated, missingKeys, missingKorean, missingEnglish, formatErrors, dataErrors;
         public readonly List<string> issues = new List<string>();
         public readonly List<LocalizationTemplateRow> incomplete = new List<LocalizationTemplateRow>();
-        public bool Passed => missingKeys == 0 && missingKorean == 0 && missingEnglish == 0 && formatErrors == 0;
+        public bool Passed => missingKeys == 0 && missingKorean == 0 && missingEnglish == 0 &&
+                              formatErrors == 0 && dataErrors == 0;
     }
 
     public class LocalizationTemplateRow
@@ -51,16 +52,17 @@ namespace ShadowTheater.EditorTools
                 Debug.Log($"[Localization] 통과: {report.translated}/{report.required} 항목");
             else
                 Debug.LogError($"[Localization] 미완료: {report.translated}/{report.required} · " +
-                               $"키 {report.missingKeys}, KO {report.missingKorean}, EN {report.missingEnglish}, 포맷 {report.formatErrors}\n" +
+                               $"키 {report.missingKeys}, KO {report.missingKorean}, EN {report.missingEnglish}, " +
+                               $"포맷 {report.formatErrors}, 데이터 {report.dataErrors}\n" +
                                $"전체 목록: {ReportPath}");
         }
 
         public static LocalizationAuditResult Run(bool writeReport)
         {
             var result = new LocalizationAuditResult();
-            var required = BuildRequirements();
+            var required = BuildRequirements(result);
             result.required = required.Count;
-            LocalizationCatalogData catalog = Load<LocalizationCatalogData>(CatalogPath) ?? new LocalizationCatalogData();
+            LocalizationCatalogData catalog = Load<LocalizationCatalogData>(CatalogPath, result) ?? new LocalizationCatalogData();
             var entries = catalog.strings ?? new List<LocalizedStringEntry>();
             var byKey = entries.Where(x => x != null && !string.IsNullOrWhiteSpace(x.key))
                 .GroupBy(x => x.key).ToDictionary(x => x.Key, x => x.First(), StringComparer.Ordinal);
@@ -122,7 +124,7 @@ namespace ShadowTheater.EditorTools
             return result;
         }
 
-        private static Dictionary<string, Requirement> BuildRequirements()
+        private static Dictionary<string, Requirement> BuildRequirements(LocalizationAuditResult result)
         {
             var required = new Dictionary<string, Requirement>(StringComparer.Ordinal);
             void Add(string key, string korean, string category, bool exact = true)
@@ -152,7 +154,7 @@ namespace ShadowTheater.EditorTools
                 Add("battle.tutorial_body_" + i, "전투 안내", "ui");
             }
 
-            var dialogues = Load<DialogueCatalogData>(DialoguePath)?.dialogues ?? new List<DialogueSequence>();
+            var dialogues = Load<DialogueCatalogData>(DialoguePath, result)?.dialogues ?? new List<DialogueSequence>();
             foreach (DialogueSequence dialogue in dialogues.Where(x => x != null))
             {
                 for (int i = 0; i < (dialogue.lines?.Count ?? 0); i++)
@@ -165,7 +167,7 @@ namespace ShadowTheater.EditorTools
                     Add($"dialogue.{dialogue.dialogueId}.choice.{i}", dialogue.choices[i]?.text, "dialogue");
             }
 
-            var quests = Load<QuestCatalogData>(QuestPath)?.quests ?? new List<QuestDefinition>();
+            var quests = Load<QuestCatalogData>(QuestPath, result)?.quests ?? new List<QuestDefinition>();
             foreach (QuestDefinition quest in quests.Where(x => x != null))
             {
                 Add($"quest.{quest.questId}.title", quest.title, "quest");
@@ -174,7 +176,7 @@ namespace ShadowTheater.EditorTools
                     Add($"quest.{quest.questId}.{objective.objectiveId}", objective.description, "quest");
             }
 
-            var regions = Load<RegionCatalogData>(RegionPath)?.regions ?? new List<RegionData>();
+            var regions = Load<RegionCatalogData>(RegionPath, result)?.regions ?? new List<RegionData>();
             foreach (RegionData region in regions.Where(x => x != null))
             {
                 Add($"region.{region.regionId}.name", region.displayName, "region");
@@ -183,7 +185,7 @@ namespace ShadowTheater.EditorTools
                 Add($"region.{region.regionId}.summary", region.summary, "region");
             }
 
-            var endings = Load<EndingCatalogData>(EndingPath)?.endings ?? new List<EndingDefinition>();
+            var endings = Load<EndingCatalogData>(EndingPath, result)?.endings ?? new List<EndingDefinition>();
             foreach (EndingDefinition ending in endings.Where(x => x != null))
             {
                 Add($"ending.{ending.endingId}.title", ending.title, "ending");
@@ -231,11 +233,19 @@ namespace ShadowTheater.EditorTools
             add($"shadow.{shadowId}.{stage}.lore", form.loreAppend, "shadow", false);
         }
 
-        private static T Load<T>(string path) where T : class
+        private static T Load<T>(string path, LocalizationAuditResult result) where T : class
         {
-            if (!File.Exists(path)) return null;
+            if (!File.Exists(path))
+            {
+                result.dataErrors++; result.issues.Add("[source] MISSING FILE · " + path);
+                return null;
+            }
             try { return JsonUtility.FromJson<T>(File.ReadAllText(path)); }
-            catch (Exception e) { Debug.LogError($"[Localization] {path} 파싱 실패: {e.Message}"); return null; }
+            catch (Exception e)
+            {
+                result.dataErrors++; result.issues.Add($"[source] PARSE ERROR · {path} · {e.Message}");
+                Debug.LogError($"[Localization] {path} 파싱 실패: {e.Message}"); return null;
+            }
         }
 
         private static HashSet<string> Placeholders(string value) => new HashSet<string>(
@@ -291,6 +301,7 @@ namespace ShadowTheater.EditorTools
             text.AppendLine($"- 누락 키: {result.missingKeys}");
             text.AppendLine($"- 빈 한국어/영문: {result.missingKorean} / {result.missingEnglish}");
             text.AppendLine($"- 포맷·중복 오류: {result.formatErrors}").AppendLine();
+            text.AppendLine($"- 데이터 소스 오류: {result.dataErrors}").AppendLine();
             text.AppendLine("## 요구 항목").AppendLine();
             foreach (var group in byCategory) text.AppendLine($"- {group.Key}: {group.Count()}");
             text.AppendLine().AppendLine("## 수정 필요 목록").AppendLine();

@@ -50,6 +50,7 @@ Unity 메뉴 `Tools > Shadow Theater > Localization > Validate Full Coverage`는
 `Docs/Generated/LOCALIZATION_MISSING.tsv`에 생성된다. 이 검사는 전체 회귀 검증과 모바일 출시 게이트에도
 포함되므로 미번역 상태로 Release 검증을 통과할 수 없다.
 카탈로그의 null 항목·빈 키와 동일 한국어/영문 원문이 서로 다른 번역을 가리키는 모호성도 실패 처리한다.
+대화·퀘스트·지역·엔딩·현지화 JSON이 없거나 파싱되지 않으면 데이터 소스 오류로 실패 처리한다.
 짝이 맞지 않는 중괄호 같은 잘못된 복합 서식도 검사한다. 런타임에서 오류가 발견되면 한국어 폴백으로
 한 번 더 서식을 시도하고, 폴백도 잘못된 경우 원문을 표시해 게임 진행 중 예외를 막는다.
 
