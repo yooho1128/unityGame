@@ -76,6 +76,7 @@ namespace ShadowTheater.EditorTools
         private static ValidationReport Run(bool requireDeviceReports)
         {
             var result = new ValidationReport();
+            ValidateDevicePolicy(result);
             MobileBuildConfigurator.ValidateSettings(result.errors);
             ValidateMigration(result);
             ValidateBattleAi(result);
@@ -107,6 +108,30 @@ namespace ShadowTheater.EditorTools
             ValidateBuildSettings(regions, result);
             DeviceValidationReportUtility.ValidateImported(result.errors, result.warnings, requireDeviceReports);
             return result;
+        }
+
+        private static void ValidateDevicePolicy(ValidationReport result)
+        {
+            var sample = new DeviceValidationReport
+            {
+                generatedAtUtc = DateTime.UtcNow.ToString("O"), deviceModel = "Regression device",
+                sessionSeconds = 1200f, averageFps = 25f, sceneLoads = 5,
+                battlesCompleted = 3, savesCompleted = 3, pauseCount = 1, resumeCount = 1
+            };
+            if (DeviceValidationPolicy.Evaluate(sample).Count != 0)
+                result.errors.Add("실기기 QA 정책: 최소 통과 기준 오류");
+            sample.passed = true;
+            sample.averageFps = float.NaN;
+            if (DeviceValidationPolicy.Evaluate(sample).Count == 0)
+                result.errors.Add("실기기 QA 정책: 잘못된 FPS가 통과함");
+            sample.averageFps = 60f;
+            sample.errorCount = 1;
+            if (DeviceValidationPolicy.Evaluate(sample).Count == 0)
+                result.errors.Add("실기기 QA 정책: 오류가 있는 PASS 리포트가 통과함");
+            sample.errorCount = 0;
+            sample.resumeCount = 0;
+            if (DeviceValidationPolicy.Evaluate(sample).Count == 0)
+                result.errors.Add("실기기 QA 정책: 복귀 미검증 리포트가 통과함");
         }
 
         private static void ValidateMigration(ValidationReport result)

@@ -208,7 +208,7 @@ namespace ShadowTheater.UI
 
         private void Evaluate()
         {
-            _report.failedCriteria.Clear();
+            _report.failedCriteria = DeviceValidationPolicy.Evaluate(_report);
             if (_report.sessionSeconds < requiredSessionSeconds) _report.failedCriteria.Add($"플레이 시간 {requiredSessionSeconds / 60f:F0}분 미만");
             if (_report.sceneLoads < requiredSceneLoads) _report.failedCriteria.Add($"씬 이동 {requiredSceneLoads}회 미만");
             if (_report.battlesCompleted < requiredBattles) _report.failedCriteria.Add($"전투 완료 {requiredBattles}회 미만");

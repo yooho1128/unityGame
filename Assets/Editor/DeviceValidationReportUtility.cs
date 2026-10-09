@@ -92,7 +92,11 @@ namespace ShadowTheater.EditorTools
             try
             {
                 var report = JsonUtility.FromJson<DeviceValidationReport>(File.ReadAllText(path));
-                return report != null && report.reportVersion == "1" && !string.IsNullOrEmpty(report.sessionId) ? report : null;
+                if (report == null || report.reportVersion != "1" || string.IsNullOrEmpty(report.sessionId)) return null;
+                // JSON 내부의 passed 플래그를 신뢰하지 않고 실제 측정치로 재판정한다.
+                report.failedCriteria = DeviceValidationPolicy.Evaluate(report);
+                report.passed = report.failedCriteria.Count == 0;
+                return report;
             }
             catch { return null; }
         }
