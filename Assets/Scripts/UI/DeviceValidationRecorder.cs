@@ -14,7 +14,7 @@ namespace ShadowTheater.UI
     [Serializable]
     public class DeviceValidationReport
     {
-        public string reportVersion = "1";
+        public string reportVersion = "2";
         public string sessionId;
         public string generatedAtUtc;
         public string platform;
@@ -24,6 +24,7 @@ namespace ShadowTheater.UI
         public int systemMemoryMb;
         public int graphicsMemoryMb;
         public string applicationVersion;
+        public string buildGuid;
         public bool developmentBuild;
         public float sessionSeconds;
         public float averageFps;
@@ -230,6 +231,7 @@ namespace ShadowTheater.UI
             systemMemoryMb = SystemInfo.systemMemorySize,
             graphicsMemoryMb = SystemInfo.graphicsMemorySize,
             applicationVersion = Application.version,
+            buildGuid = Application.buildGUID,
             developmentBuild = Debug.isDebugBuild
         };
     }

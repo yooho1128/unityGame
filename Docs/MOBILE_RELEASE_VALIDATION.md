@@ -91,6 +91,7 @@ Devices and Simulators에서 앱 컨테이너를 내려받아 `Documents` 안의
 `Docs/DeviceValidationReports/`에 보관되고 요약은 `Docs/Generated/DEVICE_VALIDATION_SUMMARY.md`로 생성된다.
 같은 플랫폼에서 여러 번 시험한 경우 가장 최근에 생성된 리포트만 출시 판정에 사용하며, 현재 앱 버전과
 리포트의 앱 버전이 다르면 실패한다.
+리포트 v2는 Unity 빌드 GUID를 포함하며, GUID가 없는 예전 리포트나 식별 불가능한 빌드는 가져오지 않는다.
 
 플랫폼별 PASS 조건은 다음과 같다.
 

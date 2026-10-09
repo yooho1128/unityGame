@@ -19,6 +19,7 @@ namespace ShadowTheater.UI
             if (report.lowMemoryEvents != 0) failures.Add("저메모리 이벤트 발생 또는 잘못된 값");
             if (report.errorCount != 0 || (report.errors != null && report.errors.Count > 0)) failures.Add("오류/예외 로그 발생 또는 잘못된 값");
             if (string.IsNullOrWhiteSpace(report.deviceModel)) failures.Add("기기 정보 누락");
+            if (string.IsNullOrWhiteSpace(report.buildGuid)) failures.Add("빌드 GUID 누락");
             if (!DateTimeOffset.TryParse(report.generatedAtUtc, out _)) failures.Add("생성 시각 누락 또는 형식 오류");
             return failures;
         }

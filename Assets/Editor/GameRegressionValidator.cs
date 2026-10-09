@@ -116,7 +116,7 @@ namespace ShadowTheater.EditorTools
         {
             var sample = new DeviceValidationReport
             {
-                generatedAtUtc = DateTime.UtcNow.ToString("O"), deviceModel = "Regression device",
+                generatedAtUtc = DateTime.UtcNow.ToString("O"), deviceModel = "Regression device", buildGuid = "regression-build",
                 sessionSeconds = 1200f, averageFps = 25f, sceneLoads = 5,
                 battlesCompleted = 3, savesCompleted = 3, pauseCount = 1, resumeCount = 1
             };

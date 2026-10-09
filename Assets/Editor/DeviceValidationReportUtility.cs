@@ -92,7 +92,7 @@ namespace ShadowTheater.EditorTools
             try
             {
                 var report = JsonUtility.FromJson<DeviceValidationReport>(File.ReadAllText(path));
-                if (report == null || report.reportVersion != "1" || string.IsNullOrEmpty(report.sessionId)) return null;
+                if (report == null || report.reportVersion != "2" || string.IsNullOrEmpty(report.sessionId)) return null;
                 // JSON 내부의 passed 플래그를 신뢰하지 않고 실제 측정치로 재판정한다.
                 report.failedCriteria = DeviceValidationPolicy.Evaluate(report);
                 report.passed = report.failedCriteria.Count == 0;
@@ -113,6 +113,7 @@ namespace ShadowTheater.EditorTools
                 text.AppendLine($"## {(r.passed ? "PASS" : "FAIL")} · {r.platform} · {r.deviceModel}");
                 text.AppendLine($"- OS: {r.operatingSystem}");
                 text.AppendLine($"- 앱: {r.applicationVersion} / {(r.developmentBuild ? "QA" : "Release")}");
+                text.AppendLine($"- 빌드: {r.buildGuid}");
                 text.AppendLine($"- 시간: {r.sessionSeconds / 60f:F1}분 · 평균/최저 FPS: {r.averageFps:F1}/{r.minimumOneSecondFps:F1}");
                 text.AppendLine($"- 씬/전투/저장: {r.sceneLoads}/{r.battlesCompleted}/{r.savesCompleted}");
                 text.AppendLine($"- 백그라운드 복귀: {r.pauseCount}/{r.resumeCount} · 오류: {r.errorCount} · 저메모리: {r.lowMemoryEvents}");
