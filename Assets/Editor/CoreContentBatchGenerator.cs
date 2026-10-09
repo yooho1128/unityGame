@@ -80,6 +80,56 @@ namespace ShadowTheater.EditorTools
         /// 수작업 성장 데이터가 없는 그림자만 등급 원칙으로 보완한다.
         /// Standard는 단일 형태, Rare는 기억 복원, RegionalBoss/Legendary는 양쪽 진명까지 제공한다.
         /// </summary>
+        public static void ValidateGrowthPolicyRegression(List<string> errors)
+        {
+            var manual = new FormSpec
+            {
+                formName = "수작업 진명", requiredLevel = 61, requiredFlag = "preserved_flag",
+                hpMultiplier = 1.7f, bonusSkills = new[] { "manual_ultimate" }
+            };
+            var incomplete = new FormSpec
+            {
+                formName = "기존 원한", requiredLevel = 55, bonusSkills = new[] { "ordinary_skill" }
+            };
+            var samples = new[]
+            {
+                new ShadowSpec { shadowId = "null_forms", displayName = "샘플", growthTier = "RegionalBoss" },
+                new ShadowSpec { shadowId = "empty_forms", displayName = "샘플", growthTier = "Legendary",
+                    restored = new FormSpec(), salvation = new FormSpec(), grudge = new FormSpec() },
+                new ShadowSpec { shadowId = "manual_forms", displayName = "샘플", growthTier = "Legendary",
+                    salvation = manual, grudge = incomplete },
+                new ShadowSpec { shadowId = "standard", displayName = "샘플", growthTier = "Standard" },
+                new ShadowSpec { shadowId = "rare", displayName = "샘플", growthTier = "Rare" }
+            };
+            var catalog = new CoreCatalog
+            {
+                shadows = samples, skills = new[]
+                {
+                    new SkillSpec { skillId = "manual_ultimate", isUltimate = true },
+                    new SkillSpec { skillId = "ordinary_skill" }
+                }
+            };
+            ApplyTierGrowthPolicy(catalog);
+            int skillCount = catalog.skills.Length;
+            string snapshot = JsonUtility.ToJson(catalog);
+            ApplyTierGrowthPolicy(catalog);
+            if (catalog.skills.Length != skillCount || JsonUtility.ToJson(catalog) != snapshot)
+                errors.Add("진명 생성: 반복 생성 결과 변경 또는 기술 중복");
+            foreach (var shadow in samples.Take(3))
+            foreach (var form in new[] { shadow.salvation, shadow.grudge })
+                if (form == null || string.IsNullOrWhiteSpace(form.formName) || form.requiredLevel < 1 ||
+                    !catalog.skills.Any(x => x.isUltimate && (form.bonusSkills ?? Array.Empty<string>()).Contains(x.skillId)))
+                    errors.Add($"진명 생성: null/빈 형태 또는 필살기 보완 실패 ({shadow.shadowId})");
+            if (!ReferenceEquals(samples[2].salvation, manual) || manual.requiredFlag != "preserved_flag" ||
+                manual.hpMultiplier != 1.7f || manual.bonusSkills.Length != 1 || manual.bonusSkills[0] != "manual_ultimate")
+                errors.Add("진명 생성: 수작업 형태 또는 필살기 변경");
+            if (!ReferenceEquals(samples[2].grudge, incomplete) || !incomplete.bonusSkills.Contains("ordinary_skill"))
+                errors.Add("진명 생성: 기존 일반 기술 또는 형태 유실");
+            if (samples[3].restored != null || samples[3].salvation != null || samples[3].grudge != null ||
+                samples[4].restored == null || samples[4].salvation != null || samples[4].grudge != null)
+                errors.Add("진명 생성: Standard/Rare 성장 단계 규칙 위반");
+        }
+
         private static int ApplyTierGrowthPolicy(CoreCatalog catalog)
         {
             if (catalog?.shadows == null) return 0;
