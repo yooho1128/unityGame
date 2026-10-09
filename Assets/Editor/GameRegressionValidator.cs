@@ -31,7 +31,7 @@ namespace ShadowTheater.EditorTools
         [MenuItem("Tools/Shadow Theater/Validate Full Game")]
         public static void ValidateFromMenu()
         {
-            var report = Run();
+            var report = Run(false);
             if (report.errors.Count == 0)
                 Debug.Log($"[Regression] 통과: {report.regions}개 지역, {report.scenes}개 필드, " +
                           $"{report.shadows}종 그림자, {report.portals}개 포털, {report.encounters}개 인카운터");
@@ -43,20 +43,40 @@ namespace ShadowTheater.EditorTools
         [MenuItem("Tools/Shadow Theater/Generate and Validate Full Game")]
         public static void GenerateAndValidate()
         {
+            MobileBuildConfigurator.Apply();
             PlayablePrologueGenerator.Generate();
             ValidateFromMenu();
         }
 
         public static void ValidateForCi()
         {
-            var report = Run();
+            var report = Run(false);
             if (report.errors.Count > 0)
                 throw new BuildFailedException("Shadow Theater regression failed:\n" + string.Join("\n", report.errors));
         }
 
-        private static ValidationReport Run()
+        [MenuItem("Tools/Shadow Theater/Mobile/Validate Release Gate")]
+        public static void ValidateReleaseGate()
+        {
+            var report = Run(true);
+            if (report.errors.Count == 0)
+                Debug.Log("[ReleaseGate] 통과: 콘텐츠·현지화·모바일 설정·Android/iOS 실기기 QA");
+            else
+                Debug.LogError("[ReleaseGate] 출시 차단\n- " + string.Join("\n- ", report.errors));
+            foreach (string warning in report.warnings) Debug.LogWarning("[ReleaseGate] " + warning);
+        }
+
+        public static bool TryValidateReleaseGate(out string errorText)
+        {
+            var report = Run(true);
+            errorText = string.Join("\n- ", report.errors);
+            return report.errors.Count == 0;
+        }
+
+        private static ValidationReport Run(bool requireDeviceReports)
         {
             var result = new ValidationReport();
+            MobileBuildConfigurator.ValidateSettings(result.errors);
             ValidateMigration(result);
             ValidateBattleAi(result);
             ValidateBattleRewards(result);
@@ -75,11 +95,17 @@ namespace ShadowTheater.EditorTools
             ValidateRoster(result);
             ValidateDatabase(result);
             ValidateQuestRewards(result);
+            LocalizationAuditResult localization = LocalizationCoverageValidator.Run(true);
+            if (!localization.Passed)
+                result.errors.Add($"현지화 커버리지 미완료: {localization.translated}/{localization.required} " +
+                                  $"(키 {localization.missingKeys}, EN {localization.missingEnglish}, 포맷 {localization.formatErrors}) — " +
+                                  LocalizationCoverageValidator.ReportPath);
             ValidateFinalArt(result);
             ValidateMusic(result);
             ValidateFrontEnd(result);
             ValidateScenes(regions, result);
             ValidateBuildSettings(regions, result);
+            DeviceValidationReportUtility.ValidateImported(result.errors, result.warnings, requireDeviceReports);
             return result;
         }
 
@@ -533,6 +559,8 @@ namespace ShadowTheater.EditorTools
             GameObject core = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Systems/CoreSystems.prefab");
             AdaptiveMusicDirector director = core != null ? core.GetComponent<AdaptiveMusicDirector>() : null;
             if (director == null) { result.errors.Add("CoreSystems 적응형 음악 감독 누락"); return; }
+            if (core.GetComponent<DeviceValidationRecorder>() == null)
+                result.errors.Add("CoreSystems 실기기 QA 기록기 누락");
             SerializedProperty clips = new SerializedObject(director).FindProperty("clips");
             int expected = Enum.GetValues(typeof(MusicCue)).Length;
             if (clips == null || clips.arraySize != expected)

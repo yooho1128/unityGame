@@ -25,12 +25,29 @@
 
 - 대화: `dialogue.{dialogueId}.{lineIndex}.text`
 - 화자: `dialogue.{dialogueId}.{lineIndex}.speaker`
-- 퀘스트: `quest.{questId}.title`, `quest.{questId}.{objectiveId}`
+- 선택지: `dialogue.{dialogueId}.choice.{choiceIndex}`
+- 퀘스트: `quest.{questId}.title`, `quest.{questId}.summary`, `quest.{questId}.{objectiveId}`
 - 지역: `region.{regionId}.name`, `.act`, `.environment`, `.summary`
 - 엔딩: `ending.{endingId}.title`, `.subtitle`, `.archive`
 
 등록되지 않은 키는 한국어 원문을 표시하므로 신규 콘텐츠를 추가해도 빈 문자열이나 키 자체가 화면에
 노출되지 않는다. 새 번역은 코드 수정 없이 카탈로그 항목만 추가하면 된다.
+
+## 전체 누락 검사
+
+Unity 메뉴 `Tools > Shadow Theater > Localization > Validate Full Coverage`는 다음 소스에서 실제 필요한
+키를 자동으로 수집한다.
+
+- `Assets/Scripts`의 `L10n.Get`/`L10n.Format` 정적 키와 전투 튜토리얼 동적 키
+- 전체 대화의 화자·본문·선택지
+- 47개 퀘스트의 제목·요약·목표
+- 40개 지역과 4개 엔딩 텍스트
+- 생성된 180종 그림자, 스킬, 도구와 기억 성장 형태
+
+키 누락, 빈 한국어/영문, `{0}` 같은 서식 변수의 한영 불일치와 중복 키를 실패로 처리한다. 상세 보고서는
+`Docs/Generated/LOCALIZATION_COVERAGE.md`, 번역 작업용 탭 구분 파일은
+`Docs/Generated/LOCALIZATION_MISSING.tsv`에 생성된다. 이 검사는 전체 회귀 검증과 모바일 출시 게이트에도
+포함되므로 미번역 상태로 Release 검증을 통과할 수 없다.
 
 ## 폰트 폴백
 

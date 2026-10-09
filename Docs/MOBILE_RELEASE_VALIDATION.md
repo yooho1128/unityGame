@@ -1,4 +1,25 @@
-# 모바일 출시·회귀 검증
+# 모바일 빌드·현지화·실기기 출시 검증
+
+## 권장 실행 순서
+
+1. Unity 메뉴 `Tools > Shadow Theater > Generate and Validate Full Game`을 실행한다.
+2. `Tools > Shadow Theater > Mobile > Configure Android and iOS`로 양 플랫폼 설정을 고정한다.
+3. `Localization > Validate Full Coverage`가 PASS인지 확인한다.
+4. `Mobile > Build Android QA APK`와 `Mobile > Build iOS QA Xcode`로 Development Build를 만든다.
+5. Android와 iPhone에서 각각 20분 이상 아래 실기기 시나리오를 수행한다.
+6. 기기가 만든 `device_validation_latest.json`을 각각 `Mobile > Import Device QA Report`로 가져온다.
+7. `Mobile > Validate Release Gate`가 PASS일 때만 Release AAB/Xcode 빌드를 만든다.
+
+Unity Hub에서 Android Build Support(Android SDK/NDK/OpenJDK 포함)를 설치해야 한다. iOS Xcode 빌드와
+서명·업로드는 macOS와 Xcode가 필요하다. Android 업로드 키스토어와 비밀번호, Apple 인증서와
+Provisioning Profile은 저장소에 커밋하지 않는다.
+
+## 고정되는 모바일 설정
+
+`Configure Android and iOS`는 앱 ID `com.yooho.shadowtheater`, 버전 `0.1.0`, 가로 회전, Linear 색 공간,
+IL2CPP와 Medium Managed Stripping을 적용한다. Android는 API 26 이상·ARM64, iOS는 13.0 이상이다.
+QA 메뉴는 Android APK 또는 iOS Development Xcode 프로젝트를, Release 메뉴는 Android AAB 또는 iOS
+Release Xcode 프로젝트를 `Builds/`에 만든다. Android Release는 커스텀 키스토어가 없으면 즉시 중단한다.
 
 ## 자동 검증
 
@@ -15,6 +36,8 @@ Unity 메뉴 `Tools > Shadow Theater > Generate and Validate Full Game`을 실�
 - Missing Script가 남아 있지 않은지
 - Title과 40개 필드가 Build Settings에서 활성화됐는지
 - v1 형식의 손상·중복 샘플이 현재 세이브 버전으로 정상 변환되는지
+- Android/iOS 앱 ID·화면 방향·ARM64·IL2CPP 설정이 일치하는지
+- 코드·대화·퀘스트·40개 지역·엔딩·그림자·스킬·도구의 한국어/영문이 모두 존재하는지
 
 CI에서는 Unity batchmode에 아래 메서드를 지정하면 오류가 하나라도 있을 때 빌드 실패로 종료된다.
 
@@ -56,6 +79,32 @@ CI에서는 Unity batchmode에 아래 메서드를 지정하면 오류가 하나
 저메모리 판정 기준은 시스템 RAM 3GB 이하 또는 그래픽 메모리 1GB 이하이며 CoreSystems 프리팹의
 `MobilePerformanceController`에서 조절할 수 있다.
 
+## 실기기 자동 기록과 합격 기준
+
+QA 빌드의 `CoreSystems/DeviceValidationRecorder`는 30초마다, 앱 일시 정지와 종료 때 아래 파일을 갱신한다.
+
+`Application.persistentDataPath/device_validation_latest.json`
+
+Android에서는 Android Studio Device Explorer의
+`/storage/emulated/0/Android/data/com.yooho.shadowtheater/files/`에서 복사한다. iOS에서는 Xcode의
+Devices and Simulators에서 앱 컨테이너를 내려받아 `Documents` 안의 파일을 복사한다. 가져온 원본은
+`Docs/DeviceValidationReports/`에 보관되고 요약은 `Docs/Generated/DEVICE_VALIDATION_SUMMARY.md`로 생성된다.
+같은 플랫폼에서 여러 번 시험한 경우 가장 최근에 생성된 리포트만 출시 판정에 사용하며, 현재 앱 버전과
+리포트의 앱 버전이 다르면 실패한다.
+
+플랫폼별 PASS 조건은 다음과 같다.
+
+- 20분 이상 실행, 씬 로드 5회 이상
+- 전투 완료 3회 이상, 저장 성공 3회 이상
+- 홈 화면으로 전환 후 복귀를 각각 1회 이상 기록
+- 평균 FPS 25 이상
+- 저메모리 콜백 0회, Error/Exception/Assert 로그 0건
+
+`Validate Release Gate`는 기존 전체 회귀 검증과 현지화 전수 검사에 더해, PASS한 Android 리포트와
+PASS한 iOS 리포트가 모두 있을 때만 통과한다. 일반 `Validate Full Game`은 리포트가 없으면 경고만 내므로
+개발 중 콘텐츠 검사에는 사용할 수 있다.
+두 Release 빌드 메뉴도 이 게이트를 내부에서 다시 실행하며, 실패 항목이 있으면 빌드를 시작하지 않는다.
+
 ## 실제 기기 최종 확인
 
 자동 검증 이후 Android 저사양/중간급 기기와 iPhone 1종에서 각각 20분 이상 아래를 확인한다.
@@ -67,3 +116,6 @@ CI에서는 Unity batchmode에 아래 메서드를 지정하면 오류가 하나
 5. 한국어/English 전환 후 잘림, 폰트 누락, 노치·홈 인디케이터 침범 확인
 6. 전투 도중 앱을 백그라운드에서 종료한 뒤 재실행하여 전투 직전 필드·파티·인벤토리로 복구되는지 확인
 7. 기존 저장이 있는 상태에서 새 게임 취소·확인을 각각 시험하고, 손상/최신 버전 저장 안내 문구를 확인
+
+위 동작 중 씬 이동·전투·저장·백그라운드 복귀와 기술 오류는 자동 리포트에 포함된다. UI 잘림, 터치 영역,
+음량과 체감 발열처럼 자동 판정할 수 없는 항목은 체크리스트로 함께 확인한다.

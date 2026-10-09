@@ -63,7 +63,7 @@ namespace ShadowTheater.UI
         {
             bool has=_selectedQuest!=null&&_selectedProgress!=null;
             if(titleText!=null)titleText.text=has?L10n.Get($"quest.{_selectedQuest.questId}.title",L10n.Text(_selectedQuest.title)):L10n.Get("questlog.select","기록을 선택하세요");
-            if(summaryText!=null)summaryText.text=has?L10n.Text(_selectedQuest.summary):string.Empty;
+            if(summaryText!=null)summaryText.text=has?L10n.Get($"quest.{_selectedQuest.questId}.summary",L10n.Text(_selectedQuest.summary)):string.Empty;
             if(objectivesText!=null)
             {
                 var b=new StringBuilder();if(has)foreach(var objective in _selectedQuest.objectives){var p=_selectedProgress.objectives.Find(x=>x.objectiveId==objective.objectiveId);int current=p?.current??0,required=Mathf.Max(1,objective.requiredCount);if(b.Length>0)b.AppendLine();b.Append(current>=required?"✓ ":"□ ");b.Append(L10n.Get($"quest.{_selectedQuest.questId}.{objective.objectiveId}",L10n.Text(objective.description)));if(required>1)b.Append($"  {current}/{required}");}objectivesText.text=b.ToString();

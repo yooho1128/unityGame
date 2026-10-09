@@ -211,8 +211,13 @@ namespace ShadowTheater.UI
             if (continueText != null) continueText.gameObject.SetActive(false);
             for (int i = 0; i < choiceViews.Count; i++)
             {
-                if (i < _visibleChoices.Count) choiceViews[i].Bind(i,
-                    L10n.Text(_visibleChoices[i].text), SelectChoice);
+                if (i < _visibleChoices.Count)
+                {
+                    var choice = _visibleChoices[i];
+                    int sourceIndex = _sequence.choices.IndexOf(choice);
+                    choiceViews[i].Bind(i, L10n.Get(
+                        $"dialogue.{_sequence.dialogueId}.choice.{sourceIndex}", L10n.Text(choice.text)), SelectChoice);
+                }
                 else choiceViews[i].Clear();
             }
             if (_visibleChoices.Count > choiceViews.Count)

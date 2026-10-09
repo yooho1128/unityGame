@@ -33,7 +33,7 @@ namespace ShadowTheater.EditorTools
         {
             var systems = new GameObject("CoreSystems", typeof(SaveManager), typeof(MapLoader),
                 typeof(EndingManager), typeof(GameSettings), typeof(LocalizationRuntime),
-                typeof(MobilePerformanceController), typeof(AdaptiveMusicDirector));
+                typeof(MobilePerformanceController), typeof(DeviceValidationRecorder), typeof(AdaptiveMusicDirector));
             var musicSo = new SerializedObject(systems.GetComponent<AdaptiveMusicDirector>());
             AudioClip[] music = MusicAssetGenerator.LoadAll();
             var musicClips = musicSo.FindProperty("clips");

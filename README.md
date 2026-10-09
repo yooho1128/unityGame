@@ -289,7 +289,13 @@ Unity 메뉴 **Tools → Shadow Theater → Generate and Validate Full Game**은
 180종 데이터, 40개 지역 연결, 40개 필드 구조, 포털 목적지, 인카운터 데이터, 필드 환경음·발걸음,
 필드 메뉴, 정착지 상점과 파티·각본 서고 UI 참조, 도구 가격/필드 사용 규칙, 최종 픽셀 아트 규격과 교체율,
 Missing Script와 Build Settings를 일괄 검사합니다. 추가로 메인 41개와 개인 기억 6개, 총 47개 퀘스트의
-ID·목표 타입·선행/다음 연결·순환·최종막 도달 가능 여부, 성장 완료 플래그와 보상 도구 ID까지 검사합니다. 자세한 출시 점검법은
+ID·목표 타입·선행/다음 연결·순환·최종막 도달 가능 여부, 성장 완료 플래그와 보상 도구 ID까지 검사합니다.
+
+모바일 출시는 **Mobile → Configure Android and iOS**로 Android API 26+/ARM64와 iOS 13+/IL2CPP 설정을
+적용한 뒤 QA APK/Xcode 빌드를 만듭니다. QA 빌드는 플레이 시간·FPS·씬 이동·전투·저장·백그라운드 복귀와
+오류를 `device_validation_latest.json`에 자동 기록합니다. Android/iOS 리포트를 각각 가져오고
+**Mobile → Validate Release Gate**를 실행하면 전체 회귀, 현지화 전수 검사, 양 플랫폼 실기기 PASS를
+한 번에 판정합니다. 현지화 누락 목록과 번역 TSV도 자동 생성됩니다. 자세한 출시 점검법은
 [`Docs/MOBILE_RELEASE_VALIDATION.md`](Docs/MOBILE_RELEASE_VALIDATION.md)를 참고하세요.
 
 ## 40개 지역 월드맵
