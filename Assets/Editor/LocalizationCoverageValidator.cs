@@ -39,6 +39,8 @@ namespace ShadowTheater.EditorTools
         private static readonly Regex StaticKeyRegex = new Regex(
             "L10n\\.(?:Get|Format)\\(\\s*\"([^\"]+)\"\\s*,\\s*\"((?:\\\\.|[^\"])*)\"",
             RegexOptions.Compiled);
+        private static readonly Regex StaticTextRegex = new Regex(
+            "L10n\\.Text\\(\\s*\"((?:\\\\.|[^\"])*)\"\\s*\\)", RegexOptions.Compiled);
         private static readonly Regex PlaceholderRegex = new Regex("\\{(\\d+)(?:[^}]*)?\\}", RegexOptions.Compiled);
 
         [MenuItem("Tools/Shadow Theater/Localization/Validate Full Coverage")]
@@ -115,11 +117,19 @@ namespace ShadowTheater.EditorTools
             }
 
             foreach (string file in Directory.GetFiles("Assets/Scripts", "*.cs", SearchOption.AllDirectories))
-            foreach (Match match in StaticKeyRegex.Matches(File.ReadAllText(file)))
             {
-                string key = match.Groups[1].Value;
-                if (key.EndsWith("_", StringComparison.Ordinal)) continue;
-                Add(key, Regex.Unescape(match.Groups[2].Value), "ui");
+                string source = File.ReadAllText(file);
+                foreach (Match match in StaticKeyRegex.Matches(source))
+                {
+                    string key = match.Groups[1].Value;
+                    if (key.EndsWith("_", StringComparison.Ordinal)) continue;
+                    Add(key, Regex.Unescape(match.Groups[2].Value), "ui");
+                }
+                foreach (Match match in StaticTextRegex.Matches(source))
+                {
+                    string korean = Regex.Unescape(match.Groups[1].Value);
+                    Add("literal." + StableHash(korean), korean, "ui-literal", false);
+                }
             }
             for (int i = 0; i < 3; i++)
             {
@@ -217,6 +227,16 @@ namespace ShadowTheater.EditorTools
             PlaceholderRegex.Matches(value ?? string.Empty).Cast<Match>().Select(x => x.Groups[1].Value));
 
         private static string OneLine(string value) => (value ?? string.Empty).Replace("\n", " ↵ ");
+
+        private static string StableHash(string value)
+        {
+            unchecked
+            {
+                uint hash = 2166136261;
+                foreach (char c in value ?? string.Empty) { hash ^= c; hash *= 16777619; }
+                return hash.ToString("x8");
+            }
+        }
 
         private static void AddIncomplete(LocalizationAuditResult result, Requirement item,
                                           string korean, string english, string issue)

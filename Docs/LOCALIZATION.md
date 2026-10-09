@@ -39,6 +39,7 @@ Unity 메뉴 `Tools > Shadow Theater > Localization > Validate Full Coverage`는
 키를 자동으로 수집한다.
 
 - `Assets/Scripts`의 `L10n.Get`/`L10n.Format` 정적 키와 전투 튜토리얼 동적 키
+- `Assets/Scripts`의 `L10n.Text("고정 문구")` 호출
 - 전체 대화의 화자·본문·선택지
 - 47개 퀘스트의 제목·요약·목표
 - 40개 지역과 4개 엔딩 텍스트
