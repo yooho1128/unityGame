@@ -10,16 +10,20 @@ using UnityEngine;
 namespace ShadowTheater.Save
 {
     public enum SaveLoadFailure { None, NoFile, Corrupt, FutureVersion }
-    public enum SaveRecoverySource { None, Temporary, Backup }
+    public enum SaveRecoverySource { None, Primary, Temporary, Backup }
 
     public static class SaveRecoveryPolicy
     {
-        public static SaveRecoverySource Choose(SaveData temporary, SaveData backup)
+        public static SaveRecoverySource Choose(SaveData primary, SaveData temporary, SaveData backup)
         {
-            if (temporary == null) return backup != null ? SaveRecoverySource.Backup : SaveRecoverySource.None;
-            if (backup == null) return SaveRecoverySource.Temporary;
-            return temporary.savedAtUtcTicks >= backup.savedAtUtcTicks
-                ? SaveRecoverySource.Temporary : SaveRecoverySource.Backup;
+            SaveRecoverySource source = SaveRecoverySource.None;
+            long latest = long.MinValue;
+            if (backup != null) { source = SaveRecoverySource.Backup; latest = backup.savedAtUtcTicks; }
+            if (temporary != null && temporary.savedAtUtcTicks >= latest)
+            { source = SaveRecoverySource.Temporary; latest = temporary.savedAtUtcTicks; }
+            // 같은 시각이면 정식 교체가 끝난 주 파일을 우선한다.
+            if (primary != null && primary.savedAtUtcTicks >= latest) source = SaveRecoverySource.Primary;
+            return source;
         }
     }
 
@@ -197,38 +201,30 @@ namespace ShadowTheater.Save
                 LastLoadFailure = SaveLoadFailure.NoFile;
                 return false;
             }
-            var data = TryRead(SavePath, out bool futureVersion);
+            SaveData primary = TryRead(SavePath, out bool futureVersion);
             if (futureVersion)
             {
                 LastLoadFailure = SaveLoadFailure.FutureVersion;
                 return false;
             }
-            if (data == null)
+            SaveData temporary = TryRead(TempPath, out futureVersion);
+            if (futureVersion)
             {
-                SaveData temporary = TryRead(TempPath, out futureVersion);
-                if (futureVersion)
-                {
-                    LastLoadFailure = SaveLoadFailure.FutureVersion;
-                    return false;
-                }
-                SaveData backup = TryRead(BackupPath, out futureVersion);
-                if (futureVersion)
-                {
-                    LastLoadFailure = SaveLoadFailure.FutureVersion;
-                    return false;
-                }
-                SaveRecoverySource recovery = SaveRecoveryPolicy.Choose(temporary, backup);
-                if (recovery == SaveRecoverySource.Temporary)
-                {
-                    data = temporary;
-                    LastLoadUsedTemporary = true;
-                }
-                else if (recovery == SaveRecoverySource.Backup)
-                {
-                    data = backup;
-                    LastLoadUsedBackup = true;
-                }
+                LastLoadFailure = SaveLoadFailure.FutureVersion;
+                return false;
             }
+            SaveData backup = TryRead(BackupPath, out futureVersion);
+            if (futureVersion)
+            {
+                LastLoadFailure = SaveLoadFailure.FutureVersion;
+                return false;
+            }
+            SaveRecoverySource recovery = SaveRecoveryPolicy.Choose(primary, temporary, backup);
+            SaveData data = recovery == SaveRecoverySource.Primary ? primary
+                : recovery == SaveRecoverySource.Temporary ? temporary
+                : recovery == SaveRecoverySource.Backup ? backup : null;
+            LastLoadUsedTemporary = recovery == SaveRecoverySource.Temporary;
+            LastLoadUsedBackup = recovery == SaveRecoverySource.Backup;
             if (data == null)
             {
                 LastLoadFailure = SaveLoadFailure.Corrupt;
@@ -249,7 +245,8 @@ namespace ShadowTheater.Save
             bool canRewriteRecoveredSave = true;
             if (recovered && File.Exists(SavePath))
             {
-                string corruptPath = SavePath + $".corrupt_{DateTime.UtcNow:yyyyMMddHHmmssfff}_{Guid.NewGuid():N}";
+                string state = primary != null ? "superseded" : "corrupt";
+                string corruptPath = SavePath + $".{state}_{DateTime.UtcNow:yyyyMMddHHmmssfff}_{Guid.NewGuid():N}";
                 try { File.Move(SavePath, corruptPath); }
                 catch (Exception e)
                 {

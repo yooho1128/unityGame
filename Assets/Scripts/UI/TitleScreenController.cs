@@ -46,7 +46,7 @@ namespace ShadowTheater.UI
                 else if (SaveManager.Instance.LastLoadUsedTemporary)
                     SetFeedback(L10n.Get("title.temp_recovered", "중단된 저장에서 최신 진행을 복구했습니다."), false);
                 else if (SaveManager.Instance.LastLoadUsedBackup)
-                    SetFeedback(L10n.Get("title.backup_recovered", "손상된 저장 대신 백업 기록을 복구했습니다."), false);
+                    SetFeedback(L10n.Get("title.backup_recovered", "가장 최신인 백업 기록을 복구했습니다."), false);
             }
             ShowTitle();
         }

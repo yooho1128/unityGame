@@ -9,7 +9,7 @@
     {"key":"title.save_summary","ko":"{0} · {1} · 파티 {2}명","en":"{0} · {1} · Party {2}"},
     {"key":"title.no_save","ko":"새로운 기억을 시작하세요","en":"Begin a new memory"},
     {"key":"title.save_unavailable","ko":"저장 기록을 확인할 수 없습니다","en":"Save record unavailable"},
-    {"key":"title.backup_recovered","ko":"손상된 저장 대신 백업 기록을 복구했습니다.","en":"Recovered the backup save after the main record was damaged."},
+    {"key":"title.backup_recovered","ko":"가장 최신인 백업 기록을 복구했습니다.","en":"Recovered the backup save after the main record was damaged."},
     {"key":"title.load_missing","ko":"이어갈 저장 기록이 없습니다.","en":"There is no save record to continue."},
     {"key":"title.load_corrupt","ko":"저장 기록과 백업을 읽을 수 없습니다. 새 게임은 기존 파일을 덮어씁니다.","en":"The save and backup are unreadable. Starting a new game will replace them."},
     {"key":"title.load_future","ko":"더 최신 버전에서 만든 저장 기록입니다. 게임을 업데이트해 주세요.","en":"This save was created by a newer version. Please update the game."},

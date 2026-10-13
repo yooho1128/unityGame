@@ -204,15 +204,19 @@ namespace ShadowTheater.EditorTools
 
             var temporary = new SaveData { savedAtUtcTicks = 20 };
             var backup = new SaveData { savedAtUtcTicks = 10 };
-            if (SaveRecoveryPolicy.Choose(temporary, backup) != SaveRecoverySource.Temporary ||
-                SaveRecoveryPolicy.Choose(null, backup) != SaveRecoverySource.Backup ||
-                SaveRecoveryPolicy.Choose(temporary, null) != SaveRecoverySource.Temporary ||
-                SaveRecoveryPolicy.Choose(null, null) != SaveRecoverySource.None)
+            var primary = new SaveData { savedAtUtcTicks = 15 };
+            if (SaveRecoveryPolicy.Choose(primary, temporary, backup) != SaveRecoverySource.Temporary ||
+                SaveRecoveryPolicy.Choose(null, null, backup) != SaveRecoverySource.Backup ||
+                SaveRecoveryPolicy.Choose(null, temporary, null) != SaveRecoverySource.Temporary ||
+                SaveRecoveryPolicy.Choose(null, null, null) != SaveRecoverySource.None)
                 result.errors.Add("중단 저장·백업 복구 우선순위 회귀 실패");
 
             backup.savedAtUtcTicks = 30;
-            if (SaveRecoveryPolicy.Choose(temporary, backup) != SaveRecoverySource.Backup)
+            if (SaveRecoveryPolicy.Choose(primary, temporary, backup) != SaveRecoverySource.Backup)
                 result.errors.Add("최신 백업 선택 회귀 실패");
+            primary.savedAtUtcTicks = 30;
+            if (SaveRecoveryPolicy.Choose(primary, temporary, backup) != SaveRecoverySource.Primary)
+                result.errors.Add("동일 시각 주 저장 우선 회귀 실패");
 
             if (SaveValuePolicy.SaturatingAdd(int.MaxValue - 2, 10) != int.MaxValue ||
                 SaveValuePolicy.SaturatingAdd(3, -10) != 0 ||
