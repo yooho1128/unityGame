@@ -43,6 +43,8 @@ namespace ShadowTheater.UI
             {
                 bool loaded = SaveManager.Instance.Load();
                 if (!loaded) ShowLoadFailure();
+                else if (SaveManager.Instance.LastLoadUsedTemporary)
+                    SetFeedback(L10n.Get("title.temp_recovered", "중단된 저장에서 최신 진행을 복구했습니다."), false);
                 else if (SaveManager.Instance.LastLoadUsedBackup)
                     SetFeedback(L10n.Get("title.backup_recovered", "손상된 저장 대신 백업 기록을 복구했습니다."), false);
             }
@@ -181,7 +183,7 @@ namespace ShadowTheater.UI
                 case SaveLoadFailure.FutureVersion:
                     message = L10n.Get("title.load_future", "더 최신 버전에서 만든 저장 기록입니다. 게임을 업데이트해 주세요."); break;
                 case SaveLoadFailure.Corrupt:
-                    message = L10n.Get("title.load_corrupt", "저장 기록과 백업을 읽을 수 없습니다. 새 게임은 기존 파일을 덮어씁니다."); break;
+                    message = L10n.Get("title.load_corrupt", "저장 기록과 임시 저장, 백업을 읽을 수 없습니다. 새 게임은 기존 파일을 덮어씁니다."); break;
                 default:
                     message = L10n.Get("title.load_missing", "이어갈 저장 기록이 없습니다."); break;
             }

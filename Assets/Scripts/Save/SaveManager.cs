@@ -10,6 +10,18 @@ using UnityEngine;
 namespace ShadowTheater.Save
 {
     public enum SaveLoadFailure { None, NoFile, Corrupt, FutureVersion }
+    public enum SaveRecoverySource { None, Temporary, Backup }
+
+    public static class SaveRecoveryPolicy
+    {
+        public static SaveRecoverySource Choose(SaveData temporary, SaveData backup)
+        {
+            if (temporary == null) return backup != null ? SaveRecoverySource.Backup : SaveRecoverySource.None;
+            if (backup == null) return SaveRecoverySource.Temporary;
+            return temporary.savedAtUtcTicks >= backup.savedAtUtcTicks
+                ? SaveRecoverySource.Temporary : SaveRecoverySource.Backup;
+        }
+    }
 
     /// <summary>
     /// 세이브/로드 + 진행 상태 조회 창구. 게임 전체에서 SaveManager.Current로 현재 진행 데이터에 접근.
@@ -23,6 +35,7 @@ namespace ShadowTheater.Save
         public static SaveManager Instance { get; private set; }
         public static SaveData Current => Instance != null ? Instance._current : null;
         public bool LastLoadUsedBackup { get; private set; }
+        public bool LastLoadUsedTemporary { get; private set; }
         public string LastMigrationReport { get; private set; }
         public SaveLoadFailure LastLoadFailure { get; private set; }
 
@@ -76,7 +89,7 @@ namespace ShadowTheater.Save
         // ────────────────────────────────────────────
         #region Save / Load
 
-        public bool HasSave() => File.Exists(SavePath) || File.Exists(BackupPath);
+        public bool HasSave() => File.Exists(SavePath) || File.Exists(TempPath) || File.Exists(BackupPath);
 
         /// <summary>새 게임: 스타팅 그림자 1마리 + 기본 도구 지급</summary>
         public SaveData NewGame(ShadowData starter, int starterLevel = 5)
@@ -167,6 +180,7 @@ namespace ShadowTheater.Save
         public bool Load()
         {
             LastLoadUsedBackup = false;
+            LastLoadUsedTemporary = false;
             LastLoadFailure = SaveLoadFailure.None;
             if (!HasSave())
             {
@@ -181,13 +195,29 @@ namespace ShadowTheater.Save
             }
             if (data == null)
             {
-                data = TryRead(BackupPath, out futureVersion);
+                SaveData temporary = TryRead(TempPath, out futureVersion);
                 if (futureVersion)
                 {
                     LastLoadFailure = SaveLoadFailure.FutureVersion;
                     return false;
                 }
-                LastLoadUsedBackup = data != null;
+                SaveData backup = TryRead(BackupPath, out futureVersion);
+                if (futureVersion)
+                {
+                    LastLoadFailure = SaveLoadFailure.FutureVersion;
+                    return false;
+                }
+                SaveRecoverySource recovery = SaveRecoveryPolicy.Choose(temporary, backup);
+                if (recovery == SaveRecoverySource.Temporary)
+                {
+                    data = temporary;
+                    LastLoadUsedTemporary = true;
+                }
+                else if (recovery == SaveRecoverySource.Backup)
+                {
+                    data = backup;
+                    LastLoadUsedBackup = true;
+                }
             }
             if (data == null)
             {
@@ -198,6 +228,8 @@ namespace ShadowTheater.Save
             int sourceVersion = data.version;
             Migrate(data, out string migrationReport);
             LastMigrationReport = migrationReport;
+            if (LastLoadUsedTemporary) LastMigrationReport += " · 중단된 임시 저장 복구";
+            else if (LastLoadUsedBackup) LastMigrationReport += " · 백업 저장 복구";
             int removedUnknownShadows = RepairUnknownShadowReferences(data);
             foreach (var s in data.party) s.EnsureHp();
             foreach (var s in data.storage) s.EnsureHp();
@@ -207,11 +239,16 @@ namespace ShadowTheater.Save
             RegionProgress.SyncCurrentMap();
             CurrentChanged?.Invoke();
             OnLoaded?.Invoke();
-            if (LastLoadUsedBackup && File.Exists(SavePath))
+            bool canRewriteRecoveredSave = true;
+            if ((LastLoadUsedBackup || LastLoadUsedTemporary) && File.Exists(SavePath))
             {
-                string corruptPath = SavePath + $".corrupt_{DateTime.UtcNow:yyyyMMddHHmmss}";
+                string corruptPath = SavePath + $".corrupt_{DateTime.UtcNow:yyyyMMddHHmmssfff}_{Guid.NewGuid():N}";
                 try { File.Move(SavePath, corruptPath); }
-                catch (Exception e) { Debug.LogWarning($"[SaveManager] 손상 파일 격리 실패: {e.Message}"); }
+                catch (Exception e)
+                {
+                    canRewriteRecoveredSave = false;
+                    Debug.LogWarning($"[SaveManager] 손상 파일 격리 실패, 자동 재저장 보류: {e.Message}");
+                }
             }
             if (restoredShadows > 0)
             {
@@ -223,7 +260,9 @@ namespace ShadowTheater.Save
                 LastMigrationReport += $" · 알 수 없는 그림자 {removedUnknownShadows}개 정리";
                 Debug.LogWarning($"[SaveManager] 현재 데이터베이스에 없는 그림자 {removedUnknownShadows}개를 세이브에서 격리했습니다.");
             }
-            if (sourceVersion < SaveData.CurrentVersion || LastLoadUsedBackup || restoredShadows > 0 || removedUnknownShadows > 0) Save(false);
+            bool needsRewrite = sourceVersion < SaveData.CurrentVersion || LastLoadUsedBackup || LastLoadUsedTemporary ||
+                                restoredShadows > 0 || removedUnknownShadows > 0;
+            if (needsRewrite && canRewriteRecoveredSave) Save(false);
             return true;
         }
 

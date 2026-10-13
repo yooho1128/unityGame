@@ -198,6 +198,18 @@ namespace ShadowTheater.EditorTools
                 old.party.Any(x => x.level < 1 || x.exp < 0) ||
                 old.party.Concat(old.storage).Select(x => x.instanceId).Distinct().Count() != 8)
                 result.errors.Add("v1 → 현재 세이브 마이그레이션 회귀 실패");
+
+            var temporary = new SaveData { savedAtUtcTicks = 20 };
+            var backup = new SaveData { savedAtUtcTicks = 10 };
+            if (SaveRecoveryPolicy.Choose(temporary, backup) != SaveRecoverySource.Temporary ||
+                SaveRecoveryPolicy.Choose(null, backup) != SaveRecoverySource.Backup ||
+                SaveRecoveryPolicy.Choose(temporary, null) != SaveRecoverySource.Temporary ||
+                SaveRecoveryPolicy.Choose(null, null) != SaveRecoverySource.None)
+                result.errors.Add("중단 저장·백업 복구 우선순위 회귀 실패");
+
+            backup.savedAtUtcTicks = 30;
+            if (SaveRecoveryPolicy.Choose(temporary, backup) != SaveRecoverySource.Backup)
+                result.errors.Add("최신 백업 선택 회귀 실패");
         }
 
         private static void ValidateBattleAi(ValidationReport result)
