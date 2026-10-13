@@ -23,6 +23,15 @@ namespace ShadowTheater.Save
         }
     }
 
+    public static class SaveValuePolicy
+    {
+        public static int SaturatingAdd(int current, int delta)
+        {
+            long total = (long)Math.Max(0, current) + delta;
+            return (int)Math.Max(0L, Math.Min(int.MaxValue, total));
+        }
+    }
+
     /// <summary>
     /// 세이브/로드 + 진행 상태 조회 창구. 게임 전체에서 SaveManager.Current로 현재 진행 데이터에 접근.
     ///
@@ -395,7 +404,8 @@ namespace ShadowTheater.Save
             var mergedItems = new Dictionary<string, int>(StringComparer.Ordinal);
             foreach (var item in data.inventory)
                 if (item != null && !string.IsNullOrWhiteSpace(item.itemId) && item.count > 0)
-                    mergedItems[item.itemId] = mergedItems.TryGetValue(item.itemId, out int count) ? count + item.count : item.count;
+                    mergedItems[item.itemId] = mergedItems.TryGetValue(item.itemId, out int count)
+                        ? SaveValuePolicy.SaturatingAdd(count, item.count) : item.count;
             data.inventory.Clear();
             foreach (var pair in mergedItems) data.inventory.Add(new ItemStack { itemId = pair.Key, count = pair.Value });
 
@@ -666,7 +676,7 @@ namespace ShadowTheater.Save
         public static void AddGold(int amount)
         {
             if (Current == null || amount == 0) return;
-            Current.gold = Mathf.Max(0, Current.gold + amount);
+            Current.gold = SaveValuePolicy.SaturatingAdd(Current.gold, amount);
             EconomyChanged?.Invoke();
         }
 
@@ -681,7 +691,7 @@ namespace ShadowTheater.Save
             }
             else
             {
-                stack.count = Mathf.Max(0, stack.count + amount);
+                stack.count = SaveValuePolicy.SaturatingAdd(stack.count, amount);
                 if (stack.count == 0) Current.inventory.Remove(stack);
             }
             InventoryChanged?.Invoke();
@@ -706,8 +716,7 @@ namespace ShadowTheater.Save
             if (Current == null || item == null || GetItemCount(item.itemId) <= 0)
             { message = "판매할 도구가 없습니다."; return false; }
             AddItem(item.itemId, -1);
-            Current.gold += Mathf.Max(0, item.sellPrice);
-            EconomyChanged?.Invoke();
+            AddGold(Mathf.Max(0, item.sellPrice));
             message = $"{item.displayName}을(를) 판매했습니다.";
             return true;
         }

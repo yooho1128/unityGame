@@ -192,9 +192,12 @@ namespace ShadowTheater.EditorTools
             };
             for (int i = 0; i < 8; i++) old.party.Add(new ShadowInstance
                 { instanceId = i < 2 ? "duplicate" : "", shadowId = "test_" + i, level = 0, exp = -1 });
+            old.inventory.Add(new ItemStack { itemId = "overflow_item", count = int.MaxValue });
+            old.inventory.Add(new ItemStack { itemId = "overflow_item", count = 10 });
             SaveManager.Migrate(old, out _);
             if (old.version != SaveData.CurrentVersion || old.mapId != "PrologueTheater" ||
                 old.party.Count != SaveData.MaxPartySize || old.storage.Count != 2 || old.gold != 0 ||
+                old.inventory.Count != 1 || old.inventory[0].count != int.MaxValue ||
                 old.party.Any(x => x.level < 1 || x.exp < 0) ||
                 old.party.Concat(old.storage).Select(x => x.instanceId).Distinct().Count() != 8)
                 result.errors.Add("v1 → 현재 세이브 마이그레이션 회귀 실패");
@@ -210,6 +213,11 @@ namespace ShadowTheater.EditorTools
             backup.savedAtUtcTicks = 30;
             if (SaveRecoveryPolicy.Choose(temporary, backup) != SaveRecoverySource.Backup)
                 result.errors.Add("최신 백업 선택 회귀 실패");
+
+            if (SaveValuePolicy.SaturatingAdd(int.MaxValue - 2, 10) != int.MaxValue ||
+                SaveValuePolicy.SaturatingAdd(3, -10) != 0 ||
+                SaveValuePolicy.SaturatingAdd(-5, 7) != 7)
+                result.errors.Add("세이브 재화·수량 포화 연산 회귀 실패");
         }
 
         private static void ValidateBattleAi(ValidationReport result)
@@ -373,6 +381,11 @@ namespace ShadowTheater.EditorTools
                     instance.ExpToNext != 0 || !Mathf.Approximately(instance.ExpProgress, 1f) ||
                     instance.AddExp(9999) != 0)
                     result.errors.Add("그림자 최대 레벨·경험치 회귀 실패");
+
+                var overflow = new ShadowInstance(data, 1) { exp = int.MaxValue - 1 };
+                overflow.AddExp(100);
+                if (overflow.level != ShadowInstance.MaxLevel || overflow.exp != 0)
+                    result.errors.Add("그림자 경험치 오버플로 방지 회귀 실패");
 
                 var full = new BattleUnit(new ShadowInstance(data, 5), BattleSide.Enemy);
                 var weakenedInstance = new ShadowInstance(data, 5) { currentHp = 1 };

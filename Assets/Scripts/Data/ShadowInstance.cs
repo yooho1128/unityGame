@@ -64,7 +64,7 @@ namespace ShadowTheater.Data
         {
             if (amount <= 0 || IsMaxLevel) return 0;
             int ups = 0;
-            exp += amount;
+            exp = (int)Math.Min(int.MaxValue, (long)Math.Max(0, exp) + amount);
             while (!IsMaxLevel && exp >= ExpToNext)
             {
                 int required = ExpToNext;
