@@ -831,7 +831,8 @@ async function doSwitch(side, idx, silent){
   const list = side==="Player"?B.p:B.e;
   if (idx<0||idx>=list.length||list[idx].fainted) return;
   const prev=active(side);
-  if (!prev.fainted){ prev.clearDebuffs(); await P.withdraw(prev); }
+  if (!prev.fainted){ prev.clearDebuffs(); await P.withdraw(prev);
+    if (prev.consumeFreeze()) await P.say(`${prev.name}의 [${STATUS_NAME.Freeze}] 상태가 풀렸다.`, 500); } // 빙결 중 교체도 행동 한 번으로 센다
   if (side==="Player") B.pi=idx; else B.ei=idx;
   await P.sendOut(active(side));
 }
