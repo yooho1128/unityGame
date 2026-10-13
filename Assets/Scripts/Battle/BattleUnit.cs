@@ -110,11 +110,25 @@ namespace ShadowTheater.Battle
             return 0;
         }
 
-        /// <summary>턴 종료 시 지속시간 감소. 해제된 상태 목록 반환</summary>
+        /// <summary>
+        /// 빙결로 행동이 막힐 때마다 호출. 빙결의 지속 턴은 턴 종료가 아니라 "막힌 행동 횟수"로 센다.
+        /// (턴 종료에 세면 느린 쪽이 건 빙결이 상대의 행동을 한 번도 막지 못하고 풀린다.)
+        /// 이번 호출로 빙결이 풀렸으면 true
+        /// </summary>
+        public bool ConsumeFreezeTurn()
+        {
+            if (MajorStatus == null || MajorStatus.type != StatusEffectType.Freeze) return false;
+            if (--MajorStatus.remainingTurns > 0) return false;
+            MajorStatus = null;
+            return true;
+        }
+
+        /// <summary>턴 종료 시 지속시간 감소(빙결 제외, ConsumeFreezeTurn 참고). 해제된 상태 목록 반환</summary>
         public List<StatusEffectType> TickStatus()
         {
             var expired = new List<StatusEffectType>();
-            if (MajorStatus != null && --MajorStatus.remainingTurns <= 0)
+            if (MajorStatus != null && MajorStatus.type != StatusEffectType.Freeze &&
+                --MajorStatus.remainingTurns <= 0)
             {
                 expired.Add(MajorStatus.type);
                 MajorStatus = null;

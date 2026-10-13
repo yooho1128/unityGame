@@ -318,6 +318,12 @@ namespace ShadowTheater.Battle
             if (!user.CanAct)
             {
                 yield return _presenter.PlayCantMove(user);
+                if (user.ConsumeFreezeTurn())
+                {
+                    yield return _presenter.ShowMessage(L10n.Format("battle.status_expired", "{0}의 [{1}] 상태가 풀렸다.",
+                        L10n.Text(user.Name), BattleStatusFormatter.Label(StatusEffectType.Freeze)));
+                    OnUnitChanged?.Invoke(user);
+                }
                 yield break;
             }
 

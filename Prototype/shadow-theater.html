@@ -362,8 +362,12 @@ class Unit {
   clearDebuffs(){ this.debuffs=[]; }
   clearAll(){ this.major=null; this.debuffs=[]; }
   dot(){ return this.major&&(this.major.type==="Burn"||this.major.type==="Bleed") ? Math.max(1,Math.floor(this.maxHp/16)) : 0; }
+  consumeFreeze(){ // 빙결은 턴 종료가 아니라 "막힌 행동 횟수"로 센다
+    if (!this.major || this.major.type!=="Freeze") return false;
+    if (--this.major.turns>0) return false;
+    this.major=null; return true; }
   tick(){ const out=[];
-    if (this.major && --this.major.turns<=0){ out.push(this.major.type); this.major=null; }
+    if (this.major && this.major.type!=="Freeze" && --this.major.turns<=0){ out.push(this.major.type); this.major=null; }
     for (let i=this.debuffs.length-1;i>=0;i--) if (--this.debuffs[i].turns<=0){ out.push(this.debuffs[i].type); this.debuffs.splice(i,1); }
     return out; }
 }
@@ -801,7 +805,9 @@ async function execute(a){
 async function doSkill(a){
   const u=active(a.side), o=opponent(a.side);
   let s=SK(a.skill); if(!s) return;
-  if (!u.canAct){ await P.say(`${u.name}은(는) 얼어붙어 움직일 수 없다!`); return; }
+  if (!u.canAct){ await P.say(`${u.name}은(는) 얼어붙어 움직일 수 없다!`);
+    if (u.consumeFreeze()) await P.say(`${u.name}의 [${STATUS_NAME.Freeze}] 상태가 풀렸다.`, 500);
+    return; }
   if (B.fp[a.side] < s.fpCost){ s=SK(u.d.basicAttack); a.skill=u.d.basicAttack; }
   addFp(a.side, s.fpGain - s.fpCost); refreshInfo();
   if (s.target==="Self"){

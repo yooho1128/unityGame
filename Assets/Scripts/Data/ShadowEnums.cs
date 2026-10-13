@@ -73,7 +73,7 @@ namespace ShadowTheater.Data
     public enum StatusEffectType
     {
         None,
-        Freeze,      // 행동 불가 (공격/스킬만 막힘, 교체·도구는 가능)
+        Freeze,      // 행동 불가 (공격/스킬만 막힘, 교체·도구는 가능). 지속 턴 = 막힌 행동 횟수
         Burn,        // 턴 종료 시 최대 HP 1/16 피해
         Bleed,       // 턴 종료 시 최대 HP 1/16 피해
         AttackDown,  // 공격력 x0.7
