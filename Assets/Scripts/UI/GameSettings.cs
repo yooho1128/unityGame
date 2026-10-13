@@ -8,6 +8,7 @@ namespace ShadowTheater.UI
     /// <summary>세이브 슬롯과 독립적으로 유지되는 전역 접근성·오디오 설정.</summary>
     public class GameSettings : MonoBehaviour
     {
+        public const bool EnglishEnabled = false;
         public static GameSettings Instance { get; private set; }
         public static event Action Changed;
 
@@ -47,7 +48,11 @@ namespace ShadowTheater.UI
         public void SetSfxVolume(float value) { _sfxVolume = Mathf.Clamp01(value); ApplyAndSave(); }
         public void SetVibration(bool value) { _vibration = value; ApplyAndSave(); }
         public void SetTextSpeed(float value) { _textSpeed = Mathf.Clamp(value, 20f, 90f); ApplyAndSave(); }
-        public void SetLanguage(GameLanguage value) { _language = value; ApplyAndSave(); }
+        public void SetLanguage(GameLanguage value)
+        {
+            _language = EnglishEnabled ? value : GameLanguage.Korean;
+            ApplyAndSave();
+        }
 
         public static void TryVibrate()
         {
@@ -65,7 +70,9 @@ namespace ShadowTheater.UI
             _sfxVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(Prefix + "sfx", .9f));
             _vibration = PlayerPrefs.GetInt(Prefix + "vibration", 1) != 0;
             _textSpeed = Mathf.Clamp(PlayerPrefs.GetFloat(Prefix + "text_speed", 42f), 20f, 90f);
-            _language = (GameLanguage)Mathf.Clamp(PlayerPrefs.GetInt(Prefix + "language", 0), 0, 1);
+            _language = EnglishEnabled
+                ? (GameLanguage)Mathf.Clamp(PlayerPrefs.GetInt(Prefix + "language", 0), 0, 1)
+                : GameLanguage.Korean;
         }
 
         private void ApplyAndSave()

@@ -28,7 +28,7 @@ namespace ShadowTheater.UI
         private static Dictionary<string, LocalizedStringEntry> _byKey;
         private static Dictionary<string, LocalizedStringEntry> _byText;
         public static event Action Changed;
-        public static bool IsEnglish => GameSettings.Language == GameLanguage.English;
+        public static bool IsEnglish => GameSettings.EnglishEnabled && GameSettings.Language == GameLanguage.English;
 
         public static string Get(string key, string fallback = "")
         {

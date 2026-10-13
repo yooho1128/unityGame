@@ -77,6 +77,12 @@ namespace ShadowTheater.UI
         public void ToggleLanguage()
         {
             if (GameSettings.Instance == null) return;
+            if (!GameSettings.EnglishEnabled)
+            {
+                GameSettings.Instance.SetLanguage(GameLanguage.Korean);
+                RefreshLabels();
+                return;
+            }
             GameSettings.Instance.SetLanguage(GameSettings.Language == GameLanguage.Korean
                 ? GameLanguage.English : GameLanguage.Korean);
             RefreshLabels();
@@ -104,7 +110,17 @@ namespace ShadowTheater.UI
             if (textSpeedValue != null) textSpeedValue.text = GameSettings.TextSpeed < 33f
                 ? L10n.Get("settings.slow", "느리게") : GameSettings.TextSpeed < 60f
                     ? L10n.Get("settings.normal", "보통") : L10n.Get("settings.fast", "빠르게");
-            if (languageValue != null) languageValue.text = GameSettings.Language == GameLanguage.Korean ? "한국어" : "English";
+            if (languageValue != null)
+            {
+                languageValue.text = GameSettings.Language == GameLanguage.Korean ? "한국어" : "English";
+                Transform button = languageValue.transform.parent;
+                if (button != null)
+                {
+                    button.gameObject.SetActive(GameSettings.EnglishEnabled);
+                    Transform label = button.parent != null ? button.parent.Find("LanguageLabel") : null;
+                    if (label != null) label.gameObject.SetActive(GameSettings.EnglishEnabled);
+                }
+            }
         }
 
         private static string Percent(float value) => $"{Mathf.RoundToInt(value * 100f)}%";

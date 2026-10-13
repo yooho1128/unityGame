@@ -110,7 +110,7 @@ namespace ShadowTheater.EditorTools
             LocalizationAuditResult localization = LocalizationCoverageValidator.Run(true);
             if (!localization.Passed)
                 result.errors.Add($"현지화 커버리지 미완료: {localization.translated}/{localization.required} " +
-                                  $"(키 {localization.missingKeys}, EN {localization.missingEnglish}, 포맷 {localization.formatErrors}) — " +
+                                  $"(키 {localization.missingKeys}, KO {localization.missingKorean}, 포맷 {localization.formatErrors}) — " +
                                   LocalizationCoverageValidator.ReportPath);
             ValidateFinalArt(result);
             ValidateMusic(result);

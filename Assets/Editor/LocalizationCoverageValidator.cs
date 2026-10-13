@@ -18,7 +18,8 @@ namespace ShadowTheater.EditorTools
         public int required, translated, missingKeys, missingKorean, missingEnglish, formatErrors, dataErrors;
         public readonly List<string> issues = new List<string>();
         public readonly List<LocalizationTemplateRow> incomplete = new List<LocalizationTemplateRow>();
-        public bool Passed => missingKeys == 0 && missingKorean == 0 && missingEnglish == 0 &&
+        public bool Passed => missingKeys == 0 && missingKorean == 0 &&
+                              (!GameSettings.EnglishEnabled || missingEnglish == 0) &&
                               formatErrors == 0 && dataErrors == 0;
     }
 
@@ -54,10 +55,11 @@ namespace ShadowTheater.EditorTools
         {
             LocalizationAuditResult report = Run(true);
             if (report.Passed)
-                Debug.Log($"[Localization] 통과: {report.translated}/{report.required} 항목");
+                Debug.Log($"[Localization] 한국어 출시 기준 통과: {report.translated}/{report.required} 항목 " +
+                          $"(영문 보류 {report.missingEnglish})");
             else
                 Debug.LogError($"[Localization] 미완료: {report.translated}/{report.required} · " +
-                               $"키 {report.missingKeys}, KO {report.missingKorean}, EN {report.missingEnglish}, " +
+                               $"키 {report.missingKeys}, KO {report.missingKorean}, " +
                                $"포맷 {report.formatErrors}, 데이터 {report.dataErrors}\n" +
                                $"전체 목록: {ReportPath}");
         }
@@ -81,6 +83,13 @@ namespace ShadowTheater.EditorTools
                     byKorean.TryGetValue(item.korean, out entry);
                 if (entry == null)
                 {
+                    if (!GameSettings.EnglishEnabled && item.category != "catalog" &&
+                        !string.IsNullOrWhiteSpace(item.korean))
+                    {
+                        result.missingEnglish++;
+                        result.translated++;
+                        continue;
+                    }
                     result.missingKeys++;
                     result.issues.Add($"[{item.category}] MISSING KEY · {item.key} · KO: {OneLine(item.korean)}");
                     AddIncomplete(result, item, item.korean, string.Empty, "MISSING_KEY");
@@ -94,17 +103,22 @@ namespace ShadowTheater.EditorTools
                 }
                 if (string.IsNullOrWhiteSpace(entry.en))
                 {
-                    result.missingEnglish++; result.issues.Add($"[{item.category}] EMPTY EN · {item.key}");
-                    AddIncomplete(result, item, entry.ko, entry.en, "EMPTY_EN"); valid = false;
+                    result.missingEnglish++;
+                    if (GameSettings.EnglishEnabled)
+                    {
+                        result.issues.Add($"[{item.category}] EMPTY EN · {item.key}");
+                        AddIncomplete(result, item, entry.ko, entry.en, "EMPTY_EN");
+                        valid = false;
+                    }
                 }
-                if (!string.IsNullOrEmpty(entry.ko) && !string.IsNullOrEmpty(entry.en) &&
+                if (GameSettings.EnglishEnabled && !string.IsNullOrEmpty(entry.ko) && !string.IsNullOrEmpty(entry.en) &&
                     !Placeholders(entry.ko).SetEquals(Placeholders(entry.en)))
                 {
                     result.formatErrors++; result.issues.Add($"[{item.category}] FORMAT MISMATCH · {item.key}");
                     AddIncomplete(result, item, entry.ko, entry.en, "FORMAT_MISMATCH"); valid = false;
                 }
                 if ((!string.IsNullOrEmpty(entry.ko) && !ValidCompositeFormat(entry.ko)) ||
-                    (!string.IsNullOrEmpty(entry.en) && !ValidCompositeFormat(entry.en)))
+                    (GameSettings.EnglishEnabled && !string.IsNullOrEmpty(entry.en) && !ValidCompositeFormat(entry.en)))
                 {
                     result.formatErrors++; result.issues.Add($"[{item.category}] MALFORMED FORMAT · {item.key}");
                     AddIncomplete(result, item, entry.ko, entry.en, "MALFORMED_FORMAT"); valid = false;
@@ -119,12 +133,14 @@ namespace ShadowTheater.EditorTools
             int invalidEntries = entries.Count(x => x == null || string.IsNullOrWhiteSpace(x.key));
             if (invalidEntries > 0)
             { result.formatErrors += invalidEntries; result.issues.Add($"[catalog] NULL OR EMPTY KEY · {invalidEntries}개"); }
-            foreach (var group in entries.Where(x => x != null && !string.IsNullOrWhiteSpace(x.ko))
-                         .GroupBy(x => x.ko).Where(x => x.Select(y => y.en).Distinct().Count() > 1))
-            { result.formatErrors++; result.issues.Add("[catalog] AMBIGUOUS KO · " + OneLine(group.Key)); }
-            foreach (var group in entries.Where(x => x != null && !string.IsNullOrWhiteSpace(x.en))
-                         .GroupBy(x => x.en).Where(x => x.Select(y => y.ko).Distinct().Count() > 1))
-            { result.formatErrors++; result.issues.Add("[catalog] AMBIGUOUS EN · " + OneLine(group.Key)); }
+            if (GameSettings.EnglishEnabled)
+                foreach (var group in entries.Where(x => x != null && !string.IsNullOrWhiteSpace(x.ko))
+                             .GroupBy(x => x.ko).Where(x => x.Select(y => y.en).Distinct().Count() > 1))
+                { result.formatErrors++; result.issues.Add("[catalog] AMBIGUOUS KO · " + OneLine(group.Key)); }
+            if (GameSettings.EnglishEnabled)
+                foreach (var group in entries.Where(x => x != null && !string.IsNullOrWhiteSpace(x.en))
+                             .GroupBy(x => x.en).Where(x => x.Select(y => y.ko).Distinct().Count() > 1))
+                { result.formatErrors++; result.issues.Add("[catalog] AMBIGUOUS EN · " + OneLine(group.Key)); }
             if (writeReport) WriteReport(result, required.Values);
             return result;
         }
@@ -321,7 +337,8 @@ namespace ShadowTheater.EditorTools
             text.AppendLine($"- 결과: {(result.Passed ? "PASS" : "FAIL")}");
             text.AppendLine($"- 완료: {result.translated} / {result.required}");
             text.AppendLine($"- 누락 키: {result.missingKeys}");
-            text.AppendLine($"- 빈 한국어/영문: {result.missingKorean} / {result.missingEnglish}");
+            text.AppendLine($"- 빈 한국어: {result.missingKorean}");
+            text.AppendLine($"- 영문 보류: {result.missingEnglish} (현재 출시 필수 아님)");
             text.AppendLine($"- 포맷·중복 오류: {result.formatErrors}").AppendLine();
             text.AppendLine($"- 데이터 소스 오류: {result.dataErrors}").AppendLine();
             text.AppendLine("## 요구 항목").AppendLine();
