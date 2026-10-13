@@ -410,6 +410,9 @@ namespace ShadowTheater.EditorTools
                 if (!orders.Add(region.order)) result.errors.Add("중복 지역 순서: " + region.order);
                 if (region.recommendedLevelMin > region.recommendedLevelMax)
                     result.errors.Add("권장 레벨 역전: " + region.regionId);
+                if (region.recommendedLevelMin < 1 || region.recommendedLevelMax > ShadowInstance.MaxLevel)
+                    result.errors.Add($"권장 레벨 범위 초과: {region.regionId} " +
+                                      $"({region.recommendedLevelMin}-{region.recommendedLevelMax} / 최대 {ShadowInstance.MaxLevel})");
                 if (!string.IsNullOrEmpty(region.requiredFlag) && !IsDeclaredStoryFlag(region.requiredFlag))
                     result.errors.Add($"{region.regionId}: 생성되지 않는 지역 해금 플래그 {region.requiredFlag}");
             }

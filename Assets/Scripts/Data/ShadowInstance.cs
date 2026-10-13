@@ -11,7 +11,7 @@ namespace ShadowTheater.Data
     [Serializable]
     public class ShadowInstance
     {
-        public const int MaxLevel = 100;
+        public const int MaxLevel = 120;
 
         public string instanceId;   // 같은 그림자 중복 수집 대비 고유 ID
         public string shadowId;

@@ -292,7 +292,7 @@ namespace ShadowTheater.EditorTools
             Enum.TryParse(value, true, out T result) ? result : fallback;
 
         private static int UnlockLevel(int configured, int fpCost, bool ultimate) =>
-            Mathf.Clamp(configured > 0 ? configured : (ultimate ? 1 : fpCost <= 1 ? 1 : fpCost == 2 ? 5 : fpCost == 3 ? 12 : 20), 1, 100);
+            Mathf.Clamp(configured > 0 ? configured : (ultimate ? 1 : fpCost <= 1 ? 1 : fpCost == 2 ? 5 : fpCost == 3 ? 12 : 20), 1, ShadowInstance.MaxLevel);
 
         private static Color ParseColor(string html, Color fallback) =>
             !string.IsNullOrEmpty(html) && ColorUtility.TryParseHtmlString(html, out var color) ? color : fallback;
