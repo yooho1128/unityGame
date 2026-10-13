@@ -74,8 +74,8 @@ namespace ShadowTheater.Data
     {
         None,
         Freeze,      // 행동 불가 (공격/스킬만 막힘, 교체·도구는 가능). 지속 턴 = 막힌 행동 횟수
-        Burn,        // 턴 종료 시 최대 HP 1/16 피해
-        Bleed,       // 턴 종료 시 최대 HP 1/16 피해
+        Burn,        // 턴 종료 시 최대 HP 1/16 피해 + 공격력 x0.8
+        Bleed,       // 턴 종료 시 최대 HP 1/24 피해, 턴마다 1→2→3배 누적
         AttackDown,  // 공격력 x0.7
         DefenseDown, // 방어력 x0.7
         SpeedDown    // 속도 x0.5

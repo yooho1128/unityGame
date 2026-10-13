@@ -347,7 +347,7 @@ class Unit {
   get hpRatio(){ return this.hp/this.maxHp; }
   get fainted(){ return this.hp<=0; }
   has(t){ return this.debuffs.some(x=>x.type===t); }
-  get atk(){ return Math.round(stat(this.inst,"Atk")*(this.has("AttackDown")?0.7:1)); }
+  get atk(){ return Math.round(stat(this.inst,"Atk")*(this.has("AttackDown")?0.7:1)*(this.major&&this.major.type==="Burn"?0.8:1)); }
   get def(){ return Math.round(stat(this.inst,"Def")*(this.has("DefenseDown")?0.7:1)); }
   get spd(){ return Math.round(stat(this.inst,"Spd")*(this.has("SpeedDown")?0.5:1)); }
   get canAct(){ return !this.major || this.major.type!=="Freeze"; }
@@ -361,13 +361,18 @@ class Unit {
   }
   clearDebuffs(){ this.debuffs=[]; }
   clearAll(){ this.major=null; this.debuffs=[]; }
-  dot(){ return this.major&&(this.major.type==="Burn"||this.major.type==="Bleed") ? Math.max(1,Math.floor(this.maxHp/16)) : 0; }
+  dot(){ if (!this.major) return 0;
+    if (this.major.type==="Burn") return Math.max(1,Math.floor(this.maxHp/16));
+    if (this.major.type==="Bleed") return Math.max(1,Math.floor(this.maxHp/24))*Math.min(3,(this.major.elapsed||0)+1); // 출혈: 1→2→3배 누적
+    return 0; }
   consumeFreeze(){ // 빙결은 턴 종료가 아니라 "막힌 행동 횟수"로 센다
     if (!this.major || this.major.type!=="Freeze") return false;
     if (--this.major.turns>0) return false;
     this.major=null; return true; }
   tick(){ const out=[];
-    if (this.major && this.major.type!=="Freeze" && --this.major.turns<=0){ out.push(this.major.type); this.major=null; }
+    if (this.major && this.major.type!=="Freeze"){
+      this.major.elapsed=(this.major.elapsed||0)+1;
+      if (--this.major.turns<=0){ out.push(this.major.type); this.major=null; } }
     for (let i=this.debuffs.length-1;i>=0;i--) if (--this.debuffs[i].turns<=0){ out.push(this.debuffs[i].type); this.debuffs.splice(i,1); }
     return out; }
 }

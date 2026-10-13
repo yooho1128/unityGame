@@ -8,6 +8,7 @@ namespace ShadowTheater.Battle
     {
         public StatusEffectType type;
         public int remainingTurns;
+        public int elapsedTurns; // 부여 후 지난 턴 수 (출혈 누적 피해 계산용)
     }
 
     /// <summary>
@@ -16,6 +17,9 @@ namespace ShadowTheater.Battle
     /// </summary>
     public class BattleUnit
     {
+        public const float BurnAttackFactor = 0.8f; // 화상: 지속 피해 + 공격력 감소
+        public const int BleedMaxStacks = 3;        // 출혈: 턴마다 피해가 1→2→3배로 누적
+
         public ShadowInstance Instance { get; }
         public ShadowData Data => Instance.Data;
         public BattleSide Side { get; }
@@ -39,7 +43,9 @@ namespace ShadowTheater.Battle
         public float HpRatio => (float)Hp / MaxHp;
         public bool IsFainted => Hp <= 0;
 
-        public int Atk => Mathf.RoundToInt(Instance.Atk * (HasDebuff(StatusEffectType.AttackDown) ? 0.7f : 1f));
+        public int Atk => Mathf.RoundToInt(Instance.Atk
+            * (HasDebuff(StatusEffectType.AttackDown) ? 0.7f : 1f)
+            * (HasStatus(StatusEffectType.Burn) ? BurnAttackFactor : 1f));
         public int Def => Mathf.RoundToInt(Instance.Def * (HasDebuff(StatusEffectType.DefenseDown) ? 0.7f : 1f));
         public int Spd => Mathf.RoundToInt(Instance.Spd * (HasDebuff(StatusEffectType.SpeedDown) ? 0.5f : 1f));
         public float CritRate => Instance.CritRate;
@@ -105,9 +111,16 @@ namespace ShadowTheater.Battle
         public int GetDotDamage()
         {
             if (MajorStatus == null) return 0;
-            if (MajorStatus.type == StatusEffectType.Burn || MajorStatus.type == StatusEffectType.Bleed)
-                return Mathf.Max(1, MaxHp / 16);
-            return 0;
+            switch (MajorStatus.type)
+            {
+                case StatusEffectType.Burn:
+                    return Mathf.Max(1, MaxHp / 16);
+                case StatusEffectType.Bleed:
+                    int stacks = Mathf.Min(BleedMaxStacks, MajorStatus.elapsedTurns + 1);
+                    return Mathf.Max(1, MaxHp / 24) * stacks;
+                default:
+                    return 0;
+            }
         }
 
         /// <summary>
@@ -127,11 +140,14 @@ namespace ShadowTheater.Battle
         public List<StatusEffectType> TickStatus()
         {
             var expired = new List<StatusEffectType>();
-            if (MajorStatus != null && MajorStatus.type != StatusEffectType.Freeze &&
-                --MajorStatus.remainingTurns <= 0)
+            if (MajorStatus != null && MajorStatus.type != StatusEffectType.Freeze)
             {
-                expired.Add(MajorStatus.type);
-                MajorStatus = null;
+                MajorStatus.elapsedTurns++;
+                if (--MajorStatus.remainingTurns <= 0)
+                {
+                    expired.Add(MajorStatus.type);
+                    MajorStatus = null;
+                }
             }
             for (int i = _debuffs.Count - 1; i >= 0; i--)
             {
