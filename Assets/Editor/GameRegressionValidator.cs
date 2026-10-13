@@ -335,6 +335,10 @@ namespace ShadowTheater.EditorTools
                 DamageCalculator.SplitExperience(2, 6) != 1 ||
                 DamageCalculator.SplitExperience(100, 0) != 0)
                 result.errors.Add("참여 경험치 분배 회귀 실패");
+            if (ShadowInstance.ExperienceToNext(1) != 25 ||
+                ShadowInstance.ExperienceToNext(10) != 520 ||
+                ShadowInstance.ExperienceToNext(ShadowInstance.MaxLevel) != 0)
+                result.errors.Add("그림자 경험치 곡선 회귀 실패");
 
             ShadowData data = CreateAiTestShadow("level_cap_test", ShadowElement.None);
             SkillData unlockSkill = ScriptableObject.CreateInstance<SkillData>();

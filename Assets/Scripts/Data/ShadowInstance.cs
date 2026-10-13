@@ -50,8 +50,14 @@ namespace ShadowTheater.Data
         public bool IsFainted => currentHp == 0;
 
         public bool IsMaxLevel => level >= MaxLevel;
-        public int ExpToNext => IsMaxLevel ? 0 : 20 + level * level * 5;
+        public int ExpToNext => ExperienceToNext(level);
         public float ExpProgress => IsMaxLevel ? 1f : Mathf.Clamp01((float)exp / ExpToNext);
+
+        public static int ExperienceToNext(int currentLevel)
+        {
+            int normalized = Mathf.Clamp(currentLevel, 1, MaxLevel);
+            return normalized >= MaxLevel ? 0 : 20 + normalized * normalized * 5;
+        }
 
         /// <summary>경험치 획득. 레벨업 횟수 반환</summary>
         public int AddExp(int amount)

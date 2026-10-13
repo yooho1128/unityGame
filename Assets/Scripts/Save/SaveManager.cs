@@ -382,7 +382,7 @@ namespace ShadowTheater.Save
                 shadow.exp = Mathf.Max(0, shadow.exp);
                 while (shadow.level < ShadowInstance.MaxLevel)
                 {
-                    int required = 20 + shadow.level * shadow.level * 5;
+                    int required = ShadowInstance.ExperienceToNext(shadow.level);
                     if (shadow.exp < required) break;
                     shadow.exp -= required;
                     shadow.level++;
