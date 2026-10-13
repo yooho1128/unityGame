@@ -138,6 +138,7 @@
     {"key":"status.burn","ko":"화상","en":"Burn"},
     {"key":"status.burn_detail","ko":"(공격 -{0}%)","en":"(ATK -{0}%)"},
     {"key":"status.bleed","ko":"출혈","en":"Bleed"},
+    {"key":"status.bleed_detail","ko":"(누적 {0}/{1})","en":"(Stack {0}/{1})"},
     {"key":"status.attackdown","ko":"공격 감소","en":"Attack Down"},
     {"key":"status.defensedown","ko":"방어 감소","en":"Defense Down"},
     {"key":"status.speeddown","ko":"속도 감소","en":"Speed Down"},

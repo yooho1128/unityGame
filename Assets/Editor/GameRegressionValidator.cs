@@ -448,6 +448,19 @@ namespace ShadowTheater.EditorTools
                     result.errors.Add("전투 상태 이상 복합 표시 회귀 실패");
             }
             finally { UnityEngine.Object.DestroyImmediate(data); }
+
+            ShadowData bleedData = CreateAiTestShadow("bleed_display_test", ShadowElement.None);
+            try
+            {
+                var unit = new BattleUnit(new ShadowInstance(bleedData, 5), BattleSide.Player);
+                unit.ApplyStatus(StatusEffectType.Bleed, 4);
+                int first = unit.GetDotDamage();
+                if (!BattleStatusFormatter.Summary(unit).Contains("1/3")) result.errors.Add("출혈 누적 1단계 표시 회귀 실패");
+                unit.TickStatus();
+                if (!BattleStatusFormatter.Summary(unit).Contains("2/3") || unit.GetDotDamage() != first * 2)
+                    result.errors.Add("출혈 누적 2단계 표시/피해 회귀 실패");
+            }
+            finally { UnityEngine.Object.DestroyImmediate(bleedData); }
         }
 
         private static void ValidateRegionGraph(List<RegionData> regions, ValidationReport result)

@@ -107,6 +107,10 @@ namespace ShadowTheater.Battle
             _debuffs.Clear();
         }
 
+        /// <summary>출혈의 현재 누적 단계(다음 턴 종료 피해 배수). 1~BleedMaxStacks</summary>
+        public static int BleedStacks(StatusState bleed) =>
+            bleed == null ? 0 : Mathf.Min(BleedMaxStacks, bleed.elapsedTurns + 1);
+
         /// <summary>턴 종료 시 지속 피해 계산 (Burn/Bleed). 실제 적용은 BattleManager가 연출과 함께 처리</summary>
         public int GetDotDamage()
         {
@@ -116,8 +120,7 @@ namespace ShadowTheater.Battle
                 case StatusEffectType.Burn:
                     return Mathf.Max(1, MaxHp / 16);
                 case StatusEffectType.Bleed:
-                    int stacks = Mathf.Min(BleedMaxStacks, MajorStatus.elapsedTurns + 1);
-                    return Mathf.Max(1, MaxHp / 24) * stacks;
+                    return Mathf.Max(1, MaxHp / 24) * BleedStacks(MajorStatus);
                 default:
                     return 0;
             }

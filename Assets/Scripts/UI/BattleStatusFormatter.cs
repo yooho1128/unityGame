@@ -28,6 +28,12 @@ namespace ShadowTheater.UI
                 int percent = UnityEngine.Mathf.RoundToInt((1f - BattleUnit.BurnAttackFactor) * 100f);
                 text += " " + L10n.Format("status.burn_detail", "(공격 -{0}%)", percent);
             }
+            else if (status.type == StatusEffectType.Bleed)
+            {
+                // 출혈은 턴마다 피해가 누적되므로 현재 단계를 함께 표시한다.
+                text += " " + L10n.Format("status.bleed_detail", "(누적 {0}/{1})",
+                    BattleUnit.BleedStacks(status), BattleUnit.BleedMaxStacks);
+            }
             return text;
         }
     }
