@@ -26,9 +26,12 @@ namespace ShadowTheater.UI
         public string applicationVersion;
         public string buildGuid;
         public bool developmentBuild;
+        public int metricsRevision;
         public float sessionSeconds;
         public float averageFps;
         public float minimumOneSecondFps;
+        public int frameSamples;
+        public float maximumFrameSeconds;
         public int sceneLoads;
         public int uniqueScenes;
         public int battlesCompleted;
@@ -36,6 +39,8 @@ namespace ShadowTheater.UI
         public int loadsCompleted;
         public int pauseCount;
         public int resumeCount;
+        public int resumesObservedInUpdate;
+        public float suspendedSeconds;
         public int lowMemoryEvents;
         public int errorCount;
         public bool passed;
@@ -70,6 +75,8 @@ namespace ShadowTheater.UI
         private float _nextExport;
         private readonly object _errorLock = new object();
         private int _threadErrorCount;
+        private DateTime? _pausedAtUtc;
+        private bool _awaitingResumeFrame;
 
         private void Awake()
         {
@@ -112,10 +119,21 @@ namespace ShadowTheater.UI
         private void Update()
         {
             if (_report == null) return;
+            if (_awaitingResumeFrame)
+            {
+                _awaitingResumeFrame = false;
+                _report.resumesObservedInUpdate++;
+                // 모바일 복귀 직후 delta에는 백그라운드 체류 시간이 섞일 수 있으므로
+                // 실제 활성 프레임 성능 표본에서는 제외한다.
+                ExportIfDue();
+                return;
+            }
             float delta = Time.unscaledDeltaTime;
-            if (delta > 0f)
+            if (delta > 0f && !float.IsNaN(delta) && !float.IsInfinity(delta))
             {
                 _sampleSeconds += delta; _sampleFrames++;
+                _report.frameSamples++;
+                if (delta > _report.maximumFrameSeconds) _report.maximumFrameSeconds = delta;
                 _bucketSeconds += delta; _bucketFrames++;
                 if (_bucketSeconds >= 1f)
                 {
@@ -124,8 +142,13 @@ namespace ShadowTheater.UI
                         _report.minimumOneSecondFps = fps;
                     _bucketSeconds = 0f; _bucketFrames = 0;
                 }
+                _report.sessionSeconds += delta;
             }
-            _report.sessionSeconds += delta;
+            ExportIfDue();
+        }
+
+        private void ExportIfDue()
+        {
             if (Time.unscaledTime >= _nextExport)
             {
                 _nextExport = Time.unscaledTime + autoExportInterval;
@@ -173,8 +196,23 @@ namespace ShadowTheater.UI
         private void OnApplicationPause(bool paused)
         {
             if (_report == null) return;
-            if (paused) { _report.pauseCount++; Export(); }
-            else _report.resumeCount++;
+            if (paused)
+            {
+                if (_pausedAtUtc.HasValue) return;
+                _pausedAtUtc = DateTime.UtcNow;
+                _report.pauseCount++;
+                Export();
+                return;
+            }
+            // 일부 플랫폼은 시작 시 pause=false를 보낼 수 있다. 실제 pause와 짝이
+            // 맞는 복귀만 세어 QA가 거짓 통과하지 않게 한다.
+            if (!_pausedAtUtc.HasValue) return;
+            double seconds = (DateTime.UtcNow - _pausedAtUtc.Value).TotalSeconds;
+            if (seconds > 0d && seconds <= float.MaxValue)
+                _report.suspendedSeconds += (float)seconds;
+            _pausedAtUtc = null;
+            _report.resumeCount++;
+            _awaitingResumeFrame = true;
         }
 
         private void OnApplicationQuit() => Export();
@@ -232,7 +270,8 @@ namespace ShadowTheater.UI
             graphicsMemoryMb = SystemInfo.graphicsMemorySize,
             applicationVersion = Application.version,
             buildGuid = Application.buildGUID,
-            developmentBuild = Debug.isDebugBuild
+            developmentBuild = Debug.isDebugBuild,
+            metricsRevision = 2
         };
     }
 }

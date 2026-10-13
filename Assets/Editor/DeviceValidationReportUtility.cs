@@ -128,8 +128,10 @@ namespace ShadowTheater.EditorTools
                 text.AppendLine($"- 앱: {r.applicationVersion} / {(r.developmentBuild ? "QA" : "Release")}");
                 text.AppendLine($"- 빌드: {r.buildGuid}");
                 text.AppendLine($"- 시간: {r.sessionSeconds / 60f:F1}분 · 평균/최저 FPS: {r.averageFps:F1}/{r.minimumOneSecondFps:F1}");
+                text.AppendLine($"- 프레임: {r.frameSamples}개 · 최대 프레임 시간: {r.maximumFrameSeconds * 1000f:F1}ms");
                 text.AppendLine($"- 씬/전투/저장: {r.sceneLoads}/{r.battlesCompleted}/{r.savesCompleted}");
-                text.AppendLine($"- 백그라운드 복귀: {r.pauseCount}/{r.resumeCount} · 오류: {r.errorCount} · 저메모리: {r.lowMemoryEvents}");
+                text.AppendLine($"- 백그라운드 전환/복귀/활성 확인: {r.pauseCount}/{r.resumeCount}/{r.resumesObservedInUpdate} " +
+                                $"· 체류: {r.suspendedSeconds:F1}초 · 오류: {r.errorCount} · 저메모리: {r.lowMemoryEvents}");
                 if (!r.passed) text.AppendLine("- 실패: " + string.Join(" · ", r.failedCriteria ?? new List<string>()));
                 text.AppendLine();
             }

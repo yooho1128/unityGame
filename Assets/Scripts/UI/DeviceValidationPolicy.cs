@@ -10,14 +10,21 @@ namespace ShadowTheater.UI
         {
             var failures = new List<string>();
             if (report == null) { failures.Add("리포트 누락"); return failures; }
+            if (report.metricsRevision < 2) failures.Add("QA 측정 항목 구버전 — 새 빌드에서 재시험 필요");
             if (!Finite(report.sessionSeconds) || report.sessionSeconds < 1200f) failures.Add("플레이 시간 20분 미만 또는 잘못된 값");
             if (!Finite(report.averageFps) || report.averageFps < 25f) failures.Add("평균 FPS 25 미만 또는 잘못된 값");
             if (!Finite(report.minimumOneSecondFps) || report.minimumOneSecondFps < 10f) failures.Add("1초 구간 최저 FPS 10 미만 또는 잘못된 값");
+            if (report.frameSamples <= 0 || !Finite(report.maximumFrameSeconds) || report.maximumFrameSeconds <= 0f)
+                failures.Add("활성 프레임 측정값 누락 또는 잘못된 값");
             if (report.sceneLoads < 5) failures.Add("씬 이동 5회 미만");
             if (report.uniqueScenes < 3) failures.Add("서로 다른 씬 방문 3개 미만");
             if (report.battlesCompleted < 3) failures.Add("전투 완료 3회 미만");
             if (report.savesCompleted < 3) failures.Add("저장 3회 미만");
             if (report.pauseCount < 1 || report.resumeCount < 1) failures.Add("백그라운드 전환·복귀 미검증");
+            else if (report.pauseCount != report.resumeCount) failures.Add("백그라운드 전환·복귀 횟수 불일치");
+            if (report.resumesObservedInUpdate != report.resumeCount) failures.Add("복귀 후 활성 프레임 미확인");
+            if (!Finite(report.suspendedSeconds) || report.suspendedSeconds < 0f)
+                failures.Add("백그라운드 체류 시간 누락 또는 잘못된 값");
             if (report.lowMemoryEvents != 0) failures.Add("저메모리 이벤트 발생 또는 잘못된 값");
             if (report.errorCount != 0 || (report.errors != null && report.errors.Count > 0)) failures.Add("오류/예외 로그 발생 또는 잘못된 값");
             if (string.IsNullOrWhiteSpace(report.deviceModel)) failures.Add("기기 정보 누락");

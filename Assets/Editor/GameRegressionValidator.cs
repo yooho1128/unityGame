@@ -127,8 +127,10 @@ namespace ShadowTheater.EditorTools
             {
                 generatedAtUtc = DateTime.UtcNow.ToString("O"), deviceModel = "Regression device", buildGuid = "regression-build",
                 sessionSeconds = 1200f, averageFps = 25f, minimumOneSecondFps = 10f,
+                metricsRevision = 2, frameSamples = 30000, maximumFrameSeconds = 0.04f,
                 sceneLoads = 5, uniqueScenes = 3,
-                battlesCompleted = 3, savesCompleted = 3, pauseCount = 1, resumeCount = 1
+                battlesCompleted = 3, savesCompleted = 3, pauseCount = 1, resumeCount = 1,
+                resumesObservedInUpdate = 1, suspendedSeconds = 1f
             };
             if (DeviceValidationPolicy.Evaluate(sample).Count != 0)
                 result.errors.Add("실기기 QA 정책: 최소 통과 기준 오류");
@@ -147,6 +149,26 @@ namespace ShadowTheater.EditorTools
             if (DeviceValidationPolicy.Evaluate(sample).Count == 0)
                 result.errors.Add("실기기 QA 정책: 복귀 미검증 리포트가 통과함");
             sample.resumeCount = 1;
+            sample.resumesObservedInUpdate = 0;
+            if (DeviceValidationPolicy.Evaluate(sample).Count == 0)
+                result.errors.Add("실기기 QA 정책: 복귀 후 활성 프레임 미확인 리포트가 통과함");
+            sample.resumesObservedInUpdate = 1;
+            sample.pauseCount = 2;
+            if (DeviceValidationPolicy.Evaluate(sample).Count == 0)
+                result.errors.Add("실기기 QA 정책: 전환·복귀 횟수 불일치 리포트가 통과함");
+            sample.pauseCount = 1;
+            sample.maximumFrameSeconds = float.NaN;
+            if (DeviceValidationPolicy.Evaluate(sample).Count == 0)
+                result.errors.Add("실기기 QA 정책: 잘못된 활성 프레임 측정값이 통과함");
+            sample.maximumFrameSeconds = 0.04f;
+            sample.metricsRevision = 1;
+            if (DeviceValidationPolicy.Evaluate(sample).Count == 0)
+                result.errors.Add("실기기 QA 정책: 구버전 측정 항목 리포트가 통과함");
+            sample.metricsRevision = 2;
+            sample.suspendedSeconds = float.NaN;
+            if (DeviceValidationPolicy.Evaluate(sample).Count == 0)
+                result.errors.Add("실기기 QA 정책: 잘못된 백그라운드 체류 시간이 통과함");
+            sample.suspendedSeconds = 1f;
             sample.uniqueScenes = 1;
             if (DeviceValidationPolicy.Evaluate(sample).Count == 0)
                 result.errors.Add("실기기 QA 정책: 단일 지역 반복 리포트가 통과함");
