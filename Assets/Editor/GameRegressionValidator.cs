@@ -444,7 +444,7 @@ namespace ShadowTheater.EditorTools
                 unit.ApplyStatus(StatusEffectType.Burn, 3);
                 unit.ApplyStatus(StatusEffectType.AttackDown, 2);
                 string summary = BattleStatusFormatter.Summary(unit);
-                if (!summary.Contains("3T") || !summary.Contains("2T") || !unit.HasAnyStatus || unit.Debuffs.Count != 1)
+                if (!summary.Contains("3T") || !summary.Contains("2T") || !summary.Contains("20%") || !unit.HasAnyStatus || unit.Debuffs.Count != 1)
                     result.errors.Add("전투 상태 이상 복합 표시 회귀 실패");
             }
             finally { UnityEngine.Object.DestroyImmediate(data); }

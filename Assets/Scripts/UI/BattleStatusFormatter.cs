@@ -19,7 +19,16 @@ namespace ShadowTheater.UI
             return string.Join(" · ", labels);
         }
 
-        private static string WithTurns(StatusState status) =>
-            $"{Label(status.type)} {System.Math.Max(0, status.remainingTurns)}T";
+        private static string WithTurns(StatusState status)
+        {
+            string text = $"{Label(status.type)} {System.Math.Max(0, status.remainingTurns)}T";
+            // 화상은 지속 피해 외에 공격력도 낮추므로 감소율을 함께 표시한다.
+            if (status.type == StatusEffectType.Burn)
+            {
+                int percent = UnityEngine.Mathf.RoundToInt((1f - BattleUnit.BurnAttackFactor) * 100f);
+                text += " " + L10n.Format("status.burn_detail", "(공격 -{0}%)", percent);
+            }
+            return text;
+        }
     }
 }

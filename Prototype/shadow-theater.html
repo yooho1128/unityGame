@@ -981,7 +981,7 @@ function refreshInfo(){
     const u=active(side); const box=side==="Player"?$("#infoP"):$("#infoE");
     const pct=Math.max(0,u.hp/u.maxHp*100);
     const col= pct>50?"var(--hp)":pct>20?"var(--hpwarn)":"var(--hpcrit)";
-    const st=[u.major?u.major.type:null,...u.debuffs.map(d=>d.type)].filter(Boolean).map(t=>`<span class="chip" style="color:${t==="Freeze"?"var(--frost)":t==="Burn"?"var(--flame)":"var(--hpcrit)"}">${STATUS_NAME[t]}</span>`).join(" ");
+    const st=[u.major?u.major.type:null,...u.debuffs.map(d=>d.type)].filter(Boolean).map(t=>`<span class="chip" style="color:${t==="Freeze"?"var(--frost)":t==="Burn"?"var(--flame)":"var(--hpcrit)"}">${STATUS_NAME[t]}${t==="Burn"?" (공격 -20%)":""}</span>`).join(" ");
     const fp=Array.from({length:5},(_,i)=>`<b class="${i<B.fp[side]?"on":""}"></b>`).join("");
     if (!box.firstChild){ box.innerHTML=`<div class="row"><span class="nm"></span><span class="lv"></span></div><div class="hpbar"><i></i></div><div class="meta"><span class="hpnum"></span><span class="st"></span><span class="fp" title="공연 열기 FP"></span></div>`; }
     box.querySelector(".nm").innerHTML=`<span class="elem" style="background:${ELEM[u.d.element].c}"></span>${u.name}`;

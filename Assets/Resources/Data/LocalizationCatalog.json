@@ -136,6 +136,7 @@
     {"key":"battle.true_name_ultimate","ko":"진명 필살기\n{0}","en":"TRUE NAME ULTIMATE\n{0}"},
     {"key":"status.freeze","ko":"빙결","en":"Freeze"},
     {"key":"status.burn","ko":"화상","en":"Burn"},
+    {"key":"status.burn_detail","ko":"(공격 -{0}%)","en":"(ATK -{0}%)"},
     {"key":"status.bleed","ko":"출혈","en":"Bleed"},
     {"key":"status.attackdown","ko":"공격 감소","en":"Attack Down"},
     {"key":"status.defensedown","ko":"방어 감소","en":"Defense Down"},
