@@ -63,6 +63,7 @@ namespace ShadowTheater.Save
         public static event Action EconomyChanged;
 
         private SaveData _current;
+        private bool _suppressSaveWrites;
 
         private string SavePath => Path.Combine(Application.persistentDataPath, $"save_{slot}.json");
         private string BackupPath => SavePath + ".bak";
@@ -146,7 +147,7 @@ namespace ShadowTheater.Save
 
         public void Save(bool captureRuntimeState = true)
         {
-            if (_current == null) return;
+            if (_current == null || _suppressSaveWrites) return;
             try
             {
                 if (captureRuntimeState) BeforeSave?.Invoke();
@@ -244,12 +245,9 @@ namespace ShadowTheater.Save
             foreach (var s in data.storage) s.EnsureHp();
             int restoredShadows = RepairRecordedOwnership(data);
 
-            _current = data;
-            RegionProgress.SyncCurrentMap();
-            CurrentChanged?.Invoke();
-            OnLoaded?.Invoke();
+            bool recovered = LastLoadUsedBackup || LastLoadUsedTemporary;
             bool canRewriteRecoveredSave = true;
-            if ((LastLoadUsedBackup || LastLoadUsedTemporary) && File.Exists(SavePath))
+            if (recovered && File.Exists(SavePath))
             {
                 string corruptPath = SavePath + $".corrupt_{DateTime.UtcNow:yyyyMMddHHmmssfff}_{Guid.NewGuid():N}";
                 try { File.Move(SavePath, corruptPath); }
@@ -258,6 +256,19 @@ namespace ShadowTheater.Save
                     canRewriteRecoveredSave = false;
                     Debug.LogWarning($"[SaveManager] 손상 파일 격리 실패, 자동 재저장 보류: {e.Message}");
                 }
+            }
+
+            _suppressSaveWrites = recovered;
+            try
+            {
+                _current = data;
+                RegionProgress.SyncCurrentMap();
+                CurrentChanged?.Invoke();
+                OnLoaded?.Invoke();
+            }
+            finally
+            {
+                _suppressSaveWrites = false;
             }
             if (restoredShadows > 0)
             {
