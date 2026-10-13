@@ -31,7 +31,7 @@ Assets/Scripts/
 ```
 
 ## 프로젝트 설정
-- Unity 2022.3 LTS 이상, 템플릿 **2D (URP)**
+- 기준 에디터는 Unity **2022.3.52f3**, 템플릿 **2D (URP)**
 - Player Settings → Active Input Handling = **Both** (에디터 키보드 테스트용. 모바일은 가상 패드 사용)
 - Tag `Player` 추가, Layer `Obstacle`, `Unit` 추가
 

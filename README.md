@@ -17,7 +17,7 @@
 ## 집 PC에서 Unity로 열기
 1. 이 저장소를 clone
 2. Unity Hub → **Add project from disk** → clone한 폴더 선택
-3. 기준 버전인 **Unity 2022.3.21f1** 또는 같은 2022.3 LTS 계열로 열기
+3. `ProjectSettings/ProjectVersion.txt`의 기준 버전인 **Unity 2022.3.52f3**로 열기
 4. 첫 실행 시 `Packages/manifest.json`을 기준으로 URP 2D, Tilemap Extras, Input System 등을 자동 설치
 5. Player Settings → Active Input Handling = **Both** 확인
 6. Unity가 생성한 나머지 `ProjectSettings/`, `Packages/packages-lock.json`, `*.meta` 파일까지 커밋

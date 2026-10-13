@@ -38,3 +38,4 @@ Unity/실기기 실행이 불가능하면 정적 검사와 실행 검증을 명�
 - Title 선두·활성 씬 41개·빈 경로·중복 검사, 정책 회귀 샘플, 양 플랫폼 QA 필수 CI 진입점 추가.
 - 프로젝트 에디터 기준을 사용 환경과 같은 Unity 2022.3.52f3로 갱신. Unity 실행 미검증.
 - Unity 2022.3 실컴파일 오류 수정: Editor L10n 이름 충돌, API 호환 enum, out 변수 범위, UI 네임스페이스.
+- README·SETUP·기획 명세의 에디터 기준을 `ProjectVersion.txt`와 같은 Unity 2022.3.52f3로 통일.
