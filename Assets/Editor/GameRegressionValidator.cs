@@ -222,6 +222,32 @@ namespace ShadowTheater.EditorTools
                 SaveValuePolicy.SaturatingAdd(3, -10) != 0 ||
                 SaveValuePolicy.SaturatingAdd(-5, 7) != 7)
                 result.errors.Add("세이브 재화·수량 포화 연산 회귀 실패");
+
+            var quest = new QuestDefinition
+            {
+                questId = "recovery_test",
+                objectives = new List<QuestObjectiveDefinition>
+                {
+                    new QuestObjectiveDefinition { objectiveId = "step", requiredCount = 3 }
+                }
+            };
+            var questSave = new SaveData
+            {
+                quests = new List<QuestProgressData>(),
+                flags = new List<FlagEntry> { new FlagEntry { key = "quest_recovery_test_complete", value = 1 } }
+            };
+            if (!QuestProgressRecovery.RestoreCompletedStates(questSave, new[] { quest }) ||
+                questSave.quests.Count != 1 || !questSave.quests[0].completed ||
+                !questSave.quests[0].rewardClaimed || questSave.quests[0].objectives.Count != 1 ||
+                questSave.quests[0].objectives[0].current != 3 ||
+                QuestProgressRecovery.RestoreCompletedStates(questSave, new[] { quest }))
+                result.errors.Add("퀘스트 완료 플래그 복구 회귀 실패");
+
+            var claimed = new QuestProgressData { questId = "claimed", rewardClaimed = true };
+            questSave.quests.Add(claimed);
+            if (!QuestProgressRecovery.RestoreCompletedStates(questSave, Array.Empty<QuestDefinition>()) ||
+                !claimed.completed)
+                result.errors.Add("퀘스트 보상 수령 상태 복구 회귀 실패");
         }
 
         private static void ValidateBattleAi(ValidationReport result)

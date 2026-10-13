@@ -116,8 +116,8 @@ namespace ShadowTheater.Story
 
             var instance = new ShadowInstance(purificationReward, purificationRewardLevel);
             bool joinedParty = SaveManager.AddCapturedShadow(instance);
-            QuestManager.Instance?.Notify(QuestObjectiveType.Record, purificationReward.shadowId);
             if (!string.IsNullOrEmpty(purificationRewardFlag)) SaveManager.SetFlag(purificationRewardFlag);
+            QuestManager.Instance?.Notify(QuestObjectiveType.Record, purificationReward.shadowId);
             SaveManager.Instance.Save();
             string rewardName = L10n.Text(purificationReward.displayName);
             SaveFeedbackController.Instance?.ShowMessage(joinedParty

@@ -6,6 +6,63 @@ using UnityEngine;
 
 namespace ShadowTheater.Story
 {
+    public static class QuestProgressRecovery
+    {
+        /// <summary>완료 플래그나 보상 수령 기록이 남은 퀘스트의 완료 상태와 목표를 복구한다.</summary>
+        public static bool RestoreCompletedStates(SaveData save, IReadOnlyList<QuestDefinition> definitions)
+        {
+            if (save?.quests == null || definitions == null) return false;
+            bool changed = false;
+
+            foreach (QuestProgressData progress in save.quests)
+            {
+                if (progress == null || !progress.rewardClaimed || progress.completed) continue;
+                progress.completed = true;
+                changed = true;
+            }
+
+            foreach (QuestDefinition quest in definitions)
+            {
+                if (quest == null || string.IsNullOrWhiteSpace(quest.questId)) continue;
+
+                QuestProgressData progress = save.quests.Find(x => x != null && x.questId == quest.questId);
+                bool completionFlag = HasFlag(save, $"quest_{quest.questId}_complete");
+                if (!completionFlag && progress?.rewardClaimed != true) continue;
+                if (progress == null)
+                {
+                    progress = new QuestProgressData { questId = quest.questId };
+                    save.quests.Add(progress);
+                    changed = true;
+                }
+                if (!progress.completed) { progress.completed = true; changed = true; }
+                // 완료 플래그는 보상 지급 뒤 기록되므로 중복 지급을 막는다.
+                if (completionFlag && !progress.rewardClaimed) { progress.rewardClaimed = true; changed = true; }
+                progress.objectives ??= new List<QuestObjectiveProgressData>();
+                foreach (QuestObjectiveDefinition objective in quest.objectives ?? new List<QuestObjectiveDefinition>())
+                {
+                    if (objective == null || string.IsNullOrWhiteSpace(objective.objectiveId)) continue;
+                    QuestObjectiveProgressData item = progress.objectives.Find(x => x != null && x.objectiveId == objective.objectiveId);
+                    int required = Mathf.Max(1, objective.requiredCount);
+                    if (item == null)
+                    {
+                        progress.objectives.Add(new QuestObjectiveProgressData
+                            { objectiveId = objective.objectiveId, current = required });
+                        changed = true;
+                    }
+                    else if (item.current < required)
+                    {
+                        item.current = required;
+                        changed = true;
+                    }
+                }
+            }
+            return changed;
+        }
+
+        private static bool HasFlag(SaveData save, string key) =>
+            save.flags?.Exists(x => x != null && x.key == key && x.value != 0) == true;
+    }
+
     /// <summary>
     /// 대화/지역 도달/그림자 기록/전투 승리 이벤트를 현재 퀘스트 목표에 반영한다.
     /// 진행도는 SaveData에 직접 기록되어 씬 전환과 앱 재실행에도 유지된다.
@@ -155,6 +212,7 @@ namespace ShadowTheater.Story
             _initializedSaveGuid = save.saveGuid;
 
             bool changed = RepairProgressData();
+            changed |= QuestProgressRecovery.RestoreCompletedStates(save, QuestRepository.All);
             foreach (var quest in QuestRepository.All)
                 if (quest.autoStart && TryStartQuest(quest.questId, false)) changed = true;
 
