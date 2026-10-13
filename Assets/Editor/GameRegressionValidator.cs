@@ -91,6 +91,7 @@ namespace ShadowTheater.EditorTools
             MobileBuildConfigurator.ValidateSettings(result.errors);
             ValidateMigration(result);
             ValidateBattleAi(result);
+            ValidateBattleActions(result);
             ValidateBattleRewards(result);
             ValidateBattleStatusDisplay(result);
             if (!File.Exists(RegionPath))
@@ -294,6 +295,38 @@ namespace ShadowTheater.EditorTools
             data.element = element;
             data.baseHp = 100;
             return data;
+        }
+
+        private static void ValidateBattleActions(ValidationReport result)
+        {
+            ShadowData data = CreateAiTestShadow("action_rule_test", ShadowElement.None);
+            SkillData basic = ScriptableObject.CreateInstance<SkillData>();
+            SkillData foreign = ScriptableObject.CreateInstance<SkillData>();
+            ItemData item = ScriptableObject.CreateInstance<ItemData>();
+            try
+            {
+                basic.skillId = "action_basic";
+                foreign.skillId = "action_foreign";
+                data.basicAttack = basic;
+                var unit = new BattleUnit(new ShadowInstance(data, 1), BattleSide.Player);
+                if (!BattleAction.Attack(BattleSide.Player, basic).MatchesBasicAttack(unit) ||
+                    BattleAction.Attack(BattleSide.Player, foreign).MatchesBasicAttack(unit))
+                    result.errors.Add("일반 공격 기술 우회 방지 회귀 실패");
+
+                var context = new BattleContext();
+                if (context.HasItem(item)) result.errors.Add("빈 인벤토리 도구 검증 회귀 실패");
+                context.inventory = new Dictionary<ItemData, int> { { item, 1 } };
+                if (!context.HasItem(item)) result.errors.Add("보유 도구 검증 회귀 실패");
+                context.inventory[item] = 0;
+                if (context.HasItem(item)) result.errors.Add("소진 도구 검증 회귀 실패");
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(basic);
+                UnityEngine.Object.DestroyImmediate(foreign);
+                UnityEngine.Object.DestroyImmediate(item);
+                UnityEngine.Object.DestroyImmediate(data);
+            }
         }
 
         private static void ValidateBattleRewards(ValidationReport result)

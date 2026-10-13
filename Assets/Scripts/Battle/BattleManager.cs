@@ -100,7 +100,8 @@ namespace ShadowTheater.Battle
                 return false;
             }
             if (context?.playerParty == null || context.enemyParty == null ||
-                context.playerParty.Count == 0 || context.enemyParty.Count == 0)
+                context.playerParty.Count == 0 || context.enemyParty.Count == 0 ||
+                context.playerParty.Exists(x => x == null) || context.enemyParty.Exists(x => x == null))
             {
                 Debug.LogError("[BattleManager] BattleContext 파티 정보 누락");
                 return false;
@@ -113,10 +114,10 @@ namespace ShadowTheater.Battle
             foreach (var s in context.enemyParty) _enemyUnits.Add(new BattleUnit(s, BattleSide.Enemy));
 
             _playerIdx = FindNextAlive(_playerUnits, -1);
-            _enemyIdx = 0;
-            if (_playerIdx < 0)
+            _enemyIdx = FindNextAlive(_enemyUnits, -1);
+            if (_playerIdx < 0 || _enemyIdx < 0)
             {
-                Debug.LogError("[BattleManager] 싸울 수 있는 그림자가 없음");
+                Debug.LogError("[BattleManager] 싸울 수 있는 그림자가 한쪽 파티에 없음");
                 return false;
             }
             _playerParticipants.Clear();
@@ -176,7 +177,7 @@ namespace ShadowTheater.Battle
         public bool CanUseItem(BattleSide side, ItemData item, out string reason)
         {
             reason = string.Empty;
-            if (item == null || Context?.inventory == null || !Context.inventory.TryGetValue(item, out int count) || count <= 0)
+            if (item == null || Context == null || !Context.HasItem(item))
             { reason = "보유 수량이 없습니다."; return false; }
             if (!item.usableInBattle) { reason = "필드 전용 도구입니다."; return false; }
             BattleUnit target = Active(side);
@@ -642,6 +643,7 @@ namespace ShadowTheater.Battle
                 case ActionType.Attack:
                     if (a.skill == null) a.skill = PlayerActive.BasicAttack;
                     if (a.skill == null) { reason = "기본 공격 미설정"; return false; }
+                    if (!a.MatchesBasicAttack(PlayerActive)) { reason = "일반 공격 슬롯의 기술 불일치"; return false; }
                     return true;
                 case ActionType.Skill:
                     if (a.skill == null || !PlayerActive.Skills.Contains(a.skill)) { reason = "보유하지 않은 스킬"; return false; }
@@ -654,10 +656,7 @@ namespace ShadowTheater.Battle
                     if (!CanRecordCurrent) { reason = "기록할 수 없는 그림자"; return false; }
                     return true;
                 case ActionType.Item:
-                    if (a.item == null || !a.item.usableInBattle) { reason = "사용 불가 도구"; return false; }
-                    if (Context.inventory != null &&
-                        (!Context.inventory.TryGetValue(a.item, out int c) || c <= 0)) { reason = "도구 없음"; return false; }
-                    return true;
+                    return CanUseItem(BattleSide.Player, a.item, out reason);
                 case ActionType.Escape:
                     if (!Context.CanEscape) { reason = "도주 불가 전투"; return false; }
                     return true;

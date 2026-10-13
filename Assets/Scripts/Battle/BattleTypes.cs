@@ -70,6 +70,10 @@ namespace ShadowTheater.Battle
             new BattleAction { side = side, type = ActionType.Item, item = item };
         public static BattleAction Escape() =>
             new BattleAction { side = BattleSide.Player, type = ActionType.Escape };
+
+        /// <summary>일반 공격 슬롯으로 다른 기술의 FP 비용·해금 조건을 우회하지 못하게 한다.</summary>
+        public bool MatchesBasicAttack(BattleUnit active) =>
+            type == ActionType.Attack && active != null && skill != null && skill == active.BasicAttack;
     }
 
     /// <summary>
@@ -87,6 +91,9 @@ namespace ShadowTheater.Battle
 
         public bool CanCapture => mode == BattleMode.Wild;
         public bool CanEscape => mode == BattleMode.Wild;
+
+        public bool HasItem(ItemData item) =>
+            item != null && inventory != null && inventory.TryGetValue(item, out int count) && count > 0;
     }
 
     /// <summary>전투 결과 → 필드/세이브 쪽으로 넘겨줌</summary>
