@@ -97,6 +97,7 @@ namespace ShadowTheater.EditorTools
             ValidateBattleRewards(result);
             ValidateBattleStatusDisplay(result);
             ValidateHiddenBattleGimmicks(result);
+            ValidateRegionalEncounterPolicy(result);
             if (!File.Exists(RegionPath))
             {
                 result.errors.Add("RegionCatalog.json 누락");
@@ -110,7 +111,7 @@ namespace ShadowTheater.EditorTools
             if (regions.Count(x => x.isSettlement) != 7)
                 result.errors.Add($"극단 마을 수 불일치: {regions.Count(x => x.isSettlement)}/7");
             ValidateRegionGraph(regions, result);
-            ValidateRoster(result);
+            ValidateRoster(regions, result);
             ValidateDatabase(result);
             ValidateCompanionEvents(regions, result);
             ValidateQuestRewards(result);
@@ -428,6 +429,49 @@ namespace ShadowTheater.EditorTools
                 result.errors.Add("숨은 보스 메아리 기술 반복 판정 회귀 실패");
         }
 
+        private static void ValidateRegionalEncounterPolicy(ValidationReport result)
+        {
+            AssertEncounterCadence(new RegionData { isHidden = true }, 9, 13, .09f, 22, "숨겨진 지역", result);
+            AssertEncounterCadence(new RegionData { isDungeon = true }, 5, 8, .16f, 14, "던전", result);
+            AssertEncounterCadence(new RegionData(), 7, 11, .12f, 18, "일반 필드", result);
+            if (!(RegionalEncounterPolicy.FeaturedWeight(0) > RegionalEncounterPolicy.FeaturedWeight(1) &&
+                  RegionalEncounterPolicy.FeaturedWeight(1) > RegionalEncounterPolicy.FeaturedWeight(2) &&
+                  RegionalEncounterPolicy.FeaturedWeight(2) > RegionalEncounterPolicy.FeaturedWeight(3)))
+                result.errors.Add("지역 대표 그림자 출현 가중치 회귀 실패");
+            if (!(RegionalEncounterPolicy.RarityMultiplier(GrowthTier.Standard) >
+                  RegionalEncounterPolicy.RarityMultiplier(GrowthTier.Rare)) ||
+                RegionalEncounterPolicy.RarityMultiplier(GrowthTier.RegionalBoss) != 0f ||
+                RegionalEncounterPolicy.RarityMultiplier(GrowthTier.Legendary) != 0f)
+                result.errors.Add("그림자 등급별 랜덤 조우 가중치 회귀 실패");
+
+            ShadowData candidate = CreateAiTestShadow("encounter_policy_test", ShadowElement.None);
+            try
+            {
+                var region = new RegionData { bossShadowName = "지역 보스" };
+                candidate.displayName = "필드 그림자";
+                candidate.growthTier = GrowthTier.Standard;
+                candidate.baseCaptureRate = .3f;
+                if (!RegionalEncounterPolicy.IsEligible(region, candidate))
+                    result.errors.Add("일반 그림자 랜덤 조우 후보 회귀 실패");
+                candidate.displayName = region.bossShadowName;
+                if (RegionalEncounterPolicy.IsEligible(region, candidate))
+                    result.errors.Add("지역 보스 랜덤 조우 제외 회귀 실패");
+                candidate.displayName = "다른 지역 보스";
+                candidate.growthTier = GrowthTier.RegionalBoss;
+                if (RegionalEncounterPolicy.IsEligible(region, candidate))
+                    result.errors.Add("보스 등급 랜덤 조우 제외 회귀 실패");
+            }
+            finally { UnityEngine.Object.DestroyImmediate(candidate); }
+        }
+
+        private static void AssertEncounterCadence(RegionData region, int expectedMin, int expectedMax,
+            float expectedChance, int expectedPity, string label, ValidationReport result)
+        {
+            RegionalEncounterPolicy.GetCadence(region, out int min, out int max, out float chance, out int pity);
+            if (min != expectedMin || max != expectedMax || !Mathf.Approximately(chance, expectedChance) || pity != expectedPity)
+                result.errors.Add($"{label} 랜덤 조우 간격 회귀 실패");
+        }
+
         private static void ValidateBattleActions(ValidationReport result)
         {
             ShadowData data = CreateAiTestShadow("action_rule_test", ShadowElement.None);
@@ -595,15 +639,35 @@ namespace ShadowTheater.EditorTools
             if (reached.Count != regions.Count) result.errors.Add($"월드맵 도달 가능 지역: {reached.Count}/{regions.Count}");
         }
 
-        private static void ValidateRoster(ValidationReport result)
+        private static void ValidateRoster(List<RegionData> regions, ValidationReport result)
         {
             if (!File.Exists(RosterPath))
             { result.errors.Add("RegionalRosterManifest.json 누락 — 먼저 전체 생성을 실행하세요"); return; }
             var roster = JsonUtility.FromJson<RosterManifest>(File.ReadAllText(RosterPath));
             int count = roster?.entries?.Count ?? 0;
             if (count != 97) result.errors.Add($"지역 확장 로스터 수 불일치: {count}/97");
-            if (roster?.entries != null && roster.entries.Select(x => x.shadowId).Distinct().Count() != count)
+            if (roster?.entries == null) return;
+            if (roster.entries.Select(x => x.shadowId).Distinct().Count() != count)
                 result.errors.Add("지역 확장 로스터 shadowId 중복");
+
+            var byId = regions.Where(x => x != null).ToDictionary(x => x.regionId, StringComparer.Ordinal);
+            foreach (RosterEntry entry in roster.entries)
+            {
+                if (string.IsNullOrEmpty(entry.shadowId) || string.IsNullOrEmpty(entry.regionId))
+                { result.errors.Add("지역 확장 로스터에 빈 그림자/지역 ID가 있음"); continue; }
+                if (!byId.TryGetValue(entry.regionId, out RegionData region))
+                { result.errors.Add($"{entry.shadowId}: 알 수 없는 출현 지역 {entry.regionId}"); continue; }
+                if (entry.sceneName != region.sceneName)
+                    result.errors.Add($"{entry.shadowId}: 출현 씬 불일치 {entry.sceneName}/{region.sceneName}");
+                if (entry.minLevel < region.recommendedLevelMin || entry.maxLevel > region.recommendedLevelMax ||
+                    entry.minLevel > entry.maxLevel)
+                    result.errors.Add($"{entry.shadowId}: 지역 레벨 범위 이탈 {entry.minLevel}-{entry.maxLevel}");
+                if (!entry.featured && !region.AllowsRandomEncounters)
+                    result.errors.Add($"{entry.shadowId}: 랜덤 조우 불가 지역에 일반 로스터 배치 ({region.displayName})");
+            }
+            foreach (RegionData region in regions.Where(x => x != null && x.AllowsRandomEncounters))
+                if (!roster.entries.Any(x => x.regionId == region.regionId && !x.featured))
+                    result.errors.Add($"{region.displayName}: 지역 전용 일반 그림자 로스터 누락");
         }
 
         private static void ValidateCompanionEvents(List<RegionData> regions, ValidationReport result)
@@ -1199,6 +1263,19 @@ namespace ShadowTheater.EditorTools
                         result.errors.Add($"{region.sceneName}: 지역 랜덤 조우 컨트롤러 누락");
                     if (!region.AllowsRandomEncounters && randomEncounter != null)
                         result.errors.Add($"{region.sceneName}: 마을/보스 무대에 랜덤 조우가 배치됨");
+                    if (region.AllowsRandomEncounters && randomEncounter != null)
+                    {
+                        RegionalEncounterPolicy.GetCadence(region, out int expectedMin, out int expectedMax,
+                            out float expectedChance, out int expectedPity);
+                        var encounterSo = new SerializedObject(randomEncounter);
+                        int actualMin = encounterSo.FindProperty("safeStepsMin")?.intValue ?? -1;
+                        int actualMax = encounterSo.FindProperty("safeStepsMax")?.intValue ?? -1;
+                        float actualChance = encounterSo.FindProperty("chancePerStep")?.floatValue ?? -1f;
+                        int actualPity = encounterSo.FindProperty("pitySteps")?.intValue ?? -1;
+                        if (actualMin != expectedMin || actualMax != expectedMax ||
+                            !Mathf.Approximately(actualChance, expectedChance) || actualPity != expectedPity)
+                            result.errors.Add($"{region.sceneName}: 지역 유형별 랜덤 조우 간격 불일치");
+                    }
                     if (region.isSettlement && encounters.Length > 0)
                         result.errors.Add($"{region.sceneName}: 마을에 야생 그림자 심볼이 배치됨");
                     traversalRouteCounts[region.sceneName] = traversalRoutes.Length;
@@ -1344,7 +1421,12 @@ namespace ShadowTheater.EditorTools
         }
 
         [Serializable] private class RosterManifest { public List<RosterEntry> entries; }
-        [Serializable] private class RosterEntry { public string shadowId, regionId, sceneName; public int minLevel, maxLevel; }
+        [Serializable] private class RosterEntry
+        {
+            public string shadowId, regionId, sceneName;
+            public int minLevel, maxLevel;
+            public bool featured;
+        }
         private class PortalValidationLink
         {
             public string sourceScene, portalName, targetScene;

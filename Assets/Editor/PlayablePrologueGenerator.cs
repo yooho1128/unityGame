@@ -824,6 +824,12 @@ namespace ShadowTheater.EditorTools
                 var encounters = fieldRoot.AddComponent<RandomEncounterController>();
                 var encounterSo = new SerializedObject(encounters);
                 Set(encounterSo, "regionId", region.regionId);
+                RegionalEncounterPolicy.GetCadence(region, out int safeMin, out int safeMax,
+                    out float chancePerStep, out int pitySteps);
+                Set(encounterSo, "safeStepsMin", safeMin);
+                Set(encounterSo, "safeStepsMax", safeMax);
+                Set(encounterSo, "chancePerStep", chancePerStep);
+                Set(encounterSo, "pitySteps", pitySteps);
                 encounterSo.ApplyModifiedPropertiesWithoutUndo();
             }
             CreateFieldUi(fieldRoot.transform);
@@ -2620,6 +2626,7 @@ namespace ShadowTheater.EditorTools
         {
             public string shadowId, regionId, sceneName;
             public int minLevel, maxLevel;
+            public bool featured;
         }
     }
 }

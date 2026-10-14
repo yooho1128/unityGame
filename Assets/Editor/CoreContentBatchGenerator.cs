@@ -259,14 +259,24 @@ namespace ShadowTheater.EditorTools
                 existingNames.Add(featured);
             }
 
-            string[] suffixes = { "장막쥐", "잔향나비", "기억여우", "가면사슴", "등불새", "문장벌레", "안개늑대", "종소리망령" };
+            RegionSpec[] encounterRegions = regionCatalog.regions
+                .Where(x => !x.isSettlement && !x.isBossStage).ToArray();
+            if (encounterRegions.Length == 0)
+                throw new InvalidOperationException("랜덤 조우가 가능한 지역이 없습니다.");
+            var regionalSlots = encounterRegions.ToDictionary(x => x.regionId, _ => 1);
             int pass = 0;
             while (specs.Count < needed)
             {
-                RegionSpec region = regionCatalog.regions[pass % regionCatalog.regions.Length];
-                int slot = slots[region.regionId]++;
-                string name = $"{region.displayName}의 {suffixes[(slot + region.order) % suffixes.Length]}";
-                if (existingNames.Add(name)) AddRegionalShadow(specs, manifest, region, slot, name, false);
+                // 기존 저장이 참조하는 exp_{region}_{slot} ID 순서는 유지하고 출현 지역만 재배치한다.
+                RegionSpec identityRegion = regionCatalog.regions[pass % regionCatalog.regions.Length];
+                int identitySlot = slots[identityRegion.regionId]++;
+                RegionSpec region = encounterRegions[pass % encounterRegions.Length];
+                int regionalSlot = regionalSlots[region.regionId]++;
+                string[] suffixes = RegionalSuffixes(region.act);
+                string name = $"{region.displayName}의 {suffixes[(regionalSlot + region.order) % suffixes.Length]}";
+                string stableId = $"exp_{identityRegion.regionId}_{identitySlot:00}";
+                if (existingNames.Add(name))
+                    AddRegionalShadow(specs, manifest, region, regionalSlot, name, false, stableId);
                 pass++;
             }
 
@@ -276,17 +286,20 @@ namespace ShadowTheater.EditorTools
         }
 
         private static void AddRegionalShadow(List<ShadowSpec> output, RegionalRosterManifest manifest,
-            RegionSpec region, int slot, string displayName, bool featured)
+            RegionSpec region, int slot, string displayName, bool featured, string stableId = null)
         {
             int act = Mathf.Max(1, region.act);
-            string element = act == 2 ? "Flame" : act == 3 || act == 7 ? "Frost" : act >= 4 ? "Shade" : "None";
+            string element = act == 2 ? "Flame"
+                : act == 3 || act == 7 ? "Frost"
+                : act == 4 || act == 6 || act == 8 ? "Shade"
+                : "None";
             string[] roles = { "PhysicalDealer", "MagicNuker", "SpeedUtility", "Tank", "Support" };
             string[] shapes = { "Knight", "Mage", "Crow", "Beast", "Mask" };
             string role = roles[(region.order + slot) % roles.Length];
             string shape = shapes[(region.order * 2 + slot) % shapes.Length];
             bool rare = featured || (region.order + slot) % 7 == 0;
             int level = Mathf.RoundToInt((region.recommendedLevelMin + region.recommendedLevelMax) * .5f);
-            string id = $"exp_{region.regionId}_{slot:00}";
+            string id = string.IsNullOrEmpty(stableId) ? $"exp_{region.regionId}_{slot:00}" : stableId;
             string basic = role == "MagicNuker" || role == "Support" ? "inkshot" : shape == "Crow" ? "peck" : shape == "Beast" ? "claw" : "slash";
             string[] skills = element == "Flame" ? new[] { "ember_strike", "cinder_peck" }
                 : element == "Frost" ? new[] { "frost_sigil", "frost_breath" }
@@ -308,7 +321,23 @@ namespace ShadowTheater.EditorTools
                 restored=null, salvation=null, grudge=null
             });
             manifest.entries.Add(new RegionalRosterEntry { shadowId=id, regionId=region.regionId,
-                sceneName=region.sceneName, minLevel=region.recommendedLevelMin, maxLevel=region.recommendedLevelMax });
+                sceneName=region.sceneName, minLevel=region.recommendedLevelMin,
+                maxLevel=region.recommendedLevelMax, featured=featured });
+        }
+
+        private static string[] RegionalSuffixes(int act)
+        {
+            switch (act)
+            {
+                case 1: return new[] { "장막쥐", "수레까마귀", "웃음나비", "종이배우", "천막여우", "종소리망령" };
+                case 2: return new[] { "잿불사냥개", "그을음망령", "부서진창병", "재나비", "불씨까마귀", "왕관벌레" };
+                case 3: return new[] { "등불새", "문장벌레", "잉크여우", "페이지나비", "서리올빼미", "유리망령" };
+                case 4: return new[] { "가면사슴", "안개늑대", "달빛여우", "절벽박쥐", "수렁뱀", "보랏빛망령" };
+                case 5: return new[] { "태엽쥐", "실타래고양이", "가위새", "황동광대", "봉합망령", "톱니벌레" };
+                case 6: return new[] { "먹칠까마귀", "봉인벌레", "번호망령", "검열사냥개", "백지나비", "잉크가면" };
+                case 7: return new[] { "물결여우", "유리갈매기", "별모래게", "액자해파리", "기억고래", "등대나비" };
+                default: return new[] { "무대밖망령", "별빛가면", "침묵관객", "대사잃은새", "장막여우", "공허나비" };
+            }
         }
 
         private static bool Validate(CoreCatalog catalog, out string error)
@@ -814,6 +843,7 @@ namespace ShadowTheater.EditorTools
         {
             public string regionId, displayName, sceneName, environment, summary, accentHex;
             public int order, act, recommendedLevelMin, recommendedLevelMax;
+            public bool isSettlement, isBossStage;
             public string[] featuredShadows;
         }
         [Serializable] private class RegionalRosterManifest { public List<RegionalRosterEntry> entries; }
@@ -821,6 +851,7 @@ namespace ShadowTheater.EditorTools
         {
             public string shadowId, regionId, sceneName;
             public int minLevel, maxLevel;
+            public bool featured;
         }
     }
 }
