@@ -518,13 +518,14 @@ namespace ShadowTheater.Save
             Current != null && Current.recordedShadowIds.Contains(shadowId);
 
         /// <summary>포획한 그림자 추가. 파티가 가득 차면 서고(보관함)로. 파티에 들어갔으면 true</summary>
-        public static bool AddCapturedShadow(ShadowInstance shadow)
+        public static bool AddCapturedShadow(ShadowInstance shadow, out bool newlyRecorded)
         {
+            newlyRecorded = false;
             if (Current == null || shadow == null || string.IsNullOrWhiteSpace(shadow.shadowId)) return false;
             if (string.IsNullOrEmpty(shadow.instanceId) || ContainsInstanceId(shadow.instanceId))
                 shadow.instanceId = Guid.NewGuid().ToString("N");
             shadow.EnsureHp();
-            MarkRecorded(shadow.shadowId);
+            newlyRecorded = MarkRecorded(shadow.shadowId);
 
             if (Current.party.Count < SaveData.MaxPartySize)
             {

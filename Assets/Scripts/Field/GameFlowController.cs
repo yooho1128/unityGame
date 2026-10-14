@@ -233,8 +233,9 @@ namespace ShadowTheater.Field
                 {
                     var shadow = outcome.capturedShadow;
                     shadow.FullHeal(); // 기억이 정화되어 온전한 모습으로 합류
-                    bool toParty = SaveManager.AddCapturedShadow(shadow);
-                    QuestManager.Instance?.Notify(QuestObjectiveType.Record, shadow.shadowId);
+                    bool toParty = SaveManager.AddCapturedShadow(shadow, out bool newlyRecorded);
+                    if (newlyRecorded)
+                        QuestManager.Instance?.Notify(QuestObjectiveType.Record, shadow.shadowId);
                     // 포획 개체와 퀘스트 진행을 같은 저장 스냅샷으로 확정한다.
                     SaveManager.Instance.Save();
                     OnShadowRecorded?.Invoke(shadow, toParty);
