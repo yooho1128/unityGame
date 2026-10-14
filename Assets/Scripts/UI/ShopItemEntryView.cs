@@ -43,8 +43,9 @@ namespace ShadowTheater.UI
             if (ownedText != null) ownedText.text = L10n.Format("shop.owned", "보유 {0}", owned);
             if (buyPriceText != null) buyPriceText.text = L10n.Format("shop.buy_price", "구매 {0:N0}", item.buyPrice);
             if (sellPriceText != null) sellPriceText.text = L10n.Format("shop.sell_price", "판매 {0:N0}", item.sellPrice);
-            if (buyButton != null) buyButton.interactable = item.buyPrice >= 0 && gold >= item.buyPrice;
-            if (sellButton != null) sellButton.interactable = owned > 0 && item.sellPrice > 0;
+            if (buyButton != null) buyButton.interactable = item.buyPrice >= 0 && gold >= item.buyPrice &&
+                                                               (!item.isKeyItem || owned == 0);
+            if (sellButton != null) sellButton.interactable = !item.isKeyItem && owned > 0 && item.sellPrice > 0;
             gameObject.SetActive(true);
         }
 

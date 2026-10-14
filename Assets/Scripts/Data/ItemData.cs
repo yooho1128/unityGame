@@ -8,7 +8,8 @@ namespace ShadowTheater.Data
         HealRatio,     // 최대 HP 비율 회복
         CureStatus,    // 상태 이상 해제
         GainFP,        // FP 충전
-        CaptureBoost   // 각본 기록 성공률 보정 (특수 잉크 등)
+        CaptureBoost,  // 각본 기록 성공률 보정 (특수 잉크 등)
+        TraversalTool  // 소비하지 않고 필드 이동 경로를 해금하는 핵심 도구
     }
 
     /// <summary>[도구] 행동용 아이템 정의. Create > ShadowTheater > Item Data</summary>
@@ -26,6 +27,8 @@ namespace ShadowTheater.Data
         public bool usableInBattle = true;
         [Tooltip("필드의 파티 화면에서 사용할 수 있는 도구인지 여부")]
         public bool usableInField;
+        [Tooltip("판매·중복 구매할 수 없는 진행용 도구")]
+        public bool isKeyItem;
         [Min(0)] public int buyPrice = 50;
         [Min(0)] public int sellPrice = 20;
         [Tooltip("상점에 등장하는 최소 막. 1이면 처음부터 판매")]

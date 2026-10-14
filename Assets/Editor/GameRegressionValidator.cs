@@ -574,8 +574,8 @@ namespace ShadowTheater.EditorTools
         {
             var database = AssetDatabase.LoadAssetAtPath<ShadowDatabase>(DatabasePath);
             if (database == null) { result.errors.Add("ShadowDatabase.asset 누락"); return; }
-            if (database.items.Count(x => x != null) != 8)
-                result.errors.Add($"도구 데이터 수 불일치: {database.items.Count(x => x != null)}/8");
+            if (database.items.Count(x => x != null) != 9)
+                result.errors.Add($"도구 데이터 수 불일치: {database.items.Count(x => x != null)}/9");
             result.shadows = database.shadows.Count(x => x != null);
             if (result.shadows != 180) result.errors.Add($"그림자 데이터 수 불일치: {result.shadows}/180");
             var ids = database.shadows.Where(x => x != null).Select(x => x.shadowId).ToList();
@@ -613,6 +613,32 @@ namespace ShadowTheater.EditorTools
                 if (item.usableInField && item.effectType != ItemEffectType.HealFlat && item.effectType != ItemEffectType.HealRatio)
                     result.warnings.Add($"{item.itemId}: 필드 사용 효과가 아직 지원되지 않음 ({item.effectType})");
             }
+            ItemData boat = database.items.FirstOrDefault(x => x != null &&
+                x.itemId == TraversalAbilityService.RubberBoatItemId);
+            if (boat == null || boat.effectType != ItemEffectType.TraversalTool || !boat.isKeyItem ||
+                boat.usableInBattle || boat.usableInField || boat.shopUnlockAct > 3 ||
+                boat.buyPrice <= 0 || boat.sellPrice != 0)
+                result.errors.Add("휴대용 고무보트 핵심 이동 도구 설정 오류");
+
+            var boatSave = new SaveData
+            {
+                inventory = new List<ItemStack>
+                {
+                    new ItemStack { itemId = TraversalAbilityService.RubberBoatItemId, count = 1 }
+                }
+            };
+            if (!TraversalAbilityService.TryResolve(TraversalAbility.PortableBoat, boatSave, database,
+                    out TraversalAbility boatAbility, out _) || boatAbility != TraversalAbility.PortableBoat)
+                result.errors.Add("휴대용 고무보트 이동 권능 판정 회귀 실패");
+            if (TraversalAbilityService.TryResolve(TraversalAbility.PortableBoat, new SaveData(), database,
+                    out _, out _))
+                result.errors.Add("미보유 고무보트 이동 권능 판정 회귀 실패");
+            ShadowData frost = database.shadows.FirstOrDefault(x => x != null && x.element == ShadowElement.Frost);
+            var frostSave = new SaveData { recordedShadowIds = new List<string> { frost?.shadowId } };
+            if (frost == null || !TraversalAbilityService.TryResolve(TraversalAbility.FreezeShallows,
+                    frostSave, database, out TraversalAbility frostAbility, out _) ||
+                frostAbility != TraversalAbility.FreezeShallows)
+                result.errors.Add("서리 그림자 이동 권능 판정 회귀 실패");
             var itemIds = new HashSet<string>(database.items.Where(x => x != null).Select(x => x.itemId));
             foreach (ShadowData shadow in database.shadows.Where(x => x != null))
             {
@@ -830,6 +856,7 @@ namespace ShadowTheater.EditorTools
         private static void ValidateScenes(List<RegionData> regions, ValidationReport result)
         {
             var portalLinks = new List<PortalValidationLink>();
+            var traversalRouteCounts = new Dictionary<string, int>(StringComparer.Ordinal);
             foreach (var region in regions)
             {
                 string path = $"{SceneFolder}/{region.sceneName}.unity";
@@ -1031,10 +1058,20 @@ namespace ShadowTheater.EditorTools
                             result.errors.Add($"{region.sceneName}: Missing Script ({GetPath(tr)})");
 
                     var portals = roots.SelectMany(x => x.GetComponentsInChildren<MapPortal>(true)).ToArray();
+                    var traversalRoutes = roots.SelectMany(x => x.GetComponentsInChildren<TraversalRoute>(true)).ToArray();
                     var encounters = roots.SelectMany(x => x.GetComponentsInChildren<EncounterSymbol>(true)).ToArray();
                     result.portals += portals.Length;
                     result.encounters += encounters.Length;
                     if (portals.Length == 0) result.errors.Add($"{region.sceneName}: 포털 없음");
+                    traversalRouteCounts[region.sceneName] = traversalRoutes.Length;
+                    foreach (TraversalRoute route in traversalRoutes)
+                    {
+                        if (route.AllowedAbilities == TraversalAbility.None)
+                            result.errors.Add($"{region.sceneName}/{route.name}: 이동 권능 누락");
+                        if (fieldGrid == null || !fieldGrid.TryFindNearestWalkable(route.DestinationCell,
+                                out Vector2Int routeArrival, null, 12, false) || routeArrival != route.DestinationCell)
+                            result.errors.Add($"{region.sceneName}/{route.name}: 이동 도착 좌표가 막힘 {route.DestinationCell}");
+                    }
                     foreach (MapPortal portal in portals)
                     {
                         var so = new SerializedObject(portal);
@@ -1063,6 +1100,10 @@ namespace ShadowTheater.EditorTools
                 }
                 finally { if (closeAfter) EditorSceneManager.CloseScene(scene, true); }
             }
+            if (!traversalRouteCounts.TryGetValue("FrostPort", out int frostRoutes) || frostRoutes != 2)
+                result.errors.Add($"FrostPort: 서리 수로 이동 경로 수 불일치 ({frostRoutes}/2)");
+            if (!traversalRouteCounts.TryGetValue("GlassCoast", out int boatRoutes) || boatRoutes != 2)
+                result.errors.Add($"GlassCoast: 고무보트 이동 경로 수 불일치 ({boatRoutes}/2)");
             ValidatePortalArrivals(portalLinks, result);
         }
 

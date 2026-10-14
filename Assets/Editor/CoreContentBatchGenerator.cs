@@ -329,9 +329,9 @@ namespace ShadowTheater.EditorTools
                 error = "중복된 shadowId가 있습니다.";
                 return false;
             }
-            if (catalog.items.Length != 8)
+            if (catalog.items.Length != 9)
             {
-                error = $"도구 수가 올바르지 않습니다: {catalog.items.Length}/8";
+                error = $"도구 수가 올바르지 않습니다: {catalog.items.Length}/9";
                 return false;
             }
             var itemIds = new HashSet<string>(catalog.items.Select(x => x.itemId));
@@ -444,6 +444,7 @@ namespace ShadowTheater.EditorTools
                 item.value = spec.value;
                 item.usableInBattle = spec.usableInBattle;
                 item.usableInField = spec.usableInField;
+                item.isKeyItem = spec.isKeyItem;
                 item.buyPrice = Mathf.Max(0, spec.buyPrice);
                 item.sellPrice = Mathf.Clamp(spec.sellPrice, 0, item.buyPrice);
                 item.shopUnlockAct = Mathf.Clamp(spec.shopUnlockAct > 0 ? spec.shopUnlockAct : 1, 1, 8);
@@ -465,11 +466,22 @@ namespace ShadowTheater.EditorTools
                 : effect == ItemEffectType.GainFP ? new Color(.22f,.78f,1f,1f)
                 : effect == ItemEffectType.CaptureBoost ? new Color(.70f,.30f,1f,1f)
                 : new Color(1f,.76f,.30f,1f);
-            Ellipse(texture,32,25,20,22,outline); Rect(texture,25,42,39,55,outline); Rect(texture,23,53,41,59,outline);
-            Ellipse(texture,32,23,15,16,liquid); Rect(texture,29,39,35,48,liquid);
-            Rect(texture,27,55,37,60,new Color(.78f,.58f,.28f,1f));
-            if (spec.itemId.Contains("greater") || spec.itemId.Contains("silver"))
-            { Circle(texture,20,42,3,Color.white); Circle(texture,45,34,2,Color.white); }
+            if (effect == ItemEffectType.TraversalTool)
+            {
+                // 접힌 고무보트가 아니라 가방에서 막 펼친 작은 보트로 읽히는 전용 픽셀 아이콘.
+                Ellipse(texture,32,28,27,17,outline); Ellipse(texture,32,30,22,12,liquid);
+                Rect(texture,10,27,54,35,outline); Rect(texture,15,29,49,34,liquid);
+                Rect(texture,19,35,45,40,outline); Rect(texture,22,36,42,39,new Color(1f,.9f,.5f,1f));
+                Line(texture,18,19,48,45,4,outline); Line(texture,19,20,49,46,2,Color.white);
+            }
+            else
+            {
+                Ellipse(texture,32,25,20,22,outline); Rect(texture,25,42,39,55,outline); Rect(texture,23,53,41,59,outline);
+                Ellipse(texture,32,23,15,16,liquid); Rect(texture,29,39,35,48,liquid);
+                Rect(texture,27,55,37,60,new Color(.78f,.58f,.28f,1f));
+                if (spec.itemId.Contains("greater") || spec.itemId.Contains("silver"))
+                { Circle(texture,20,42,3,Color.white); Circle(texture,45,34,2,Color.white); }
+            }
             texture.Apply(false,false); File.WriteAllBytes(path,texture.EncodeToPNG()); UnityEngine.Object.DestroyImmediate(texture);
             AssetDatabase.ImportAsset(path,ImportAssetOptions.ForceSynchronousImport);
             var importer=AssetImporter.GetAtPath(path) as TextureImporter;
@@ -756,7 +768,7 @@ namespace ShadowTheater.EditorTools
             public string itemId, displayName, description, effectType;
             public float value;
             public int buyPrice, sellPrice, shopUnlockAct = 1;
-            public bool usableInBattle, usableInField;
+            public bool usableInBattle, usableInField, isKeyItem;
         }
         [Serializable] private class ShadowSpec
         {

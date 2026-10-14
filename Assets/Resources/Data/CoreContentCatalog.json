@@ -689,6 +689,19 @@
       "buyPrice": 360,
       "sellPrice": 180,
       "shopUnlockAct": 5
+    },
+    {
+      "itemId": "rubber_boat",
+      "displayName": "휴대용 고무보트",
+      "description": "선착장이나 잔잔한 물가에서 펼쳐 안전하게 물길을 건너는 핵심 이동 도구.",
+      "effectType": "TraversalTool",
+      "value": 0,
+      "usableInBattle": false,
+      "usableInField": false,
+      "isKeyItem": true,
+      "buyPrice": 240,
+      "sellPrice": 0,
+      "shopUnlockAct": 3
     }
   ],
   "shadows": [

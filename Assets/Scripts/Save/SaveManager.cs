@@ -713,6 +713,8 @@ namespace ShadowTheater.Save
         {
             message = string.Empty;
             if (Current == null || item == null) { message = "구매할 도구가 없습니다."; return false; }
+            if (item.isKeyItem && GetItemCount(item.itemId) > 0)
+            { message = "이미 보유한 핵심 도구입니다."; return false; }
             int price = Mathf.Max(0, item.buyPrice);
             if (Current.gold < price) { message = "금화가 부족합니다."; return false; }
             Current.gold -= price;
@@ -727,6 +729,7 @@ namespace ShadowTheater.Save
             message = string.Empty;
             if (Current == null || item == null || GetItemCount(item.itemId) <= 0)
             { message = "판매할 도구가 없습니다."; return false; }
+            if (item.isKeyItem) { message = "핵심 도구는 판매할 수 없습니다."; return false; }
             AddItem(item.itemId, -1);
             AddGold(Mathf.Max(0, item.sellPrice));
             message = $"{item.displayName}을(를) 판매했습니다.";

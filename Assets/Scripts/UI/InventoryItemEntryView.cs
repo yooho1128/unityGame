@@ -24,8 +24,10 @@ namespace ShadowTheater.UI
             if (icon != null) { icon.sprite = item.icon; icon.enabled = item.icon != null; icon.preserveAspect = true; }
             if (nameText != null) nameText.text = L10n.Text(item.displayName);
             if (countText != null) countText.text = $"x{count}";
-            if (useText != null) useText.text = item.usableInField
-                ? L10n.Get("inventory.field", "필드 사용") : L10n.Get("inventory.battle", "전투 전용");
+            if (useText != null) useText.text = item.isKeyItem
+                ? L10n.Get("inventory.key_item", "핵심 이동 도구")
+                : item.usableInField ? L10n.Get("inventory.field", "필드 사용")
+                : L10n.Get("inventory.battle", "전투 전용");
             gameObject.SetActive(true);
         }
 

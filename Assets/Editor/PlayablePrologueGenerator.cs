@@ -345,6 +345,8 @@ namespace ShadowTheater.EditorTools
                 "talked_glacier_ferryman", new Color(.48f,.84f,1f));
             CreateEncounter(map.fieldRoot, "FrostGullA", new Vector2Int(-3,-4), LoadShadow("frost_gull"),29,32);
             CreateEncounter(map.fieldRoot, "FrostGullB", new Vector2Int(5,-2), LoadShadow("frost_gull"),30,33);
+            CreateTraversalRoutePair(map.fieldRoot, "FrozenChannel", new Vector2Int(3,4), new Vector2Int(7,4),
+                TraversalAbility.FreezeShallows, new Color(.45f,.88f,1f));
             CreatePortal(map.fieldRoot, "BackToThrone", new Vector2Int(-9,0), "CrownlessThrone",
                 new Vector2Int(8,0), FacingDir.Left);
             CreatePortal(map.fieldRoot, "ToWhiteArchive", new Vector2Int(9,0), "WhiteArchive",
@@ -608,6 +610,7 @@ namespace ShadowTheater.EditorTools
             CreateAreaTrigger(map.fieldRoot,new Vector2Int(-8,0),"area_glass_coast");
             CreateNpc(map.fieldRoot,"WaveBard",new Vector2Int(1,4),LoadShadow("wave_bard"),"npc_wave_bard","npc_wave_bard_intro","npc_wave_bard_repeat","talked_wave_bard",new Color(.44f,.82f,.9f));
             CreateEncounter(map.fieldRoot,"GlassConchA",new Vector2Int(-4,-3),LoadShadow("glass_conch"),89,92); CreateEncounter(map.fieldRoot,"StarSandCrabA",new Vector2Int(5,-3),LoadShadow("star_sand_crab"),90,93);
+            CreateTraversalRoutePair(map.fieldRoot,"RubberBoatChannel",new Vector2Int(4,3),new Vector2Int(8,3),TraversalAbility.PortableBoat,new Color(.32f,.78f,1f));
             CreatePortal(map.fieldRoot,"BackToBlackArchive",new Vector2Int(-9,0),"BlackArchive",new Vector2Int(8,0),FacingDir.Left); CreatePortal(map.fieldRoot,"ToDrownedGallery",new Vector2Int(9,0),"DrownedGallery",new Vector2Int(0,-7),FacingDir.Right,false,"quest_act7_01_coast_complete"); FinishFieldScene(map,"GlassCoast");
         }
         private static void CreateDrownedGallery()
@@ -1193,7 +1196,8 @@ namespace ShadowTheater.EditorTools
 
         private static void CreatePortal(Transform parent, string name, Vector2Int cell, string target,
                                          Vector2Int arrival, FacingDir facing, bool checkpoint = false,
-                                         string requiredFlag = null)
+                                         string requiredFlag = null,
+                                         TraversalAbility requiredTraversalAbilities = TraversalAbility.None)
         {
             var go = new GameObject(name, typeof(SpriteRenderer), typeof(BoxCollider2D), typeof(MapPortal));
             go.transform.SetParent(parent); go.transform.position = Cell(cell);
@@ -1206,7 +1210,31 @@ namespace ShadowTheater.EditorTools
             Set(so, "targetScene", target); Set(so, "arrivalCell", arrival); Set(so, "arrivalFacing", (int)facing);
             Set(so, "activateOnTouch", true); Set(so, "setCheckpoint", checkpoint);
             if (!string.IsNullOrEmpty(requiredFlag)) Set(so, "requiredFlag", requiredFlag);
+            Set(so, "requiredTraversalAbilities", (int)requiredTraversalAbilities);
             so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static void CreateTraversalRoutePair(Transform parent, string name, Vector2Int first,
+            Vector2Int second, TraversalAbility abilities, Color color)
+        {
+            CreateTraversalRoute(parent, name + "_A", first, second, FieldGrid.VectorToDir(second - first),
+                abilities, color);
+            CreateTraversalRoute(parent, name + "_B", second, first, FieldGrid.VectorToDir(first - second),
+                abilities, color);
+        }
+
+        private static void CreateTraversalRoute(Transform parent, string name, Vector2Int cell,
+            Vector2Int destination, FacingDir facing, TraversalAbility abilities, Color color)
+        {
+            var go = new GameObject(name, typeof(SpriteRenderer), typeof(BoxCollider2D), typeof(TraversalRoute));
+            go.transform.SetParent(parent); go.transform.position = Cell(cell);
+            var renderer = go.GetComponent<SpriteRenderer>(); renderer.sprite = _accentTile.sprite;
+            renderer.color = color; renderer.sortingOrder = 5; ApplyLit(renderer);
+            go.transform.localScale = new Vector3(.72f,.72f,1f);
+            var box = go.GetComponent<BoxCollider2D>(); box.isTrigger = true; box.size = Vector2.one;
+            var so = new SerializedObject(go.GetComponent<TraversalRoute>());
+            Set(so, "allowedAbilities", (int)abilities); Set(so, "destinationCell", destination);
+            Set(so, "destinationFacing", (int)facing); so.ApplyModifiedPropertiesWithoutUndo();
         }
 
         private static void CreateFieldUi(Transform parent)

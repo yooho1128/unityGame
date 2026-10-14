@@ -17,6 +17,8 @@ namespace ShadowTheater.Field
         [Header("선택 조건")]
         [SerializeField] private string requiredFlag;
         [SerializeField] private string blockedFlag;
+        [Tooltip("비워 두면 일반 포털. 지정하면 가방 도구나 기록한 그림자 권능이 필요")]
+        [SerializeField] private TraversalAbility requiredTraversalAbilities;
 
         private float _nextFeedbackAt;
 
@@ -46,6 +48,13 @@ namespace ShadowTheater.Field
             if (!string.IsNullOrEmpty(blockedFlag) && SaveManager.HasFlag(blockedFlag))
             {
                 ShowFeedback(L10n.Get("portal.blocked", "지금은 이 길을 이용할 수 없습니다."));
+                return;
+            }
+            if (requiredTraversalAbilities != TraversalAbility.None &&
+                !TraversalAbilityService.TryResolve(requiredTraversalAbilities, SaveManager.Current,
+                    ShadowTheater.Data.ShadowDatabase.Instance, out _, out string traversalMessage))
+            {
+                ShowFeedback(traversalMessage);
                 return;
             }
             if (MapLoader.Instance == null || !MapLoader.Instance.CanTravel) return;

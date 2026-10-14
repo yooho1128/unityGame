@@ -34,7 +34,7 @@
 
 ## 초반 콘텐츠 데이터 빠른 설치
 1. Unity 메뉴 **Tools → Shadow Theater → Generate Core Content Data** 실행
-2. `Assets/Data/Generated`에 생성된 핵심 그림자 177종, 스킬 142개, 도구 8개 확인
+2. `Assets/Data/Generated`에 생성된 핵심 그림자 177종, 스킬 142개, 도구 9개 확인
 3. `Resources/ShadowDatabase.asset`에 모든 데이터가 자동 등록되었는지 확인
 
 기본 카탈로그와 제2~8막 콘텐츠 팩을 자동 병합합니다. 스타터 3종과 주요 그림자는 기억 복원·구원·원한
