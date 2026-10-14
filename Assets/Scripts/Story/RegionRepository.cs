@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace ShadowTheater.Story
 {
-    /// <summary>Resources/Data/RegionCatalog.json을 읽는 40개 지역 단일 데이터 창구.</summary>
+    /// <summary>Resources/Data/RegionCatalog.json을 읽는 60개 지역 단일 데이터 창구.</summary>
     public static class RegionRepository
     {
         private const string ResourcePath = "Data/RegionCatalog";

@@ -87,7 +87,7 @@ namespace ShadowTheater.EditorTools
         public static void ValidateScenePolicyRegression(List<string> errors)
         {
             var valid = new List<string> { TitleScenePath };
-            for (int i = 0; i < 40; i++) valid.Add($"Assets/Scenes/Prologue/Field{i:00}.unity");
+            for (int i = 0; i < 60; i++) valid.Add($"Assets/Scenes/Prologue/Field{i:00}.unity");
             var validErrors = new List<string>();
             ValidateScenePaths(valid, validErrors);
             if (validErrors.Count != 0) errors.Add("모바일 빌드 씬 정책: 정상 목록이 실패함");
@@ -100,8 +100,8 @@ namespace ShadowTheater.EditorTools
 
         private static void ValidateScenePaths(IReadOnlyList<string> scenes, List<string> errors)
         {
-            if (scenes == null || scenes.Count != 41)
-                errors.Add($"Build Settings 활성 씬 수 불일치: {scenes?.Count ?? 0}/41");
+            if (scenes == null || scenes.Count != 61)
+                errors.Add($"Build Settings 활성 씬 수 불일치: {scenes?.Count ?? 0}/61");
             if (scenes == null || scenes.Count == 0 || scenes[0] != TitleScenePath)
                 errors.Add("Build Settings 첫 씬은 Title이어야 합니다");
             if (scenes != null && scenes.Any(string.IsNullOrWhiteSpace))

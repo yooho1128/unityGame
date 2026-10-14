@@ -19,7 +19,7 @@ namespace ShadowTheater.Story
         public static bool CanEnterScene(string sceneName)
         {
             var region = RegionRepository.GetByScene(sceneName);
-            return region == null || CanEnter(region);
+            return region != null && CanEnter(region);
         }
 
         public static bool CanEnter(RegionData region)
@@ -27,8 +27,13 @@ namespace ShadowTheater.Story
             var save = SaveManager.Current;
             if (region == null || save == null) return false;
             if (region.order <= 1 || save.mapId == region.sceneName) return true;
+            bool requirementMet = string.IsNullOrEmpty(region.requiredFlag) || SaveManager.HasFlag(region.requiredFlag);
             if (save.unlockedRegionIds.Contains(region.regionId) || save.visitedRegionIds.Contains(region.regionId))
-                return string.IsNullOrEmpty(region.requiredFlag) || SaveManager.HasFlag(region.requiredFlag);
+                return requirementMet;
+            RegionData current = RegionRepository.GetByScene(save.mapId);
+            if (current != null && System.Array.Exists(current.connectedRegionIds ?? new string[0],
+                    connectedId => connectedId == region.regionId))
+                return requirementMet;
             return false;
         }
 
@@ -45,7 +50,12 @@ namespace ShadowTheater.Story
             AddUnique(save.unlockedRegionIds, region.regionId);
             AddUnique(save.visitedRegionIds, region.regionId);
             foreach (string connectedId in region.connectedRegionIds ?? new string[0])
-                if (!string.IsNullOrEmpty(connectedId)) AddUnique(save.unlockedRegionIds, connectedId);
+            {
+                if (string.IsNullOrEmpty(connectedId)) continue;
+                RegionData connected = RegionRepository.Get(connectedId);
+                if (connected?.isHidden == true) continue;
+                AddUnique(save.unlockedRegionIds, connectedId);
+            }
             SaveManager.SetFlag("region_" + region.regionId + "_visited");
         }
 

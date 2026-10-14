@@ -31,6 +31,7 @@ namespace ShadowTheater.EditorTools
         private const string FinalPlayerFolder = "Assets/Art/Final/Player";
         private const string FinalTileFolder = "Assets/Art/Final/Tiles";
         private const string RegionalRosterManifestPath = "Assets/Resources/Data/RegionalRosterManifest.json";
+        private const string RegionCatalogPath = "Assets/Resources/Data/RegionCatalog.json";
         private static Tile _groundTile;
         private static Tile _wallTile;
         private static Tile _accentTile;
@@ -101,11 +102,65 @@ namespace ShadowTheater.EditorTools
             CreateFirstActorRoom();
             CreateCosmicAuditorium();
             CreateFinalCurtain();
+            CreateExpansionRegions();
             RegisterBuildScenes();
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             EditorSceneManager.OpenScene($"{SceneFolder}/Title.unity", OpenSceneMode.Single);
-            Debug.Log("[World] 프롤로그부터 최종막 그림자 극장까지 40개 픽셀 필드 생성 완료");
+            Debug.Log("[World] 7개 극단 마을과 60개 픽셀 필드 생성 완료");
+        }
+
+        private static void CreateExpansionRegions()
+        {
+            RegionCatalogData catalog = LoadRegionCatalog();
+            var byId = new Dictionary<string, RegionData>();
+            foreach (RegionData region in catalog.regions) byId[region.regionId] = region;
+            var expansion = catalog.regions.FindAll(x => x.order > 40);
+            expansion.Sort((a, b) => a.order.CompareTo(b.order));
+            var portalCells = new[]
+            {
+                new Vector2Int(-9, 0), new Vector2Int(9, 0),
+                new Vector2Int(0, 8), new Vector2Int(0, -8)
+            };
+
+            foreach (RegionData region in expansion)
+            {
+                Theme theme = ExpansionTheme(region);
+                Color cameraColor = Color.Lerp(region.AccentColor, Color.black, .76f);
+                var map = BeginFieldScene(region.sceneName, region.displayName, region.ArrivalCell,
+                    cameraColor, theme);
+                string[] connections = region.connectedRegionIds ?? new string[0];
+                for (int i = 0; i < connections.Length && i < portalCells.Length; i++)
+                {
+                    if (!byId.TryGetValue(connections[i], out RegionData target)) continue;
+                    Vector2Int cell = portalCells[i];
+                    CreatePortal(map.fieldRoot, "To" + target.sceneName, cell, target.sceneName,
+                        target.ArrivalCell, cell.x < 0 ? FacingDir.Left : cell.x > 0 ? FacingDir.Right :
+                        cell.y > 0 ? FacingDir.Up : FacingDir.Down);
+                }
+                FinishFieldScene(map, region.sceneName);
+            }
+        }
+
+        private static Theme ExpansionTheme(RegionData region)
+        {
+            switch (region.act)
+            {
+                case 1: return region.isBossStage ? Theme.Boss : Theme.Meadow;
+                case 2: return region.isBossStage ? Theme.AshThrone : Theme.EmberCity;
+                case 3: return Theme.MemorySea;
+                case 4: return region.isBossStage ? Theme.BeastDen : Theme.HowlVillage;
+                case 5: return region.isBossStage ? Theme.PuppeteerStage : Theme.ThreadMarket;
+                case 6: return region.isBossStage ? Theme.BlackArchive : Theme.Censor;
+                default: return Theme.FinalTheater;
+            }
+        }
+
+        private static RegionCatalogData LoadRegionCatalog()
+        {
+            if (!File.Exists(RegionCatalogPath)) return new RegionCatalogData();
+            return JsonUtility.FromJson<RegionCatalogData>(File.ReadAllText(RegionCatalogPath))
+                   ?? new RegionCatalogData();
         }
 
         private static void GenerateDependencies()
@@ -158,7 +213,7 @@ namespace ShadowTheater.EditorTools
 
         private static void CreatePrologueTheater()
         {
-            var map = BeginFieldScene("PrologueTheater", "잔향 극장", new Vector2Int(0, -5),
+            var map = BeginFieldScene("PrologueTheater", "웃음막 유랑촌", new Vector2Int(0, -5),
                 new Color(0.055f, 0.035f, 0.10f), Theme.Theater);
             CreateNpc(map.fieldRoot, "Aria", new Vector2Int(0, 0), LoadShadow("mage"),
                 "npc_aria", "npc_aria_intro", "npc_aria_repeat", "talked_npc_aria",
@@ -167,6 +222,8 @@ namespace ShadowTheater.EditorTools
                 "shrine_first_script", LoadShadow("mask"), new Color(0.55f, 0.75f, 1f));
             CreatePortal(map.fieldRoot, "ToEchoVillage", new Vector2Int(9, 0), "EchoVillage",
                 new Vector2Int(-8, 0), FacingDir.Right, false, "quest_prologue_01_awaken_complete");
+            CreatePortal(map.fieldRoot, "ToPaintedWagonRoad", new Vector2Int(-9, 0), "PaintedWagonRoad",
+                new Vector2Int(-8, 0), FacingDir.Left);
             FinishFieldScene(map, "PrologueTheater");
         }
 
@@ -260,7 +317,7 @@ namespace ShadowTheater.EditorTools
 
         private static void CreateCinderCity()
         {
-            var map = BeginFieldScene("CinderCity", "불씨 성도", new Vector2Int(-7,-1),
+            var map = BeginFieldScene("CinderCity", "대학로 극단 거리", new Vector2Int(-7,-1),
                 new Color(.14f,.075f,.055f), Theme.EmberCity);
             CreateAreaTrigger(map.fieldRoot, new Vector2Int(-7,-1), "area_cinder_city");
             CreateNpc(map.fieldRoot, "EmberArchivist", new Vector2Int(2,2), LoadShadow("furnace_keeper"),
@@ -268,15 +325,14 @@ namespace ShadowTheater.EditorTools
                 "talked_ember_archivist", new Color(1f,.62f,.34f));
             CreateInteractable(map.fieldRoot, "CitySign", new Vector2Int(-2,-2), "sign_cinder_city",
                 LoadShadow("tomb_candle"), new Color(.96f,.58f,.31f));
-            CreateEncounter(map.fieldRoot, "FurnaceKeeper", new Vector2Int(7,2), LoadShadow("furnace_keeper"),16,20);
-            CreateEncounter(map.fieldRoot, "BellKnight", new Vector2Int(3,-2), LoadShadow("bell_knight"),18,21);
-            CreateEncounter(map.fieldRoot, "SootArcher", new Vector2Int(-3,1), LoadShadow("soot_archer"),17,20);
             CreatePortal(map.fieldRoot, "BackToAshBorder", new Vector2Int(-9,0), "AshBorder",
                 new Vector2Int(8,0), FacingDir.Left);
             CreatePortal(map.fieldRoot, "ToRuinedBarracks", new Vector2Int(0,8), "RuinedBarracks",
                 new Vector2Int(0,-7), FacingDir.Up, false, "quest_act2_02_city_complete");
             CreatePortal(map.fieldRoot, "ToEmberCatacombs", new Vector2Int(9,0), "EmberCatacombs",
                 new Vector2Int(-8,0), FacingDir.Right, false, "boss_barracks_story_complete");
+            CreatePortal(map.fieldRoot, "ToPosterAlley", new Vector2Int(0,-8), "PosterAlley",
+                new Vector2Int(-8,0), FacingDir.Down);
             FinishFieldScene(map, "CinderCity");
         }
 
@@ -294,6 +350,8 @@ namespace ShadowTheater.EditorTools
                 new Vector2Int(0,7), FacingDir.Down);
             CreatePortal(map.fieldRoot, "ToEmberCatacombs", new Vector2Int(9,0), "EmberCatacombs",
                 new Vector2Int(-8,0), FacingDir.Right, false, "boss_barracks_story_complete");
+            CreatePortal(map.fieldRoot, "ToPosterAlley", new Vector2Int(-9,0), "PosterAlley",
+                new Vector2Int(-8,0), FacingDir.Left);
             FinishFieldScene(map, "RuinedBarracks");
         }
 
@@ -337,26 +395,26 @@ namespace ShadowTheater.EditorTools
 
         private static void CreateFrostPort()
         {
-            var map = BeginFieldScene("FrostPort", "서리 나루", new Vector2Int(-8,0),
+            var map = BeginFieldScene("FrostPort", "물결막 수상극 항구", new Vector2Int(-8,0),
                 new Color(.035f,.09f,.14f), Theme.FrostPort);
             CreateAreaTrigger(map.fieldRoot, new Vector2Int(-8,0), "area_frost_port");
             CreateNpc(map.fieldRoot, "GlacierFerryman", new Vector2Int(1,3), LoadShadow("glacier_ferryman"),
                 "npc_glacier_ferryman", "npc_glacier_ferryman_intro", "npc_glacier_ferryman_repeat",
                 "talked_glacier_ferryman", new Color(.48f,.84f,1f));
-            CreateEncounter(map.fieldRoot, "FrostGullA", new Vector2Int(-3,-4), LoadShadow("frost_gull"),29,32);
-            CreateEncounter(map.fieldRoot, "FrostGullB", new Vector2Int(5,-2), LoadShadow("frost_gull"),30,33);
             CreateTraversalRoutePair(map.fieldRoot, "FrozenChannel", new Vector2Int(3,4), new Vector2Int(7,4),
                 TraversalAbility.FreezeShallows, new Color(.45f,.88f,1f));
             CreatePortal(map.fieldRoot, "BackToThrone", new Vector2Int(-9,0), "CrownlessThrone",
                 new Vector2Int(8,0), FacingDir.Left);
             CreatePortal(map.fieldRoot, "ToWhiteArchive", new Vector2Int(9,0), "WhiteArchive",
                 new Vector2Int(-7,0), FacingDir.Right, false, "quest_act3_01_port_complete");
+            CreatePortal(map.fieldRoot, "ToTidalBoardwalk", new Vector2Int(0,8), "TidalBoardwalk",
+                new Vector2Int(-8,0), FacingDir.Up);
             FinishFieldScene(map, "FrostPort");
         }
 
         private static void CreateWhiteArchive()
         {
-            var map = BeginFieldScene("WhiteArchive", "백색 기록원", new Vector2Int(-7,0),
+            var map = BeginFieldScene("WhiteArchive", "등불막 그림자촌", new Vector2Int(-7,0),
                 new Color(.07f,.11f,.17f), Theme.Archive);
             CreateAreaTrigger(map.fieldRoot, new Vector2Int(-7,0), "area_white_archive");
             CreateNpc(map.fieldRoot, "SnowScribe", new Vector2Int(1,3), LoadShadow("snow_scribe"),
@@ -364,12 +422,12 @@ namespace ShadowTheater.EditorTools
                 "talked_snow_scribe", new Color(.72f,.93f,1f));
             CreateInteractable(map.fieldRoot, "ForbiddenIndex", new Vector2Int(-2,2), "sign_forbidden_index",
                 LoadShadow("ink_fox"), new Color(.46f,.62f,1f));
-            CreateEncounter(map.fieldRoot, "InkFoxA", new Vector2Int(-4,-4), LoadShadow("ink_fox"),32,35);
-            CreateEncounter(map.fieldRoot, "SnowScribeEcho", new Vector2Int(5,-3), LoadShadow("snow_scribe"),33,36);
             CreatePortal(map.fieldRoot, "BackToFrostPort", new Vector2Int(-9,0), "FrostPort",
                 new Vector2Int(8,0), FacingDir.Left);
             CreatePortal(map.fieldRoot, "ToForbiddenStacks", new Vector2Int(0,8), "ForbiddenStacks",
                 new Vector2Int(0,-7), FacingDir.Up, false, "quest_act3_02_archive_complete");
+            CreatePortal(map.fieldRoot, "ToLanternReedField", new Vector2Int(9,0), "LanternReedField",
+                new Vector2Int(-8,0), FacingDir.Right);
             FinishFieldScene(map, "WhiteArchive");
         }
 
@@ -388,6 +446,8 @@ namespace ShadowTheater.EditorTools
                 new Vector2Int(0,7), FacingDir.Down);
             CreatePortal(map.fieldRoot, "ToMirrorVault", new Vector2Int(9,0), "MirrorVault",
                 new Vector2Int(-8,0), FacingDir.Right, false, "boss_book_drake_story_complete");
+            CreatePortal(map.fieldRoot, "ToTidalBoardwalk", new Vector2Int(-9,0), "TidalBoardwalk",
+                new Vector2Int(-8,0), FacingDir.Left);
             FinishFieldScene(map, "ForbiddenStacks");
         }
 
@@ -438,18 +498,18 @@ namespace ShadowTheater.EditorTools
             CreateEncounter(map.fieldRoot, "LanternToadA", new Vector2Int(5,-3), LoadShadow("lantern_toad"),44,48);
             CreatePortal(map.fieldRoot, "BackToBlueAbyss", new Vector2Int(-9,0), "BlueAbyss", new Vector2Int(8,0), FacingDir.Left);
             CreatePortal(map.fieldRoot, "ToHowlVillage", new Vector2Int(9,0), "HowlVillage", new Vector2Int(-7,0), FacingDir.Right, false, "quest_act4_01_marsh_complete");
+            CreatePortal(map.fieldRoot, "ToLanternReedField", new Vector2Int(0,8), "LanternReedField", new Vector2Int(-8,0), FacingDir.Up);
             FinishFieldScene(map, "VioletMarsh");
         }
 
         private static void CreateHowlVillage()
         {
-            var map = BeginFieldScene("HowlVillage", "울음 마을", new Vector2Int(-7,0), new Color(.095f,.045f,.13f), Theme.HowlVillage);
+            var map = BeginFieldScene("HowlVillage", "달가면 산촌", new Vector2Int(-7,0), new Color(.095f,.045f,.13f), Theme.HowlVillage);
             CreateAreaTrigger(map.fieldRoot, new Vector2Int(-7,0), "area_howl_village");
             CreateNpc(map.fieldRoot, "MoonShaman", new Vector2Int(1,3), LoadShadow("moon_shaman"), "npc_moon_shaman", "npc_moon_shaman_intro", "npc_moon_shaman_repeat", "talked_moon_shaman", new Color(.75f,.62f,1f));
-            CreateEncounter(map.fieldRoot, "MaskHunterA", new Vector2Int(-3,-4), LoadShadow("mask_hunter"),47,50);
-            CreateEncounter(map.fieldRoot, "MoonShamanEcho", new Vector2Int(5,-2), LoadShadow("moon_shaman"),47,51);
             CreatePortal(map.fieldRoot, "BackToMarsh", new Vector2Int(-9,0), "VioletMarsh", new Vector2Int(8,0), FacingDir.Left);
             CreatePortal(map.fieldRoot, "ToMoonfangForest", new Vector2Int(9,0), "MoonfangForest", new Vector2Int(-8,-2), FacingDir.Right, false, "quest_act4_02_village_complete");
+            CreatePortal(map.fieldRoot, "ToMaskDancePass", new Vector2Int(0,8), "MaskDancePass", new Vector2Int(-8,0), FacingDir.Up);
             FinishFieldScene(map, "HowlVillage");
         }
 
@@ -473,6 +533,7 @@ namespace ShadowTheater.EditorTools
             CreateBossEncounter(map.fieldRoot, "BloodmaneBoss", new Vector2Int(0,5), "bloodmane_stalker", "boss_bloodmane", new Vector2Int(57,59), "boss_bloodmane_pre", "boss_bloodmane_post", "boss_bloodmane_story_complete", "boss_bloodmane_reward_claimed", 59, new Color(.92f,.25f,.48f));
             CreatePortal(map.fieldRoot, "BackToForest", new Vector2Int(0,-8), "MoonfangForest", new Vector2Int(0,7), FacingDir.Down);
             CreatePortal(map.fieldRoot, "ToBeastDen", new Vector2Int(9,0), "SleepingBeastDen", new Vector2Int(0,-6), FacingDir.Right, false, "boss_bloodmane_story_complete");
+            CreatePortal(map.fieldRoot, "ToMaskDancePass", new Vector2Int(-9,0), "MaskDancePass", new Vector2Int(-8,0), FacingDir.Left);
             FinishFieldScene(map, "BloodmoonRidge");
         }
 
@@ -489,13 +550,12 @@ namespace ShadowTheater.EditorTools
 
         private static void CreateThreadMarket()
         {
-            var map = BeginFieldScene("ThreadMarket", "실타래 시장", new Vector2Int(-8,0), new Color(.13f,.055f,.11f), Theme.ThreadMarket);
+            var map = BeginFieldScene("ThreadMarket", "실타래 인형극 공방촌", new Vector2Int(-8,0), new Color(.13f,.055f,.11f), Theme.ThreadMarket);
             CreateAreaTrigger(map.fieldRoot, new Vector2Int(-8,0), "area_thread_market");
             CreateNpc(map.fieldRoot, "ThreadMerchant", new Vector2Int(1,4), LoadShadow("thread_cat"), "npc_thread_merchant", "npc_thread_merchant_intro", "npc_thread_merchant_repeat", "talked_thread_merchant", new Color(1f,.55f,.72f));
-            CreateEncounter(map.fieldRoot, "ThreadCatA", new Vector2Int(-4,-3), LoadShadow("thread_cat"),59,62);
-            CreateEncounter(map.fieldRoot, "NeedleThiefA", new Vector2Int(5,-3), LoadShadow("needle_thief"),60,63);
             CreatePortal(map.fieldRoot, "BackToBeastDen", new Vector2Int(-9,0), "SleepingBeastDen", new Vector2Int(8,0), FacingDir.Left);
             CreatePortal(map.fieldRoot, "ToClockworkAlley", new Vector2Int(9,0), "ClockworkAlley", new Vector2Int(-8,0), FacingDir.Right, false, "quest_act5_01_market_complete");
+            CreatePortal(map.fieldRoot, "ToStitchField", new Vector2Int(0,8), "StitchField", new Vector2Int(-8,0), FacingDir.Up);
             FinishFieldScene(map, "ThreadMarket");
         }
 
@@ -519,6 +579,7 @@ namespace ShadowTheater.EditorTools
             CreateBossEncounter(map.fieldRoot, "PrimadonnaBoss", new Vector2Int(0,5), "wire_primadonna", "boss_primadonna", new Vector2Int(69,71), "boss_primadonna_pre", "boss_primadonna_post", "boss_primadonna_story_complete", "boss_primadonna_reward_claimed", 71, new Color(.95f,.31f,.58f));
             CreatePortal(map.fieldRoot, "BackToAlley", new Vector2Int(0,-8), "ClockworkAlley", new Vector2Int(0,7), FacingDir.Down);
             CreatePortal(map.fieldRoot, "ToWorkshop", new Vector2Int(9,0), "SeveredWorkshop", new Vector2Int(-8,0), FacingDir.Right, false, "boss_primadonna_story_complete");
+            CreatePortal(map.fieldRoot, "ToStitchField", new Vector2Int(-9,0), "StitchField", new Vector2Int(-8,0), FacingDir.Left);
             FinishFieldScene(map, "MarionetteOpera");
         }
 
@@ -547,13 +608,12 @@ namespace ShadowTheater.EditorTools
 
         private static void CreateErasedStation()
         {
-            var map = BeginFieldScene("ErasedStation", "지워진 역", new Vector2Int(-8,0), new Color(.08f,.08f,.10f), Theme.Censor);
+            var map = BeginFieldScene("ErasedStation", "별노래 오페라 성도", new Vector2Int(-8,0), new Color(.08f,.08f,.10f), Theme.Censor);
             CreateAreaTrigger(map.fieldRoot, new Vector2Int(-8,0), "area_erased_station");
             CreateNpc(map.fieldRoot, "InkConductor", new Vector2Int(1,4), LoadShadow("ink_conductor"), "npc_ink_conductor", "npc_ink_conductor_intro", "npc_ink_conductor_repeat", "talked_ink_conductor", new Color(.72f,.72f,.8f));
-            CreateEncounter(map.fieldRoot, "TicketlessPassengerA", new Vector2Int(-4,-3), LoadShadow("ticketless_passenger"),74,77);
-            CreateEncounter(map.fieldRoot, "InkConductorEcho", new Vector2Int(5,-3), LoadShadow("ink_conductor"),75,78);
             CreatePortal(map.fieldRoot, "BackToPuppeteerStage", new Vector2Int(-9,0), "PuppeteerStage", new Vector2Int(8,0), FacingDir.Left);
             CreatePortal(map.fieldRoot, "ToBlankPrison", new Vector2Int(9,0), "BlankPrison", new Vector2Int(0,-7), FacingDir.Right, false, "quest_act6_01_station_complete");
+            CreatePortal(map.fieldRoot, "ToSilentFoyer", new Vector2Int(0,8), "SilentFoyer", new Vector2Int(-8,0), FacingDir.Up);
             FinishFieldScene(map, "ErasedStation");
         }
 
@@ -590,6 +650,7 @@ namespace ShadowTheater.EditorTools
             CreateBossEncounter(map.fieldRoot, "MuteJudgeBoss", new Vector2Int(0,5), "mute_judge", "boss_mute_judge", new Vector2Int(87,89), "boss_mute_judge_pre", "boss_mute_judge_post", "boss_mute_judge_story_complete", "boss_mute_judge_reward_claimed", 89, new Color(.43f,.36f,.48f));
             CreatePortal(map.fieldRoot, "BackToLab", new Vector2Int(0,-8), "RedactionLab", new Vector2Int(8,0), FacingDir.Down);
             CreatePortal(map.fieldRoot, "ToBlackArchive", new Vector2Int(9,0), "BlackArchive", new Vector2Int(0,-6), FacingDir.Right, false, "boss_mute_judge_story_complete");
+            CreatePortal(map.fieldRoot, "ToSilentFoyer", new Vector2Int(-9,0), "SilentFoyer", new Vector2Int(-8,0), FacingDir.Left);
             FinishFieldScene(map, "SilentCourt");
         }
 
@@ -725,7 +786,9 @@ namespace ShadowTheater.EditorTools
             CreateCamera("FieldCamera", cameraColor, player.transform, true).transform.SetParent(fieldRoot.transform);
             CreateEnvironment(fieldRoot.transform, theme);
             ApplyPixelFieldPass(fieldRoot.transform, theme);
-            CreateRegionalExpansionEncounters(fieldRoot.transform, mapId, collision, startCell);
+            RegionData region = LoadRegionCatalog().regions.Find(x => x.sceneName == mapId);
+            if (region == null || region.AllowsRandomEncounters)
+                CreateRegionalExpansionEncounters(fieldRoot.transform, mapId, collision, startCell);
             CreateFieldUi(fieldRoot.transform);
             CreateRegionLabel(fieldRoot.transform, displayName);
 
@@ -2283,14 +2346,10 @@ namespace ShadowTheater.EditorTools
 
         private static void RegisterBuildScenes()
         {
-            string[] names = { "Title", "PrologueTheater", "EchoVillage", "MoonlitMeadow", "MoonlitBossStage",
-                "CurtainPass", "AshBorder", "CinderCity", "RuinedBarracks", "EmberCatacombs", "CrownlessThrone",
-                "FrostPort", "WhiteArchive", "ForbiddenStacks", "MirrorVault", "BlueAbyss",
-                "VioletMarsh", "HowlVillage", "MoonfangForest", "BloodmoonRidge", "SleepingBeastDen",
-                "ThreadMarket", "ClockworkAlley", "MarionetteOpera", "SeveredWorkshop", "PuppeteerStage",
-                "ErasedStation", "BlankPrison", "RedactionLab", "SilentCourt", "BlackArchive",
-                "GlassCoast", "DrownedGallery", "NameIslands", "MourningLighthouse", "WidowMoonPalace",
-                "InvertedLobby", "EndlessBackstage", "FirstActorRoom", "CosmicAuditorium", "FinalCurtain" };
+            var names = new List<string> { "Title" };
+            RegionCatalogData catalog = LoadRegionCatalog();
+            catalog.regions.Sort((a, b) => a.order.CompareTo(b.order));
+            foreach (RegionData region in catalog.regions) names.Add(region.sceneName);
             var scenes = new List<EditorBuildSettingsScene>();
             var generatedPaths = new HashSet<string>();
             foreach (string name in names)

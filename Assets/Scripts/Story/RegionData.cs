@@ -10,7 +10,7 @@ namespace ShadowTheater.Story
         public List<RegionData> regions = new List<RegionData>();
     }
 
-    /// <summary>월드맵 한 지역의 진행 순서, 연결 경로, 출현 그림자와 씬 정보를 정의한다.</summary>
+    /// <summary>월드맵 한 지역의 생활권, 연결 경로, 출현 그림자와 씬 정보를 정의한다.</summary>
     [Serializable]
     public class RegionData
     {
@@ -27,6 +27,8 @@ namespace ShadowTheater.Story
         public bool isSettlement;
         public bool isDungeon;
         public bool isLegendary;
+        public bool isHidden;
+        public bool isBossStage;
         public string requiredFlag;
         public string accentHex = "7650C8";
         public int arrivalX;
@@ -37,6 +39,7 @@ namespace ShadowTheater.Story
         public string[] connectedRegionIds = Array.Empty<string>();
 
         public Vector2Int ArrivalCell => new Vector2Int(arrivalX, arrivalY);
+        public bool AllowsRandomEncounters => !isSettlement && !isBossStage;
 
         public Color AccentColor
         {

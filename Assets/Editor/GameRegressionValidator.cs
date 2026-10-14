@@ -18,7 +18,7 @@ using UnityEngine.UI;
 
 namespace ShadowTheater.EditorTools
 {
-    /// <summary>180종 데이터와 40개 필드의 생성 결과를 출시 전 일괄 검사한다.</summary>
+    /// <summary>180종 데이터와 60개 필드의 생성 결과를 출시 전 일괄 검사한다.</summary>
     public static class GameRegressionValidator
     {
         private const string SceneFolder = "Assets/Scenes/Prologue";
@@ -103,7 +103,9 @@ namespace ShadowTheater.EditorTools
             var regions = JsonUtility.FromJson<RegionCatalogData>(File.ReadAllText(RegionPath))?.regions
                           ?? new List<RegionData>();
             result.regions = regions.Count;
-            if (regions.Count != 40) result.errors.Add($"지역 수 불일치: {regions.Count}/40");
+            if (regions.Count != 60) result.errors.Add($"지역 수 불일치: {regions.Count}/60");
+            if (regions.Count(x => x.isSettlement) != 7)
+                result.errors.Add($"극단 마을 수 불일치: {regions.Count(x => x.isSettlement)}/7");
             ValidateRegionGraph(regions, result);
             ValidateRoster(result);
             ValidateDatabase(result);
@@ -539,12 +541,18 @@ namespace ShadowTheater.EditorTools
                 if (region.recommendedLevelMin < 1 || region.recommendedLevelMax > ShadowInstance.MaxLevel)
                     result.errors.Add($"권장 레벨 범위 초과: {region.regionId} " +
                                       $"({region.recommendedLevelMin}-{region.recommendedLevelMax} / 최대 {ShadowInstance.MaxLevel})");
+                if (region.isSettlement && (region.isHidden || region.isBossStage))
+                    result.errors.Add($"{region.regionId}: 마을은 숨은 지역이나 보스 무대일 수 없습니다");
+                if (region.isSettlement && (region.featuredShadows?.Length ?? 0) > 0)
+                    result.errors.Add($"{region.regionId}: 마을에는 야생 출현 그림자를 선언할 수 없습니다");
                 if (!string.IsNullOrEmpty(region.requiredFlag) && !IsDeclaredStoryFlag(region.requiredFlag))
                     result.errors.Add($"{region.regionId}: 생성되지 않는 지역 해금 플래그 {region.requiredFlag}");
             }
             foreach (var region in regions.Where(x => x != null))
                 foreach (string connected in region.connectedRegionIds ?? Array.Empty<string>())
                     if (!byId.ContainsKey(connected)) result.errors.Add($"{region.regionId}의 알 수 없는 연결: {connected}");
+                    else if (!(byId[connected].connectedRegionIds ?? Array.Empty<string>()).Contains(region.regionId))
+                        result.errors.Add($"{region.regionId} ↔ {connected}: 양방향 연결 누락");
 
             if (regions.Count == 0) return;
             var reached = new HashSet<string>(StringComparer.Ordinal);

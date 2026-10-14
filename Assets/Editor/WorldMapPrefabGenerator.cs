@@ -34,7 +34,7 @@ namespace ShadowTheater.EditorTools
             var header = Text("Header", root, new Vector2(.05f,.925f), new Vector2(.70f,.982f),
                 44, FontStyle.Bold, TextAnchor.MiddleLeft, "기억의 여정 · 월드맵");
             var progress = Text("Progress", root, new Vector2(.66f,.925f), new Vector2(.84f,.982f),
-                23, FontStyle.Bold, TextAnchor.MiddleRight, "방문 0 / 40");
+                23, FontStyle.Bold, TextAnchor.MiddleRight, "방문 0 / 60");
             progress.color = new Color(.66f,.82f,1f,1f);
             var close = Button("Close", root, new Vector2(.865f,.93f), new Vector2(.96f,.98f),
                 "×", new Color(.16f,.10f,.25f,1f));
@@ -62,7 +62,7 @@ namespace ShadowTheater.EditorTools
             var accent = Rect("Accent", detail, Vector2.zero, new Vector2(.014f,1f)).gameObject.AddComponent<Image>();
             accent.color = new Color(.46f,.31f,.78f,1f);
             var act = Text("Act", detail, new Vector2(.045f,.82f), new Vector2(.70f,.96f),
-                20, FontStyle.Bold, TextAnchor.MiddleLeft, "제1막");
+                20, FontStyle.Bold, TextAnchor.MiddleLeft, "웃음막 생활권");
             act.color = new Color(.70f,.58f,.95f,1f);
             var name = Text("Name", detail, new Vector2(.045f,.65f), new Vector2(.70f,.84f),
                 36, FontStyle.Bold, TextAnchor.MiddleLeft, "지역을 선택하세요");
@@ -102,7 +102,7 @@ namespace ShadowTheater.EditorTools
             Object.DestroyImmediate(canvasGo);
             AssetDatabase.SaveAssets(); AssetDatabase.Refresh();
             EditorGUIUtility.PingObject(AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath));
-            Debug.Log("[Shadow Theater] 40개 지역 월드맵 UI 생성 완료");
+            Debug.Log("[Shadow Theater] 60개 지역 월드맵 UI 생성 완료");
         }
 
         private static RegionMapNodeView CreateNode(Transform parent)

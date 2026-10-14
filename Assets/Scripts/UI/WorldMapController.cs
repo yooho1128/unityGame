@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 namespace ShadowTheater.UI
 {
-    /// <summary>40개 지역의 발견 상태와 출현 그림자를 보여주고 방문 지역 빠른 이동을 제공한다.</summary>
+    /// <summary>60개 지역의 발견 상태와 출현 그림자를 보여주고 방문한 마을 빠른 이동을 제공한다.</summary>
     public class WorldMapController : MonoBehaviour
     {
         public static WorldMapController Instance { get; private set; }
@@ -74,7 +74,8 @@ namespace ShadowTheater.UI
 
         public void TravelToSelected()
         {
-            if (_selected == null || RegionProgress.GetState(_selected) != RegionMapState.Visited) return;
+            if (_selected == null || !_selected.isSettlement ||
+                RegionProgress.GetState(_selected) != RegionMapState.Visited) return;
             if (!Application.CanStreamedLevelBeLoaded(_selected.sceneName))
             {
                 if (feedbackText != null) feedbackText.text = L10n.Get("map.scene_missing", "이 지역의 씬은 아직 제작 중입니다.");
@@ -97,8 +98,13 @@ namespace ShadowTheater.UI
             var ordered = RegionRepository.Ordered().ToList();
             foreach (var region in ordered)
             {
+                RegionMapState state = RegionProgress.GetState(region);
+                bool hiddenDiscovered = SaveManager.Current.mapId == region.sceneName ||
+                                        SaveManager.Current.visitedRegionIds.Contains(region.regionId) ||
+                                        SaveManager.Current.unlockedRegionIds.Contains(region.regionId);
+                if (region.isHidden && !hiddenDiscovered) continue;
                 var view = Instantiate(nodeTemplate, contentRoot);
-                view.Bind(region, RegionProgress.GetState(region), Select);
+                view.Bind(region, state, Select);
                 _spawned.Add(view.gameObject);
             }
             int visited = SaveManager.Current?.visitedRegionIds?.Count ?? 0;
@@ -126,13 +132,18 @@ namespace ShadowTheater.UI
             if (detailAccent != null) detailAccent.color = known ? region.AccentColor : new Color(.2f,.18f,.25f,1f);
             if (travelButton != null)
             {
-                travelButton.interactable = state == RegionMapState.Visited;
+                bool canFastTravel = state == RegionMapState.Visited && region.isSettlement;
+                travelButton.interactable = canFastTravel;
                 var label = travelButton.GetComponentInChildren<Text>();
                 if (label != null) label.text = state == RegionMapState.Current ? L10n.Get("map.current", "현재 위치")
-                    : state == RegionMapState.Visited ? L10n.Get("map.travel", "빠른 이동") : state == RegionMapState.Unlocked ? L10n.Get("map.explore", "직접 탐험 필요") : L10n.Get("common.locked", "잠김");
+                    : canFastTravel ? L10n.Get("map.travel", "마을로 이동")
+                    : state == RegionMapState.Visited ? L10n.Get("map.field_only", "빠른 이동 불가")
+                    : state == RegionMapState.Unlocked ? L10n.Get("map.explore", "직접 탐험 필요") : L10n.Get("common.locked", "잠김");
             }
             if (feedbackText != null) feedbackText.text = state == RegionMapState.Unlocked
-                ? L10n.Get("map.first_visit", "인접 지역의 출구를 통해 처음 방문할 수 있습니다.") : "";
+                ? L10n.Get("map.first_visit", "인접 지역의 출구를 통해 처음 방문할 수 있습니다.")
+                : state == RegionMapState.Visited && !region.isSettlement
+                    ? L10n.Get("map.settlement_only", "빠른 이동은 방문한 극단 마을에서만 이용할 수 있습니다.") : "";
         }
 
         private void ShowEmpty()
