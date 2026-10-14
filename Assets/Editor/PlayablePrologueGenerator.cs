@@ -770,6 +770,7 @@ namespace ShadowTheater.EditorTools
             InstantiatePrefab("Assets/Prefabs/Systems/CoreSystems.prefab");
             var fieldRoot = new GameObject("FieldRoot");
             fieldRoot.AddComponent<ShadowCompanionFollower>();
+            var companionEvents = fieldRoot.AddComponent<CompanionRegionEventController>();
             var gridObject = new GameObject("Grid", typeof(Grid), typeof(FieldGrid));
             gridObject.transform.SetParent(fieldRoot.transform);
             var ground = CreateTilemap("Ground", gridObject.transform, 0, false);
@@ -788,6 +789,12 @@ namespace ShadowTheater.EditorTools
             CreateEnvironment(fieldRoot.transform, theme);
             ApplyPixelFieldPass(fieldRoot.transform, theme);
             RegionData region = LoadRegionCatalog().regions.Find(x => x.sceneName == mapId);
+            if (region != null)
+            {
+                var companionEventSo = new SerializedObject(companionEvents);
+                Set(companionEventSo, "regionId", region.regionId);
+                companionEventSo.ApplyModifiedPropertiesWithoutUndo();
+            }
             if (region?.AllowsRandomEncounters == true)
             {
                 var encounters = fieldRoot.AddComponent<RandomEncounterController>();

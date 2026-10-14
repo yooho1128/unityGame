@@ -26,6 +26,8 @@ namespace ShadowTheater.EditorTools
         private const string RosterPath = "Assets/Resources/Data/RegionalRosterManifest.json";
         private const string DatabasePath = "Assets/Resources/ShadowDatabase.asset";
         private const string QuestPath = "Assets/Resources/Data/QuestCatalog.json";
+        private const string CompanionEventPath = "Assets/Resources/Data/CompanionEventCatalog.json";
+        private const string DialoguePath = "Assets/Resources/Data/DialogueCatalog.json";
         private static string _declaredStoryFlags;
         private static string _worldSource;
 
@@ -109,6 +111,7 @@ namespace ShadowTheater.EditorTools
             ValidateRegionGraph(regions, result);
             ValidateRoster(result);
             ValidateDatabase(result);
+            ValidateCompanionEvents(regions, result);
             ValidateQuestRewards(result);
             LocalizationAuditResult localization = LocalizationCoverageValidator.Run(true);
             if (!localization.Passed)
@@ -578,6 +581,44 @@ namespace ShadowTheater.EditorTools
             if (count != 97) result.errors.Add($"지역 확장 로스터 수 불일치: {count}/97");
             if (roster?.entries != null && roster.entries.Select(x => x.shadowId).Distinct().Count() != count)
                 result.errors.Add("지역 확장 로스터 shadowId 중복");
+        }
+
+        private static void ValidateCompanionEvents(List<RegionData> regions, ValidationReport result)
+        {
+            if (!File.Exists(CompanionEventPath))
+            { result.errors.Add("CompanionEventCatalog.json 누락"); return; }
+
+            CompanionEventCatalogData catalog = JsonUtility.FromJson<CompanionEventCatalogData>(
+                File.ReadAllText(CompanionEventPath));
+            List<CompanionEventDefinition> events = catalog?.events ?? new List<CompanionEventDefinition>();
+            if (events.Count != 12) result.errors.Add($"핵심 동행 이벤트 수 불일치: {events.Count}/12");
+
+            var regionIds = new HashSet<string>(regions.Where(x => x != null).Select(x => x.regionId), StringComparer.Ordinal);
+            var database = AssetDatabase.LoadAssetAtPath<ShadowDatabase>(DatabasePath);
+            var shadowIds = new HashSet<string>(database?.shadows.Where(x => x != null).Select(x => x.shadowId)
+                                                ?? Enumerable.Empty<string>(), StringComparer.Ordinal);
+            DialogueCatalogData dialogues = File.Exists(DialoguePath)
+                ? JsonUtility.FromJson<DialogueCatalogData>(File.ReadAllText(DialoguePath))
+                : null;
+            var dialogueIds = new HashSet<string>(dialogues?.dialogues.Select(x => x.dialogueId)
+                                                  ?? Enumerable.Empty<string>(), StringComparer.Ordinal);
+            var eventIds = new HashSet<string>(StringComparer.Ordinal);
+            foreach (CompanionEventDefinition definition in events)
+            {
+                if (definition == null || string.IsNullOrWhiteSpace(definition.eventId))
+                { result.errors.Add("동행 이벤트의 eventId 누락"); continue; }
+                if (!eventIds.Add(definition.eventId)) result.errors.Add("동행 이벤트 ID 중복: " + definition.eventId);
+                if (!regionIds.Contains(definition.regionId))
+                    result.errors.Add($"{definition.eventId}: 알 수 없는 지역 {definition.regionId}");
+                if (!shadowIds.Contains(definition.requiredShadowId))
+                    result.errors.Add($"{definition.eventId}: 알 수 없는 그림자 {definition.requiredShadowId}");
+                if (!dialogueIds.Contains(definition.dialogueId))
+                    result.errors.Add($"{definition.eventId}: 알 수 없는 대화 {definition.dialogueId}");
+                if (definition.minSteps < 1 || definition.guaranteedSteps < definition.minSteps)
+                    result.errors.Add($"{definition.eventId}: 걸음 수 조건 오류");
+                if (definition.chancePerStep <= 0f || definition.chancePerStep > 1f)
+                    result.errors.Add($"{definition.eventId}: 발생 확률 범위 오류");
+            }
         }
 
         private static void ValidateDatabase(ValidationReport result)
@@ -1065,6 +1106,8 @@ namespace ShadowTheater.EditorTools
                     }
                     if (!roots.SelectMany(x => x.GetComponentsInChildren<ShadowCompanionFollower>(true)).Any())
                         result.errors.Add($"{region.sceneName}: 동행 그림자 추적기 누락");
+                    if (!roots.SelectMany(x => x.GetComponentsInChildren<CompanionRegionEventController>(true)).Any())
+                        result.errors.Add($"{region.sceneName}: 동행 지역 이벤트 컨트롤러 누락");
                     foreach (GameObject root in roots)
                     foreach (Transform tr in root.GetComponentsInChildren<Transform>(true))
                         if (GameObjectUtility.GetMonoBehavioursWithMissingScriptCount(tr.gameObject) > 0)

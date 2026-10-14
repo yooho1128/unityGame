@@ -1,0 +1,16 @@
+{
+  "events": [
+    {"eventId":"crow_wagon_song","regionId":"painted_wagon_road","requiredShadowId":"crow","minSteps":5,"guaranteedSteps":16,"chancePerStep":0.14,"dialogueId":"companion_crow_wagon_song","accentHex":"9E91C9","rewardGold":35},
+    {"eventId":"mask_poster_face","regionId":"poster_alley","requiredShadowId":"mask","minSteps":6,"guaranteedSteps":18,"chancePerStep":0.12,"dialogueId":"companion_mask_poster_face","accentHex":"D45A72","rewardGold":45},
+    {"eventId":"ferryman_tide_route","regionId":"tidal_boardwalk","requiredShadowId":"glacier_ferryman","minSteps":5,"guaranteedSteps":16,"chancePerStep":0.14,"dialogueId":"companion_ferryman_tide_route","accentHex":"64B7D5","rewardGold":60},
+    {"eventId":"gull_bubble_echo","regionId":"bubble_cave","requiredShadowId":"frost_gull","minSteps":4,"guaranteedSteps":14,"chancePerStep":0.16,"dialogueId":"companion_gull_bubble_echo","accentHex":"8DDCF0","rewardGold":65},
+    {"eventId":"toad_reed_lights","regionId":"lantern_reed_field","requiredShadowId":"lantern_toad","minSteps":6,"guaranteedSteps":18,"chancePerStep":0.12,"dialogueId":"companion_toad_reed_lights","accentHex":"E6A65B","rewardGold":70},
+    {"eventId":"ink_fox_well_letters","regionId":"shadow_well","requiredShadowId":"ink_fox","minSteps":5,"guaranteedSteps":16,"chancePerStep":0.14,"dialogueId":"companion_ink_fox_well_letters","accentHex":"6684D9","rewardGold":75},
+    {"eventId":"crescent_fox_moon_path","regionId":"mask_dance_pass","requiredShadowId":"crescent_fox","minSteps":6,"guaranteedSteps":18,"chancePerStep":0.12,"dialogueId":"companion_crescent_fox_moon_path","accentHex":"8A72DD","rewardGold":80},
+    {"eventId":"cliff_bat_sealed_echo","regionId":"sealed_mask_room","requiredShadowId":"cliff_bat","minSteps":4,"guaranteedSteps":14,"chancePerStep":0.16,"dialogueId":"companion_cliff_bat_sealed_echo","accentHex":"C45182","rewardGold":85},
+    {"eventId":"thread_cat_lost_stitch","regionId":"stitch_field","requiredShadowId":"thread_cat","minSteps":6,"guaranteedSteps":18,"chancePerStep":0.12,"dialogueId":"companion_thread_cat_lost_stitch","accentHex":"E28EBC","rewardGold":90},
+    {"eventId":"clockwork_mouse_heart_key","regionId":"abandoned_toy_store","requiredShadowId":"clockwork_mouse","minSteps":5,"guaranteedSteps":16,"chancePerStep":0.14,"dialogueId":"companion_clockwork_mouse_heart_key","accentHex":"D99874","rewardGold":95},
+    {"eventId":"passenger_erased_platform","regionId":"erased_station","requiredShadowId":"ticketless_passenger","minSteps":7,"guaranteedSteps":20,"chancePerStep":0.1,"dialogueId":"companion_passenger_erased_platform","accentHex":"B8B8C8","rewardGold":100},
+    {"eventId":"conductor_silent_score","regionId":"silent_foyer","requiredShadowId":"ink_conductor","minSteps":5,"guaranteedSteps":16,"chancePerStep":0.14,"dialogueId":"companion_conductor_silent_score","accentHex":"77758D","rewardGold":110}
+  ]
+}

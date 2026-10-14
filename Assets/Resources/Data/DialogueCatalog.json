@@ -11,7 +11,8 @@
     {
       "dialogueId": "npc_aria_repeat",
       "lines": [
-        { "speaker": "아리아", "text": "그림자의 체력이 낮아졌을 때 각본 기록을 시도하세요. 마음이 닿을 확률이 높아질 거예요.", "emotion": "calm" }
+        { "speaker": "아리아", "text": "그림자의 체력이 낮아졌을 때 각본 기록을 시도하세요. 마음이 닿을 확률이 높아질 거예요.", "emotion": "calm" },
+        { "speaker": "아리아", "text": "채색 수레길에서 낡은 바퀴 노래를 들었다는 배우가 있었어요. 새의 그림자가 따라간 뒤부터는 들리지 않았다더군요.", "emotion": "mystery" }
       ]
     },
     {
@@ -258,7 +259,7 @@
     {"dialogueId":"npc_ember_record_keep","lines":[{"speaker":"재의 기록관","text":"왕의 선의만 기억하는 것도, 악의만 기억하는 것도 진실은 아니겠지. 전부 맡기겠어.","emotion":"relief"}]},
     {"dialogueId":"npc_ember_record_wait","lines":[{"speaker":"재의 기록관","text":"기억의 주인이 받아들일 준비도 중요하다는 말이군. 원본을 네 각본집에 봉인해 줘.","emotion":"calm"}]},
     {"dialogueId":"npc_ember_record_burn","lines":[{"speaker":"재의 기록관","text":"그 선택이 왕의 선택과 얼마나 다른지… 언젠가 네가 직접 답해야 할 거야.","emotion":"fear"}]},
-    {"dialogueId":"npc_ember_archivist_repeat","lines":[{"speaker":"재의 기록관","text":"무너진 병영의 대장은 왕명을 거역했기에 반역자가 되었어. 그의 마지막 장면을 찾아 줘.","emotion":"serious"}]},
+    {"dialogueId":"npc_ember_archivist_repeat","lines":[{"speaker":"재의 기록관","text":"무너진 병영의 대장은 왕명을 거역했기에 반역자가 되었어. 그의 마지막 장면을 찾아 줘.","emotion":"serious"},{"speaker":"재의 기록관","text":"붉은 포스터 골목의 오래된 얼굴은 가면 쓴 자가 지나갈 때만 눈을 뜬다는 소문이 있지.","emotion":"mystery"}]},
     {
       "dialogueId":"boss_barracks_pre",
       "lines":[
@@ -304,7 +305,7 @@
         {"speaker":"빙하 뱃사공","text":"백색 기록원으로 가라. 그곳 서기들이 금단의 서가로 들어갈 색인을 눈 속에 숨겨 두었다.","emotion":"serious","setFlag":"memory_ferry_manifest","setFlagValue":1}
       ]
     },
-    {"dialogueId":"npc_glacier_ferryman_repeat","lines":[{"speaker":"빙하 뱃사공","text":"명부에 없는 사람도 분명히 그날을 살았다. 기록 밖의 이름을 잊지 마라.","emotion":"calm"}]},
+    {"dialogueId":"npc_glacier_ferryman_repeat","lines":[{"speaker":"빙하 뱃사공","text":"명부에 없는 사람도 분명히 그날을 살았다. 기록 밖의 이름을 잊지 마라.","emotion":"calm"},{"speaker":"빙하 뱃사공","text":"밀물 판자길 아래에는 지도에 없는 물길이 있다. 노를 기억하는 발걸음이라면 조류가 먼저 알아볼 테지.","emotion":"mystery"}]},
     {
       "dialogueId":"npc_snow_scribe_intro",
       "lines":[
@@ -312,7 +313,7 @@
         {"speaker":"눈송이 서기","text":"네 각본집에 색인을 옮겼어. 금단의 서가에서 책 먹는 용을 찾으면 잃어버린 장들이 돌아올 거야.","emotion":"hope","setFlag":"forbidden_index_restored","setFlagValue":1}
       ]
     },
-    {"dialogueId":"npc_snow_scribe_repeat","lines":[{"speaker":"눈송이 서기","text":"사라지는 기록은 약한 기록이 아니야. 누군가 다시 써 준다면 몇 번이고 돌아오니까.","emotion":"calm"}]},
+    {"dialogueId":"npc_snow_scribe_repeat","lines":[{"speaker":"눈송이 서기","text":"사라지는 기록은 약한 기록이 아니야. 누군가 다시 써 준다면 몇 번이고 돌아오니까.","emotion":"calm"},{"speaker":"눈송이 서기","text":"등불 갈대밭에서는 울음소리와 불빛이 같은 박자로 번진대. 작은 악사가 그 박자를 기억한다더군.","emotion":"mystery"}]},
     {"dialogueId":"sign_forbidden_index","lines":[{"speaker":"얼어붙은 색인","text":"제0장: 기억을 지우면 멸망을 피할 수 있다. 저자 표기는 검은 먹으로 삭제되어 있다.","emotion":"mystery"}]},
     {
       "dialogueId":"boss_book_drake_pre",
@@ -366,13 +367,13 @@
     {"dialogueId":"beast_choice_preserve","lines":[{"speaker":"달술사","text":"가면 아래 얼굴만 진짜라는 생각도 또 다른 검열일지 모르겠군.","emotion":"hope"}]},
     {"dialogueId":"beast_choice_mercy","lines":[{"speaker":"달술사","text":"기억을 되찾는 속도도 각자의 것이어야 한다는 뜻이구나.","emotion":"calm"}]},
     {"dialogueId":"beast_choice_control","lines":[{"speaker":"달술사","text":"진실을 강제로 드러내는 일도 폭력이 될 수 있어. 그 책임을 잊지 마.","emotion":"fear"}]},
-    {"dialogueId":"npc_moon_shaman_repeat","lines":[{"speaker":"달술사","text":"월아 숲을 지나 핏빛 달고개로 가. 사냥 명령을 끝내지 못한 추격자가 기다리고 있어.","emotion":"serious"}]},
+    {"dialogueId":"npc_moon_shaman_repeat","lines":[{"speaker":"달술사","text":"월아 숲을 지나 핏빛 달고개로 가. 사냥 명령을 끝내지 못한 추격자가 기다리고 있어.","emotion":"serious"},{"speaker":"달술사","text":"탈춤 고갯길에는 달빛이 반대로 흐르는 샛길이 있다. 여우들은 보름보다 가느다란 달을 더 잘 읽지.","emotion":"mystery"}]},
     {"dialogueId":"boss_bloodmane_pre","lines":[{"speaker":"붉은 뿔의 추격자","text":"야수를 찾아라! 가면을 벗겨라! 명령이 끝날 때까지 사냥은 멈추지 않는다!","emotion":"rage"},{"speaker":"극단주","text":"사냥할 야수는 없었다. 네가 따르던 명령부터 이 무대에서 끝내겠다.","emotion":"resolve"}]},
     {"dialogueId":"boss_bloodmane_post","lines":[{"speaker":"붉은 뿔의 추격자","text":"내가 쫓은 것은 야수가 아니라 두려움에 떠는 사람들이었구나… 이제 뿔을 내려놓겠다.","emotion":"relief","setFlag":"truth_first_howl","setFlagValue":1}]},
     {"dialogueId":"boss_night_beast_pre","lines":[{"speaker":"밤을 삼킨 짐승","text":"내게 공포를 넘겨라! 너희는 밝은 곳으로 도망쳐라! 밤은 내가 전부 삼키겠다!","emotion":"rage"},{"speaker":"극단주","text":"혼자 삼킨 공포가 너를 짐승으로 만들었다. 이번에는 모두가 그 울음을 함께 듣겠다.","emotion":"resolve"}]},
     {"dialogueId":"boss_night_beast_post","lines":[{"speaker":"밤을 삼킨 짐승","text":"루페온… 그것이 짐승이 되기 전 나의 이름이었다. 이제 울음을 혼자 품지 않겠다.","emotion":"relief"},{"speaker":"각본집","text":"제4막 『야수의 밤』이 기록되었습니다.","emotion":"mystery","setFlag":"act4_complete","setFlagValue":1}]},
     {"dialogueId":"npc_thread_merchant_intro","lines":[{"speaker":"실타래 상인","text":"이 시장에선 팔과 다리뿐 아니라 웃음과 목소리도 부품처럼 팔려. 인형사는 망가지지 않는 도시를 원했거든.","emotion":"sad"},{"speaker":"실타래 상인","text":"태엽 골목의 무희를 찾아가. 멈춘 시간을 풀면 오페라로 가는 문이 열릴 거야.","emotion":"serious"}]},
-    {"dialogueId":"npc_thread_merchant_repeat","lines":[{"speaker":"실타래 상인","text":"몸을 고치는 일과 주인을 바꾸는 일은 달라. 여기선 그 경계가 오래전에 사라졌지.","emotion":"calm"}]},
+    {"dialogueId":"npc_thread_merchant_repeat","lines":[{"speaker":"실타래 상인","text":"몸을 고치는 일과 주인을 바꾸는 일은 달라. 여기선 그 경계가 오래전에 사라졌지.","emotion":"calm"},{"speaker":"실타래 상인","text":"실밥 벌판에서 붉은 실 한 가닥을 보아도 잡아당기진 마. 천 조각 발이 먼저 향하는 곳을 지켜봐.","emotion":"mystery"}]},
     {"dialogueId":"npc_second_dancer_intro","lines":[{"speaker":"초침 무희","text":"나는 마지막 한 박자를 반복하라는 명령을 받았어. 관객들이 대피할 때까지 멈추지 않았지.","emotion":"sad"},{"speaker":"초침 무희","text":"이제 다음 동작은 내가 고를게. 오페라의 문을 열어 줄 테니 프리마돈나의 실을 끊어 줘.","emotion":"hope","setFlag":"clock_alley_released","setFlagValue":1}]},
     {"dialogueId":"npc_second_dancer_repeat","lines":[{"speaker":"초침 무희","text":"완벽한 박자보다 내가 고른 서툰 발걸음이 좋아.","emotion":"joy"}]},
     {"dialogueId":"boss_primadonna_pre","lines":[{"speaker":"줄 위의 프리마돈나","text":"노래하라, 웃어라, 쓰러져도 앙코르를 받아라! 이것이 주역에게 허락된 유일한 대사다!","emotion":"rage"},{"speaker":"극단주","text":"관객도 인형사도 아닌 네 목소리로 마지막 음을 고르게 하겠다.","emotion":"resolve"}]},
@@ -385,7 +386,7 @@
     {"dialogueId":"boss_last_puppeteer_pre","lines":[{"speaker":"마지막 인형사","text":"선택은 실수를 낳고 실수는 상처를 낳는다. 내가 모든 실을 쥐면 누구도 망가지지 않는다!","emotion":"rage"},{"speaker":"극단주","text":"상처받지 않는 대신 살아 있지도 않은 무대다. 배우들에게 자신의 대사를 돌려줘라.","emotion":"resolve"}]},
     {"dialogueId":"boss_last_puppeteer_post","lines":[{"speaker":"마지막 인형사","text":"마리온… 완벽한 인형극보다 서툰 배우들의 선택을 사랑했어야 했다.","emotion":"relief"},{"speaker":"각본집","text":"제5막 『꼭두각시 도시』가 기록되었습니다.","emotion":"mystery","setFlag":"act5_complete","setFlagValue":1}]},
     {"dialogueId":"npc_ink_conductor_intro","lines":[{"speaker":"먹칠 역무원","text":"검열단은 목적지를 지우면 누구도 떠날 수 없다고 믿었지. 나는 수감 열차를 백지 감옥 반대편 선로로 돌렸다.","emotion":"serious"},{"speaker":"먹칠 역무원","text":"동쪽 감옥에 갇힌 이름들을 찾아 줘. 번호만 남아도 사람은 사라지지 않아.","emotion":"hope"}]},
-    {"dialogueId":"npc_ink_conductor_repeat","lines":[{"speaker":"먹칠 역무원","text":"지워진 표도 손에 쥔 사람이 목적지를 기억한다면 길이 된다.","emotion":"calm"}]},
+    {"dialogueId":"npc_ink_conductor_repeat","lines":[{"speaker":"먹칠 역무원","text":"지워진 표도 손에 쥔 사람이 목적지를 기억한다면 길이 된다.","emotion":"calm"},{"speaker":"먹칠 역무원","text":"막차가 떠난 뒤에도 발소리가 하나 더 들린다. 표가 없던 승객은 아직 지워진 승강장을 찾는 모양이야.","emotion":"mystery"}]},
     {"dialogueId":"boss_zero_warden_pre","lines":[{"speaker":"제0호 간수","text":"규칙 제0조. 이름을 가진 자는 고통을 기억한다. 그러므로 이름을 수감한다.","emotion":"cold"},{"speaker":"극단주","text":"고통을 가둔 것이 아니라 사람을 가뒀다. 백지 규칙부터 찢겠다.","emotion":"resolve"}]},
     {"dialogueId":"boss_zero_warden_post","lines":[{"speaker":"제0호 간수","text":"나의 감옥은 죄수를 위한 것이 아니었다… 이 규칙이 세상에 나오지 못하게 지키던 봉인이었다.","emotion":"relief","setFlag":"blank_prison_names","setFlagValue":1}]},
     {"dialogueId":"npc_censor_surgeon_intro","lines":[{"speaker":"봉합 검열관","text":"우리는 그림자에게서 연민을 잘라 내고 원한만 남겼다. 강한 무기는 되었지만 누구의 기억인지조차 사라졌지.","emotion":"sad"},{"speaker":"봉합 검열관","text":"실험체들에게서 뽑은 고통스러운 기록을 어떻게 해야 할까?","emotion":"question"}],"choices":[{"text":"고통까지 원래 주인의 이름으로 돌려준다.","nextDialogueId":"censor_choice_restore","setFlag":"act6_pain_restored","setFlagValue":1,"flagChanges":[{"flag":"choice_memory","delta":1}]},{"text":"받아들일 준비가 된 기억부터 돌려준다.","nextDialogueId":"censor_choice_mercy","setFlag":"act6_pain_gradual","setFlagValue":1,"flagChanges":[{"flag":"choice_compassion","delta":1}]},{"text":"위험한 원한은 영구 봉인한다.","nextDialogueId":"censor_choice_seal","setFlag":"act6_pain_sealed","setFlagValue":1,"flagChanges":[{"flag":"choice_control","delta":1}]}]},
@@ -428,6 +429,18 @@
     {"dialogueId":"boss_final_shadow_pre","lines":[{"speaker":"각본 밖의 그림자","text":"어느 선택도 모든 비극을 구하지 못한다. 결말 자체를 없애겠다!","emotion":"rage"},{"speaker":"극단주","text":"완벽한 결말은 없어도 선택을 포기하지는 않는다.","emotion":"resolve"}]},
     {"dialogueId":"boss_final_shadow_post","lines":[{"speaker":"각본 밖의 그림자","text":"선택되지 않은 나도 기록될 수 있는가?","emotion":"sad"},{"speaker":"극단주","text":"다른 회차의 가능성으로 남아 줘.","emotion":"hope","setFlag":"story_finale_unlocked","setFlagValue":1},{"speaker":"각본집","text":"최종막 그림자 극장이 기록되었습니다. 무대 위 각본집에서 마지막 연출을 선택하세요.","emotion":"mystery","setFlag":"act8_complete","setFlagValue":1}]},
     {"dialogueId":"sign_ash_border","lines":[{"speaker":"그을린 표지판","text":"서쪽: 찢어진 장막길  ·  동쪽: 불씨 성도  ·  재폭풍 때는 무너진 벽 뒤로 대피할 것","emotion":"none"}]},
-    {"dialogueId":"sign_cinder_city","lines":[{"speaker":"왕국 안내도","text":"북쪽: 무너진 병영  ·  동쪽: 불씨 지하묘  ·  중앙대로: 왕궁(폐쇄)","emotion":"none"}]}
+    {"dialogueId":"sign_cinder_city","lines":[{"speaker":"왕국 안내도","text":"북쪽: 무너진 병영  ·  동쪽: 불씨 지하묘  ·  중앙대로: 왕궁(폐쇄)","emotion":"none"}]},
+    {"dialogueId":"companion_crow_wagon_song","lines":[{"speaker":"까마귀 그림자","text":"수레바퀴 자국 위를 낮게 돌며 오래전에 끊긴 행진곡을 흥얼거린다.","emotion":"mystery"},{"speaker":"극단주","text":"노래가 멈춘 자리의 흙이 유난히 따뜻하다. 누군가 천막을 거둔 흔적일까.","emotion":"calm"}]},
+    {"dialogueId":"companion_mask_poster_face","lines":[{"speaker":"가면 그림자","text":"찢어진 포스터 앞에서 얼굴을 바꾸자, 인쇄된 배우들의 시선도 한 칸씩 옮겨 간다.","emotion":"mystery"},{"speaker":"극단주","text":"벽 뒤에서 짧은 박수 소리가 들렸다. 이 골목에는 아직 관객이 남아 있다.","emotion":"surprise"}]},
+    {"dialogueId":"companion_ferryman_tide_route","lines":[{"speaker":"빙하 뱃사공","text":"판자 아래에 노를 대자 밀물이 갈라지고, 잠겼던 오래된 항로 표식이 떠오른다.","emotion":"mystery"},{"speaker":"극단주","text":"지도에는 없지만 분명 누군가 오가던 길이다. 물이 기억하고 있었구나.","emotion":"hope"}]},
+    {"dialogueId":"companion_gull_bubble_echo","lines":[{"speaker":"서리 갈매기","text":"거품 하나를 부리로 건드리자 돌아오지 못한 배들의 이름이 물속에서 메아리친다.","emotion":"sad"},{"speaker":"극단주","text":"사라진 귀항 신호를 각본집에 옮겨 적었다. 이제 이름만큼은 항구로 돌아갈 거야.","emotion":"hope"}]},
+    {"dialogueId":"companion_toad_reed_lights","lines":[{"speaker":"등불 두꺼비","text":"낮게 울자 갈대밭의 불빛들이 차례로 켜져 한 줄의 행렬을 만든다.","emotion":"mystery"},{"speaker":"극단주","text":"장례의 길이 아니라 돌아오는 길처럼 보여. 불빛 끝에 작은 발자국이 남아 있다.","emotion":"calm"}]},
+    {"dialogueId":"companion_ink_fox_well_letters","lines":[{"speaker":"잉크 여우","text":"우물 벽을 긁자 지워졌던 글자들이 물을 거슬러 올라와 허공에 문장을 만든다.","emotion":"mystery"},{"speaker":"극단주","text":"버린 문장이 아니었어. 누군가 읽어 주기를 기다린 구조 신호다.","emotion":"serious"}]},
+    {"dialogueId":"companion_crescent_fox_moon_path","lines":[{"speaker":"초승달 여우","text":"달빛과 반대 방향으로 달리더니 바위 틈에 가느다란 은빛 발자국을 남긴다.","emotion":"mystery"},{"speaker":"극단주","text":"큰길만 보았다면 지나쳤을 흔적이야. 이 숲의 전령들은 샛길로 위험을 알렸구나.","emotion":"calm"}]},
+    {"dialogueId":"companion_cliff_bat_sealed_echo","lines":[{"speaker":"절벽 박쥐","text":"봉인된 벽을 향해 울자 돌아오는 소리 사이에 비어 있는 방 하나가 그려진다.","emotion":"mystery"},{"speaker":"극단주","text":"벽 너머에서 가면 부딪히는 소리가 들려. 아무것도 없는 공간은 아니야.","emotion":"surprise"}]},
+    {"dialogueId":"companion_thread_cat_lost_stitch","lines":[{"speaker":"천 조각 고양이","text":"흙 속의 붉은 실을 앞발로 조심스레 파내어 끊어진 매듭과 이어 붙인다.","emotion":"calm"},{"speaker":"극단주","text":"실이 벌판 끝이 아니라 버려진 장난감들의 방향으로 팽팽해졌다.","emotion":"mystery"}]},
+    {"dialogueId":"companion_clockwork_mouse_heart_key","lines":[{"speaker":"태엽쥐","text":"고장 난 장난감 틈으로 들어가자 서로 다른 태엽 소리가 하나의 박자로 맞춰진다.","emotion":"mystery"},{"speaker":"극단주","text":"바닥 아래에서 더 큰 심장 소리가 답한다. 아직 완전히 멈춘 공방은 아니야.","emotion":"surprise"}]},
+    {"dialogueId":"companion_passenger_erased_platform","lines":[{"speaker":"표 없는 승객","text":"아무 표시도 없는 벽 앞에 서서, 손에 없는 표를 역무원에게 내미는 시늉을 한다.","emotion":"sad"},{"speaker":"극단주","text":"벽 너머에서 승강장 안내 종이 한 번 울렸다. 지워진 목적지도 길을 기억하고 있어.","emotion":"mystery"}]},
+    {"dialogueId":"companion_conductor_silent_score","lines":[{"speaker":"먹칠 역무원","text":"침묵한 회랑의 난간을 지휘봉처럼 두드리자 보이지 않는 악단이 숨을 들이쉰다.","emotion":"mystery"},{"speaker":"극단주","text":"연주가 사라진 게 아니야. 첫 박자를 기다리며 모두 숨을 참고 있었던 거야.","emotion":"hope"}]}
   ]
 }
