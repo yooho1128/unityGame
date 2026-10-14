@@ -96,6 +96,7 @@ namespace ShadowTheater.EditorTools
             ValidateBattleActions(result);
             ValidateBattleRewards(result);
             ValidateBattleStatusDisplay(result);
+            ValidateHiddenBattleGimmicks(result);
             if (!File.Exists(RegionPath))
             {
                 result.errors.Add("RegionCatalog.json 누락");
@@ -412,6 +413,21 @@ namespace ShadowTheater.EditorTools
             return data;
         }
 
+        private static void ValidateHiddenBattleGimmicks(ValidationReport result)
+        {
+            if (!BattleGimmickRules.IsBellWarningTurn(BattleGimmick.BellToll, 2) ||
+                !BattleGimmickRules.IsBellTollTurn(BattleGimmick.BellToll, 3) ||
+                BattleGimmickRules.IsBellTollTurn(BattleGimmick.BellToll, 2))
+                result.errors.Add("숨은 보스 봉화 종 3턴 주기 회귀 실패");
+            if (!BattleGimmickRules.ReversesInitiative(BattleGimmick.MoonReversal, 2) ||
+                BattleGimmickRules.ReversesInitiative(BattleGimmick.MoonReversal, 3))
+                result.errors.Add("숨은 보스 달빛 선후공 반전 회귀 실패");
+            if (!BattleGimmickRules.IsEchoRepeat(BattleGimmick.EchoSeal, "slash", "slash") ||
+                !BattleGimmickRules.IsEchoBreak(BattleGimmick.EchoSeal, "slash", "guard") ||
+                BattleGimmickRules.IsEchoRepeat(BattleGimmick.None, "slash", "slash"))
+                result.errors.Add("숨은 보스 메아리 기술 반복 판정 회귀 실패");
+        }
+
         private static void ValidateBattleActions(ValidationReport result)
         {
             ShadowData data = CreateAiTestShadow("action_rule_test", ShadowElement.None);
@@ -550,6 +566,13 @@ namespace ShadowTheater.EditorTools
                     result.errors.Add($"{region.regionId}: 마을은 숨은 지역이나 보스 무대일 수 없습니다");
                 if (region.isSettlement && (region.featuredShadows?.Length ?? 0) > 0)
                     result.errors.Add($"{region.regionId}: 마을에는 야생 출현 그림자를 선언할 수 없습니다");
+                string[] connections = region.connectedRegionIds ?? Array.Empty<string>();
+                if (connections.Length > 4)
+                    result.errors.Add($"{region.regionId}: 포털 배치 한도 초과 ({connections.Length}/4)");
+                if (connections.Contains(region.regionId))
+                    result.errors.Add($"{region.regionId}: 자기 자신으로 연결된 포털");
+                foreach (var duplicate in connections.GroupBy(x => x).Where(x => x.Count() > 1))
+                    result.errors.Add($"{region.regionId}: 연결 지역 중복 ({duplicate.Key})");
                 if (!string.IsNullOrEmpty(region.requiredFlag) && !IsDeclaredStoryFlag(region.requiredFlag))
                     result.errors.Add($"{region.regionId}: 생성되지 않는 지역 해금 플래그 {region.requiredFlag}");
             }
@@ -1191,6 +1214,12 @@ namespace ShadowTheater.EditorTools
                     {
                         var so = new SerializedObject(portal);
                         string target = so.FindProperty("targetScene")?.stringValue;
+                        if (fieldGrid != null)
+                        {
+                            Vector2Int sourceCell = fieldGrid.WorldToCell(portal.transform.position);
+                            if (fieldGrid.IsBlocked(sourceCell, portal.GetComponent<Collider2D>(), false))
+                                result.errors.Add($"{region.sceneName}/{portal.name}: 포털 출구 칸이 막힘 {sourceCell}");
+                        }
                         if (string.IsNullOrEmpty(target) || !regions.Any(x => x.sceneName == target))
                             result.errors.Add($"{region.sceneName}: 잘못된 포털 대상 {target}");
                         else
@@ -1205,6 +1234,22 @@ namespace ShadowTheater.EditorTools
                                     arrivalCell = arrivalProperty.vector2IntValue
                                 });
                         }
+                    }
+                    string[] expectedTargets = (region.connectedRegionIds ?? Array.Empty<string>())
+                        .Select(id => regions.FirstOrDefault(x => x.regionId == id)?.sceneName)
+                        .Where(x => !string.IsNullOrEmpty(x)).ToArray();
+                    string[] actualTargets = portals.Select(x =>
+                        new SerializedObject(x).FindProperty("targetScene")?.stringValue)
+                        .Where(x => !string.IsNullOrEmpty(x)).ToArray();
+                    foreach (var duplicate in actualTargets.GroupBy(x => x).Where(x => x.Count() > 1))
+                        result.errors.Add($"{region.sceneName}: 같은 지역으로 향하는 포털 중복 ({duplicate.Key})");
+                    var expectedTargetSet = new HashSet<string>(expectedTargets, StringComparer.Ordinal);
+                    var actualTargetSet = new HashSet<string>(actualTargets, StringComparer.Ordinal);
+                    if (!expectedTargetSet.SetEquals(actualTargetSet))
+                    {
+                        string missing = string.Join(",", expectedTargetSet.Except(actualTargetSet));
+                        string extra = string.Join(",", actualTargetSet.Except(expectedTargetSet));
+                        result.errors.Add($"{region.sceneName}: 카탈로그-씬 포털 불일치 (누락:{missing} / 초과:{extra})");
                     }
                     foreach (EncounterSymbol encounter in encounters)
                     {
@@ -1232,6 +1277,17 @@ namespace ShadowTheater.EditorTools
                         int fixedEncounters = encounters.Count(x => x.IsFixed);
                         if (fixedEncounters != 1)
                             result.errors.Add($"{region.sceneName}: 희귀 고정 조우 수 불일치 ({fixedEncounters}/1)");
+                        else
+                        {
+                            EncounterSymbol hiddenBoss = encounters.First(x => x.IsFixed);
+                            BattleGimmick expectedGimmick = region.regionId == "ashes_bell_tower"
+                                ? BattleGimmick.BellToll
+                                : region.regionId == "inverted_moon_path"
+                                    ? BattleGimmick.MoonReversal
+                                    : BattleGimmick.EchoSeal;
+                            if (hiddenBoss.Mode != BattleMode.Boss || hiddenBoss.Gimmick != expectedGimmick)
+                                result.errors.Add($"{region.sceneName}: 숨은 보스 전투 모드·기믹 불일치");
+                        }
                     }
                 }
                 finally { if (closeAfter) EditorSceneManager.CloseScene(scene, true); }

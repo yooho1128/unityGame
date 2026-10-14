@@ -111,7 +111,7 @@ namespace ShadowTheater.Field
         {
             if (!CanStartEncounter) return;
 
-            var ctx = CreateContext(symbol.Mode, symbol.BuildEnemyParty(), symbol.EncounterId);
+            var ctx = CreateContext(symbol.Mode, symbol.BuildEnemyParty(), symbol.EncounterId, symbol.Gimmick);
             StartCoroutine(BattleFlow(ctx, symbol, null));
         }
 
@@ -120,7 +120,7 @@ namespace ShadowTheater.Field
                                         Action<BattleOutcome> onFinished = null)
         {
             if (IsInBattle) return;
-            var ctx = CreateContext(mode, enemies, encounterId);
+            var ctx = CreateContext(mode, enemies, encounterId, BattleGimmick.None);
             StartCoroutine(BattleFlow(ctx, null, onFinished));
         }
 
@@ -129,7 +129,8 @@ namespace ShadowTheater.Field
         // ────────────────────────────────────────────
         #region Flow
 
-        private BattleContext CreateContext(BattleMode mode, List<ShadowInstance> enemies, string encounterId)
+        private BattleContext CreateContext(BattleMode mode, List<ShadowInstance> enemies, string encounterId,
+            BattleGimmick gimmick)
         {
             var save = SaveManager.Current;
             return new BattleContext
@@ -139,6 +140,7 @@ namespace ShadowTheater.Field
                 enemyParty = enemies,
                 inventory = SaveManager.BuildBattleInventory(),
                 encounterId = encounterId,
+                gimmick = gimmick,
                 autoBattle = save.autoBattle,
                 timeScale = save.battleSpeed
             };
@@ -308,6 +310,9 @@ namespace ShadowTheater.Field
         /// <summary>저장 직전 플레이어 위치를 세이브에 기록 (SaveManager.Save 전에 호출)</summary>
         public static void WritePlayerPosition()
         {
+            // 포털 페이드 중에는 MapLoader가 이미 기록한 목표 씬/도착점을 이전 씬의 플레이어 위치로
+            // 덮어쓰면 안 된다. 모바일 백그라운드 저장이 전환 중 끼어들어도 한쪽 상태만 남긴다.
+            if (MapLoader.Instance != null && MapLoader.Instance.IsTransitioning) return;
             var p = PlayerController.Instance;
             var save = SaveManager.Current;
             if (p == null || save == null) return;

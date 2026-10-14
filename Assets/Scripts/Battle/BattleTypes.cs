@@ -27,6 +27,15 @@ namespace ShadowTheater.Battle
 
     public enum BattleResult { None, Victory, Defeat, Captured, Escaped }
 
+    /// <summary>특정 고정 조우에만 적용되는 전투 규칙. 일반·메인 보스전에는 None을 사용한다.</summary>
+    public enum BattleGimmick
+    {
+        None,
+        BellToll,
+        MoonReversal,
+        EchoSeal
+    }
+
     /// <summary>명세서 5종 + 도주(야생 전투 전용)</summary>
     public enum ActionType { Attack, Skill, Switch, Record, Item, Escape }
 
@@ -86,6 +95,7 @@ namespace ShadowTheater.Battle
         public List<ShadowInstance> enemyParty;   // 야생은 1마리, 라이벌은 여러 마리
         public Dictionary<ItemData, int> inventory; // 전투 중 사용할 도구 (null 가능)
         public string encounterId;                 // 퀘스트 플래그/심볼 제거용
+        public BattleGimmick gimmick;
         public bool autoBattle;
         public float timeScale = 1f;               // 접근성/연출 배속 옵션
 

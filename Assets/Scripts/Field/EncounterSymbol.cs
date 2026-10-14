@@ -26,6 +26,8 @@ namespace ShadowTheater.Field
         [SerializeField] private Vector2Int levelRange = new Vector2Int(3, 5);
         [Tooltip("고정 심볼만 입력. 비워두면 리스폰되는 야생 심볼")]
         [SerializeField] private string encounterId;
+        [Tooltip("숨은 보스 등 특수 고정 조우의 전용 전투 규칙")]
+        [SerializeField] private BattleGimmick battleGimmick;
 
         [Header("배회 / 추적")]
         [SerializeField] private bool wander = true;
@@ -43,6 +45,7 @@ namespace ShadowTheater.Field
 
         public BattleMode Mode => mode;
         public string EncounterId => encounterId;
+        public BattleGimmick Gimmick => battleGimmick;
         public bool IsFixed => !string.IsNullOrEmpty(encounterId);
         public bool IsActive { get; private set; } = true;
 

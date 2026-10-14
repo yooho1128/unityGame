@@ -63,6 +63,7 @@ namespace ShadowTheater.Battle
         private BattleOutcome _outcome;
         private float _captureBonus = 1f;
         private int _escapeAttempts;
+        private string _lastPlayerSkillId;
         private Coroutine _routine;
 
         // ────────────────────────────────────────────
@@ -130,6 +131,7 @@ namespace ShadowTheater.Battle
             IsAuto = context.autoBattle;
             _captureBonus = 1f;
             _escapeAttempts = 0;
+            _lastPlayerSkillId = null;
             _pendingAction = null;
             _pendingForcedSwitch = -1;
             _outcome = new BattleOutcome { encounterId = context.encounterId };
@@ -241,6 +243,8 @@ namespace ShadowTheater.Battle
                         "{0}의 비극이 폭주한다! 공연 열기가 치솟았다.", EnemyActive.Name));
                 }
 
+                yield return ApplyGimmickTurnStart();
+
                 // 1) 플레이어 입력
                 _pendingAction = null;
                 SetState(BattleState.WaitingForInput);
@@ -249,12 +253,14 @@ namespace ShadowTheater.Battle
                     ?? ChooseAiAction(BattleSide.Player, true);
                 playerAction.actor = PlayerActive;
 
+                SetState(BattleState.ResolvingTurn);
+                yield return ApplyEchoChoice(playerAction);
+
                 // 2) 적 선택
                 var enemyAction = ChooseAiAction(BattleSide.Enemy, Context.mode != BattleMode.Wild);
                 enemyAction.actor = EnemyActive;
 
                 // 3) 처리
-                SetState(BattleState.ResolvingTurn);
                 foreach (var action in OrderActions(playerAction, enemyAction))
                 {
                     if (IsEnded) break;
@@ -283,10 +289,63 @@ namespace ShadowTheater.Battle
         {
             bool playerFirst;
             if (p.Priority != e.Priority) playerFirst = p.Priority > e.Priority;
-            else if (PlayerActive.Spd != EnemyActive.Spd) playerFirst = PlayerActive.Spd > EnemyActive.Spd;
+            else if (PlayerActive.Spd != EnemyActive.Spd)
+            {
+                playerFirst = PlayerActive.Spd > EnemyActive.Spd;
+                if (BattleGimmickRules.ReversesInitiative(Context?.gimmick ?? BattleGimmick.None, Turn))
+                    playerFirst = !playerFirst;
+            }
             else playerFirst = UnityEngine.Random.value < 0.5f;
 
             return playerFirst ? new List<BattleAction> { p, e } : new List<BattleAction> { e, p };
+        }
+
+        #endregion
+
+        #region Hidden Battle Gimmicks
+
+        private IEnumerator ApplyGimmickTurnStart()
+        {
+            BattleGimmick gimmick = Context?.gimmick ?? BattleGimmick.None;
+            if (BattleGimmickRules.IsBellWarningTurn(gimmick, Turn))
+            {
+                yield return _presenter.ShowMessage("녹슨 종이 크게 흔들린다. 다음 턴에는 양쪽의 방어가 무너진다!");
+                yield break;
+            }
+            if (BattleGimmickRules.IsBellTollTurn(gimmick, Turn))
+            {
+                yield return _presenter.ShowMessage("봉화탑의 종이 울렸다! 불안정한 공명이 양쪽 방어를 낮춘다.");
+                foreach (BattleUnit unit in new[] { PlayerActive, EnemyActive })
+                {
+                    if (unit.IsFainted || !unit.ApplyStatus(StatusEffectType.DefenseDown, 1)) continue;
+                    yield return _presenter.PlayStatusApplied(unit, StatusEffectType.DefenseDown);
+                    OnUnitChanged?.Invoke(unit);
+                }
+            }
+            else if (BattleGimmickRules.ReversesInitiative(gimmick, Turn))
+            {
+                yield return _presenter.ShowMessage("달빛이 거꾸로 흐른다. 같은 종류의 행동은 느린 그림자가 먼저 움직인다!");
+            }
+        }
+
+        private IEnumerator ApplyEchoChoice(BattleAction action)
+        {
+            if ((Context?.gimmick ?? BattleGimmick.None) != BattleGimmick.EchoSeal) yield break;
+            string current = action != null &&
+                             (action.type == ActionType.Attack || action.type == ActionType.Skill)
+                ? action.skill?.skillId
+                : null;
+            if (BattleGimmickRules.IsEchoRepeat(Context.gimmick, _lastPlayerSkillId, current))
+            {
+                AddFp(BattleSide.Enemy, 2);
+                yield return _presenter.ShowMessage("같은 기술의 메아리가 읽혔다. 가면 사냥꾼의 공연 열기 +2!");
+            }
+            else if (BattleGimmickRules.IsEchoBreak(Context.gimmick, _lastPlayerSkillId, current))
+            {
+                AddFp(BattleSide.Player, 1);
+                yield return _presenter.ShowMessage("다른 울림으로 공명을 끊었다. 아군 공연 열기 +1!");
+            }
+            _lastPlayerSkillId = current;
         }
 
         #endregion

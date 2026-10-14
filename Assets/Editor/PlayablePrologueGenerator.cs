@@ -130,6 +130,9 @@ namespace ShadowTheater.EditorTools
                 var map = BeginFieldScene(region.sceneName, region.displayName, region.ArrivalCell,
                     cameraColor, theme);
                 string[] connections = region.connectedRegionIds ?? new string[0];
+                if (connections.Length > portalCells.Length)
+                    Debug.LogError($"[World] {region.regionId}: 연결 {connections.Length}개 중 " +
+                                   $"{portalCells.Length}개만 배치할 수 있습니다.");
                 for (int i = 0; i < connections.Length && i < portalCells.Length; i++)
                 {
                     if (!byId.TryGetValue(connections[i], out RegionData target)) continue;
@@ -250,6 +253,8 @@ namespace ShadowTheater.EditorTools
                 new Vector2Int(8, 0), FacingDir.Left);
             CreatePortal(map.fieldRoot, "ToMoonlitMeadow", new Vector2Int(9, 0), "MoonlitMeadow",
                 new Vector2Int(-8, 0), FacingDir.Right, true);
+            CreatePortal(map.fieldRoot, "ToPaintedWagonRoad", new Vector2Int(0, 8), "PaintedWagonRoad",
+                new Vector2Int(-8, 0), FacingDir.Up);
             FinishFieldScene(map, "EchoVillage");
         }
 
@@ -535,6 +540,7 @@ namespace ShadowTheater.EditorTools
             CreateEncounter(map.fieldRoot, "MaskHunterB", new Vector2Int(4,-4), LoadShadow("mask_hunter"),50,54);
             CreatePortal(map.fieldRoot, "BackToVillage", new Vector2Int(-9,-2), "HowlVillage", new Vector2Int(8,0), FacingDir.Left);
             CreatePortal(map.fieldRoot, "ToBloodmoonRidge", new Vector2Int(0,8), "BloodmoonRidge", new Vector2Int(0,-7), FacingDir.Up, false, "quest_act4_03_forest_complete");
+            CreatePortal(map.fieldRoot, "ToSleepingBeastDen", new Vector2Int(9,0), "SleepingBeastDen", new Vector2Int(0,-6), FacingDir.Right, false, "boss_bloodmane_story_complete");
             FinishFieldScene(map, "MoonfangForest");
         }
 
@@ -558,6 +564,7 @@ namespace ShadowTheater.EditorTools
             CreateBossEncounter(map.fieldRoot, "NightDevouringBeastBoss", new Vector2Int(0,4), "night_devouring_beast", "boss_night_beast", new Vector2Int(60,63), "boss_night_beast_pre", "boss_night_beast_post", "boss_night_beast_story_complete", "boss_night_beast_reward_claimed", 63, new Color(.68f,.25f,.92f));
             CreatePortal(map.fieldRoot, "BackToRidge", new Vector2Int(0,-8), "BloodmoonRidge", new Vector2Int(8,0), FacingDir.Down);
             CreatePortal(map.fieldRoot, "ToThreadMarket", new Vector2Int(9,0), "ThreadMarket", new Vector2Int(-8,0), FacingDir.Right, false, "act4_complete");
+            CreatePortal(map.fieldRoot, "ToMoonfangForest", new Vector2Int(-9,0), "MoonfangForest", new Vector2Int(-8,-2), FacingDir.Left);
             FinishFieldScene(map, "SleepingBeastDen");
         }
 
@@ -581,6 +588,7 @@ namespace ShadowTheater.EditorTools
             CreateEncounter(map.fieldRoot, "BrassClownA", new Vector2Int(5,-2), LoadShadow("brass_clown"),63,66);
             CreatePortal(map.fieldRoot, "BackToMarket", new Vector2Int(-9,0), "ThreadMarket", new Vector2Int(8,0), FacingDir.Left);
             CreatePortal(map.fieldRoot, "ToOpera", new Vector2Int(0,8), "MarionetteOpera", new Vector2Int(0,-7), FacingDir.Up, false, "quest_act5_02_alley_complete");
+            CreatePortal(map.fieldRoot, "ToSeveredWorkshop", new Vector2Int(9,0), "SeveredWorkshop", new Vector2Int(-8,0), FacingDir.Right, false, "boss_primadonna_story_complete");
             FinishFieldScene(map, "ClockworkAlley");
         }
 
@@ -605,6 +613,7 @@ namespace ShadowTheater.EditorTools
             CreateEncounter(map.fieldRoot, "StitchedKnightEcho", new Vector2Int(5,-3), LoadShadow("stitched_knight"),69,72);
             CreatePortal(map.fieldRoot, "BackToOpera", new Vector2Int(-9,0), "MarionetteOpera", new Vector2Int(8,0), FacingDir.Left);
             CreatePortal(map.fieldRoot, "ToPuppeteerStage", new Vector2Int(9,0), "PuppeteerStage", new Vector2Int(0,-6), FacingDir.Right, false, "quest_act5_04_workshop_complete");
+            CreatePortal(map.fieldRoot, "ToClockworkAlley", new Vector2Int(0,8), "ClockworkAlley", new Vector2Int(-8,0), FacingDir.Up);
             FinishFieldScene(map, "SeveredWorkshop");
         }
 
@@ -738,6 +747,7 @@ namespace ShadowTheater.EditorTools
             CreateBossEncounter(map.fieldRoot,"InterludeManagerBoss",new Vector2Int(0,5),"interlude_manager","boss_interlude_manager",new Vector2Int(110,112),"boss_interlude_manager_pre","boss_interlude_manager_post","boss_interlude_manager_story_complete","boss_interlude_manager_reward_claimed",112,new Color(.55f,.34f,.78f));
             CreatePortal(map.fieldRoot,"BackToLobby",new Vector2Int(0,-8),"InvertedLobby",new Vector2Int(8,0),FacingDir.Down);
             CreatePortal(map.fieldRoot,"ToFirstActorRoom",new Vector2Int(9,0),"FirstActorRoom",new Vector2Int(0,-6),FacingDir.Right,false,"boss_interlude_manager_story_complete");
+            CreatePortal(map.fieldRoot,"ToCosmicAuditorium",new Vector2Int(0,8),"CosmicAuditorium",new Vector2Int(0,-6),FacingDir.Up,false,"boss_first_actor_story_complete");
             FinishFieldScene(map,"EndlessBackstage");
         }
 
@@ -760,6 +770,7 @@ namespace ShadowTheater.EditorTools
             CreateBossEncounter(map.fieldRoot,"LastAudienceBoss",new Vector2Int(0,4),"legend_last_audience","boss_last_audience",new Vector2Int(116,118),"boss_last_audience_pre","boss_last_audience_post","boss_last_audience_story_complete","boss_last_audience_reward_claimed",118,new Color(.48f,.55f,1f));
             CreatePortal(map.fieldRoot,"BackToFirstActor",new Vector2Int(0,-8),"FirstActorRoom",new Vector2Int(8,0),FacingDir.Down);
             CreatePortal(map.fieldRoot,"ToFinalCurtain",new Vector2Int(9,0),"FinalCurtain",new Vector2Int(0,-6),FacingDir.Right,false,"boss_last_audience_story_complete");
+            CreatePortal(map.fieldRoot,"ToEndlessBackstage",new Vector2Int(-9,0),"EndlessBackstage",new Vector2Int(0,-7),FacingDir.Left);
             FinishFieldScene(map,"CosmicAuditorium");
         }
 
@@ -1116,12 +1127,18 @@ namespace ShadowTheater.EditorTools
             bool upperLoop = x >= -5 && x <= 4 && y >= 3 && y <= 5;
             bool southernLoop = x >= -7 && x <= 5 && y >= -6 && y <= -3;
             bool eastConnector = x >= 3 && x <= 5 && y >= -5 && y <= 4;
+            // 확장 지역은 최대 네 방향 포털을 사용한다. 기존 숲길의 형태는 유지하되
+            // 북·남쪽 가장자리까지 한 칸 폭의 출구를 열어 (0,±8) 포털이 벽에 묻히지 않게 한다.
+            bool northExit = x == 0 && y >= 2 && y <= 8;
+            bool southExit = x == 0 && y >= -8 && y <= -3;
             bool centralGrove = x >= -1 && x <= 1 && y >= 2 && y <= 4;
             bool westernCliff = x <= -6 && y >= 2;
             bool easternWater = x >= 6 && y >= -2;
             bool lowerRuin = x >= -1 && x <= 1 && y <= -5;
-            return (westEntrance || eastExit || centralClearing || northernTrail || upperLoop || southernLoop || eastConnector)
-                   && !centralGrove && !westernCliff && (!easternWater || eastExit) && !lowerRuin;
+            return (westEntrance || eastExit || centralClearing || northernTrail || upperLoop || southernLoop ||
+                    eastConnector || northExit || southExit)
+                   && (!centralGrove || northExit) && !westernCliff && (!easternWater || eastExit) &&
+                   (!lowerRuin || southExit);
         }
 
         private static bool IsMoonlitPath(int x, int y)
@@ -1130,7 +1147,8 @@ namespace ShadowTheater.EditorTools
             bool northRoad = x >= -4 && x <= -2 && y >= 0;
             bool southRoad = y >= -5 && y <= -3 && x >= -5 && x <= 4;
             bool eastRoad = x >= 3 && x <= 10 && y >= -4 && y <= 4;
-            return IsMoonlitWalkable(x, y) && (westRoad || northRoad || southRoad || eastRoad);
+            bool verticalExitRoad = x == 0 && (y >= 2 || y <= -3);
+            return IsMoonlitWalkable(x, y) && (westRoad || northRoad || southRoad || eastRoad || verticalExitRoad);
         }
 
         private static GameObject CreateNpc(Transform parent, string name, Vector2Int cell, ShadowData visual,
@@ -1172,6 +1190,7 @@ namespace ShadowTheater.EditorTools
             int rewardGold;
             int minLevel;
             int maxLevel;
+            BattleGimmick battleGimmick;
             int[] sequence;
             Vector2Int[] nodeCells;
             Vector2Int npcCell;
@@ -1189,6 +1208,7 @@ namespace ShadowTheater.EditorTools
                     rewardItemCount = 1; rewardGold = 150;
                     rewardMessage = "진명의 은빛 잉크 1개 · 금화 150 획득";
                     minLevel = 14; maxLevel = 17; sequence = new[] { 0, 2, 1 };
+                    battleGimmick = BattleGimmick.BellToll;
                     nodeCells = new[] { new Vector2Int(-6,0), new Vector2Int(0,3), new Vector2Int(6,0) };
                     npcCell = new Vector2Int(0,5); encounterCell = new Vector2Int(6,-3); rewardCell = new Vector2Int(0,-4);
                     break;
@@ -1201,6 +1221,7 @@ namespace ShadowTheater.EditorTools
                     rewardItemCount = 2; rewardGold = 240;
                     rewardMessage = "무대 열기 영약 2개 · 금화 240 획득";
                     minLevel = 61; maxLevel = 65; sequence = new[] { 1, 0, 2 };
+                    battleGimmick = BattleGimmick.MoonReversal;
                     nodeCells = new[] { new Vector2Int(-6,0), new Vector2Int(0,3), new Vector2Int(6,0) };
                     npcCell = new Vector2Int(0,5); encounterCell = new Vector2Int(6,-3); rewardCell = new Vector2Int(0,-4);
                     break;
@@ -1213,6 +1234,7 @@ namespace ShadowTheater.EditorTools
                     rewardItemCount = 2; rewardGold = 280;
                     rewardMessage = "농축 회복 시약 2개 · 금화 280 획득";
                     minLevel = 65; maxLevel = 69; sequence = new[] { 2, 0, 1 };
+                    battleGimmick = BattleGimmick.EchoSeal;
                     nodeCells = new[] { new Vector2Int(-5,-3), new Vector2Int(0,3), new Vector2Int(5,-3) };
                     npcCell = new Vector2Int(0,5); encounterCell = new Vector2Int(5,4); rewardCell = new Vector2Int(0,-4);
                     break;
@@ -1249,7 +1271,7 @@ namespace ShadowTheater.EditorTools
             CreateNpc(rewardRoot.transform, "MemoryNpc", npcCell, LoadShadow(npcShadowId), npcId,
                 npcFirst, npcRepeat, "talked_" + npcId, accent);
             CreateEncounter(rewardRoot.transform, "RareFixedEncounter", encounterCell, LoadShadow(rareShadowId),
-                minLevel, maxLevel, encounterId);
+                minLevel, maxLevel, encounterId, battleGimmick);
             CreateHiddenReward(rewardRoot.transform, region.regionId, rewardCell, LoadShadow(npcShadowId),
                 rewardDialogue, encounterId, rewardItemId, rewardItemCount, rewardGold, rewardMessage, accent);
             rewardRoot.SetActive(false);
@@ -1299,7 +1321,7 @@ namespace ShadowTheater.EditorTools
 
         private static void CreateEncounter(Transform parent, string name, Vector2Int cell,
                                             ShadowData shadow, int minLevel, int maxLevel,
-                                            string encounterId = "")
+                                            string encounterId = "", BattleGimmick battleGimmick = BattleGimmick.None)
         {
             var go = new GameObject(name, typeof(CircleCollider2D), typeof(EncounterSymbol));
             go.transform.SetParent(parent); go.transform.position = Cell(cell);
@@ -1314,6 +1336,11 @@ namespace ShadowTheater.EditorTools
             var so = new SerializedObject(go.GetComponent<EncounterSymbol>());
             Set(so, "leadShadow", shadow); Set(so, "levelRange", new Vector2Int(minLevel, maxLevel));
             if (!string.IsNullOrEmpty(encounterId)) Set(so, "encounterId", encounterId);
+            if (battleGimmick != BattleGimmick.None)
+            {
+                Set(so, "mode", (int)BattleMode.Boss);
+                Set(so, "battleGimmick", (int)battleGimmick);
+            }
             Set(so, "silhouette", renderer); so.ApplyModifiedPropertiesWithoutUndo();
             visualObject.GetComponent<ShadowFieldMotion>().Configure(shadow, frames);
         }

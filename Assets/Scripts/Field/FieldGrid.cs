@@ -46,16 +46,21 @@ namespace ShadowTheater.Field
 
         public Vector2Int WorldToCell(Vector3 world)
         {
+            EnsureGrid();
             var c = _grid.WorldToCell(world);
             return new Vector2Int(c.x, c.y);
         }
 
-        public Vector3 CellToWorld(Vector2Int cell) =>
-            _grid.GetCellCenterWorld(new Vector3Int(cell.x, cell.y, 0));
+        public Vector3 CellToWorld(Vector2Int cell)
+        {
+            EnsureGrid();
+            return _grid.GetCellCenterWorld(new Vector3Int(cell.x, cell.y, 0));
+        }
 
         /// <param name="self">판정에서 제외할 자기 자신 콜라이더</param>
         public bool IsBlocked(Vector2Int cell, Collider2D self = null, bool checkUnits = true)
         {
+            EnsureGrid();
             if (groundTilemap != null && !groundTilemap.HasTile(new Vector3Int(cell.x, cell.y, 0)))
                 return true;
             if (collisionTilemap != null && collisionTilemap.HasTile(new Vector3Int(cell.x, cell.y, 0)))
@@ -74,6 +79,11 @@ namespace ShadowTheater.Field
                     if (h != self && !h.isTrigger) return true;
             }
             return false;
+        }
+
+        private void EnsureGrid()
+        {
+            if (_grid == null) _grid = GetComponent<Grid>();
         }
 
         /// <summary>
