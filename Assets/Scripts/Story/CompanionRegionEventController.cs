@@ -28,6 +28,7 @@ namespace ShadowTheater.Story
             while (PlayerController.Instance == null || SaveManager.Current == null || DialogueController.Instance == null)
                 yield return null;
 
+            BackfillCompletedRewards();
             _player = PlayerController.Instance;
             if (string.IsNullOrEmpty(regionId))
                 regionId = RegionRepository.GetByScene(SaveManager.Current.mapId)?.regionId;
@@ -109,13 +110,50 @@ namespace ShadowTheater.Story
         private void Complete(CompanionEventDefinition definition)
         {
             SaveManager.SetFlag(definition.CompletionFlag);
+            ApplyPersistentReward(definition);
             if (definition.rewardGold > 0)
-            {
                 SaveManager.AddGold(definition.rewardGold);
-                SaveFeedbackController.Instance?.ShowMessage($"동행의 기억을 발견했습니다 · {definition.rewardGold} 금화");
-            }
+            string feedback = !string.IsNullOrEmpty(definition.rewardMessage)
+                ? definition.rewardMessage
+                : definition.rewardGold > 0 ? $"동행의 기억을 발견했습니다 · {definition.rewardGold} 금화"
+                : "동행의 새로운 기억을 발견했습니다.";
+            SaveFeedbackController.Instance?.ShowMessage(feedback);
             SaveManager.Instance?.Save();
             _playing = false;
+        }
+
+        private void BackfillCompletedRewards()
+        {
+            bool changed = false;
+            foreach (CompanionEventDefinition definition in _catalog?.events ?? new List<CompanionEventDefinition>())
+            {
+                if (!SaveManager.HasFlag(definition.CompletionFlag)) continue;
+                changed |= ApplyPersistentReward(definition);
+            }
+            if (changed) SaveManager.Instance?.Save(false);
+        }
+
+        private static bool ApplyPersistentReward(CompanionEventDefinition definition)
+        {
+            bool changed = false;
+            if (!string.IsNullOrEmpty(definition.rewardFlag))
+            {
+                changed |= !SaveManager.HasFlag(definition.rewardFlag);
+                SaveManager.SetFlag(definition.rewardFlag);
+            }
+            if (!string.IsNullOrEmpty(definition.rewardItemId) &&
+                SaveManager.GetItemCount(definition.rewardItemId) <= 0)
+            {
+                SaveManager.AddItem(definition.rewardItemId, Mathf.Max(1, definition.rewardItemCount));
+                changed = true;
+            }
+            if (!string.IsNullOrEmpty(definition.unlockRegionId) &&
+                !SaveManager.Current.unlockedRegionIds.Contains(definition.unlockRegionId))
+            {
+                SaveManager.Current.unlockedRegionIds.Add(definition.unlockRegionId);
+                changed = true;
+            }
+            return changed;
         }
     }
 }

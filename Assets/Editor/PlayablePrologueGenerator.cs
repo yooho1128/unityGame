@@ -107,7 +107,7 @@ namespace ShadowTheater.EditorTools
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             EditorSceneManager.OpenScene($"{SceneFolder}/Title.unity", OpenSceneMode.Single);
-            Debug.Log("[World] 7개 극단 마을과 60개 픽셀 필드 생성 완료");
+            Debug.Log("[World] 7개 극단 마을과 63개 픽셀 필드 생성 완료");
         }
 
         private static void CreateExpansionRegions()
@@ -138,6 +138,15 @@ namespace ShadowTheater.EditorTools
                         target.ArrivalCell, cell.x < 0 ? FacingDir.Left : cell.x > 0 ? FacingDir.Right :
                         cell.y > 0 ? FacingDir.Up : FacingDir.Down);
                 }
+                if (region.regionId == "bubble_cave")
+                    CreateTraversalRoutePair(map.fieldRoot, "FrostwingWindGap", new Vector2Int(-8,-6),
+                        new Vector2Int(8,-6), TraversalAbility.Glide, new Color(.55f,.88f,1f));
+                else if (region.regionId == "lantern_reed_field")
+                    CreateTraversalRoutePair(map.fieldRoot, "SpiritLanternPath", new Vector2Int(-8,-6),
+                        new Vector2Int(8,-6), TraversalAbility.SpiritLight, new Color(1f,.72f,.32f));
+                else if (region.regionId == "abandoned_toy_store")
+                    CreateTraversalRoutePair(map.fieldRoot, "ClockworkRail", new Vector2Int(-8,-6),
+                        new Vector2Int(8,-6), TraversalAbility.ClockworkRide, new Color(.82f,.55f,.35f));
                 FinishFieldScene(map, region.sceneName);
             }
         }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ShadowTheater.Battle;
 using ShadowTheater.Data;
+using ShadowTheater.Save;
 using ShadowTheater.Story;
 using UnityEngine;
 
@@ -23,6 +24,7 @@ namespace ShadowTheater.Field
         private int _safeSteps;
         private int _eligibleSteps;
         private bool _battlePending;
+        private string _companionInstanceId;
 
         private IEnumerator Start()
         {
@@ -40,6 +42,8 @@ namespace ShadowTheater.Field
             if (_player == null) { enabled = false; yield break; }
             _player.OnStepFinished += OnStepFinished;
             GameFlowController.Instance.OnBattleFlowFinished += OnBattleFinished;
+            _companionInstanceId = SaveManager.Current?.companionInstanceId;
+            SaveManager.PartyChanged += OnPartyChanged;
             ResetCounter();
         }
 
@@ -48,6 +52,7 @@ namespace ShadowTheater.Field
             if (_player != null) _player.OnStepFinished -= OnStepFinished;
             if (GameFlowController.Instance != null)
                 GameFlowController.Instance.OnBattleFlowFinished -= OnBattleFinished;
+            SaveManager.PartyChanged -= OnPartyChanged;
         }
 
         private void OnStepFinished(Vector2Int _)
@@ -56,7 +61,9 @@ namespace ShadowTheater.Field
                 !GameFlowController.Instance.CanStartEncounter) return;
             if (_safeSteps-- > 0) return;
             _eligibleSteps++;
-            if (_eligibleSteps < pitySteps && UnityEngine.Random.value > chancePerStep) return;
+            float chance = chancePerStep * CompanionBondService.EncounterChanceMultiplier(
+                CompanionBondService.CurrentCompanionShadowId());
+            if (_eligibleSteps < pitySteps && UnityEngine.Random.value > chance) return;
 
             RegionData region = RegionRepository.Get(regionId);
             ShadowData shadow = _candidates[UnityEngine.Random.Range(0, _candidates.Count)];
@@ -73,9 +80,18 @@ namespace ShadowTheater.Field
             ResetCounter();
         }
 
+        private void OnPartyChanged()
+        {
+            string current = SaveManager.Current?.companionInstanceId;
+            if (current == _companionInstanceId) return;
+            _companionInstanceId = current;
+            ResetCounter();
+        }
+
         private void ResetCounter()
         {
-            _safeSteps = UnityEngine.Random.Range(safeStepsMin, Mathf.Max(safeStepsMin + 1, safeStepsMax + 1));
+            int bonus = CompanionBondService.EncounterSafeStepBonus(CompanionBondService.CurrentCompanionShadowId());
+            _safeSteps = UnityEngine.Random.Range(safeStepsMin, Mathf.Max(safeStepsMin + 1, safeStepsMax + 1)) + bonus;
             _eligibleSteps = 0;
         }
 

@@ -29,6 +29,8 @@ namespace ShadowTheater.Data
         public bool usableInField;
         [Tooltip("판매·중복 구매할 수 없는 진행용 도구")]
         public bool isKeyItem;
+        [Tooltip("동행 이벤트 등에서만 획득하며 상점 목록에는 표시하지 않음")]
+        public bool isEventOnly;
         [Min(0)] public int buyPrice = 50;
         [Min(0)] public int sellPrice = 20;
         [Tooltip("상점에 등장하는 최소 막. 1이면 처음부터 판매")]

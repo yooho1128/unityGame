@@ -34,7 +34,7 @@
 
 ## 초반 콘텐츠 데이터 빠른 설치
 1. Unity 메뉴 **Tools → Shadow Theater → Generate Core Content Data** 실행
-2. `Assets/Data/Generated`에 생성된 핵심 그림자 177종, 스킬 142개, 도구 9개 확인
+2. `Assets/Data/Generated`에 생성된 핵심 그림자 177종, 스킬 148개, 도구 12개 확인
 3. `Resources/ShadowDatabase.asset`에 모든 데이터가 자동 등록되었는지 확인
 
 기본 카탈로그와 제2~8막 콘텐츠 팩을 자동 병합합니다. 스타터 3종과 주요 그림자는 기억 복원·구원·원한
@@ -324,9 +324,9 @@ Unity 2022.3의 API 호환성 enum에 맞춰 Android/iOS 모두 .NET Standard �
 전체 회귀 검증은 실제 성장 생성 함수를 샘플 데이터에 두 번 적용하여 null/빈 형태 복구,
 진명 필살기 보완, 기존 수작업 기술 보존, 반복 생성의 안정성, Standard/Rare 성장 제한을 검사합니다.
 
-## 60개 지역 월드맵
+## 63개 지역 월드맵
 
-7개 극단 마을과 총 60개 지역의 이름·씬 ID·권장 레벨·환경·연결 경로·대표 출현 그림자·숨은 보스가
+7개 극단 마을과 총 63개 지역의 이름·씬 ID·권장 레벨·환경·연결 경로·대표 출현 그림자·숨은 보스가
 `Assets/Resources/Data/RegionCatalog.json`에 정의되어 있습니다. Unity 메뉴
 **Tools → Shadow Theater → Generate World Map UI**를 실행하면 모바일 월드맵 프리팹이 생성됩니다.
 

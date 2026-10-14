@@ -24,6 +24,11 @@ namespace ShadowTheater.Story
         public string dialogueId;
         public string accentHex = "BFA7FF";
         public int rewardGold;
+        public string rewardFlag;
+        public string rewardItemId;
+        public int rewardItemCount = 1;
+        public string unlockRegionId;
+        public string rewardMessage;
 
         public string CompletionFlag => "companion_event_" + eventId + "_complete";
     }

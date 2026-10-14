@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using ShadowTheater.Data;
+using ShadowTheater.Field;
 using UnityEditor;
 using UnityEngine;
 
@@ -329,9 +330,9 @@ namespace ShadowTheater.EditorTools
                 error = "중복된 shadowId가 있습니다.";
                 return false;
             }
-            if (catalog.items.Length != 9)
+            if (catalog.items.Length != 12)
             {
-                error = $"도구 수가 올바르지 않습니다: {catalog.items.Length}/9";
+                error = $"도구 수가 올바르지 않습니다: {catalog.items.Length}/12";
                 return false;
             }
             var itemIds = new HashSet<string>(catalog.items.Select(x => x.itemId));
@@ -445,6 +446,7 @@ namespace ShadowTheater.EditorTools
                 item.usableInBattle = spec.usableInBattle;
                 item.usableInField = spec.usableInField;
                 item.isKeyItem = spec.isKeyItem;
+                item.isEventOnly = spec.isEventOnly;
                 item.buyPrice = Mathf.Max(0, spec.buyPrice);
                 item.sellPrice = Mathf.Clamp(spec.sellPrice, 0, item.buyPrice);
                 item.shopUnlockAct = Mathf.Clamp(spec.shopUnlockAct > 0 ? spec.shopUnlockAct : 1, 1, 8);
@@ -468,11 +470,32 @@ namespace ShadowTheater.EditorTools
                 : new Color(1f,.76f,.30f,1f);
             if (effect == ItemEffectType.TraversalTool)
             {
-                // 접힌 고무보트가 아니라 가방에서 막 펼친 작은 보트로 읽히는 전용 픽셀 아이콘.
-                Ellipse(texture,32,28,27,17,outline); Ellipse(texture,32,30,22,12,liquid);
-                Rect(texture,10,27,54,35,outline); Rect(texture,15,29,49,34,liquid);
-                Rect(texture,19,35,45,40,outline); Rect(texture,22,36,42,39,new Color(1f,.9f,.5f,1f));
-                Line(texture,18,19,48,45,4,outline); Line(texture,19,20,49,46,2,Color.white);
+                if (spec.itemId == TraversalAbilityService.FrostwingCompassItemId)
+                {
+                    Circle(texture,32,32,22,outline); Circle(texture,32,32,17,liquid);
+                    Line(texture,23,43,39,19,6,outline); Line(texture,25,41,37,22,3,Color.white);
+                    Line(texture,18,32,46,32,2,outline);
+                }
+                else if (spec.itemId == TraversalAbilityService.SpiritProcessionLanternItemId)
+                {
+                    Rect(texture,18,17,46,49,outline); Rect(texture,22,21,42,45,liquid);
+                    Line(texture,22,17,27,10,4,outline); Line(texture,42,17,37,10,4,outline);
+                    Rect(texture,26,8,38,13,outline); Circle(texture,32,33,8,Color.white);
+                }
+                else if (spec.itemId == TraversalAbilityService.HeartWindingKeyItemId)
+                {
+                    Circle(texture,22,36,12,outline); Circle(texture,22,36,6,liquid);
+                    Line(texture,31,31,52,18,8,outline); Line(texture,32,31,51,20,4,liquid);
+                    Rect(texture,45,12,54,22,outline); Rect(texture,39,17,47,27,outline);
+                }
+                else
+                {
+                    // 접힌 고무보트가 아니라 가방에서 막 펼친 작은 보트로 읽히는 전용 픽셀 아이콘.
+                    Ellipse(texture,32,28,27,17,outline); Ellipse(texture,32,30,22,12,liquid);
+                    Rect(texture,10,27,54,35,outline); Rect(texture,15,29,49,34,liquid);
+                    Rect(texture,19,35,45,40,outline); Rect(texture,22,36,42,39,new Color(1f,.9f,.5f,1f));
+                    Line(texture,18,19,48,45,4,outline); Line(texture,19,20,49,46,2,Color.white);
+                }
             }
             else
             {
@@ -768,7 +791,7 @@ namespace ShadowTheater.EditorTools
             public string itemId, displayName, description, effectType;
             public float value;
             public int buyPrice, sellPrice, shopUnlockAct = 1;
-            public bool usableInBattle, usableInField, isKeyItem;
+            public bool usableInBattle, usableInField, isKeyItem, isEventOnly;
         }
         [Serializable] private class ShadowSpec
         {

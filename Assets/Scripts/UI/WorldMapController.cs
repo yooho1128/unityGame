@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 namespace ShadowTheater.UI
 {
-    /// <summary>60개 지역의 발견 상태와 출현 그림자를 보여주고 방문한 마을 빠른 이동을 제공한다.</summary>
+    /// <summary>63개 지역의 발견 상태와 출현 그림자를 보여주고 방문한 마을 빠른 이동을 제공한다.</summary>
     public class WorldMapController : MonoBehaviour
     {
         public static WorldMapController Instance { get; private set; }

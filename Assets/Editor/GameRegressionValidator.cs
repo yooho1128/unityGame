@@ -18,7 +18,7 @@ using UnityEngine.UI;
 
 namespace ShadowTheater.EditorTools
 {
-    /// <summary>180종 데이터와 60개 필드의 생성 결과를 출시 전 일괄 검사한다.</summary>
+    /// <summary>180종 데이터와 63개 필드의 생성 결과를 출시 전 일괄 검사한다.</summary>
     public static class GameRegressionValidator
     {
         private const string SceneFolder = "Assets/Scenes/Prologue";
@@ -105,7 +105,7 @@ namespace ShadowTheater.EditorTools
             var regions = JsonUtility.FromJson<RegionCatalogData>(File.ReadAllText(RegionPath))?.regions
                           ?? new List<RegionData>();
             result.regions = regions.Count;
-            if (regions.Count != 60) result.errors.Add($"지역 수 불일치: {regions.Count}/60");
+            if (regions.Count != 63) result.errors.Add($"지역 수 불일치: {regions.Count}/63");
             if (regions.Count(x => x.isSettlement) != 7)
                 result.errors.Add($"극단 마을 수 불일치: {regions.Count(x => x.isSettlement)}/7");
             ValidateRegionGraph(regions, result);
@@ -603,6 +603,9 @@ namespace ShadowTheater.EditorTools
             var dialogueIds = new HashSet<string>(dialogues?.dialogues.Select(x => x.dialogueId)
                                                   ?? Enumerable.Empty<string>(), StringComparer.Ordinal);
             var eventIds = new HashSet<string>(StringComparer.Ordinal);
+            int hiddenRegionRewards = 0, trueNameRewards = 0, itemRewards = 0, bondRewards = 0;
+            var itemIds = new HashSet<string>(database?.items.Where(x => x != null).Select(x => x.itemId)
+                                              ?? Enumerable.Empty<string>(), StringComparer.Ordinal);
             foreach (CompanionEventDefinition definition in events)
             {
                 if (definition == null || string.IsNullOrWhiteSpace(definition.eventId))
@@ -618,15 +621,33 @@ namespace ShadowTheater.EditorTools
                     result.errors.Add($"{definition.eventId}: 걸음 수 조건 오류");
                 if (definition.chancePerStep <= 0f || definition.chancePerStep > 1f)
                     result.errors.Add($"{definition.eventId}: 발생 확률 범위 오류");
+                if (!string.IsNullOrEmpty(definition.unlockRegionId))
+                {
+                    hiddenRegionRewards++;
+                    RegionData target = regions.FirstOrDefault(x => x?.regionId == definition.unlockRegionId);
+                    if (target?.isHidden != true)
+                        result.errors.Add($"{definition.eventId}: 숨은 지역 보상 대상 오류 ({definition.unlockRegionId})");
+                }
+                if (!string.IsNullOrEmpty(definition.rewardItemId))
+                {
+                    itemRewards++;
+                    if (!itemIds.Contains(definition.rewardItemId))
+                        result.errors.Add($"{definition.eventId}: 알 수 없는 보상 도구 {definition.rewardItemId}");
+                }
+                if (definition.rewardFlag?.StartsWith("truth_", StringComparison.Ordinal) == true) trueNameRewards++;
+                if (definition.rewardFlag?.StartsWith("companion_bond_", StringComparison.Ordinal) == true) bondRewards++;
             }
+            if (hiddenRegionRewards != 3 || trueNameRewards != 3 || itemRewards != 3 || bondRewards != 3)
+                result.errors.Add($"동행 이벤트 보상 배분 오류: 지역 {hiddenRegionRewards}, 진명 {trueNameRewards}, " +
+                                  $"도구 {itemRewards}, 유대 {bondRewards} (각 3 필요)");
         }
 
         private static void ValidateDatabase(ValidationReport result)
         {
             var database = AssetDatabase.LoadAssetAtPath<ShadowDatabase>(DatabasePath);
             if (database == null) { result.errors.Add("ShadowDatabase.asset 누락"); return; }
-            if (database.items.Count(x => x != null) != 9)
-                result.errors.Add($"도구 데이터 수 불일치: {database.items.Count(x => x != null)}/9");
+            if (database.items.Count(x => x != null) != 12)
+                result.errors.Add($"도구 데이터 수 불일치: {database.items.Count(x => x != null)}/12");
             result.shadows = database.shadows.Count(x => x != null);
             if (result.shadows != 180) result.errors.Add($"그림자 데이터 수 불일치: {result.shadows}/180");
             var ids = database.shadows.Where(x => x != null).Select(x => x.shadowId).ToList();
@@ -670,6 +691,20 @@ namespace ShadowTheater.EditorTools
                 boat.usableInBattle || boat.usableInField || boat.shopUnlockAct > 3 ||
                 boat.buyPrice <= 0 || boat.sellPrice != 0)
                 result.errors.Add("휴대용 고무보트 핵심 이동 도구 설정 오류");
+            string[] eventToolIds =
+            {
+                TraversalAbilityService.FrostwingCompassItemId,
+                TraversalAbilityService.SpiritProcessionLanternItemId,
+                TraversalAbilityService.HeartWindingKeyItemId
+            };
+            foreach (string eventToolId in eventToolIds)
+            {
+                ItemData eventTool = database.items.FirstOrDefault(x => x != null && x.itemId == eventToolId);
+                if (eventTool == null || eventTool.effectType != ItemEffectType.TraversalTool ||
+                    !eventTool.isKeyItem || !eventTool.isEventOnly || eventTool.usableInBattle ||
+                    eventTool.usableInField || eventTool.sellPrice != 0)
+                    result.errors.Add($"동행 이벤트 특별 도구 설정 오류: {eventToolId}");
+            }
 
             var boatSave = new SaveData
             {
@@ -684,6 +719,22 @@ namespace ShadowTheater.EditorTools
             if (TraversalAbilityService.TryResolve(TraversalAbility.PortableBoat, new SaveData(), database,
                     out _, out _))
                 result.errors.Add("미보유 고무보트 이동 권능 판정 회귀 실패");
+            var eventToolSave = new SaveData
+            {
+                inventory = new List<ItemStack>
+                {
+                    new ItemStack { itemId = TraversalAbilityService.FrostwingCompassItemId, count = 1 },
+                    new ItemStack { itemId = TraversalAbilityService.SpiritProcessionLanternItemId, count = 1 },
+                    new ItemStack { itemId = TraversalAbilityService.HeartWindingKeyItemId, count = 1 }
+                }
+            };
+            if (!TraversalAbilityService.TryResolve(TraversalAbility.Glide, eventToolSave, database,
+                    out TraversalAbility glide, out _) || glide != TraversalAbility.Glide ||
+                !TraversalAbilityService.TryResolve(TraversalAbility.SpiritLight, eventToolSave, database,
+                    out TraversalAbility light, out _) || light != TraversalAbility.SpiritLight ||
+                !TraversalAbilityService.TryResolve(TraversalAbility.ClockworkRide, eventToolSave, database,
+                    out TraversalAbility ride, out _) || ride != TraversalAbility.ClockworkRide)
+                result.errors.Add("동행 이벤트 특별 이동 도구 판정 회귀 실패");
             ShadowData frost = database.shadows.FirstOrDefault(x => x != null && x.element == ShadowElement.Frost);
             var frostSave = new SaveData { recordedShadowIds = new List<string> { frost?.shadowId } };
             if (frost == null || !TraversalAbilityService.TryResolve(TraversalAbility.FreezeShallows,
@@ -710,7 +761,7 @@ namespace ShadowTheater.EditorTools
                 bool fullGrowth = shadow.growthTier == GrowthTier.RegionalBoss || shadow.growthTier == GrowthTier.Legendary;
                 if ((rare || fullGrowth) && shadow.restoredForm?.enabled != true)
                     result.errors.Add($"{shadow.shadowId}: 등급 필수 기억 복원 데이터 누락");
-                if (fullGrowth)
+                if (fullGrowth || shadow.salvationForm?.enabled == true || shadow.grudgeForm?.enabled == true)
                 {
                     ValidateTrueNameForm(shadow, shadow.salvationForm, "구원", result);
                     ValidateTrueNameForm(shadow, shadow.grudgeForm, "원한", result);
@@ -733,6 +784,7 @@ namespace ShadowTheater.EditorTools
         private static string DeclaredStoryFlags => _declaredStoryFlags ??=
             File.ReadAllText("Assets/Resources/Data/DialogueCatalog.json") + "\n" +
             File.ReadAllText("Assets/Resources/Data/QuestCatalog.json") + "\n" +
+            File.ReadAllText(CompanionEventPath) + "\n" +
             File.ReadAllText("Assets/Editor/PlayablePrologueGenerator.cs");
 
         private static string WorldSource => _worldSource ??=

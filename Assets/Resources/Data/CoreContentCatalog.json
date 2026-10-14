@@ -702,6 +702,48 @@
       "buyPrice": 240,
       "sellPrice": 0,
       "shopUnlockAct": 3
+    },
+    {
+      "itemId": "frostwing_compass",
+      "displayName": "귀항의 깃나침반",
+      "description": "서리 갈매기의 귀항 신호가 깃든 나침반. 먼 바람길의 안전한 방향을 읽는다.",
+      "effectType": "TraversalTool",
+      "value": 0,
+      "usableInBattle": false,
+      "usableInField": false,
+      "isKeyItem": true,
+      "isEventOnly": true,
+      "buyPrice": 1,
+      "sellPrice": 0,
+      "shopUnlockAct": 3
+    },
+    {
+      "itemId": "spirit_procession_lantern",
+      "displayName": "혼불 행렬등",
+      "description": "등불 두꺼비가 되살린 장례 행렬의 등불. 기억이 감춘 길을 잠시 드러낸다.",
+      "effectType": "TraversalTool",
+      "value": 0,
+      "usableInBattle": false,
+      "usableInField": false,
+      "isKeyItem": true,
+      "isEventOnly": true,
+      "buyPrice": 1,
+      "sellPrice": 0,
+      "shopUnlockAct": 4
+    },
+    {
+      "itemId": "heart_winding_key",
+      "displayName": "심장 태엽키",
+      "description": "태엽쥐가 찾아낸 도시 심장의 예비 열쇠. 멈춘 태엽 탈것을 다시 움직인다.",
+      "effectType": "TraversalTool",
+      "value": 0,
+      "usableInBattle": false,
+      "usableInField": false,
+      "isKeyItem": true,
+      "isEventOnly": true,
+      "buyPrice": 1,
+      "sellPrice": 0,
+      "shopUnlockAct": 5
     }
   ],
   "shadows": [

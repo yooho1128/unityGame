@@ -102,7 +102,7 @@ namespace ShadowTheater.EditorTools
             Object.DestroyImmediate(canvasGo);
             AssetDatabase.SaveAssets(); AssetDatabase.Refresh();
             EditorGUIUtility.PingObject(AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath));
-            Debug.Log("[Shadow Theater] 60개 지역 월드맵 UI 생성 완료");
+            Debug.Log("[Shadow Theater] 63개 지역 월드맵 UI 생성 완료");
         }
 
         private static RegionMapNodeView CreateNode(Transform parent)
