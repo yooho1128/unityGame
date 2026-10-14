@@ -12,7 +12,7 @@ namespace ShadowTheater.Save
     [Serializable]
     public class SaveData
     {
-        public const int CurrentVersion = 8;
+        public const int CurrentVersion = 9;
         public const int MaxPartySize = 6;
 
         public int version = CurrentVersion;
@@ -32,6 +32,7 @@ namespace ShadowTheater.Save
 
         // ── 그림자 ──
         public string starterShadowId;
+        public string companionInstanceId; // 필드에서 플레이어를 따라다니는 파티원
         public List<ShadowInstance> party = new List<ShadowInstance>();    // 전투 출전 (최대 6)
         public List<ShadowInstance> storage = new List<ShadowInstance>();  // 각본 서고 (보관함)
 

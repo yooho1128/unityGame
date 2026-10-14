@@ -24,6 +24,7 @@ namespace ShadowTheater.UI
         [SerializeField] private Button upButton;
         [SerializeField] private Button downButton;
         [SerializeField] private Button healButton;
+        [SerializeField] private Button companionButton;
 
         private readonly List<GameObject> _spawned = new List<GameObject>();
         private ShadowInstance _selected;
@@ -66,6 +67,9 @@ namespace ShadowTheater.UI
         public void MoveSelectedToStorage() => Apply(SaveManager.MoveToStorage(_selected?.instanceId), L10n.Get("party.stored", "각본 서고에 보관했습니다."), L10n.Get("party.minimum", "파티에는 전투 가능한 그림자가 최소 1명 필요합니다."));
         public void MoveSelectedUp() => Apply(SaveManager.MovePartySlot(_selected?.instanceId, -1), L10n.Get("party.reordered", "파티 순서를 변경했습니다."), L10n.Get("party.top", "더 위로 이동할 수 없습니다."));
         public void MoveSelectedDown() => Apply(SaveManager.MovePartySlot(_selected?.instanceId, 1), L10n.Get("party.reordered", "파티 순서를 변경했습니다."), L10n.Get("party.bottom", "더 아래로 이동할 수 없습니다."));
+        public void SetSelectedCompanion() => Apply(SaveManager.SetCompanion(_selected?.instanceId),
+            L10n.Get("party.companion_set", "동행 그림자로 지정했습니다."),
+            L10n.Get("party.companion_party_only", "파티에 있는 그림자만 동행할 수 있습니다."));
 
         public void HealSelected()
         {
@@ -123,14 +127,17 @@ namespace ShadowTheater.UI
         {
             var save = SaveManager.Current;
             if (save == null) return;
+            bool isCompanion = _selected != null && save.companionInstanceId == _selected.instanceId;
             if (selectedText != null) selectedText.text = _selected == null ? L10n.Get("party.select", "그림자를 선택하세요")
-                : $"{L10n.Text(_selected.DisplayName)} · Lv.{_selected.level}";
+                : $"{L10n.Text(_selected.DisplayName)} · Lv.{_selected.level}" +
+                  (isCompanion ? L10n.Get("party.companion_badge", " · 동행 중") : "");
             if (toPartyButton != null) toPartyButton.interactable = _selected != null && !_selectedInParty && save.party.Count < SaveData.MaxPartySize;
             if (toStorageButton != null) toStorageButton.interactable = _selected != null && _selectedInParty && save.party.Count > 1;
             int index = _selectedInParty && _selected != null ? save.party.IndexOf(_selected) : -1;
             if (upButton != null) upButton.interactable = index > 0;
             if (downButton != null) downButton.interactable = index >= 0 && index < save.party.Count - 1;
             if (healButton != null) healButton.interactable = _selected != null && !_selected.IsFainted && _selected.currentHp < _selected.MaxHp;
+            if (companionButton != null) companionButton.interactable = _selected != null && _selectedInParty && !isCompanion;
         }
 
         private void ReleasePlayer() { if (!_lockedPlayer) return; PlayerController.Instance?.Unlock(); _lockedPlayer = false; }

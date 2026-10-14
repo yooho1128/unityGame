@@ -769,6 +769,7 @@ namespace ShadowTheater.EditorTools
             CreateThemeTiles(theme);
             InstantiatePrefab("Assets/Prefabs/Systems/CoreSystems.prefab");
             var fieldRoot = new GameObject("FieldRoot");
+            fieldRoot.AddComponent<ShadowCompanionFollower>();
             var gridObject = new GameObject("Grid", typeof(Grid), typeof(FieldGrid));
             gridObject.transform.SetParent(fieldRoot.transform);
             var ground = CreateTilemap("Ground", gridObject.transform, 0, false);

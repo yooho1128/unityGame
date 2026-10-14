@@ -144,6 +144,7 @@ namespace ShadowTheater.Save
             };
             var inst = new ShadowInstance(starter, starterLevel);
             _current.party.Add(inst);
+            _current.companionInstanceId = inst.instanceId;
             MarkRecorded(starter.shadowId);
             CurrentChanged?.Invoke();
             return _current;
@@ -411,6 +412,10 @@ namespace ShadowTheater.Save
             }
             if (string.IsNullOrEmpty(data.starterShadowId) && data.party.Count > 0)
                 data.starterShadowId = data.party[0].shadowId;
+            if (data.party.Count == 0) data.companionInstanceId = string.Empty;
+            else if (string.IsNullOrEmpty(data.companionInstanceId) ||
+                     !data.party.Exists(x => x.instanceId == data.companionInstanceId))
+                data.companionInstanceId = data.party[0].instanceId;
 
             var mergedItems = new Dictionary<string, int>(StringComparer.Ordinal);
             foreach (var item in data.inventory)
@@ -648,6 +653,8 @@ namespace ShadowTheater.Save
             if (!target.IsFainted && Current.party.FindAll(x => !x.IsFainted).Count <= 1) return false;
             Current.party.RemoveAt(index);
             Current.storage.Add(target);
+            if (Current.companionInstanceId == target.instanceId)
+                Current.companionInstanceId = Current.party[0].instanceId;
             PartyChanged?.Invoke();
             return true;
         }
@@ -673,6 +680,15 @@ namespace ShadowTheater.Save
             var target = Current.party[from];
             Current.party.RemoveAt(from);
             Current.party.Insert(to, target);
+            PartyChanged?.Invoke();
+            return true;
+        }
+
+        public static bool SetCompanion(string instanceId)
+        {
+            if (Current == null || string.IsNullOrEmpty(instanceId) ||
+                !Current.party.Exists(x => x.instanceId == instanceId)) return false;
+            Current.companionInstanceId = instanceId;
             PartyChanged?.Invoke();
             return true;
         }

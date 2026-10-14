@@ -201,6 +201,8 @@ namespace ShadowTheater.EditorTools
                 old.party.Count != SaveData.MaxPartySize || old.storage.Count != 2 || old.gold != 0 ||
                 old.inventory.Count != 1 || old.inventory[0].count != int.MaxValue ||
                 old.party.Any(x => x.level < 1 || x.exp < 0) ||
+                string.IsNullOrEmpty(old.companionInstanceId) ||
+                !old.party.Any(x => x.instanceId == old.companionInstanceId) ||
                 old.party.Concat(old.storage).Select(x => x.instanceId).Distinct().Count() != 8)
                 result.errors.Add("v1 → 현재 세이브 마이그레이션 회귀 실패");
 
@@ -969,7 +971,8 @@ namespace ShadowTheater.EditorTools
                         if (partySo.FindProperty("root")?.objectReferenceValue == null ||
                             partySo.FindProperty("partyContent")?.objectReferenceValue == null ||
                             partySo.FindProperty("storageContent")?.objectReferenceValue == null ||
-                            partySo.FindProperty("healButton")?.objectReferenceValue == null)
+                            partySo.FindProperty("healButton")?.objectReferenceValue == null ||
+                            partySo.FindProperty("companionButton")?.objectReferenceValue == null)
                             result.errors.Add($"{region.sceneName}: 파티·각본 서고 UI 참조 누락");
                         foreach (string property in new[] { "partyTemplate", "storageTemplate" })
                         {
@@ -1060,6 +1063,8 @@ namespace ShadowTheater.EditorTools
                             .Any(i => clips.GetArrayElementAtIndex(i).objectReferenceValue == null))
                             result.errors.Add($"{region.sceneName}: 발걸음 클립 누락");
                     }
+                    if (!roots.SelectMany(x => x.GetComponentsInChildren<ShadowCompanionFollower>(true)).Any())
+                        result.errors.Add($"{region.sceneName}: 동행 그림자 추적기 누락");
                     foreach (GameObject root in roots)
                     foreach (Transform tr in root.GetComponentsInChildren<Transform>(true))
                         if (GameObjectUtility.GetMonoBehavioursWithMissingScriptCount(tr.gameObject) > 0)
