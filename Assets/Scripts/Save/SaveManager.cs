@@ -370,6 +370,8 @@ namespace ShadowTheater.Save
             data.visitedRegionIds ??= new List<string>();
             data.cycle = Mathf.Max(1, data.cycle);
             Sanitize(data);
+            if (sourceVersion < 8)
+                QuestProgressRecovery.InitializeCumulativeBaselines(data, QuestRepository.All);
             data.version = SaveData.CurrentVersion;
             report = sourceVersion == SaveData.CurrentVersion
                 ? $"v{SaveData.CurrentVersion} 무결성 정리 완료"
@@ -381,6 +383,7 @@ namespace ShadowTheater.Save
         {
             data.saveGuid = string.IsNullOrEmpty(data.saveGuid) ? Guid.NewGuid().ToString("N") : data.saveGuid;
             data.gold = Mathf.Max(0, data.gold);
+            data.wildVictoryCount = Mathf.Max(0, data.wildVictoryCount);
             data.playTimeSeconds = Mathf.Max(0f, data.playTimeSeconds);
             data.battleSpeed = Mathf.Clamp(data.battleSpeed <= 0f ? 1f : data.battleSpeed, 1f, 3f);
             data.facing = Mathf.Clamp(data.facing, 0, 3);

@@ -242,6 +242,8 @@ namespace ShadowTheater.Field
                     break;
                 }
                 case BattleResult.Victory:
+                    if (ctx.mode == BattleMode.Wild)
+                        save.wildVictoryCount = SaveValuePolicy.SaturatingAdd(save.wildVictoryCount, 1);
                     SaveManager.MarkEncounterCleared(outcome.encounterId);
                     QuestManager.Instance?.Notify(QuestObjectiveType.Defeat, outcome.encounterId);
                     break;

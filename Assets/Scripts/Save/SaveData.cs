@@ -12,7 +12,7 @@ namespace ShadowTheater.Save
     [Serializable]
     public class SaveData
     {
-        public const int CurrentVersion = 7;
+        public const int CurrentVersion = 8;
         public const int MaxPartySize = 6;
 
         public int version = CurrentVersion;
@@ -42,6 +42,7 @@ namespace ShadowTheater.Save
         // ── 진행도 ──
         public List<FlagEntry> flags = new List<FlagEntry>();
         public List<string> clearedEncounterIds = new List<string>(); // 보스/고정 심볼 처치 기록
+        public int wildVictoryCount; // 누적형 Defeat 퀘스트 복구용 야생 전투 승리 횟수
         public List<QuestProgressData> quests = new List<QuestProgressData>();
         public List<string> unlockedRegionIds = new List<string>();
         public List<string> visitedRegionIds = new List<string>();
@@ -89,5 +90,9 @@ namespace ShadowTheater.Save
     {
         public string objectiveId;
         public int current;
+        // targetId="*" 누적 목표는 이 기준점과 전역 사실의 차이로 유실 진행도를 복구한다.
+        public bool cumulativeBaselineSet;
+        public int cumulativeBaselineCounter;
+        public int cumulativeBaselineProgress;
     }
 }

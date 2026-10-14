@@ -73,6 +73,75 @@ namespace ShadowTheater.Story
                    HasFlag(save, "talked_" + legacyId + "_final");
         }
 
+        /// <summary>구버전 누적 목표의 현재 진행도를 보존한 채 이후 사실을 셀 기준점을 만든다.</summary>
+        public static bool InitializeCumulativeBaselines(SaveData save,
+            IReadOnlyList<QuestDefinition> definitions)
+        {
+            if (save?.quests == null || definitions == null) return false;
+            bool changed = false;
+            foreach (QuestProgressData questProgress in save.quests)
+            {
+                if (questProgress == null) continue;
+                QuestDefinition quest = null;
+                for (int i = 0; i < definitions.Count; i++)
+                    if (definitions[i]?.questId == questProgress.questId) { quest = definitions[i]; break; }
+                if (quest?.objectives == null) continue;
+
+                questProgress.objectives ??= new List<QuestObjectiveProgressData>();
+                foreach (QuestObjectiveDefinition objective in quest.objectives)
+                {
+                    if (!TryGetCumulativeCounter(save, objective, out int counter)) continue;
+                    QuestObjectiveProgressData progress = questProgress.objectives.Find(
+                        x => x != null && x.objectiveId == objective.objectiveId);
+                    if (progress == null)
+                    {
+                        progress = new QuestObjectiveProgressData { objectiveId = objective.objectiveId };
+                        questProgress.objectives.Add(progress);
+                        changed = true;
+                    }
+                    if (progress.cumulativeBaselineSet) continue;
+                    progress.cumulativeBaselineSet = true;
+                    progress.cumulativeBaselineCounter = counter;
+                    progress.cumulativeBaselineProgress = Mathf.Clamp(progress.current, 0,
+                        Mathf.Max(1, objective.requiredCount));
+                    changed = true;
+                }
+            }
+            return changed;
+        }
+
+        public static bool TryGetCumulativeProgress(SaveData save, QuestObjectiveDefinition objective,
+            QuestObjectiveProgressData progress, out int value)
+        {
+            value = 0;
+            if (progress?.cumulativeBaselineSet != true ||
+                !TryGetCumulativeCounter(save, objective, out int counter)) return false;
+            long difference = (long)counter - progress.cumulativeBaselineCounter;
+            int gained = difference <= 0 ? 0 : difference >= int.MaxValue ? int.MaxValue : (int)difference;
+            value = Mathf.Clamp(SaveValuePolicy.SaturatingAdd(progress.cumulativeBaselineProgress, gained),
+                0, Mathf.Max(1, objective.requiredCount));
+            return true;
+        }
+
+        private static bool TryGetCumulativeCounter(SaveData save, QuestObjectiveDefinition objective,
+            out int counter)
+        {
+            counter = 0;
+            if (save == null || objective == null || objective.targetId != "*" ||
+                !objective.TryGetType(out QuestObjectiveType type)) return false;
+            switch (type)
+            {
+                case QuestObjectiveType.Record:
+                    counter = save.recordedShadowIds?.Count ?? 0;
+                    return true;
+                case QuestObjectiveType.Defeat:
+                    counter = Mathf.Max(0, save.wildVictoryCount);
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
         private static bool HasFlag(SaveData save, string key) =>
             save.flags?.Exists(x => x != null && x.key == key && x.value != 0) == true;
     }
@@ -131,6 +200,7 @@ namespace ShadowTheater.Story
             foreach (var objective in quest.objectives ?? new List<QuestObjectiveDefinition>())
                 progress.objectives.Add(new QuestObjectiveProgressData { objectiveId = objective.objectiveId });
             save.quests.Add(progress);
+            QuestProgressRecovery.InitializeCumulativeBaselines(save, new[] { quest });
 
             Debug.Log($"[Quest] 시작: {quest.title}");
             GlobalQuestChanged?.Invoke();
@@ -158,7 +228,11 @@ namespace ShadowTheater.Story
                     var objectiveProgress = GetOrCreateObjective(progress, objective.objectiveId);
                     int required = Mathf.Max(1, objective.requiredCount);
                     if (objectiveProgress.current >= required) continue;
-                    objectiveProgress.current = Mathf.Min(required, objectiveProgress.current + amount);
+                    int next = Mathf.Min(required, SaveValuePolicy.SaturatingAdd(objectiveProgress.current, amount));
+                    if (QuestProgressRecovery.TryGetCumulativeProgress(save, objective, objectiveProgress,
+                            out int recovered))
+                        next = Mathf.Max(next, recovered);
+                    objectiveProgress.current = next;
                     changed = true;
                 }
 
@@ -262,6 +336,17 @@ namespace ShadowTheater.Story
 
                 foreach (var objective in quest.objectives ?? new List<QuestObjectiveDefinition>())
                 {
+                    if (objective.targetId == "*")
+                    {
+                        var cumulative = GetOrCreateObjective(progress, objective.objectiveId);
+                        if (QuestProgressRecovery.TryGetCumulativeProgress(save, objective, cumulative,
+                                out int recovered) && recovered > cumulative.current)
+                        {
+                            cumulative.current = recovered;
+                            changed = true;
+                        }
+                        continue;
+                    }
                     if (!objective.TryGetType(out var type) || !IsKnownFactSatisfied(type, objective.targetId)) continue;
                     var objectiveProgress = GetOrCreateObjective(progress, objective.objectiveId);
                     int required = Mathf.Max(1, objective.requiredCount);
@@ -414,6 +499,7 @@ namespace ShadowTheater.Story
                     }
                 }
             }
+            changed |= QuestProgressRecovery.InitializeCumulativeBaselines(save, QuestRepository.All);
             return changed;
         }
 

@@ -263,6 +263,49 @@ namespace ShadowTheater.EditorTools
                 !QuestProgressRecovery.HasTalkFact(talkSave, "npc_rival_director") ||
                 QuestProgressRecovery.HasTalkFact(talkSave, "npc_unknown"))
                 result.errors.Add("NPC 대화 사실 플래그 복구 회귀 실패");
+
+            var cumulativeSave = new SaveData
+            {
+                version = 7,
+                recordedShadowIds = new List<string> { "a", "b", "c", "d", "e" },
+                quests = new List<QuestProgressData>
+                {
+                    new QuestProgressData
+                    {
+                        questId = "memory_mage_pages",
+                        objectives = new List<QuestObjectiveProgressData>
+                        {
+                            new QuestObjectiveProgressData { objectiveId = "record_pages", current = 2 }
+                        }
+                    },
+                    new QuestProgressData
+                    {
+                        questId = "memory_beast_trail",
+                        objectives = new List<QuestObjectiveProgressData>
+                        {
+                            new QuestObjectiveProgressData { objectiveId = "clear_trail", current = 3 }
+                        }
+                    }
+                }
+            };
+            SaveManager.Migrate(cumulativeSave, out _);
+            var recordProgress = cumulativeSave.quests[0].objectives[0];
+            var defeatProgress = cumulativeSave.quests[1].objectives[0];
+            QuestRepository.TryGet("memory_mage_pages", out QuestDefinition recordQuest);
+            QuestRepository.TryGet("memory_beast_trail", out QuestDefinition defeatQuest);
+            cumulativeSave.recordedShadowIds.Add("f");
+            cumulativeSave.wildVictoryCount++;
+            if (cumulativeSave.version != SaveData.CurrentVersion ||
+                !recordProgress.cumulativeBaselineSet || recordProgress.cumulativeBaselineCounter != 5 ||
+                recordProgress.cumulativeBaselineProgress != 2 ||
+                !defeatProgress.cumulativeBaselineSet || defeatProgress.cumulativeBaselineCounter != 0 ||
+                defeatProgress.cumulativeBaselineProgress != 3 ||
+                recordQuest == null || defeatQuest == null ||
+                !QuestProgressRecovery.TryGetCumulativeProgress(cumulativeSave, recordQuest.objectives[0],
+                    recordProgress, out int recoveredRecords) || recoveredRecords != 3 ||
+                !QuestProgressRecovery.TryGetCumulativeProgress(cumulativeSave, defeatQuest.objectives[0],
+                    defeatProgress, out int recoveredDefeats) || recoveredDefeats != 4)
+                result.errors.Add("v7 누적 퀘스트 기준점 마이그레이션·복구 회귀 실패");
         }
 
         private static void ValidateBattleAi(ValidationReport result)
