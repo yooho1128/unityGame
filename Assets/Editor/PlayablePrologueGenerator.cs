@@ -147,12 +147,16 @@ namespace ShadowTheater.EditorTools
                 else if (region.regionId == "abandoned_toy_store")
                     CreateTraversalRoutePair(map.fieldRoot, "ClockworkRail", new Vector2Int(-8,-6),
                         new Vector2Int(8,-6), TraversalAbility.ClockworkRide, new Color(.82f,.55f,.35f));
+                CreateHiddenRegionChallenge(map.fieldRoot, region);
                 FinishFieldScene(map, region.sceneName);
             }
         }
 
         private static Theme ExpansionTheme(RegionData region)
         {
+            if (region.regionId == "ashes_bell_tower") return Theme.AshWastes;
+            if (region.regionId == "inverted_moon_path") return Theme.MoonfangForest;
+            if (region.regionId == "windless_echo_cavern") return Theme.BloodmoonRidge;
             switch (region.act)
             {
                 case 1: return region.isBossStage ? Theme.Boss : Theme.Meadow;
@@ -1151,6 +1155,130 @@ namespace ShadowTheater.EditorTools
             so.ApplyModifiedPropertiesWithoutUndo();
         }
 
+        private static void CreateHiddenRegionChallenge(Transform parent, RegionData region)
+        {
+            string hintDialogue;
+            string completeDialogue;
+            string npcId;
+            string npcFirst;
+            string npcRepeat;
+            string npcShadowId;
+            string rareShadowId;
+            string encounterId;
+            string rewardDialogue;
+            string rewardItemId;
+            string rewardMessage;
+            int rewardItemCount;
+            int rewardGold;
+            int minLevel;
+            int maxLevel;
+            int[] sequence;
+            Vector2Int[] nodeCells;
+            Vector2Int npcCell;
+            Vector2Int encounterCell;
+            Vector2Int rewardCell;
+
+            switch (region.regionId)
+            {
+                case "ashes_bell_tower":
+                    hintDialogue = "hidden_tower_hint"; completeDialogue = "hidden_tower_complete";
+                    npcId = "ashes_watchman_memory"; npcFirst = "hidden_tower_memory_intro";
+                    npcRepeat = "hidden_tower_memory_repeat"; npcShadowId = "crow";
+                    rareShadowId = "bell_knight"; encounterId = "hidden_ashes_bell_tower_rare";
+                    rewardDialogue = "hidden_tower_reward"; rewardItemId = "silver_ink";
+                    rewardItemCount = 1; rewardGold = 150;
+                    rewardMessage = "진명의 은빛 잉크 1개 · 금화 150 획득";
+                    minLevel = 14; maxLevel = 17; sequence = new[] { 0, 2, 1 };
+                    nodeCells = new[] { new Vector2Int(-6,0), new Vector2Int(0,3), new Vector2Int(6,0) };
+                    npcCell = new Vector2Int(0,5); encounterCell = new Vector2Int(6,-3); rewardCell = new Vector2Int(0,-4);
+                    break;
+                case "inverted_moon_path":
+                    hintDialogue = "hidden_moon_path_hint"; completeDialogue = "hidden_moon_path_complete";
+                    npcId = "moon_path_messenger_memory"; npcFirst = "hidden_moon_path_memory_intro";
+                    npcRepeat = "hidden_moon_path_memory_repeat"; npcShadowId = "crescent_fox";
+                    rareShadowId = "moon_heart"; encounterId = "hidden_inverted_moon_path_rare";
+                    rewardDialogue = "hidden_moon_path_reward"; rewardItemId = "focus_elixir";
+                    rewardItemCount = 2; rewardGold = 240;
+                    rewardMessage = "무대 열기 영약 2개 · 금화 240 획득";
+                    minLevel = 61; maxLevel = 65; sequence = new[] { 1, 0, 2 };
+                    nodeCells = new[] { new Vector2Int(-6,0), new Vector2Int(0,3), new Vector2Int(6,0) };
+                    npcCell = new Vector2Int(0,5); encounterCell = new Vector2Int(6,-3); rewardCell = new Vector2Int(0,-4);
+                    break;
+                case "windless_echo_cavern":
+                    hintDialogue = "hidden_echo_cavern_hint"; completeDialogue = "hidden_echo_cavern_complete";
+                    npcId = "echo_cavern_listener_memory"; npcFirst = "hidden_echo_cavern_memory_intro";
+                    npcRepeat = "hidden_echo_cavern_memory_repeat"; npcShadowId = "cliff_bat";
+                    rareShadowId = "mask_hunter"; encounterId = "hidden_windless_echo_cavern_rare";
+                    rewardDialogue = "hidden_echo_cavern_reward"; rewardItemId = "greater_potion";
+                    rewardItemCount = 2; rewardGold = 280;
+                    rewardMessage = "농축 회복 시약 2개 · 금화 280 획득";
+                    minLevel = 65; maxLevel = 69; sequence = new[] { 2, 0, 1 };
+                    nodeCells = new[] { new Vector2Int(-5,-3), new Vector2Int(0,3), new Vector2Int(5,-3) };
+                    npcCell = new Vector2Int(0,5); encounterCell = new Vector2Int(5,4); rewardCell = new Vector2Int(0,-4);
+                    break;
+                default: return;
+            }
+
+            Color accent = region.AccentColor;
+            CreateInteractable(parent, "PuzzleHint", new Vector2Int(-2,-2), hintDialogue,
+                LoadShadow(npcShadowId), accent);
+
+            var puzzleObject = new GameObject("HiddenSequencePuzzle", typeof(HiddenRegionSequencePuzzle));
+            puzzleObject.transform.SetParent(parent, false);
+            var puzzle = puzzleObject.GetComponent<HiddenRegionSequencePuzzle>();
+            var nodes = new HiddenRegionPuzzleNode[nodeCells.Length];
+            for (int i = 0; i < nodeCells.Length; i++)
+            {
+                var nodeObject = new GameObject($"PuzzleNode_{i + 1}", typeof(SpriteRenderer),
+                    typeof(BoxCollider2D), typeof(HiddenRegionPuzzleNode));
+                nodeObject.transform.SetParent(parent); nodeObject.transform.position = Cell(nodeCells[i]);
+                var renderer = nodeObject.GetComponent<SpriteRenderer>();
+                renderer.sprite = _accentTile != null ? _accentTile.sprite : null;
+                renderer.sortingOrder = 6; nodeObject.transform.localScale = new Vector3(.72f,.72f,1f);
+                nodeObject.GetComponent<BoxCollider2D>().size = new Vector2(.8f,.8f);
+                nodes[i] = nodeObject.GetComponent<HiddenRegionPuzzleNode>();
+                var nodeSo = new SerializedObject(nodes[i]);
+                Set(nodeSo, "controller", puzzle); Set(nodeSo, "nodeIndex", i); Set(nodeSo, "target", renderer);
+                Set(nodeSo, "inactiveColor", Color.Lerp(accent, Color.black, .65f));
+                Set(nodeSo, "activeColor", Color.Lerp(accent, Color.white, .22f));
+                nodeSo.ApplyModifiedPropertiesWithoutUndo();
+            }
+
+            var rewardRoot = new GameObject("UnlockedMemoryStage");
+            rewardRoot.transform.SetParent(parent, false);
+            CreateNpc(rewardRoot.transform, "MemoryNpc", npcCell, LoadShadow(npcShadowId), npcId,
+                npcFirst, npcRepeat, "talked_" + npcId, accent);
+            CreateEncounter(rewardRoot.transform, "RareFixedEncounter", encounterCell, LoadShadow(rareShadowId),
+                minLevel, maxLevel, encounterId);
+            CreateHiddenReward(rewardRoot.transform, region.regionId, rewardCell, LoadShadow(npcShadowId),
+                rewardDialogue, encounterId, rewardItemId, rewardItemCount, rewardGold, rewardMessage, accent);
+            rewardRoot.SetActive(false);
+
+            var puzzleSo = new SerializedObject(puzzle);
+            Set(puzzleSo, "puzzleId", region.regionId); Set(puzzleSo, "rewardRoot", rewardRoot);
+            Set(puzzleSo, "completionDialogueId", completeDialogue); Set(puzzleSo, "accent", accent);
+            SetIntArray(puzzleSo.FindProperty("sequence"), sequence);
+            SerializedProperty nodeProperty = puzzleSo.FindProperty("nodes");
+            nodeProperty.arraySize = nodes.Length;
+            for (int i = 0; i < nodes.Length; i++)
+                nodeProperty.GetArrayElementAtIndex(i).objectReferenceValue = nodes[i];
+            puzzleSo.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static void CreateHiddenReward(Transform parent, string rewardId, Vector2Int cell,
+            ShadowData visual, string dialogueId, string encounterId, string itemId, int itemCount, int gold,
+            string message, Color accent)
+        {
+            var go = CreateFieldActor(parent, "HiddenReward", cell, visual, false);
+            var reward = go.AddComponent<HiddenRegionReward>();
+            var so = new SerializedObject(reward);
+            Set(so, "rewardId", rewardId); Set(so, "dialogueId", dialogueId);
+            Set(so, "requiredEncounterId", encounterId);
+            Set(so, "rewardItemId", itemId); Set(so, "rewardItemCount", itemCount);
+            Set(so, "rewardGold", gold); Set(so, "rewardMessage", message); Set(so, "accent", accent);
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
         private static GameObject CreateFieldActor(Transform parent, string name, Vector2Int cell,
                                                    ShadowData visual, bool trigger)
         {
@@ -1170,7 +1298,8 @@ namespace ShadowTheater.EditorTools
         }
 
         private static void CreateEncounter(Transform parent, string name, Vector2Int cell,
-                                            ShadowData shadow, int minLevel, int maxLevel)
+                                            ShadowData shadow, int minLevel, int maxLevel,
+                                            string encounterId = "")
         {
             var go = new GameObject(name, typeof(CircleCollider2D), typeof(EncounterSymbol));
             go.transform.SetParent(parent); go.transform.position = Cell(cell);
@@ -1184,6 +1313,7 @@ namespace ShadowTheater.EditorTools
             go.GetComponent<CircleCollider2D>().radius = 0.38f;
             var so = new SerializedObject(go.GetComponent<EncounterSymbol>());
             Set(so, "leadShadow", shadow); Set(so, "levelRange", new Vector2Int(minLevel, maxLevel));
+            if (!string.IsNullOrEmpty(encounterId)) Set(so, "encounterId", encounterId);
             Set(so, "silhouette", renderer); so.ApplyModifiedPropertiesWithoutUndo();
             visualObject.GetComponent<ShadowFieldMotion>().Configure(shadow, frames);
         }
@@ -2421,6 +2551,11 @@ namespace ShadowTheater.EditorTools
         private static void Set(SerializedObject so, string name, Vector2 value) => so.FindProperty(name).vector2Value = value;
         private static void Set(SerializedObject so, string name, Vector2Int value) => so.FindProperty(name).vector2IntValue = value;
         private static void Set(SerializedObject so, string name, Color value) => so.FindProperty(name).colorValue = value;
+        private static void SetIntArray(SerializedProperty property, int[] values)
+        {
+            property.arraySize = values != null ? values.Length : 0;
+            for (int i = 0; i < property.arraySize; i++) property.GetArrayElementAtIndex(i).intValue = values[i];
+        }
 
         private static void EnsureFolders()
         {

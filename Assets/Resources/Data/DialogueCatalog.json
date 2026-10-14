@@ -441,6 +441,21 @@
     {"dialogueId":"companion_thread_cat_lost_stitch","lines":[{"speaker":"천 조각 고양이","text":"흙 속의 붉은 실을 앞발로 조심스레 파내어 끊어진 매듭과 이어 붙인다.","emotion":"calm"},{"speaker":"극단주","text":"실이 벌판 끝이 아니라 버려진 장난감들의 방향으로 팽팽해졌다.","emotion":"mystery"}]},
     {"dialogueId":"companion_clockwork_mouse_heart_key","lines":[{"speaker":"태엽쥐","text":"고장 난 장난감 틈으로 들어가자 서로 다른 태엽 소리가 하나의 박자로 맞춰진다.","emotion":"mystery"},{"speaker":"극단주","text":"바닥 아래에서 더 큰 심장 소리가 답한다. 아직 완전히 멈춘 공방은 아니야.","emotion":"surprise"}]},
     {"dialogueId":"companion_passenger_erased_platform","lines":[{"speaker":"표 없는 승객","text":"아무 표시도 없는 벽 앞에 서서, 손에 없는 표를 역무원에게 내미는 시늉을 한다.","emotion":"sad"},{"speaker":"낡은 안내방송","text":"미라 승객님, 가족이 기다리는 귀가역에 도착했습니다.","emotion":"mystery"},{"speaker":"극단주","text":"벽 너머에서 승강장 안내 종이 한 번 울렸다. 지워진 이름과 목적지가 함께 돌아왔어.","emotion":"hope"}]},
-    {"dialogueId":"companion_conductor_silent_score","lines":[{"speaker":"먹칠 역무원","text":"침묵한 회랑의 난간을 지휘봉처럼 두드리자 보이지 않는 악단이 숨을 들이쉰다.","emotion":"mystery"},{"speaker":"유령 악단","text":"역장 오르도, 해방 열차의 출발신호를 기다립니다.","emotion":"mystery"},{"speaker":"극단주","text":"연주가 사라진 게 아니야. 네 진명이 첫 박자가 되기를 기다리고 있었던 거야.","emotion":"hope"}]}
+    {"dialogueId":"companion_conductor_silent_score","lines":[{"speaker":"먹칠 역무원","text":"침묵한 회랑의 난간을 지휘봉처럼 두드리자 보이지 않는 악단이 숨을 들이쉰다.","emotion":"mystery"},{"speaker":"유령 악단","text":"역장 오르도, 해방 열차의 출발신호를 기다립니다.","emotion":"mystery"},{"speaker":"극단주","text":"연주가 사라진 게 아니야. 네 진명이 첫 박자가 되기를 기다리고 있었던 거야.","emotion":"hope"}]},
+    {"dialogueId":"hidden_tower_hint","lines":[{"speaker":"그을린 봉화 비문","text":"서쪽 불은 떠나는 수레를 보았고, 동쪽 불은 그 답을 돌려보냈다. 탑 가운데 종은 마지막에야 울었다.","emotion":"mystery"}]},
+    {"dialogueId":"hidden_tower_complete","lines":[{"speaker":"녹슨 종","text":"세 불빛이 이어지자 장례 종 대신 귀환을 알리는 맑은 소리가 탑 아래로 번진다.","emotion":"hope"},{"speaker":"극단주","text":"불이 꺼진 게 아니었어. 마지막 파수꾼이 돌아올 사람을 기다리고 있었던 거야.","emotion":"calm"}]},
+    {"dialogueId":"hidden_tower_memory_intro","lines":[{"speaker":"재투성이 파수꾼의 기억","text":"나는 너무 늦게 봉화를 올렸다고 믿었다. 하지만 아래의 수레들은 내 불을 보고 방향을 틀어 살아남았지.","emotion":"sad"},{"speaker":"재투성이 파수꾼의 기억","text":"종탑 기사는 아직 실패한 경보만 되풀이한다. 그에게 이 종소리의 다음 박자를 들려줘.","emotion":"hope"}]},
+    {"dialogueId":"hidden_tower_memory_repeat","lines":[{"speaker":"재투성이 파수꾼의 기억","text":"경고가 늦었다고 해서 구한 생명까지 없던 일이 되지는 않아.","emotion":"calm"}]},
+    {"dialogueId":"hidden_tower_reward","lines":[{"speaker":"봉화지기의 잉크병","text":"재 속에서도 마르지 않은 은빛 잉크다. 병 밑에는 살아 돌아온 수레의 수가 금화와 함께 적혀 있다.","emotion":"mystery"}]},
+    {"dialogueId":"hidden_moon_path_hint","lines":[{"speaker":"뒤집힌 월석","text":"하늘에 달이 없는 자리에서 시작하라. 저무는 서쪽 자국을 밟은 뒤, 떠오르는 동쪽 자국으로 길을 맺어라.","emotion":"mystery"}]},
+    {"dialogueId":"hidden_moon_path_complete","lines":[{"speaker":"은빛 발자국","text":"거꾸로 흐르던 달빛이 세 자국 사이에 길을 그리고, 숨겨진 전령의 쉼터를 비춘다.","emotion":"mystery"},{"speaker":"극단주","text":"길을 잃은 흔적이 아니라 사냥꾼을 반대편으로 이끈 미끼였구나.","emotion":"surprise"}]},
+    {"dialogueId":"hidden_moon_path_memory_intro","lines":[{"speaker":"달길 전령의 기억","text":"우리는 큰길에 거짓 발자국을 남기고 아이들을 이 샛길로 보냈어. 이름 없는 전령이어도 모두 돌아온 것만으로 충분했지.","emotion":"sad"},{"speaker":"달길 전령의 기억","text":"하지만 달의 심장은 아직 모두의 공포를 품고 뛰고 있어. 그 고동을 조용히 돌려줘.","emotion":"serious"}]},
+    {"dialogueId":"hidden_moon_path_memory_repeat","lines":[{"speaker":"달길 전령의 기억","text":"은빛 자국은 달을 따라가지 않아. 돌아올 사람을 향해 흐르지.","emotion":"calm"}]},
+    {"dialogueId":"hidden_moon_path_reward","lines":[{"speaker":"전령의 달주머니","text":"긴 달길을 달리던 이들이 나눠 마신 영약과 여비가 고스란히 남아 있다.","emotion":"hope"}]},
+    {"dialogueId":"hidden_echo_cavern_hint","lines":[{"speaker":"금 간 공명판","text":"가장 높은 절벽의 울음이 먼저 낮은 굴로 떨어지고, 가운데 숨결은 두 메아리가 만난 뒤에 답한다.","emotion":"mystery"}]},
+    {"dialogueId":"hidden_echo_cavern_complete","lines":[{"speaker":"바람 없는 동굴","text":"높고 낮은 울림이 겹친 뒤 가운데 공명석이 떨리며, 존재하지 않던 방의 윤곽을 드러낸다.","emotion":"mystery"},{"speaker":"극단주","text":"침묵은 아무 소리도 없는 상태가 아니었어. 들키지 않으려 함께 숨을 죽인 기억이야.","emotion":"calm"}]},
+    {"dialogueId":"hidden_echo_cavern_memory_intro","lines":[{"speaker":"울림지기의 기억","text":"나는 날갯소리로 피난굴의 인원을 세었다. 바람이 멎은 날에도 마지막 한 명이 돌아올 때까지 벽을 두드렸지.","emotion":"sad"},{"speaker":"울림지기의 기억","text":"가면 사냥꾼은 그 소리를 추적 명령으로 오해하고 있어. 오래된 명령을 멈춰 줘.","emotion":"serious"}]},
+    {"dialogueId":"hidden_echo_cavern_memory_repeat","lines":[{"speaker":"울림지기의 기억","text":"대답 없는 메아리도 누군가 끝까지 불렀다는 기록은 남겨.","emotion":"calm"}]},
+    {"dialogueId":"hidden_echo_cavern_reward","lines":[{"speaker":"피난굴의 구호 상자","text":"상처 입은 순례자를 위해 남겨 둔 농축 시약과 공동 여비다. 이제 다시 길 위에서 쓰일 수 있다.","emotion":"hope"}]}
   ]
 }

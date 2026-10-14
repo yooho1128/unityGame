@@ -1212,6 +1212,27 @@ namespace ShadowTheater.EditorTools
                         if (so.FindProperty("leadShadow")?.objectReferenceValue == null)
                             result.errors.Add($"{region.sceneName}: {encounter.name} 적 데이터 누락");
                     }
+                    if (region.regionId == "ashes_bell_tower" ||
+                        region.regionId == "inverted_moon_path" ||
+                        region.regionId == "windless_echo_cavern")
+                    {
+                        var puzzles = roots.SelectMany(x => x.GetComponentsInChildren<HiddenRegionSequencePuzzle>(true)).ToArray();
+                        var nodes = roots.SelectMany(x => x.GetComponentsInChildren<HiddenRegionPuzzleNode>(true)).ToArray();
+                        var rewards = roots.SelectMany(x => x.GetComponentsInChildren<HiddenRegionReward>(true)).ToArray();
+                        var memoryNpcs = roots.SelectMany(x => x.GetComponentsInChildren<StoryNpc>(true))
+                            .Where(x => x.name == "MemoryNpc").ToArray();
+                        if (puzzles.Length != 1)
+                            result.errors.Add($"{region.sceneName}: 숨은 지역 순서 퍼즐 수 불일치 ({puzzles.Length}/1)");
+                        if (nodes.Length != 3)
+                            result.errors.Add($"{region.sceneName}: 퍼즐 입력 장치 수 불일치 ({nodes.Length}/3)");
+                        if (rewards.Length != 1)
+                            result.errors.Add($"{region.sceneName}: 일회성 최종 보상 수 불일치 ({rewards.Length}/1)");
+                        if (memoryNpcs.Length != 1)
+                            result.errors.Add($"{region.sceneName}: 기억 NPC 수 불일치 ({memoryNpcs.Length}/1)");
+                        int fixedEncounters = encounters.Count(x => x.IsFixed);
+                        if (fixedEncounters != 1)
+                            result.errors.Add($"{region.sceneName}: 희귀 고정 조우 수 불일치 ({fixedEncounters}/1)");
+                    }
                 }
                 finally { if (closeAfter) EditorSceneManager.CloseScene(scene, true); }
             }
