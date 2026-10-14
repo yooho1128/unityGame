@@ -1068,9 +1068,16 @@ namespace ShadowTheater.EditorTools
                     var portals = roots.SelectMany(x => x.GetComponentsInChildren<MapPortal>(true)).ToArray();
                     var traversalRoutes = roots.SelectMany(x => x.GetComponentsInChildren<TraversalRoute>(true)).ToArray();
                     var encounters = roots.SelectMany(x => x.GetComponentsInChildren<EncounterSymbol>(true)).ToArray();
+                    var randomEncounter = roots.SelectMany(x => x.GetComponentsInChildren<RandomEncounterController>(true)).FirstOrDefault();
                     result.portals += portals.Length;
                     result.encounters += encounters.Length;
                     if (portals.Length == 0) result.errors.Add($"{region.sceneName}: 포털 없음");
+                    if (region.AllowsRandomEncounters && randomEncounter == null)
+                        result.errors.Add($"{region.sceneName}: 지역 랜덤 조우 컨트롤러 누락");
+                    if (!region.AllowsRandomEncounters && randomEncounter != null)
+                        result.errors.Add($"{region.sceneName}: 마을/보스 무대에 랜덤 조우가 배치됨");
+                    if (region.isSettlement && encounters.Length > 0)
+                        result.errors.Add($"{region.sceneName}: 마을에 야생 그림자 심볼이 배치됨");
                     traversalRouteCounts[region.sceneName] = traversalRoutes.Length;
                     foreach (TraversalRoute route in traversalRoutes)
                     {

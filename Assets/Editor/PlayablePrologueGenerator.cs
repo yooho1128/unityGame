@@ -787,8 +787,13 @@ namespace ShadowTheater.EditorTools
             CreateEnvironment(fieldRoot.transform, theme);
             ApplyPixelFieldPass(fieldRoot.transform, theme);
             RegionData region = LoadRegionCatalog().regions.Find(x => x.sceneName == mapId);
-            if (region == null || region.AllowsRandomEncounters)
-                CreateRegionalExpansionEncounters(fieldRoot.transform, mapId, collision, startCell);
+            if (region?.AllowsRandomEncounters == true)
+            {
+                var encounters = fieldRoot.AddComponent<RandomEncounterController>();
+                var encounterSo = new SerializedObject(encounters);
+                Set(encounterSo, "regionId", region.regionId);
+                encounterSo.ApplyModifiedPropertiesWithoutUndo();
+            }
             CreateFieldUi(fieldRoot.transform);
             CreateRegionLabel(fieldRoot.transform, displayName);
 
@@ -824,7 +829,12 @@ namespace ShadowTheater.EditorTools
             return new FieldSceneContext { scene = scene, fieldRoot = fieldRoot.transform };
         }
 
-        private static void FinishFieldScene(FieldSceneContext context, string sceneName) => Save(context.scene, sceneName);
+        private static void FinishFieldScene(FieldSceneContext context, string sceneName)
+        {
+            foreach (EncounterSymbol symbol in context.fieldRoot.GetComponentsInChildren<EncounterSymbol>(true))
+                if (!symbol.IsFixed) Object.DestroyImmediate(symbol.gameObject);
+            Save(context.scene, sceneName);
+        }
 
         private static PlayerController CreatePlayer(Transform parent, Vector2Int cell, Theme theme)
         {
