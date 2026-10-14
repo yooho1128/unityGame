@@ -248,6 +248,21 @@ namespace ShadowTheater.EditorTools
             if (!QuestProgressRecovery.RestoreCompletedStates(questSave, Array.Empty<QuestDefinition>()) ||
                 !claimed.completed)
                 result.errors.Add("퀘스트 보상 수령 상태 복구 회귀 실패");
+
+            var talkSave = new SaveData
+            {
+                flags = new List<FlagEntry>
+                {
+                    new FlagEntry { key = "talked_npc_aria", value = 1 },
+                    new FlagEntry { key = "talked_ash_scout", value = 1 },
+                    new FlagEntry { key = "talked_rival_director_final", value = 1 }
+                }
+            };
+            if (!QuestProgressRecovery.HasTalkFact(talkSave, "npc_aria") ||
+                !QuestProgressRecovery.HasTalkFact(talkSave, "npc_ash_scout") ||
+                !QuestProgressRecovery.HasTalkFact(talkSave, "npc_rival_director") ||
+                QuestProgressRecovery.HasTalkFact(talkSave, "npc_unknown"))
+                result.errors.Add("NPC 대화 사실 플래그 복구 회귀 실패");
         }
 
         private static void ValidateBattleAi(ValidationReport result)

@@ -33,6 +33,9 @@ namespace ShadowTheater.Story
             {
                 if (!alreadyTalked && !string.IsNullOrEmpty(completionFlag))
                     SaveManager.SetFlag(completionFlag);
+                // 퀘스트 복구가 NPC별 커스텀 플래그 이름에 의존하지 않도록 표준 사실도 남긴다.
+                if (!string.IsNullOrEmpty(npcId))
+                    SaveManager.SetFlag("talked_" + npcId);
                 QuestManager.Instance?.Notify(QuestObjectiveType.Talk, npcId);
                 if (SaveManager.Instance != null && SaveManager.Current != null)
                     SaveManager.Instance.Save();

@@ -59,6 +59,20 @@ namespace ShadowTheater.Story
             return changed;
         }
 
+        /// <summary>현재 규칙과 기존 생성기가 사용한 NPC 대화 플래그를 모두 확인한다.</summary>
+        public static bool HasTalkFact(SaveData save, string targetId)
+        {
+            if (save == null || string.IsNullOrWhiteSpace(targetId)) return false;
+            if (HasFlag(save, targetId) || HasFlag(save, "talked_" + targetId)) return true;
+
+            const string npcPrefix = "npc_";
+            if (!targetId.StartsWith(npcPrefix, StringComparison.Ordinal)) return false;
+
+            string legacyId = targetId.Substring(npcPrefix.Length);
+            return HasFlag(save, "talked_" + legacyId) ||
+                   HasFlag(save, "talked_" + legacyId + "_final");
+        }
+
         private static bool HasFlag(SaveData save, string key) =>
             save.flags?.Exists(x => x != null && x.key == key && x.value != 0) == true;
     }
@@ -269,7 +283,7 @@ namespace ShadowTheater.Story
             switch (type)
             {
                 case QuestObjectiveType.Talk:
-                    return SaveManager.HasFlag("talked_" + targetId) || SaveManager.HasFlag(targetId);
+                    return QuestProgressRecovery.HasTalkFact(SaveManager.Current, targetId);
                 case QuestObjectiveType.Reach:
                 {
                     string regionId = targetId.StartsWith("area_", StringComparison.Ordinal)
