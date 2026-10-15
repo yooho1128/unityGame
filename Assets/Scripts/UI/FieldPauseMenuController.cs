@@ -242,7 +242,17 @@ namespace ShadowTheater.UI
             if (save == null) return;
             var region = RegionRepository.GetByScene(save.mapId);
             string regionName = region != null ? L10n.Get($"region.{region.regionId}.name", L10n.Text(region.displayName)) : save.mapId;
-            if (regionText != null) regionText.text = L10n.Format("menu.region_value", "현재 지역 · {0}", regionName);
+            if (regionText != null)
+            {
+                string worldText = string.Empty;
+                if (region != null)
+                {
+                    FieldWorldSnapshot world = FieldWorldState.Current(region);
+                    worldText = " · " + L10n.Text(FieldWorldState.TimeLabel(world.timeOfDay)) + " · " +
+                                L10n.Text(FieldWorldState.WeatherLabel(world.weather));
+                }
+                regionText.text = L10n.Format("menu.region_value", "현재 지역 · {0}", regionName) + worldText;
+            }
             if (playTimeText != null)
             {
                 int total = Mathf.Max(0, Mathf.FloorToInt(save.playTimeSeconds));

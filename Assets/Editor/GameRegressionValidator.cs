@@ -460,6 +460,24 @@ namespace ShadowTheater.EditorTools
                 candidate.growthTier = GrowthTier.RegionalBoss;
                 if (RegionalEncounterPolicy.IsEligible(region, candidate))
                     result.errors.Add("보스 등급 랜덤 조우 제외 회귀 실패");
+
+                region.regionId = "world_state_test";
+                region.act = 2;
+                FieldWorldSnapshot dawn = FieldWorldState.At(region, 0f);
+                FieldWorldSnapshot day = FieldWorldState.At(region, FieldWorldState.SegmentSeconds);
+                FieldWorldSnapshot evening = FieldWorldState.At(region, FieldWorldState.SegmentSeconds * 2f);
+                FieldWorldSnapshot night = FieldWorldState.At(region, FieldWorldState.SegmentSeconds * 3f);
+                FieldWorldSnapshot nextDawn = FieldWorldState.At(region, FieldWorldState.DaySeconds);
+                if (dawn.timeOfDay != FieldTimeOfDay.Dawn || day.timeOfDay != FieldTimeOfDay.Day ||
+                    evening.timeOfDay != FieldTimeOfDay.Evening || night.timeOfDay != FieldTimeOfDay.Night ||
+                    nextDawn.timeOfDay != FieldTimeOfDay.Dawn || nextDawn.dayIndex != 1)
+                    result.errors.Add("게임 내부 시간대 순환 회귀 실패");
+                if (FieldWorldState.At(region, 0f).weather != dawn.weather)
+                    result.errors.Add("지역 날씨 결정성 회귀 실패");
+                candidate.growthTier = GrowthTier.Standard;
+                candidate.element = ShadowElement.Shade;
+                if (FieldWorldState.EncounterWeightMultiplier(candidate, night) <= 1f)
+                    result.errors.Add("밤 그림자 속성 출현 보정 회귀 실패");
             }
             finally { UnityEngine.Object.DestroyImmediate(candidate); }
         }
@@ -1265,9 +1283,13 @@ namespace ShadowTheater.EditorTools
                     var traversalRoutes = roots.SelectMany(x => x.GetComponentsInChildren<TraversalRoute>(true)).ToArray();
                     var encounters = roots.SelectMany(x => x.GetComponentsInChildren<EncounterSymbol>(true)).ToArray();
                     var randomEncounter = roots.SelectMany(x => x.GetComponentsInChildren<RandomEncounterController>(true)).FirstOrDefault();
+                    var worldState = roots.SelectMany(x => x.GetComponentsInChildren<FieldWorldStateController>(true)).FirstOrDefault();
                     result.portals += portals.Length;
                     result.encounters += encounters.Length;
                     if (portals.Length == 0) result.errors.Add($"{region.sceneName}: 포털 없음");
+                    if (worldState == null) result.errors.Add($"{region.sceneName}: 시간대·날씨 컨트롤러 누락");
+                    else if (new SerializedObject(worldState).FindProperty("regionId")?.stringValue != region.regionId)
+                        result.errors.Add($"{region.sceneName}: 시간대·날씨 지역 ID 불일치");
                     if (region.AllowsRandomEncounters && randomEncounter == null)
                         result.errors.Add($"{region.sceneName}: 지역 랜덤 조우 컨트롤러 누락");
                     if (!region.AllowsRandomEncounters && randomEncounter != null)

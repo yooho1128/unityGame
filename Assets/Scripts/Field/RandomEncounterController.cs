@@ -66,7 +66,7 @@ namespace ShadowTheater.Field
             if (_eligibleSteps < pitySteps && UnityEngine.Random.value > chance) return;
 
             RegionData region = RegionRepository.Get(regionId);
-            EncounterCandidate candidate = ChooseCandidate();
+            EncounterCandidate candidate = ChooseCandidate(region);
             if (candidate == null) return;
             int minLevel = Mathf.Max(1, candidate.minLevel);
             int maxLevel = Mathf.Max(minLevel, candidate.maxLevel);
@@ -148,18 +148,26 @@ namespace ShadowTheater.Field
             });
         }
 
-        private EncounterCandidate ChooseCandidate()
+        private EncounterCandidate ChooseCandidate(RegionData region)
         {
+            FieldWorldSnapshot world = FieldWorldState.Current(region);
             float total = 0f;
-            foreach (EncounterCandidate candidate in _candidates) total += Mathf.Max(0f, candidate.weight);
+            foreach (EncounterCandidate candidate in _candidates)
+                total += EffectiveWeight(candidate, world);
             if (total <= 0f) return null;
             float roll = UnityEngine.Random.value * total;
             foreach (EncounterCandidate candidate in _candidates)
             {
-                roll -= Mathf.Max(0f, candidate.weight);
+                roll -= EffectiveWeight(candidate, world);
                 if (roll <= 0f) return candidate;
             }
             return _candidates[_candidates.Count - 1];
+        }
+
+        private static float EffectiveWeight(EncounterCandidate candidate, FieldWorldSnapshot world)
+        {
+            return Mathf.Max(0f, candidate.weight) *
+                   FieldWorldState.EncounterWeightMultiplier(candidate.shadow, world);
         }
 
         [Serializable] private class RegionalRosterManifest { public List<RegionalRosterEntry> entries; }

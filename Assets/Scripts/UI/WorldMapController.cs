@@ -121,7 +121,15 @@ namespace ShadowTheater.UI
             bool known = state != RegionMapState.Locked;
             if (actText != null) actText.text = known ? L10n.Get($"region.{region.regionId}.act", L10n.Text(region.actTitle)) : L10n.Get("map.undiscovered_act", "아직 공개되지 않은 막");
             if (nameText != null) nameText.text = known ? L10n.Get($"region.{region.regionId}.name", L10n.Text(region.displayName)) : "???";
-            if (environmentText != null) environmentText.text = known ? L10n.Get($"region.{region.regionId}.environment", L10n.Text(region.environment)) : L10n.Get("map.discover_route", "경로를 발견해야 합니다");
+            if (environmentText != null)
+            {
+                FieldWorldSnapshot world = FieldWorldState.Current(region);
+                environmentText.text = known
+                    ? L10n.Get($"region.{region.regionId}.environment", L10n.Text(region.environment)) + " · " +
+                      L10n.Text(FieldWorldState.TimeLabel(world.timeOfDay)) + " · " +
+                      L10n.Text(FieldWorldState.WeatherLabel(world.weather))
+                    : L10n.Get("map.discover_route", "경로를 발견해야 합니다");
+            }
             if (levelText != null) levelText.text = known
                 ? L10n.Format("map.level", "권장 Lv.{0}–{1}", region.recommendedLevelMin, region.recommendedLevelMax) : L10n.Get("map.level_unknown", "권장 레벨 ???");
             if (summaryText != null) summaryText.text = known ? L10n.Get($"region.{region.regionId}.summary", L10n.Text(region.summary)) : L10n.Get("map.locked_hint", "인접 지역을 탐험하면 길이 열립니다.");

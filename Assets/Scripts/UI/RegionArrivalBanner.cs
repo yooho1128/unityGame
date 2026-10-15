@@ -1,4 +1,5 @@
 using System.Collections;
+using ShadowTheater.Field;
 using ShadowTheater.Story;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -32,8 +33,14 @@ namespace ShadowTheater.UI
             if (region == null) yield break;
             if (actText != null) actText.text = L10n.Get($"region.{region.regionId}.act", L10n.Text(region.actTitle));
             if (regionText != null) regionText.text = L10n.Get($"region.{region.regionId}.name", L10n.Text(region.displayName));
-            if (environmentText != null) environmentText.text =
-                L10n.Get($"region.{region.regionId}.environment", L10n.Text(region.environment));
+            if (environmentText != null)
+            {
+                FieldWorldSnapshot world = FieldWorldState.Current(region);
+                environmentText.text =
+                    L10n.Get($"region.{region.regionId}.environment", L10n.Text(region.environment)) + " · " +
+                    L10n.Text(FieldWorldState.TimeLabel(world.timeOfDay)) + " · " +
+                    L10n.Text(FieldWorldState.WeatherLabel(world.weather));
+            }
             if (accent != null) accent.color = region.AccentColor;
 
             if (delay > 0f) yield return new WaitForSecondsRealtime(delay);

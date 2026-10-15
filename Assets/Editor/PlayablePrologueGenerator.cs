@@ -818,6 +818,10 @@ namespace ShadowTheater.EditorTools
                 var companionEventSo = new SerializedObject(companionEvents);
                 Set(companionEventSo, "regionId", region.regionId);
                 companionEventSo.ApplyModifiedPropertiesWithoutUndo();
+                var worldState = fieldRoot.AddComponent<FieldWorldStateController>();
+                var worldStateSo = new SerializedObject(worldState);
+                Set(worldStateSo, "regionId", region.regionId);
+                worldStateSo.ApplyModifiedPropertiesWithoutUndo();
             }
             if (region?.AllowsRandomEncounters == true)
             {
