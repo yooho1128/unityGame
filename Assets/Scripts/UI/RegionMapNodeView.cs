@@ -14,34 +14,39 @@ namespace ShadowTheater.UI
         [SerializeField] private Text levelText;
         [SerializeField] private Text stateText;
 
-        public void Bind(RegionData region, RegionMapState state, Action<RegionData> onSelected)
+        public void Bind(RegionData region, RegionMapKnowledge knowledge, Action<RegionData> onSelected)
         {
-            bool known = state != RegionMapState.Locked;
-            if (orderText != null) orderText.text = $"{region.order:00}";
-            if (nameText != null) nameText.text = known
+            bool detailed = knowledge == RegionMapKnowledge.Visited || knowledge == RegionMapKnowledge.Current;
+            bool rumored = knowledge == RegionMapKnowledge.Rumored;
+            bool selectable = detailed || rumored || knowledge == RegionMapKnowledge.RouteKnown;
+            if (orderText != null) orderText.text = detailed ? $"{region.order:00}" : rumored ? "?" : "--";
+            if (nameText != null) nameText.text = detailed
                 ? L10n.Get($"region.{region.regionId}.name", L10n.Text(region.displayName))
+                : rumored ? L10n.Get("map.rumored_path", "?")
                 : L10n.Get("common.unknown_path", "아직 걷지 않은 길");
-            if (levelText != null) levelText.text = known
+            if (levelText != null) levelText.text = detailed
                 ? $"Lv.{region.recommendedLevelMin}–{region.recommendedLevelMax}"
                 : "???";
-            if (stateText != null) stateText.text = StateLabel(state);
-            if (accent != null) accent.color = known ? region.AccentColor : new Color(.20f,.18f,.25f,1f);
+            if (stateText != null) stateText.text = KnowledgeLabel(knowledge);
+            if (accent != null) accent.color = detailed ? region.AccentColor
+                : rumored ? new Color(.58f,.47f,.78f,1f) : new Color(.20f,.18f,.25f,1f);
             if (button != null)
             {
-                button.interactable = known;
+                button.interactable = selectable;
                 button.onClick.RemoveAllListeners();
                 button.onClick.AddListener(() => onSelected?.Invoke(region));
             }
             gameObject.SetActive(true);
         }
 
-        private static string StateLabel(RegionMapState state)
+        private static string KnowledgeLabel(RegionMapKnowledge knowledge)
         {
-            switch (state)
+            switch (knowledge)
             {
-                case RegionMapState.Current: return L10n.Get("map.current", "현재 위치");
-                case RegionMapState.Visited: return L10n.Get("map.visited", "방문 완료");
-                case RegionMapState.Unlocked: return L10n.Get("map.new", "새 지역");
+                case RegionMapKnowledge.Current: return L10n.Get("map.current", "현재 위치");
+                case RegionMapKnowledge.Visited: return L10n.Get("map.visited", "방문 완료");
+                case RegionMapKnowledge.RouteKnown: return L10n.Get("map.route_known", "경로 발견");
+                case RegionMapKnowledge.Rumored: return L10n.Get("map.rumor", "소문");
                 default: return L10n.Get("common.locked", "잠김");
             }
         }

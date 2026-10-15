@@ -777,6 +777,19 @@ namespace ShadowTheater.EditorTools
                         result.errors.Add($"{region.displayName}: 전문 판매품 해금 조건 불일치 ({itemId})");
                 }
             }
+            var settlementIds = new HashSet<string>(settlements.Select(x => x.regionId), StringComparer.Ordinal);
+            foreach (RegionData hidden in regions.Where(x => x != null && x.isHidden))
+            {
+                string source = TownServicePolicy.RumorSourceRegionId(hidden);
+                if (string.IsNullOrEmpty(source) || !settlementIds.Contains(source) ||
+                    string.IsNullOrEmpty(TownServicePolicy.HiddenMapHint(hidden)))
+                    result.errors.Add($"{hidden.displayName}: 월드맵 소문 출처·힌트 누락");
+            }
+            if (TownServicePolicy.ShouldShowHiddenHint(false, true, true) ||
+                TownServicePolicy.ShouldShowHiddenHint(true, false, true) ||
+                TownServicePolicy.ShouldShowHiddenHint(true, true, false) ||
+                !TownServicePolicy.ShouldShowHiddenHint(true, true, true))
+                result.errors.Add("숨은 지역 월드맵 ? 공개 조건 회귀 실패");
         }
 
         private static void ValidateDatabase(ValidationReport result)

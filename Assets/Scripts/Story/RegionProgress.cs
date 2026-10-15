@@ -3,6 +3,7 @@ using ShadowTheater.Save;
 namespace ShadowTheater.Story
 {
     public enum RegionMapState { Locked, Unlocked, Visited, Current }
+    public enum RegionMapKnowledge { Hidden, Locked, RouteKnown, Rumored, Visited, Current }
 
     /// <summary>지역 카탈로그와 세이브의 해금/방문 상태를 연결한다.</summary>
     public static class RegionProgress
@@ -14,6 +15,17 @@ namespace ShadowTheater.Story
             if (save.mapId == region.sceneName) return RegionMapState.Current;
             if (save.visitedRegionIds.Contains(region.regionId)) return RegionMapState.Visited;
             return CanEnter(region) ? RegionMapState.Unlocked : RegionMapState.Locked;
+        }
+
+        public static RegionMapKnowledge GetKnowledge(RegionData region)
+        {
+            RegionMapState state = GetState(region);
+            if (state == RegionMapState.Current) return RegionMapKnowledge.Current;
+            if (state == RegionMapState.Visited) return RegionMapKnowledge.Visited;
+            if (region?.isHidden == true)
+                return TownServicePolicy.CanShowHiddenHint(region)
+                    ? RegionMapKnowledge.Rumored : RegionMapKnowledge.Hidden;
+            return state == RegionMapState.Unlocked ? RegionMapKnowledge.RouteKnown : RegionMapKnowledge.Locked;
         }
 
         public static bool CanEnterScene(string sceneName)

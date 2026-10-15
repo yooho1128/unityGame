@@ -99,12 +99,10 @@ namespace ShadowTheater.UI
             foreach (var region in ordered)
             {
                 RegionMapState state = RegionProgress.GetState(region);
-                bool hiddenDiscovered = SaveManager.Current.mapId == region.sceneName ||
-                                        SaveManager.Current.visitedRegionIds.Contains(region.regionId) ||
-                                        SaveManager.Current.unlockedRegionIds.Contains(region.regionId);
-                if (region.isHidden && !hiddenDiscovered) continue;
+                RegionMapKnowledge knowledge = RegionProgress.GetKnowledge(region);
+                if (knowledge == RegionMapKnowledge.Hidden) continue;
                 var view = Instantiate(nodeTemplate, contentRoot);
-                view.Bind(region, state, Select);
+                view.Bind(region, knowledge, Select);
                 _spawned.Add(view.gameObject);
             }
             int visited = SaveManager.Current?.visitedRegionIds?.Count ?? 0;
@@ -118,26 +116,38 @@ namespace ShadowTheater.UI
             _selected = region;
             if (region == null) { ShowEmpty(); return; }
             var state = RegionProgress.GetState(region);
-            bool known = state != RegionMapState.Locked;
-            if (actText != null) actText.text = known ? L10n.Get($"region.{region.regionId}.act", L10n.Text(region.actTitle)) : L10n.Get("map.undiscovered_act", "아직 공개되지 않은 막");
-            if (nameText != null) nameText.text = known ? L10n.Get($"region.{region.regionId}.name", L10n.Text(region.displayName)) : "???";
+            RegionMapKnowledge knowledge = RegionProgress.GetKnowledge(region);
+            bool detailed = knowledge == RegionMapKnowledge.Visited || knowledge == RegionMapKnowledge.Current;
+            bool rumored = knowledge == RegionMapKnowledge.Rumored;
+            if (actText != null) actText.text = detailed
+                ? L10n.Get($"region.{region.regionId}.act", L10n.Text(region.actTitle))
+                : rumored ? L10n.Get("map.rumored_act", "소문 속 숨은 길")
+                : L10n.Get("map.undiscovered_act", "아직 공개되지 않은 막");
+            if (nameText != null) nameText.text = detailed
+                ? L10n.Get($"region.{region.regionId}.name", L10n.Text(region.displayName))
+                : rumored ? "?" : L10n.Get("common.unknown_path", "아직 걷지 않은 길");
             if (environmentText != null)
             {
                 FieldWorldSnapshot world = FieldWorldState.Current(region);
-                environmentText.text = known
+                environmentText.text = detailed
                     ? L10n.Get($"region.{region.regionId}.environment", L10n.Text(region.environment)) + " · " +
                       L10n.Text(FieldWorldState.TimeLabel(world.timeOfDay)) + " · " +
                       L10n.Text(FieldWorldState.WeatherLabel(world.weather))
-                    : L10n.Get("map.discover_route", "경로를 발견해야 합니다");
+                    : rumored ? L10n.Get("map.follow_clue", "소문과 환경 단서를 따라가야 합니다")
+                    : L10n.Get("map.discover_route", "직접 방문해야 정보를 기록할 수 있습니다");
             }
-            if (levelText != null) levelText.text = known
+            if (levelText != null) levelText.text = detailed
                 ? L10n.Format("map.level", "권장 Lv.{0}–{1}", region.recommendedLevelMin, region.recommendedLevelMax) : L10n.Get("map.level_unknown", "권장 레벨 ???");
-            if (summaryText != null) summaryText.text = known ? L10n.Get($"region.{region.regionId}.summary", L10n.Text(region.summary)) : L10n.Get("map.locked_hint", "인접 지역을 탐험하면 길이 열립니다.");
-            if (shadowsText != null) shadowsText.text = known
+            if (summaryText != null) summaryText.text = detailed
+                ? L10n.Get($"region.{region.regionId}.summary", L10n.Text(region.summary))
+                : rumored ? L10n.Text(TownServicePolicy.HiddenMapHint(region))
+                : L10n.Get("map.locked_hint", "출구를 찾아 직접 걸어가면 지역 정보가 기록됩니다.");
+            if (shadowsText != null) shadowsText.text = detailed
                 ? L10n.Get("map.shadows", "출현 그림자 · ") + Join(region.featuredShadows) : L10n.Get("map.shadows_unknown", "출현 그림자 · ???");
-            if (bossText != null) bossText.text = known && !string.IsNullOrEmpty(region.bossShadowName)
+            if (bossText != null) bossText.text = detailed && !string.IsNullOrEmpty(region.bossShadowName)
                 ? L10n.Get("map.boss", "주요 배역 · ") + L10n.Text(region.bossShadowName) : "";
-            if (detailAccent != null) detailAccent.color = known ? region.AccentColor : new Color(.2f,.18f,.25f,1f);
+            if (detailAccent != null) detailAccent.color = detailed ? region.AccentColor
+                : rumored ? new Color(.58f,.47f,.78f,1f) : new Color(.2f,.18f,.25f,1f);
             if (travelButton != null)
             {
                 bool canFastTravel = state == RegionMapState.Visited && region.isSettlement;
@@ -148,8 +158,10 @@ namespace ShadowTheater.UI
                     : state == RegionMapState.Visited ? L10n.Get("map.field_only", "빠른 이동 불가")
                     : state == RegionMapState.Unlocked ? L10n.Get("map.explore", "직접 탐험 필요") : L10n.Get("common.locked", "잠김");
             }
-            if (feedbackText != null) feedbackText.text = state == RegionMapState.Unlocked
-                ? L10n.Get("map.first_visit", "인접 지역의 출구를 통해 처음 방문할 수 있습니다.")
+            if (feedbackText != null) feedbackText.text = rumored
+                ? L10n.Get("map.rumor_feedback", "정확한 위치는 아직 모릅니다. 인접 지역에서 단서를 찾아보세요.")
+                : state == RegionMapState.Unlocked
+                ? L10n.Get("map.first_visit", "출구를 통해 직접 방문하면 상세 정보가 기록됩니다.")
                 : state == RegionMapState.Visited && !region.isSettlement
                     ? L10n.Get("map.settlement_only", "빠른 이동은 방문한 극단 마을에서만 이용할 수 있습니다.") : "";
         }
