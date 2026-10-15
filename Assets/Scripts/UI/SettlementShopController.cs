@@ -116,7 +116,12 @@ namespace ShadowTheater.UI
                 feedbackText.text = message;
                 feedbackText.color = success ? new Color(.55f,1f,.72f) : new Color(1f,.58f,.67f);
             }
-            if (success) SaveManager.Instance.Save();
+            if (success)
+            {
+                RegionData region = RegionRepository.GetByScene(SaveManager.Current?.mapId);
+                if (region != null) TownRestorationService.AddActivity(region.regionId, 1);
+                SaveManager.Instance.Save();
+            }
             Refresh(false);
         }
 

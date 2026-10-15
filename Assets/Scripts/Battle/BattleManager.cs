@@ -63,6 +63,8 @@ namespace ShadowTheater.Battle
         private int _pendingForcedSwitch = -1;
         private BattleOutcome _outcome;
         private float _captureBonus = 1f;
+        private bool _jointSkillUsed;
+        private BattleUnit _companionUnit;
         private int _escapeAttempts;
         private string _lastPlayerSkillId;
         private Coroutine _routine;
@@ -132,6 +134,10 @@ namespace ShadowTheater.Battle
             Turn = 0;
             IsAuto = context.autoBattle;
             _captureBonus = 1f;
+            _jointSkillUsed = false;
+            ShadowInstance companion = CompanionBondService.CurrentCompanion();
+            _companionUnit = companion == null ? null :
+                _playerUnits.Find(x => x.Instance.instanceId == companion.instanceId);
             _escapeAttempts = 0;
             _lastPlayerSkillId = null;
             _pendingAction = null;
@@ -213,6 +219,13 @@ namespace ShadowTheater.Battle
         public bool CanUseSkill(SkillData skill) =>
             skill != null && GetFp(BattleSide.Player) >= skill.fpCost;
 
+        public const int JointSkillFpCost = 5;
+        public BattleUnit CompanionUnit => _companionUnit;
+        public CompanionJointProfile JointProfile => CompanionBondService.JointProfile(_companionUnit?.Instance);
+        public bool CanUseJointSkill => !_jointSkillUsed && _companionUnit != null && !_companionUnit.IsFainted &&
+                                        CompanionBondService.CanUseJointSkill(_companionUnit.Instance) &&
+                                        GetFp(BattleSide.Player) >= JointSkillFpCost;
+
         public bool CanSwitchTo(int index) =>
             index >= 0 && index < _playerUnits.Count && index != _playerIdx && !_playerUnits[index].IsFainted;
 
@@ -230,6 +243,14 @@ namespace ShadowTheater.Battle
             OnActiveChanged?.Invoke(BattleSide.Player, PlayerActive);
             OnActiveChanged?.Invoke(BattleSide.Enemy, EnemyActive);
             yield return _presenter.PlayIntro(PlayerActive, EnemyActive, Context.mode);
+            if (Context.mode == BattleMode.Boss && Context.bossInvestigationLevel > 0)
+            {
+                BossInvestigationSnapshot investigation = BossInvestigationService.ForBoss(EnemyActive.Data);
+                yield return _presenter.ShowMessage(Context.bossInvestigationLevel >= 3
+                    ? $"사전 조사 완료 · 약점 {BossInvestigationService.ElementName(investigation.weakness)} · 페이즈 대응 준비"
+                    : Context.bossInvestigationLevel >= 2 ? investigation.phaseHint : investigation.weaknessHint);
+                if (Context.bossInvestigationLevel >= 2) AddFp(BattleSide.Player, 1);
+            }
 
             while (!IsEnded)
             {
@@ -317,14 +338,16 @@ namespace ShadowTheater.Battle
                 yield break;
             }
 
-            AddFp(BattleSide.Enemy, phase.enemyFpGain);
-            AddFp(BattleSide.Player, -phase.playerFpDrain);
+            int investigation = Context?.bossInvestigationLevel ?? 0;
+            AddFp(BattleSide.Enemy, BossInvestigationService.ReducePhaseFp(phase.enemyFpGain, investigation));
+            AddFp(BattleSide.Player, -BossInvestigationService.ReducePhaseFp(phase.playerFpDrain, investigation));
             if (phase.cleanseBoss) EnemyActive.ClearAllStatus();
             int healed = phase.healRatio > 0f
-                ? EnemyActive.Heal(Mathf.RoundToInt(EnemyActive.MaxHp * phase.healRatio)) : 0;
+                ? EnemyActive.Heal(Mathf.RoundToInt(EnemyActive.MaxHp * phase.healRatio *
+                    BossInvestigationService.PhaseHealMultiplier(investigation))) : 0;
             yield return _presenter.PlayBossPhase(EnemyActive, phase);
             if (healed > 0) yield return _presenter.PlayHeal(EnemyActive, healed);
-            if (phase.TryGetPlayerStatus(out StatusEffectType status) &&
+            if (investigation < 3 && phase.TryGetPlayerStatus(out StatusEffectType status) &&
                 PlayerActive.ApplyStatus(status, Mathf.Max(1, phase.statusDuration)))
                 yield return _presenter.PlayStatusApplied(PlayerActive, status);
             OnUnitChanged?.Invoke(EnemyActive);
@@ -386,6 +409,7 @@ namespace ShadowTheater.Battle
             {
                 case ActionType.Attack:
                 case ActionType.Skill:  yield return DoSkill(a); break;
+                case ActionType.JointSkill: yield return DoJointSkill(); break;
                 case ActionType.Switch: yield return DoSwitch(a.side, a.switchIndex); break;
                 case ActionType.Record: yield return DoRecord(); break;
                 case ActionType.Item:   yield return DoItem(a); break;
@@ -440,6 +464,28 @@ namespace ShadowTheater.Battle
                 yield return _presenter.PlayStatusApplied(opponent, skill.statusEffect);
                 OnUnitChanged?.Invoke(opponent);
             }
+        }
+
+        private IEnumerator DoJointSkill()
+        {
+            if (!CanUseJointSkill) yield break;
+            BattleUnit user = PlayerActive;
+            if (!user.CanAct)
+            {
+                yield return _presenter.PlayCantMove(user);
+                yield return ConsumeFreeze(user);
+                yield break;
+            }
+            CompanionJointProfile profile = JointProfile;
+            AddFp(BattleSide.Player, -JointSkillFpCost);
+            _jointSkillUsed = true;
+            HitResult hit = DamageCalculator.CalculateJoint(user, _companionUnit, EnemyActive, profile);
+            hit.damage = EnemyActive.TakeDamage(hit.damage);
+            CompanionBondService.RecordJointSkillUse(_companionUnit.Instance.instanceId);
+            yield return _presenter.PlayJointSkill(user, _companionUnit, EnemyActive, profile, hit);
+            if (hit.statusApplied && !EnemyActive.IsFainted && EnemyActive.ApplyStatus(profile.status, 2))
+                yield return _presenter.PlayStatusApplied(EnemyActive, profile.status);
+            OnUnitChanged?.Invoke(EnemyActive);
         }
 
         /// <summary>행동(공격/스킬/교체)을 한 번 소비한 빙결 유닛의 지속 횟수를 줄이고, 풀렸다면 알린다</summary>
@@ -705,6 +751,9 @@ namespace ShadowTheater.Battle
 
         private BattleAction ChooseAiAction(BattleSide side, bool allowSwitch)
         {
+            if (side == BattleSide.Player && CanUseJointSkill &&
+                (Context?.mode == BattleMode.Boss || EnemyActive.HpRatio >= .35f))
+                return BattleAction.UseJointSkill();
             var units = side == BattleSide.Player ? _playerUnits : _enemyUnits;
             int activeIndex = side == BattleSide.Player ? _playerIdx : _enemyIdx;
             if (allowSwitch && Turn - _lastVoluntarySwitchTurn[(int)side] >= 3)
@@ -751,6 +800,9 @@ namespace ShadowTheater.Battle
                 case ActionType.Skill:
                     if (a.skill == null || !PlayerActive.Skills.Contains(a.skill)) { reason = "보유하지 않은 스킬"; return false; }
                     if (!CanUseSkill(a.skill)) { reason = "FP 부족"; return false; }
+                    return true;
+                case ActionType.JointSkill:
+                    if (!CanUseJointSkill) { reason = "합동기 조건 또는 FP 부족"; return false; }
                     return true;
                 case ActionType.Switch:
                     if (!CanSwitchTo(a.switchIndex)) { reason = "교체 불가"; return false; }

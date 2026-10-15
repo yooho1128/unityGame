@@ -1,5 +1,6 @@
 using System.Collections;
 using ShadowTheater.Data;
+using ShadowTheater.Story;
 using UnityEngine;
 
 namespace ShadowTheater.Battle
@@ -47,6 +48,10 @@ namespace ShadowTheater.Battle
             }
             return Log(msg, 1.5f);
         }
+
+        public IEnumerator PlayJointSkill(BattleUnit a, BattleUnit c, BattleUnit d,
+            CompanionJointProfile profile, HitResult hit) =>
+            Log($"{a.Name}과 {c.Name}의 [{profile.displayName}]! → {d.Name}에게 {hit.damage} 피해", 2f);
 
         public IEnumerator PlayHeal(BattleUnit u, int amount) => Log($"{u.Name} HP {amount} 회복 ({u.Hp}/{u.MaxHp})");
         public IEnumerator PlayStatusApplied(BattleUnit u, StatusEffectType s) => Log($"{u.Name}에게 [{s}] 부여");

@@ -1,5 +1,6 @@
 using System.Collections;
 using ShadowTheater.Data;
+using ShadowTheater.Story;
 
 namespace ShadowTheater.Battle
 {
@@ -18,6 +19,8 @@ namespace ShadowTheater.Battle
         IEnumerator PlayWithdraw(BattleUnit unit);
 
         IEnumerator PlaySkill(BattleUnit attacker, BattleUnit defender, SkillData skill, HitResult hit);
+        IEnumerator PlayJointSkill(BattleUnit attacker, BattleUnit companion, BattleUnit defender,
+            CompanionJointProfile profile, HitResult hit);
         IEnumerator PlayHeal(BattleUnit unit, int amount);
         IEnumerator PlayStatusApplied(BattleUnit unit, StatusEffectType status);
         IEnumerator PlayStatusDamage(BattleUnit unit, StatusEffectType status, int damage);

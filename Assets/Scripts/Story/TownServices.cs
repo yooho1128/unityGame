@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using ShadowTheater.Data;
@@ -97,7 +98,10 @@ namespace ShadowTheater.Story
         {
             if (!IsConfigured(region) || item == null || item.isEventOnly ||
                 item.shopUnlockAct > Mathf.Max(1, region.act)) return false;
-            return CommonItems.Contains(item.itemId) || IsSpecialty(region, item.itemId);
+            if (CommonItems.Contains(item.itemId)) return true;
+            if (!IsSpecialty(region, item.itemId)) return false;
+            int index = Array.IndexOf(Specialties[region.regionId], item.itemId);
+            return index >= 0 && index < TownRestorationService.UnlockedSpecialtyCount(region.regionId);
         }
 
         public static bool IsSpecialty(RegionData region, string itemId)
@@ -130,15 +134,16 @@ namespace ShadowTheater.Story
         }
 
         public static int RestCost(string regionId, int baseCost) =>
-            CalculateRestCost(baseCost, IsRumorResolved(regionId));
+            Mathf.Max(0, CalculateRestCost(baseCost, IsRumorResolved(regionId)) -
+                          Mathf.Max(0, TownRestorationService.Stage(regionId) - 1) * 5);
 
         public static int CalculateRestCost(int baseCost, bool resolved) =>
             resolved ? Mathf.Max(0, baseCost - 10) : Mathf.Max(0, baseCost);
 
         public static IReadOnlyList<string> SpecialtyItemIds(RegionData region)
         {
-            return region != null && Specialties.TryGetValue(region.regionId, out string[] ids)
-                ? ids : Array.Empty<string>();
+            if (region == null || !Specialties.TryGetValue(region.regionId, out string[] ids)) return Array.Empty<string>();
+            return ids.Take(TownRestorationService.UnlockedSpecialtyCount(region.regionId)).ToArray();
         }
 
         public static string RumorSourceRegionId(RegionData hiddenRegion)
@@ -170,6 +175,71 @@ namespace ShadowTheater.Story
             return HiddenHints.TryGetValue(source, out string hint)
                 ? hint : "인접 지역의 소문과 환경 단서를 더 살펴봐야 한다.";
         }
+    }
+
+    /// <summary>소문 해결 뒤 귀환·거래·휴식을 통해 마을이 3단계로 회복되는 영구 진행.</summary>
+    public static class TownRestorationService
+    {
+        private static readonly int[] Thresholds = { 0, 3, 6, 10 };
+
+        public static TownRestorationProgressData Progress(string regionId, bool create = false)
+        {
+            SaveData save = SaveManager.Current;
+            if (save == null || string.IsNullOrWhiteSpace(regionId)) return null;
+            save.townRestorations ??= new List<TownRestorationProgressData>();
+            TownRestorationProgressData value = save.townRestorations.Find(x => x.regionId == regionId);
+            if (value == null && create)
+            {
+                value = new TownRestorationProgressData { regionId = regionId };
+                save.townRestorations.Add(value);
+            }
+            return value;
+        }
+
+        public static int Stage(string regionId)
+        {
+            int points = Progress(regionId)?.points ?? 0;
+            return StageFor(TownServicePolicy.IsRumorResolved(regionId), points);
+        }
+
+        public static int StageFor(bool rumorResolved, int points)
+        {
+            if (!rumorResolved) return 0;
+            for (int i = Thresholds.Length - 1; i >= 1; i--)
+                if (points >= Thresholds[i]) return i;
+            return 1;
+        }
+
+        public static int AddActivity(string regionId, int points)
+        {
+            if (!TownServicePolicy.IsRumorResolved(regionId) || points <= 0) return Stage(regionId);
+            TownRestorationProgressData progress = Progress(regionId, true);
+            progress.points = SaveValuePolicy.SaturatingAdd(Mathf.Max(3, progress.points), points);
+            return Stage(regionId);
+        }
+
+        public static bool ClaimReturnVisit(string regionId, out int stage)
+        {
+            TownRestorationProgressData progress = Progress(regionId, true);
+            if (progress == null || !TownServicePolicy.IsRumorResolved(regionId) || progress.returnVisitClaimed)
+            { stage = Stage(regionId); return false; }
+            progress.returnVisitClaimed = true;
+            progress.points = Mathf.Max(3, progress.points);
+            progress.points = SaveValuePolicy.SaturatingAdd(progress.points, 3);
+            stage = Stage(regionId);
+            return true;
+        }
+
+        public static int UnlockedSpecialtyCount(string regionId)
+        {
+            // 에디터 콘텐츠 검증은 런타임 세이브 없이 전체 구성품을 검사한다.
+            if (SaveManager.Current == null) return int.MaxValue;
+            int stage = Stage(regionId);
+            return stage <= 0 ? 0 : stage == 1 ? 1 : int.MaxValue;
+        }
+
+        public static string StageLabel(int stage) => stage <= 0 ? "침체" : stage == 1 ? "불씨"
+            : stage == 2 ? "재건" : "번영";
     }
 
     public class TownHealerNpc : MonoBehaviour, IInteractable
@@ -207,7 +277,13 @@ namespace ShadowTheater.Story
             string selectedDialogue = resolved ? TownServicePolicy.RumorFollowupDialogueId(regionId) : dialogueId;
             dialogue.Play(selectedDialogue, resolved ? Color.Lerp(accent, Color.white, .35f) : accent, () =>
             {
-                if (resolved) return;
+                if (resolved)
+                {
+                    if (TownRestorationService.ClaimReturnVisit(regionId, out int stage))
+                        SaveFeedbackController.Instance?.ShowMessage($"마을 복구가 [{TownRestorationService.StageLabel(stage)}] 단계에 도달했습니다.");
+                    SaveManager.Instance?.Save();
+                    return;
+                }
                 SaveManager.SetFlag("heard_rumor_" + regionId);
                 string questId = TownServicePolicy.RumorQuestId(regionId);
                 if (!string.IsNullOrEmpty(questId)) QuestManager.Instance?.TryStartQuest(questId, false);
@@ -221,6 +297,27 @@ namespace ShadowTheater.Story
             SpriteRenderer actor = GetComponent<SpriteRenderer>();
             if (actor != null) actor.color = Color.Lerp(actor.color, accent, .45f);
             transform.localScale *= 1.08f;
+        }
+    }
+
+    public class TownRecoveryNpc : MonoBehaviour, IInteractable
+    {
+        [SerializeField] private string regionId;
+        [SerializeField, Range(1, 3)] private int requiredStage = 2;
+
+        private IEnumerator Start()
+        {
+            if (SaveManager.Current == null) yield return new WaitUntil(() => SaveManager.Current != null);
+            gameObject.SetActive(TownRestorationService.Stage(regionId) >= requiredStage);
+        }
+
+        public void Interact(PlayerController player)
+        {
+            int stage = TownRestorationService.Stage(regionId);
+            string message = requiredStage >= 3
+                ? "되돌아온 상인들이 희귀 물자를 진열했습니다. 이곳은 다시 사람들의 목적지가 되었습니다."
+                : "복구 인력이 길과 무대를 고쳤습니다. 상점의 전문 물품도 늘어났습니다.";
+            SaveFeedbackController.Instance?.ShowMessage($"[{TownRestorationService.StageLabel(stage)}] {message}");
         }
     }
 }

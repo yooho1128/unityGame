@@ -138,9 +138,11 @@ namespace ShadowTheater.UI
                 ShadowInstance current = save.party.Find(x => x.instanceId == save.companionInstanceId) ??
                                          (save.party.Count > 0 ? save.party[0] : null);
                 string currentLine = current?.Data == null ? "현재 동행: 없음"
-                    : $"현재 {L10n.Text(current.DisplayName)}: {CompanionBondService.Describe(current.Data)}";
+                    : $"현재 {L10n.Text(current.DisplayName)} · 유대 Lv.{CompanionBondService.BondLevel(current.instanceId)}: " +
+                      CompanionBondService.Describe(current.Data);
                 string selectedLine = _selected?.Data == null ? "선택한 그림자의 동행 효과를 확인할 수 있습니다."
-                    : $"선택 {L10n.Text(_selected.DisplayName)}: {CompanionBondService.Describe(_selected.Data)}";
+                    : $"선택 {L10n.Text(_selected.DisplayName)} · 유대 Lv.{CompanionBondService.BondLevel(_selected.instanceId)}: " +
+                      CompanionBondService.Describe(_selected.Data);
                 companionPassiveText.text = currentLine + "\n" + selectedLine;
             }
             if (toPartyButton != null) toPartyButton.interactable = _selected != null && !_selectedInParty && save.party.Count < SaveData.MaxPartySize;

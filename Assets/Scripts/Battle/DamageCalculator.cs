@@ -1,4 +1,5 @@
 using ShadowTheater.Data;
+using ShadowTheater.Story;
 using UnityEngine;
 
 namespace ShadowTheater.Battle
@@ -60,6 +61,22 @@ namespace ShadowTheater.Battle
             float raw = attacker.Atk * skill.damageMultiplier * reduced *
                         ElementChart.GetMultiplier(element, defender.Data.element) * .95f * expectedCritical;
             return Mathf.Max(1, Mathf.RoundToInt(raw));
+        }
+
+        public static HitResult CalculateJoint(BattleUnit attacker, BattleUnit companion,
+            BattleUnit defender, CompanionJointProfile profile)
+        {
+            var result = new HitResult { elementMultiplier = 1f, status = profile.status };
+            if (attacker == null || companion == null || defender == null || profile.power <= 0f) return result;
+            float combinedAttack = attacker.Atk + companion.Atk * .55f;
+            float reduced = DefenseConstant / (DefenseConstant + Mathf.Max(0f, defender.Def * .65f));
+            result.elementMultiplier = ElementChart.GetMultiplier(profile.element, defender.Data.element);
+            float raw = combinedAttack * profile.power * reduced * result.elementMultiplier;
+            result.critical = Random.value < Mathf.Clamp01((attacker.CritRate + companion.CritRate) * .5f);
+            if (result.critical) raw *= CritMultiplier;
+            result.damage = Mathf.Max(1, Mathf.RoundToInt(raw * Random.Range(.94f, 1.01f)));
+            result.statusApplied = profile.status != StatusEffectType.None && Random.value < profile.statusChance;
+            return result;
         }
 
         /// <summary>

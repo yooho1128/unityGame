@@ -37,7 +37,7 @@ namespace ShadowTheater.Battle
     }
 
     /// <summary>명세서 5종 + 도주(야생 전투 전용)</summary>
-    public enum ActionType { Attack, Skill, Switch, Record, Item, Escape }
+    public enum ActionType { Attack, Skill, JointSkill, Switch, Record, Item, Escape }
 
     /// <summary>한 턴에 한 진영이 선택한 행동</summary>
     public class BattleAction
@@ -71,6 +71,8 @@ namespace ShadowTheater.Battle
             new BattleAction { side = side, type = ActionType.Attack, skill = basic };
         public static BattleAction UseSkill(BattleSide side, SkillData skill) =>
             new BattleAction { side = side, type = ActionType.Skill, skill = skill };
+        public static BattleAction UseJointSkill() =>
+            new BattleAction { side = BattleSide.Player, type = ActionType.JointSkill };
         public static BattleAction Switch(BattleSide side, int index) =>
             new BattleAction { side = side, type = ActionType.Switch, switchIndex = index };
         public static BattleAction Record() =>
@@ -98,6 +100,7 @@ namespace ShadowTheater.Battle
         public BattleGimmick gimmick;
         public bool autoBattle;
         public float timeScale = 1f;               // 접근성/연출 배속 옵션
+        public int bossInvestigationLevel;          // 0~3, 마을 사전 조사 단서 수
 
         public bool CanCapture => mode == BattleMode.Wild;
         public bool CanEscape => mode == BattleMode.Wild;

@@ -12,7 +12,7 @@ namespace ShadowTheater.Save
     [Serializable]
     public class SaveData
     {
-        public const int CurrentVersion = 9;
+        public const int CurrentVersion = 10;
         public const int MaxPartySize = 6;
 
         public int version = CurrentVersion;
@@ -33,6 +33,7 @@ namespace ShadowTheater.Save
         // ── 그림자 ──
         public string starterShadowId;
         public string companionInstanceId; // 필드에서 플레이어를 따라다니는 파티원
+        public List<CompanionBondProgressData> companionBonds = new List<CompanionBondProgressData>();
         public List<ShadowInstance> party = new List<ShadowInstance>();    // 전투 출전 (최대 6)
         public List<ShadowInstance> storage = new List<ShadowInstance>();  // 각본 서고 (보관함)
 
@@ -47,6 +48,8 @@ namespace ShadowTheater.Save
         public List<QuestProgressData> quests = new List<QuestProgressData>();
         public List<string> unlockedRegionIds = new List<string>();
         public List<string> visitedRegionIds = new List<string>();
+        public List<TownRestorationProgressData> townRestorations = new List<TownRestorationProgressData>();
+        public List<FieldIncidentRecordData> fieldIncidentRecords = new List<FieldIncidentRecordData>();
         public string lastEndingId;
         public List<string> unlockedEndingIds = new List<string>();
         public int cycle = 1;
@@ -60,6 +63,30 @@ namespace ShadowTheater.Save
         // ── 옵션 ──
         public float battleSpeed = 1f;
         public bool autoBattle;
+    }
+
+    [Serializable]
+    public class CompanionBondProgressData
+    {
+        public string instanceId;
+        public int experience;
+        public int jointSkillUses;
+    }
+
+    [Serializable]
+    public class TownRestorationProgressData
+    {
+        public string regionId;
+        public int points;
+        public bool returnVisitClaimed;
+    }
+
+    [Serializable]
+    public class FieldIncidentRecordData
+    {
+        public string incidentId;
+        public int lastCompletedDay = -1;
+        public int completionCount;
     }
 
     /// <summary>퀘스트/이벤트 플래그. int 하나로 bool(0/1)과 단계값(0,1,2...)을 같이 표현</summary>

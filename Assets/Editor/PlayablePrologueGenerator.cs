@@ -826,6 +826,13 @@ namespace ShadowTheater.EditorTools
                 var weatherEffectsSo = new SerializedObject(weatherEffects);
                 Set(weatherEffectsSo, "regionId", region.regionId);
                 weatherEffectsSo.ApplyModifiedPropertiesWithoutUndo();
+                if (!region.isSettlement && !region.isBossStage)
+                {
+                    var incident = fieldRoot.AddComponent<FieldIncidentController>();
+                    var incidentSo = new SerializedObject(incident);
+                    Set(incidentSo, "regionId", region.regionId);
+                    incidentSo.ApplyModifiedPropertiesWithoutUndo();
+                }
                 if (region.isSettlement) CreateTownServices(fieldRoot.transform, region);
             }
             if (region?.AllowsRandomEncounters == true)
@@ -1194,6 +1201,24 @@ namespace ShadowTheater.EditorTools
             Set(rumorSo, "dialogueId", TownServicePolicy.RumorDialogueId(region));
             Set(rumorSo, "accent", region.AccentColor);
             rumorSo.ApplyModifiedPropertiesWithoutUndo();
+
+            var investigator = CreateFieldActor(parent, "BossInvestigator", new Vector2Int(0, 5),
+                LoadShadow("mask"), false).AddComponent<BossInvestigatorNpc>();
+            var investigatorSo = new SerializedObject(investigator);
+            Set(investigatorSo, "act", region.act);
+            investigatorSo.ApplyModifiedPropertiesWithoutUndo();
+
+            CreateRecoveryNpc(parent, region, "ReturningCraftsman", new Vector2Int(-2, 5), 2, "puppet");
+            CreateRecoveryNpc(parent, region, "RestoredMerchant", new Vector2Int(2, 5), 3, "mage");
+        }
+
+        private static void CreateRecoveryNpc(Transform parent, RegionData region, string name,
+            Vector2Int cell, int stage, string shadowId)
+        {
+            var npc = CreateFieldActor(parent, name, cell, LoadShadow(shadowId), false).AddComponent<TownRecoveryNpc>();
+            var so = new SerializedObject(npc);
+            Set(so, "regionId", region.regionId); Set(so, "requiredStage", stage);
+            so.ApplyModifiedPropertiesWithoutUndo();
         }
 
         private static void CreateInteractable(Transform parent, string name, Vector2Int cell, string dialogueId,

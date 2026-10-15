@@ -91,6 +91,7 @@ namespace ShadowTheater.EditorTools
             CoreContentBatchGenerator.ValidateGrowthPolicyRegression(result.errors);
             CombatBalanceAnalyzer.ValidatePolicyRegression(result.errors);
             RegionDifficultySimulator.ValidatePolicyRegression(result.errors);
+            ShadowBattleSimulator.ValidatePolicyRegression(result.errors);
             LocalizationTranslationImporter.ValidateRegression(result.errors);
             MobileBuildConfigurator.ValidateScenePolicyRegression(result.errors);
             MobileBuildConfigurator.ValidateSettings(result.errors);
@@ -102,6 +103,7 @@ namespace ShadowTheater.EditorTools
             ValidateHiddenBattleGimmicks(result);
             ValidateRegionalEncounterPolicy(result);
             ValidateCompanionPassives(result);
+            ValidateCompanionBondsAndWorldProgress(result);
             ValidateBossPhases(result);
             ValidateFieldWorldEffects(result);
             if (!File.Exists(RegionPath))
@@ -160,6 +162,31 @@ namespace ShadowTheater.EditorTools
                 !CompanionBondService.Describe(frostSupport).Contains("기록률"))
                 result.errors.Add("동행 패시브: UI 설명 누락");
             UnityEngine.Object.DestroyImmediate(frostSupport);
+        }
+
+        private static void ValidateCompanionBondsAndWorldProgress(ValidationReport result)
+        {
+            if (CompanionBondService.LevelForExperience(0) != 1 ||
+                CompanionBondService.LevelForExperience(120) != 3 ||
+                CompanionBondService.LevelForExperience(480) != CompanionBondService.MaxBondLevel)
+                result.errors.Add("동행 유대: 경험치 레벨 경계 오류");
+            if (BossInvestigationService.WeaknessOf(ShadowElement.Flame) != ShadowElement.Shade ||
+                BossInvestigationService.ReducePhaseFp(2, 3) != 1 ||
+                BossInvestigationService.PhaseHealMultiplier(3) >= 1f)
+                result.errors.Add("보스 사전 조사: 약점·페이즈 완화 정책 오류");
+            if (TownRestorationService.StageFor(false, 99) != 0 ||
+                TownRestorationService.StageFor(true, 3) != 1 ||
+                TownRestorationService.StageFor(true, 6) != 2 ||
+                TownRestorationService.StageFor(true, 10) != 3)
+                result.errors.Add("마을 복구: 단계 경계 오류");
+            var incident = new FieldIncidentDefinition("test", "test", "test", FieldTimeOfDay.Night,
+                FieldWeather.Starfall, 3, 0, string.Empty, 0, 0);
+            var region = new RegionData { act = 3 };
+            if (!FieldIncidentService.Matches(incident, region,
+                    new FieldWorldSnapshot(FieldTimeOfDay.Night, FieldWeather.Starfall, 0)) ||
+                FieldIncidentService.Matches(incident, region,
+                    new FieldWorldSnapshot(FieldTimeOfDay.Day, FieldWeather.Starfall, 0)))
+                result.errors.Add("필드 사건: 시간·날씨 조건 판정 오류");
         }
 
         private static void ValidateBossPhases(ValidationReport result)
@@ -281,6 +308,7 @@ namespace ShadowTheater.EditorTools
             {
                 version = 1, mapId = "Prologue", checkpointMapId = "Prologue", gold = -10,
                 party = new List<ShadowInstance>(), storage = new List<ShadowInstance>(),
+                companionBonds = null, townRestorations = null, fieldIncidentRecords = null,
                 seenShadowIds = new List<string> { "knight", "knight", "" },
                 recordedShadowIds = new List<string> { "knight" }
             };
@@ -294,6 +322,7 @@ namespace ShadowTheater.EditorTools
                 old.inventory.Count != 1 || old.inventory[0].count != int.MaxValue ||
                 old.party.Any(x => x.level < 1 || x.exp < 0) ||
                 string.IsNullOrEmpty(old.companionInstanceId) ||
+                old.companionBonds == null || old.townRestorations == null || old.fieldIncidentRecords == null ||
                 !old.party.Any(x => x.instanceId == old.companionInstanceId) ||
                 old.party.Concat(old.storage).Select(x => x.instanceId).Distinct().Count() != 8)
                 result.errors.Add("v1 → 현재 세이브 마이그레이션 회귀 실패");
@@ -1464,8 +1493,11 @@ namespace ShadowTheater.EditorTools
                     var encounters = roots.SelectMany(x => x.GetComponentsInChildren<EncounterSymbol>(true)).ToArray();
                     var randomEncounter = roots.SelectMany(x => x.GetComponentsInChildren<RandomEncounterController>(true)).FirstOrDefault();
                     var worldState = roots.SelectMany(x => x.GetComponentsInChildren<FieldWorldStateController>(true)).FirstOrDefault();
+                    var fieldIncidents = roots.SelectMany(x => x.GetComponentsInChildren<FieldIncidentController>(true)).ToArray();
                     var healers = roots.SelectMany(x => x.GetComponentsInChildren<TownHealerNpc>(true)).ToArray();
                     var rumorKeepers = roots.SelectMany(x => x.GetComponentsInChildren<TownRumorNpc>(true)).ToArray();
+                    var investigators = roots.SelectMany(x => x.GetComponentsInChildren<BossInvestigatorNpc>(true)).ToArray();
+                    var recoveryNpcs = roots.SelectMany(x => x.GetComponentsInChildren<TownRecoveryNpc>(true)).ToArray();
                     result.portals += portals.Length;
                     result.encounters += encounters.Length;
                     if (portals.Length == 0) result.errors.Add($"{region.sceneName}: 포털 없음");
@@ -1476,6 +1508,16 @@ namespace ShadowTheater.EditorTools
                     if (healers.Length != expectedTownServices || rumorKeepers.Length != expectedTownServices)
                         result.errors.Add($"{region.sceneName}: 회복/소문 NPC 수 불일치 " +
                                           $"({healers.Length}/{rumorKeepers.Length}, 기대 {expectedTownServices})");
+                    int expectedIncidentControllers = !region.isSettlement && !region.isBossStage ? 1 : 0;
+                    if (fieldIncidents.Length != expectedIncidentControllers)
+                        result.errors.Add($"{region.sceneName}: 시간·날씨 필드 사건 컨트롤러 수 불일치 " +
+                                          $"({fieldIncidents.Length}/{expectedIncidentControllers})");
+                    if (fieldIncidents.Length == 1 &&
+                        new SerializedObject(fieldIncidents[0]).FindProperty("regionId")?.stringValue != region.regionId)
+                        result.errors.Add($"{region.sceneName}: 필드 사건 지역 ID 불일치");
+                    if (investigators.Length != expectedTownServices || recoveryNpcs.Length != expectedTownServices * 2)
+                        result.errors.Add($"{region.sceneName}: 조사/복구 NPC 수 불일치 " +
+                                          $"({investigators.Length}/{recoveryNpcs.Length}, 기대 {expectedTownServices}/{expectedTownServices * 2})");
                     foreach (TownHealerNpc healer in healers)
                     {
                         var healerSo = new SerializedObject(healer);

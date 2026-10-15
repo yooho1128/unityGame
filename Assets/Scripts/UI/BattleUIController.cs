@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using ShadowTheater.Battle;
 using ShadowTheater.Data;
 using ShadowTheater.Save;
+using ShadowTheater.Story;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -92,6 +93,14 @@ namespace ShadowTheater.UI
         public void OpenSkills()
         {
             OpenOptions(L10n.Get("battle.choose_skill", "사용할 기술을 선택하세요"));
+            if (manager.CompanionUnit != null && CompanionBondService.CanUseJointSkill(manager.CompanionUnit.Instance))
+            {
+                CompanionJointProfile joint = manager.JointProfile;
+                int level = CompanionBondService.BondLevel(manager.CompanionUnit.Instance.instanceId);
+                AddOption(joint.displayName,
+                    $"유대 Lv.{level} · FP {BattleManager.JointSkillFpCost} · 전투당 1회",
+                    manager.CanUseJointSkill, () => Submit(BattleAction.UseJointSkill()));
+            }
             foreach (var skill in manager.PlayerActive.Skills)
             {
                 if (skill == null) continue;
@@ -381,6 +390,15 @@ namespace ShadowTheater.UI
             if (hit.IsEffective) message += L10n.Get("battle.effective", " · 효과가 굉장했다");
             else if (hit.IsResisted) message += L10n.Get("battle.resisted", " · 효과가 약했다");
             yield return Say(message);
+        }
+        public IEnumerator PlayJointSkill(BattleUnit a, BattleUnit companion, BattleUnit d,
+            CompanionJointProfile profile, HitResult hit)
+        {
+            yield return Say($"{L10n.Text(a.Name)}과 {L10n.Text(companion.Name)}의 합동 연출!\n[{profile.displayName}]", .8f);
+            string message = $"{L10n.Text(d.Name)}에게 {hit.damage} 피해";
+            if (hit.critical) message += " · 치명타";
+            if (hit.IsEffective) message += " · 효과가 굉장했다";
+            yield return Say(message, .8f);
         }
         public IEnumerator PlayHeal(BattleUnit unit, int amount) { yield return Say(L10n.Format("battle.heal", "{0}의 HP가 {1} 회복됐다.", L10n.Text(unit.Name), amount)); }
         public IEnumerator PlayStatusApplied(BattleUnit unit, StatusEffectType status) { yield return Say(L10n.Format("battle.status_applied", "{0}에게 {1} 상태가 걸렸다.", L10n.Text(unit.Name), StatusLabel(status))); }

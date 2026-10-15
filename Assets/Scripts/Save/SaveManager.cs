@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using ShadowTheater.Battle;
 using ShadowTheater.Data;
 using ShadowTheater.Field;
@@ -369,6 +370,9 @@ namespace ShadowTheater.Save
             data.unlockedEndingIds ??= new List<string>();
             data.unlockedRegionIds ??= new List<string>();
             data.visitedRegionIds ??= new List<string>();
+            data.companionBonds ??= new List<CompanionBondProgressData>();
+            data.townRestorations ??= new List<TownRestorationProgressData>();
+            data.fieldIncidentRecords ??= new List<FieldIncidentRecordData>();
             data.cycle = Mathf.Max(1, data.cycle);
             Sanitize(data);
             if (sourceVersion < 8)
@@ -430,6 +434,41 @@ namespace ShadowTheater.Save
                 if (flag != null && !string.IsNullOrWhiteSpace(flag.key)) mergedFlags[flag.key] = flag.value;
             data.flags.Clear();
             foreach (var pair in mergedFlags) data.flags.Add(new FlagEntry { key = pair.Key, value = pair.Value });
+
+            var validInstances = new HashSet<string>(data.party.Concat(data.storage).Select(x => x.instanceId), StringComparer.Ordinal);
+            var bonds = new Dictionary<string, CompanionBondProgressData>(StringComparer.Ordinal);
+            foreach (var bond in data.companionBonds)
+            {
+                if (bond == null || string.IsNullOrWhiteSpace(bond.instanceId) || !validInstances.Contains(bond.instanceId)) continue;
+                if (!bonds.TryGetValue(bond.instanceId, out CompanionBondProgressData merged))
+                    bonds.Add(bond.instanceId, new CompanionBondProgressData { instanceId = bond.instanceId });
+                else merged.jointSkillUses = SaveValuePolicy.SaturatingAdd(merged.jointSkillUses, Mathf.Max(0, bond.jointSkillUses));
+                bonds[bond.instanceId].experience = Mathf.Max(bonds[bond.instanceId].experience, Mathf.Max(0, bond.experience));
+                bonds[bond.instanceId].jointSkillUses = Mathf.Max(bonds[bond.instanceId].jointSkillUses, Mathf.Max(0, bond.jointSkillUses));
+            }
+            data.companionBonds = bonds.Values.ToList();
+
+            var towns = new Dictionary<string, TownRestorationProgressData>(StringComparer.Ordinal);
+            foreach (var town in data.townRestorations)
+            {
+                if (town == null || string.IsNullOrWhiteSpace(town.regionId)) continue;
+                if (!towns.TryGetValue(town.regionId, out TownRestorationProgressData merged))
+                    towns.Add(town.regionId, new TownRestorationProgressData { regionId = town.regionId });
+                towns[town.regionId].points = Mathf.Max(towns[town.regionId].points, Mathf.Max(0, town.points));
+                towns[town.regionId].returnVisitClaimed |= town.returnVisitClaimed;
+            }
+            data.townRestorations = towns.Values.ToList();
+
+            var incidents = new Dictionary<string, FieldIncidentRecordData>(StringComparer.Ordinal);
+            foreach (var record in data.fieldIncidentRecords)
+            {
+                if (record == null || string.IsNullOrWhiteSpace(record.incidentId)) continue;
+                if (!incidents.TryGetValue(record.incidentId, out FieldIncidentRecordData merged))
+                    incidents.Add(record.incidentId, new FieldIncidentRecordData { incidentId = record.incidentId, lastCompletedDay = -1 });
+                incidents[record.incidentId].lastCompletedDay = Mathf.Max(incidents[record.incidentId].lastCompletedDay, record.lastCompletedDay);
+                incidents[record.incidentId].completionCount = Mathf.Max(incidents[record.incidentId].completionCount, Mathf.Max(0, record.completionCount));
+            }
+            data.fieldIncidentRecords = incidents.Values.ToList();
         }
 
         private static void CleanIds(List<string> values)

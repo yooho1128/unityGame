@@ -155,6 +155,8 @@ namespace ShadowTheater.Field
                 inventory = SaveManager.BuildBattleInventory(),
                 encounterId = encounterId,
                 gimmick = gimmick,
+                bossInvestigationLevel = mode == BattleMode.Boss && enemies != null && enemies.Count > 0
+                    ? BossInvestigationService.PreparationLevel(enemies[0].Data) : 0,
                 autoBattle = save.autoBattle,
                 timeScale = save.battleSpeed
             };
@@ -274,6 +276,14 @@ namespace ShadowTheater.Field
                         save.wildVictoryCount = SaveValuePolicy.SaturatingAdd(save.wildVictoryCount, 1);
                     SaveManager.MarkEncounterCleared(outcome.encounterId);
                     QuestManager.Instance?.Notify(QuestObjectiveType.Defeat, outcome.encounterId);
+                    ShadowInstance companion = CompanionBondService.CurrentCompanion();
+                    if (companion != null)
+                    {
+                        bool leveled = CompanionBondService.AddExperience(companion.instanceId,
+                            CompanionBondService.VictoryExperience(ctx.mode), out int oldBond, out int newBond);
+                        if (leveled) SaveFeedbackController.Instance?.ShowMessage(
+                            $"{L10n.Text(companion.DisplayName)}과의 유대가 Lv.{oldBond} → Lv.{newBond}(으)로 깊어졌습니다.");
+                    }
                     break;
 
                 case BattleResult.Defeat:
