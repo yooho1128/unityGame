@@ -29,6 +29,7 @@ namespace ShadowTheater.EditorTools
         private const string CompanionEventPath = "Assets/Resources/Data/CompanionEventCatalog.json";
         private const string DialoguePath = "Assets/Resources/Data/DialogueCatalog.json";
         private const string BossPhasePath = "Assets/Resources/Data/BossPhaseCatalog.json";
+        private const string EndingPath = "Assets/Resources/Data/EndingCatalog.json";
         private static string _declaredStoryFlags;
         private static string _worldSource;
 
@@ -84,6 +85,13 @@ namespace ShadowTheater.EditorTools
             return report.errors.Count == 0;
         }
 
+        public static CompletionAuditSnapshot CollectCompletionAudit()
+        {
+            ValidationReport report=Run(false);
+            return new CompletionAuditSnapshot(report.regions,report.scenes,report.shadows,report.portals,report.encounters,
+                new List<string>(report.errors),new List<string>(report.warnings));
+        }
+
         private static ValidationReport Run(bool requireDeviceReports)
         {
             var result = new ValidationReport();
@@ -123,6 +131,7 @@ namespace ShadowTheater.EditorTools
             ValidateTownServices(regions, result);
             ValidateCompanionEvents(regions, result);
             ValidateQuestRewards(result);
+            ValidateStoryCompletion(result);
             LocalizationAuditResult localization = LocalizationCoverageValidator.Run(true);
             if (!localization.Passed)
                 result.errors.Add($"현지화 커버리지 미완료: {localization.translated}/{localization.required} " +
@@ -334,6 +343,21 @@ namespace ShadowTheater.EditorTools
                 !old.party.Any(x => x.instanceId == old.companionInstanceId) ||
                 old.party.Concat(old.storage).Select(x => x.instanceId).Distinct().Count() != 8)
                 result.errors.Add("v1 → 현재 세이브 마이그레이션 회귀 실패");
+
+            var v10Shadow=new ShadowInstance{instanceId="v10_companion",shadowId="knight",level=15,currentHp=30};
+            var v10=new SaveData
+            {
+                version=10,party=new List<ShadowInstance>{v10Shadow},companionInstanceId=v10Shadow.instanceId,
+                companionBonds=new List<CompanionBondProgressData>{new CompanionBondProgressData{instanceId=v10Shadow.instanceId,experience=260,jointSkillUses=4}},
+                townRestorations=new List<TownRestorationProgressData>{new TownRestorationProgressData{regionId="prologue_theater",points=6,returnVisitClaimed=true},new TownRestorationProgressData{regionId="prologue_theater",points=3}},
+                fieldIncidentRecords=new List<FieldIncidentRecordData>{new FieldIncidentRecordData{incidentId="rain_script",lastCompletedDay=7,completionCount=2}}
+            };
+            SaveManager.Migrate(v10,out _);
+            FieldIncidentRecordData migratedIncident=v10.fieldIncidentRecords.SingleOrDefault(x=>x.incidentId=="rain_script");
+            if(v10.version!=SaveData.CurrentVersion||v10.companionBonds.Count!=1||v10.companionBonds[0].experience!=260||
+               v10.townRestorations.Count!=1||v10.townRestorations[0].points!=6||!v10.townRestorations[0].returnVisitClaimed||
+               migratedIncident==null||migratedIncident.stage!=4||migratedIncident.activeDay!=7||migratedIncident.completionCount!=2)
+                result.errors.Add("v10 → v11 유대·마을·필드 사건 진행 복구 회귀 실패");
 
             var temporary = new SaveData { savedAtUtcTicks = 20 };
             var backup = new SaveData { savedAtUtcTicks = 10 };
@@ -1198,6 +1222,42 @@ namespace ShadowTheater.EditorTools
                 result.errors.Add($"시작부터 도달 가능한 메인 퀘스트: {reached.Count}/{mainQuests.Count}");
         }
 
+        private static void ValidateStoryCompletion(ValidationReport result)
+        {
+            if(!File.Exists(EndingPath)||!File.Exists(DialoguePath)){result.errors.Add("본편 완주 검사: 엔딩 또는 대화 카탈로그 누락");return;}
+            var endings=JsonUtility.FromJson<EndingCatalogData>(File.ReadAllText(EndingPath))?.endings??new List<EndingDefinition>();
+            var dialogues=JsonUtility.FromJson<DialogueCatalogData>(File.ReadAllText(DialoguePath))?.dialogues??new List<DialogueSequence>();
+            var dialogueIds=new HashSet<string>(dialogues.Where(x=>x!=null&&!string.IsNullOrWhiteSpace(x.dialogueId)).Select(x=>x.dialogueId),StringComparer.Ordinal);
+            if(endings.Count!=4)result.errors.Add($"본편 완주 검사: 엔딩 수 불일치 ({endings.Count}/4)");
+            if(endings.Where(x=>x!=null).Select(x=>x.endingId).Distinct(StringComparer.Ordinal).Count()!=endings.Count)
+                result.errors.Add("본편 완주 검사: 엔딩 ID 누락 또는 중복");
+            foreach(var ending in endings.Where(x=>x!=null))
+            {
+                if(string.IsNullOrWhiteSpace(ending.endingId)||string.IsNullOrWhiteSpace(ending.title)||!dialogueIds.Contains(ending.dialogueId))
+                    result.errors.Add($"본편 완주 검사: 엔딩 데이터·대화 연결 누락 ({ending.endingId})");
+                foreach(var requirement in ending.requirements??new List<EndingFlagRequirement>())
+                {
+                    if(requirement==null||string.IsNullOrWhiteSpace(requirement.flag)){result.errors.Add($"{ending.endingId}: 빈 엔딩 요구 조건");continue;}
+                    if(requirement.maxValue!=0&&requirement.maxValue<requirement.minValue)
+                        result.errors.Add($"{ending.endingId}: 도달 불가능한 엔딩 범위 ({requirement.flag})");
+                    if(!IsDeclaredStoryFlag(requirement.flag))result.errors.Add($"{ending.endingId}: 생성되지 않는 엔딩 플래그 ({requirement.flag})");
+                }
+            }
+            string[] variableFlags=endings.SelectMany(x=>x?.requirements??new List<EndingFlagRequirement>()).Where(x=>x!=null)
+                .Select(x=>x.flag).Where(x=>x!="story_finale_unlocked").Distinct(StringComparer.Ordinal).ToArray();
+            var reached=new HashSet<string>(StringComparer.Ordinal);int[] samples={-3,-2,-1,0,1,2,3,4};
+            foreach(var assignment in EnumerateAssignments(variableFlags,samples,0,new Dictionary<string,int>(StringComparer.Ordinal)))
+            {
+                assignment["story_finale_unlocked"]=1;EndingDefinition selected=endings.Where(x=>x!=null&&EndingMatches(x,assignment)).OrderByDescending(x=>x.priority).FirstOrDefault();if(selected!=null)reached.Add(selected.endingId);
+            }
+            foreach(var ending in endings.Where(x=>x!=null&&!reached.Contains(x.endingId)))result.errors.Add($"본편 완주 검사: 우선순위·조건상 선택 불가능한 엔딩 ({ending.endingId})");
+        }
+
+        private static IEnumerable<Dictionary<string,int>> EnumerateAssignments(string[] flags,int[] values,int index,Dictionary<string,int> current)
+        {if(index>=flags.Length){yield return new Dictionary<string,int>(current,StringComparer.Ordinal);yield break;}foreach(int value in values){current[flags[index]]=value;foreach(var result in EnumerateAssignments(flags,values,index+1,current))yield return result;}current.Remove(flags[index]);}
+        private static bool EndingMatches(EndingDefinition ending,IReadOnlyDictionary<string,int> flags)
+        {foreach(var requirement in ending.requirements??new List<EndingFlagRequirement>()){if(requirement==null||string.IsNullOrEmpty(requirement.flag))continue;int value=flags.TryGetValue(requirement.flag,out int found)?found:0;if(value<requirement.minValue||requirement.maxValue!=0&&value>requirement.maxValue)return false;}return true;}
+
         private static void ValidateFinalArt(ValidationReport result)
         {
             if (!File.Exists(FinalPixelArtPipeline.ReportPath))
@@ -1265,6 +1325,8 @@ namespace ShadowTheater.EditorTools
                 result.errors.Add("TitleCanvas 또는 TitleScreenController 누락");
                 return;
             }
+            if(prefab.GetComponentsInChildren<MobileSafeArea>(true).Length<4)
+                result.errors.Add("타이틀·엔딩·설정·시작 선택 화면 안전영역 보정 누락");
             var so = new SerializedObject(title);
             foreach (string property in new[]
                      {
@@ -1305,6 +1367,9 @@ namespace ShadowTheater.EditorTools
                     }
                     if (!roots.Any(x => x.GetComponentInChildren<PlayerController>(true) != null)) result.errors.Add($"{region.sceneName}: Player 누락");
                     if (!roots.Any(x => x.GetComponentInChildren<GameFlowController>(true) != null)) result.errors.Add($"{region.sceneName}: GameFlow 누락");
+                    int endingTriggers=roots.SelectMany(x=>x.GetComponentsInChildren<EndingTrigger>(true)).Count();
+                    if(region.sceneName=="FinalCurtain"&&endingTriggers!=1)result.errors.Add($"{region.sceneName}: 최종 엔딩 상호작용 수 불일치 ({endingTriggers}/1)");
+                    if(region.sceneName!="FinalCurtain"&&endingTriggers!=0)result.errors.Add($"{region.sceneName}: 최종막 외 엔딩 상호작용 배치됨");
                     GameObject fieldRoot = roots.FirstOrDefault(x => x.GetComponentInChildren<FieldGrid>(true) != null);
                     BattleUIController battleUi = roots.SelectMany(x => x.GetComponentsInChildren<BattleUIController>(true)).FirstOrDefault();
                     if (battleUi == null) result.errors.Add($"{region.sceneName}: 전투 UI 누락");
@@ -1366,6 +1431,9 @@ namespace ShadowTheater.EditorTools
                                 result.errors.Add($"{region.sceneName}: 전투 중 남을 수 있는 필드 Canvas: {fieldCanvas.name}");
                         }
                     }
+                    int protectedFieldScreens=roots.SelectMany(x=>x.GetComponentsInChildren<MobileSafeArea>(true))
+                        .Count(x=>x.GetComponentInParent<BattleUIController>()==null);
+                    if(protectedFieldScreens<7)result.errors.Add($"{region.sceneName}: 모바일 안전영역 적용 화면 부족 ({protectedFieldScreens}/7)");
                     ScreenFader fader = roots.SelectMany(x => x.GetComponentsInChildren<ScreenFader>(true)).FirstOrDefault();
                     if (fader == null) result.errors.Add($"{region.sceneName}: 화면 전환 페이더 누락");
                     else
@@ -1732,6 +1800,15 @@ namespace ShadowTheater.EditorTools
             public int regions, scenes, shadows, portals, encounters;
             public readonly List<string> errors = new List<string>();
             public readonly List<string> warnings = new List<string>();
+        }
+
+        public sealed class CompletionAuditSnapshot
+        {
+            public readonly int regions,scenes,shadows,portals,encounters;
+            public readonly List<string> errors,warnings;
+            public bool Passed=>errors.Count==0;
+            public CompletionAuditSnapshot(int regions,int scenes,int shadows,int portals,int encounters,List<string> errors,List<string>warnings)
+            {this.regions=regions;this.scenes=scenes;this.shadows=shadows;this.portals=portals;this.encounters=encounters;this.errors=errors;this.warnings=warnings;}
         }
     }
 }

@@ -26,18 +26,18 @@ Release Xcode 프로젝트를 `Builds/`에 만든다. Android Release는 커스�
 Unity 메뉴 `Tools > Shadow Theater > Generate and Validate Full Game`을 실행한다. 생성 완료 후 다음 항목을
 한 번에 검사한다.
 
-- 지역 카탈로그가 정확히 40개이며 ID·씬 이름·진행 순서가 중복되지 않는지
-- 최초 지역에서 연결 그래프를 따라 40개 지역 모두 도달 가능한지
+- 지역 카탈로그가 정확히 63개이며 ID·씬 이름·진행 순서가 중복되지 않는지
+- 최초 지역에서 연결 그래프를 따라 63개 지역 모두 도달 가능한지
 - 지역 확장 로스터 97종과 최종 ShadowDatabase 180종이 중복 없이 생성됐는지
-- 40개 필드마다 FieldGrid, Player, GameFlow, 포털이 있는지
-- 모든 포털의 대상 씬이 실제 40개 지역 중 하나인지
-- 40개 씬의 바닥/충돌 Tilemap 참조, 월드맵 및 모든 포털 도착 좌표가 실제 이동 가능한 타일인지
+- 63개 필드마다 FieldGrid, Player, GameFlow, 포털이 있는지
+- 모든 포털의 대상 씬이 실제 63개 지역 중 하나인지
+- 63개 씬의 바닥/충돌 Tilemap 참조, 월드맵 및 모든 포털 도착 좌표가 실제 이동 가능한 타일인지
 - 심볼 인카운터에 ShadowData가 연결됐는지
 - Missing Script가 남아 있지 않은지
-- Title과 40개 필드가 Build Settings에서 활성화됐는지
+- Title과 63개 필드가 Build Settings에서 활성화됐는지
 - v1 형식의 손상·중복 샘플이 현재 세이브 버전으로 정상 변환되는지
 - Android/iOS 앱 ID·화면 방향·ARM64·IL2CPP 설정이 일치하는지
-- 코드·대화·퀘스트·40개 지역·엔딩·그림자·스킬·도구의 한국어/영문이 모두 존재하는지
+- 코드·대화·퀘스트·63개 지역·엔딩·그림자·스킬·도구의 한국어 원문이 모두 존재하는지
 
 CI에서는 Unity batchmode에 아래 메서드를 지정하면 오류가 하나라도 있을 때 빌드 실패로 종료된다.
 
@@ -47,10 +47,10 @@ CI에서는 Unity batchmode에 아래 메서드를 지정하면 오류가 하나
 
 `ShadowTheater.EditorTools.GameRegressionValidator.ValidateReleaseForCi`
 
-활성 빌드 씬은 Title이 첫 번째이고 정확히 41개여야 하며, 빈 경로와 중복 경로가 있으면 QA·Release
+활성 빌드 씬은 Title이 첫 번째이고 정확히 64개여야 하며, 빈 경로와 중복 경로가 있으면 QA·Release
 빌드를 시작하지 않는다.
 
-## 세이브 v7
+## 세이브 v11
 
 - `saveGuid`로 세이브 정체성을 유지한다.
 - 예전 `Prologue` 맵 ID를 `PrologueTheater`와 시작 좌표 `(0,-5)`로 교정한다.

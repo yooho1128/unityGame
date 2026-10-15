@@ -29,7 +29,7 @@ namespace ShadowTheater.UI
         private QuestProgressData _selectedProgress;
         public bool IsOpen{get;private set;}
 
-        private void Awake(){if(Instance!=null&&Instance!=this){Destroy(gameObject);return;}Instance=this;root?.SetActive(false);entryTemplate?.gameObject.SetActive(false);}
+        private void Awake(){if(Instance!=null&&Instance!=this){Destroy(gameObject);return;}Instance=this;if(root!=null&&root.GetComponent<MobileSafeArea>()==null)root.AddComponent<MobileSafeArea>();root?.SetActive(false);entryTemplate?.gameObject.SetActive(false);}
         private void OnEnable(){QuestManager.GlobalQuestChanged+=RefreshIfOpen;L10n.Changed+=RefreshIfOpen;}
         private void OnDisable(){QuestManager.GlobalQuestChanged-=RefreshIfOpen;L10n.Changed-=RefreshIfOpen;if(IsOpen)Close();}
         private void OnDestroy(){if(Instance==this)Instance=null;ReleasePlayer();}

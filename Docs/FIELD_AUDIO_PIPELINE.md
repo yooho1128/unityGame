@@ -1,6 +1,6 @@
 # 필드 환경음·발걸음 파이프라인
 
-40개 필드는 지역 분위기와 바닥 재질에 맞는 오디오 자산을 자동으로 생성해 사용한다. 외부 음원이
+63개 필드는 지역 분위기와 바닥 재질에 맞는 오디오 자산을 자동으로 생성해 사용한다. 외부 음원이
 없어도 완전한 오디오 흐름을 확인할 수 있고, 이후 전문 제작 음원으로 참조만 교체할 수 있다.
 
 ## 자동 생성
@@ -11,7 +11,7 @@ Unity 메뉴 `Tools > Shadow Theater > Generate Field Audio Assets`를 실행하
 - `Assets/Audio/Generated/Field/Footsteps`: 8개 지형별 4변형 발걸음 32개
 
 `Tools > Shadow Theater > Generate and Validate Full Game`에도 이 과정이 포함된다. 이어서 생성되는
-40개 필드 씬은 `FieldAmbientAudio`의 `ambienceClip`·`detailClip`과 플레이어
+63개 필드 씬은 `FieldAmbientAudio`의 `ambienceClip`·`detailClip`과 플레이어
 `FieldFootstepAudio`의 클립 배열을 자동으로 채운다.
 
 ## 지형 분류
@@ -37,5 +37,5 @@ Unity 메뉴 `Tools > Shadow Theater > Generate Field Audio Assets`를 실행하
 게임 진행을 유지한다. 최종 음원은 씬의 AudioClip 참조를 바꾸면 된다. 전체 생성 메뉴를 다시 실행하면
 자동 자산이 재연결되므로 수동 교체는 데이터·씬 생성이 끝난 뒤 적용한다.
 
-`Tools > Shadow Theater > Validate Full Game`은 40개 필드 모두에 지속·간헐 환경음과 발걸음 4개가
+`Tools > Shadow Theater > Validate Full Game`은 63개 필드 모두에 지속·간헐 환경음과 발걸음 4개가
 연결되었는지 검사한다.

@@ -26,6 +26,7 @@ namespace ShadowTheater.EditorTools
                 "상점", new Color(.20f,.13f,.08f,.94f));
             open.gameObject.AddComponent<VirtualShopButton>();
             var root = Rect("Root", canvasGo.transform, Vector2.zero, Vector2.one);
+            root.gameObject.AddComponent<MobileSafeArea>();
             root.gameObject.AddComponent<Image>().color = new Color(.012f,.008f,.027f,.99f);
             var card = Rect("Card", root, new Vector2(.045f,.06f), new Vector2(.955f,.95f));
             card.gameObject.AddComponent<Image>().color = new Color(.035f,.023f,.062f,1f);

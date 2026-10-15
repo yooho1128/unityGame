@@ -32,6 +32,7 @@ namespace ShadowTheater.EditorTools
             openButton.gameObject.AddComponent<VirtualScriptBookButton>();
 
             var root = CreateRect("BookRoot", canvasGo.transform, Vector2.zero, Vector2.one);
+            root.gameObject.AddComponent<MobileSafeArea>();
             var backdrop = root.gameObject.AddComponent<Image>();
             backdrop.color = new Color(0.015f, 0.010f, 0.035f, 0.985f);
 

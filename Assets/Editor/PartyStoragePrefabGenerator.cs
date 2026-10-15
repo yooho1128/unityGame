@@ -17,7 +17,7 @@ namespace ShadowTheater.EditorTools
             var c=root.GetComponent<Canvas>();c.renderMode=RenderMode.ScreenSpaceOverlay;c.sortingOrder=54;
             var sc=root.GetComponent<CanvasScaler>();sc.uiScaleMode=CanvasScaler.ScaleMode.ScaleWithScreenSize;sc.referenceResolution=new Vector2(1080,1920);sc.matchWidthOrHeight=.5f;
             var open=Btn("OpenParty",root.transform,new Vector2(.22f,.90f),new Vector2(.39f,.955f),"파티");open.gameObject.AddComponent<VirtualPartyButton>();
-            var panel=Rect("Root",root.transform,Vector2.zero,Vector2.one);panel.gameObject.AddComponent<Image>().color=new Color(.015f,.01f,.035f,.99f);
+            var panel=Rect("Root",root.transform,Vector2.zero,Vector2.one);panel.gameObject.AddComponent<MobileSafeArea>();panel.gameObject.AddComponent<Image>().color=new Color(.015f,.01f,.035f,.99f);
             Text("Header",panel,new Vector2(.05f,.92f),new Vector2(.75f,.985f),44,"파티 · 각본 서고",TextAnchor.MiddleLeft);
             var close=Btn("Close",panel,new Vector2(.86f,.93f),new Vector2(.96f,.98f),"×");
             var selected=Text("Selected",panel,new Vector2(.05f,.86f),new Vector2(.65f,.92f),28,"그림자를 선택하세요",TextAnchor.MiddleLeft);

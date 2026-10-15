@@ -29,6 +29,7 @@ namespace ShadowTheater.EditorTools
 
             var panel = CreateRect("Panel", canvasGo.transform, Vector2.zero, Vector2.one,
                 Vector2.zero, Vector2.zero);
+            panel.gameObject.AddComponent<MobileSafeArea>();
             var group = panel.gameObject.AddComponent<CanvasGroup>();
 
             var dim = panel.gameObject.AddComponent<Image>();

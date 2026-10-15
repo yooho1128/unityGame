@@ -54,7 +54,7 @@ ScriptableObject를 갱신한다. 상위 등급과 주요 그림자는 기억 �
 2. 현재 열려 있는 씬의 변경 사항을 저장하거나 폐기할지 선택
 3. 생성이 끝나면 자동으로 열리는 `Assets/Scenes/Prologue/Title.unity`에서 Play
 
-이 메뉴는 프롤로그부터 최종막까지 40개 필드를 만들고 `Title`을 포함한 총 41개 씬을
+이 메뉴는 프롤로그부터 최종막까지 63개 필드를 만들고 `Title`을 포함한 총 64개 씬을
 Build Settings에 등록한다. 제2막은 `Docs/ACT2_CROWN_OF_ASH.md`, 제3막은
 `Docs/ACT3_FORBIDDEN_ARCHIVE.md` 참고.
 
@@ -226,14 +226,14 @@ Point 필터의 선명한 가장자리를 유지한다. 렌더 파이프라인 �
 포털 재진입을 막아 양방향 출구 사이에서 즉시 되돌아가는 현상을 방지한다. `requiredFlag`와
 `blockedFlag`로 스토리 진행에 따른 출구 잠금도 가능하다.
 
-## 40개 지역 월드맵
+## 63개 지역 월드맵
 
 1. 메뉴 `Tools > Shadow Theater > Generate World Map UI` 실행
 2. 생성된 `Assets/Prefabs/UI/WorldMapCanvas.prefab`을 각 필드 씬에 배치
 3. `Resources/Data/RegionCatalog.json`의 `sceneName`과 실제 씬 이름을 일치시킴
 4. 완성한 지역 씬을 Build Settings에 등록
 
-프리팹의 `월드맵` 버튼은 40개 지역을 진행 순서로 보여준다. 처음 방문한 지역과 인접한 경로가 자동
+프리팹의 `월드맵` 버튼은 63개 지역을 진행 순서로 보여준다. 처음 방문한 지역과 인접한 경로가 자동
 해금되며, 스토리 관문은 `requiredFlag`까지 만족해야 한다. 새 지역은 필드에서 직접 발견해야 하고 방문
 완료 지역만 빠른 이동할 수 있다. 자세한 전체 경로는 `Docs/WORLD_MAP.md` 참고.
 
@@ -353,7 +353,7 @@ JSON 값을 바꾼 뒤 각 데이터 생성 메뉴를 다시 실행하면 된다
 2. 생성된 `Assets/Prefabs/UI/SettlementShopCanvas.prefab`을 각 필드 씬 최상위에 배치
 3. `RegionCatalog.json`에서 `isSettlement`가 `true`인 지역에만 상단 `상점` 버튼이 표시되는지 확인
 
-전체 프롤로그 생성기를 실행하면 위 작업은 40개 필드에 자동 적용된다. 도구의 `buyPrice`, `sellPrice`,
+전체 프롤로그 생성기를 실행하면 위 작업은 63개 필드에 자동 적용된다. 도구의 `buyPrice`, `sellPrice`,
 `usableInField`는 `CoreContentCatalog.json`에서 관리한다. 파티 화면의 `회복`은 선택한 그림자에게 보유한
 회복 도구 중 낭비가 적은 하나를 사용하고, 상점의 `막간 휴식`은 30금화로 기절을 포함한 파티 전원을
 회복한다. 전투 전리품은 각 `ShadowData`의 `dropItemId`, `dropChance`, `dropMinCount`, `dropMaxCount`를
@@ -364,7 +364,7 @@ JSON 값을 바꾼 뒤 각 데이터 생성 메뉴를 다시 실행하면 된다
 필드에 자동 배치한다.
 
 `Tools → Shadow Theater → Generate Quest Log UI`는 진행 중·완료 퀘스트를 다시 확인하는 기억 여정 기록장을
-생성한다. 필드 메뉴의 `기억 여정` 버튼에서 열며, 전체 게임 생성 시 40개 필드에 자동 배치된다.
+생성한다. 필드 메뉴의 `기억 여정` 버튼에서 열며, 전체 게임 생성 시 63개 필드에 자동 배치된다.
 
 ## 다음 작업 후보
 1. 자동 생성 필살기 WAV를 전문 녹음·마스터링 음원으로 선택 교체
@@ -387,9 +387,9 @@ RegionalBoss/Legendary는 구원·원한 진명과 개별 ID 필살기까지 자
 `FinalArtCoverage.json`에 현재 교체율을 기록한다. 전체 파일 규칙은
 `Docs/FINAL_PIXEL_ART_PIPELINE.md`를 참고한다.
 
-모바일 성능 프로필, v7 세이브 마이그레이션과 40개 필드 자동 회귀 검증은 구현 완료했다. 실제 출시 전
+모바일 성능 프로필, v11 세이브 마이그레이션과 63개 필드 자동 회귀 검증은 구현 완료했다. 실제 출시 전
 기기별 발열·배터리·노치 영역 최종 확인은 `Docs/MOBILE_RELEASE_VALIDATION.md` 체크리스트를 따른다.
 
-현재 `Generate Playable Prologue`는 프롤로그부터 최종막까지 40개 필드를 모두 32px 픽셀 규칙으로 생성한다.
+현재 `Generate Playable Prologue`는 프롤로그부터 최종막까지 63개 필드를 모두 32px 픽셀 규칙으로 생성한다.
 보이는 벽·수풀·폐허는 `Collision` 타일맵에 직접 그려져 이동 판정과 일치하며, NPC와 보스의 24×32 필드
 스프라이트도 `ShadowData`의 역할·색·등급에 따라 `Assets/Art/Generated/Characters`에 자동 생성된다.

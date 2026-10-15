@@ -30,11 +30,12 @@ namespace ShadowTheater.EditorTools
                 new Vector2(.59f,.955f), "월드맵", new Color(.075f,.18f,.24f,.94f));
             open.gameObject.AddComponent<VirtualWorldMapButton>();
             var root = Rect("WorldMapRoot", canvasGo.transform, Vector2.zero, Vector2.one);
+            root.gameObject.AddComponent<MobileSafeArea>();
             root.gameObject.AddComponent<Image>().color = new Color(.012f,.009f,.03f,.988f);
             var header = Text("Header", root, new Vector2(.05f,.925f), new Vector2(.70f,.982f),
                 44, FontStyle.Bold, TextAnchor.MiddleLeft, "기억의 여정 · 월드맵");
             var progress = Text("Progress", root, new Vector2(.66f,.925f), new Vector2(.84f,.982f),
-                23, FontStyle.Bold, TextAnchor.MiddleRight, "방문 0 / 60");
+                23, FontStyle.Bold, TextAnchor.MiddleRight, "방문 0 / 63");
             progress.color = new Color(.66f,.82f,1f,1f);
             var close = Button("Close", root, new Vector2(.865f,.93f), new Vector2(.96f,.98f),
                 "×", new Color(.16f,.10f,.25f,1f));

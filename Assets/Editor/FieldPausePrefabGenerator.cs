@@ -33,6 +33,7 @@ namespace ShadowTheater.EditorTools
                 "기억을 기록했습니다", TextAnchor.MiddleCenter);
 
             var root = Rect("Root", canvasRoot.transform, Vector2.zero, Vector2.one);
+            root.gameObject.AddComponent<MobileSafeArea>();
             root.gameObject.AddComponent<Image>().color = new Color(.006f,.004f,.018f,.94f);
             var card = Rect("Card", root, new Vector2(.055f,.075f), new Vector2(.945f,.925f));
             card.gameObject.AddComponent<Image>().color = new Color(.035f,.022f,.075f,.99f);

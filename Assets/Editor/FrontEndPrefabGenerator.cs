@@ -62,6 +62,7 @@ namespace ShadowTheater.EditorTools
             backgroundImage.color = new Color(0.018f, 0.012f, 0.045f, 1f);
 
             var titleRoot = CreateRect("TitleRoot", root.transform, Vector2.zero, Vector2.one);
+            titleRoot.gameObject.AddComponent<MobileSafeArea>();
             var eyebrow = CreateText("Eyebrow", titleRoot, new Vector2(0.1f, 0.74f),
                 new Vector2(0.9f, 0.82f), 28, FontStyle.Bold, TextAnchor.MiddleCenter);
             eyebrow.text = "SHADOW THEATER";
@@ -108,6 +109,7 @@ namespace ShadowTheater.EditorTools
                 "새 게임", new Color(.48f,.16f,.30f,1f));
 
             var galleryRoot = CreateRect("EndingGalleryRoot", root.transform, Vector2.zero, Vector2.one);
+            galleryRoot.gameObject.AddComponent<MobileSafeArea>();
             galleryRoot.gameObject.AddComponent<Image>().color = new Color(.018f,.012f,.045f,.98f);
             var galleryTitle = CreateText("Header", galleryRoot, new Vector2(.07f,.88f), new Vector2(.93f,.96f),
                 48, FontStyle.Bold, TextAnchor.MiddleCenter);
@@ -144,6 +146,7 @@ namespace ShadowTheater.EditorTools
                 new Vector2(.70f,.13f), "돌아가기", new Color(.08f,.065f,.14f,1f));
 
             var settingsRoot = CreateRect("SettingsRoot", root.transform, Vector2.zero, Vector2.one);
+            settingsRoot.gameObject.AddComponent<MobileSafeArea>();
             settingsRoot.gameObject.AddComponent<Image>().color = new Color(.018f,.012f,.045f,.98f);
             var settingsTitle = CreateText("Header", settingsRoot, new Vector2(.07f,.88f),
                 new Vector2(.93f,.96f), 48, FontStyle.Bold, TextAnchor.MiddleCenter);
@@ -168,6 +171,7 @@ namespace ShadowTheater.EditorTools
                 new Vector2(.70f,.13f), "돌아가기", new Color(.08f,.065f,.14f,1f));
 
             var starterRoot = CreateRect("StarterRoot", root.transform, Vector2.zero, Vector2.one);
+            starterRoot.gameObject.AddComponent<MobileSafeArea>();
             var starterTitle = CreateText("Header", starterRoot, new Vector2(0.08f, 0.86f),
                 new Vector2(0.92f, 0.95f), 45, FontStyle.Bold, TextAnchor.MiddleCenter);
             starterTitle.text = "첫 번째 그림자를 선택하세요";

@@ -6,7 +6,7 @@
 
 1. Unity 메뉴 `Tools > Shadow Theater > Generate Field Pause Menu`를 실행한다.
 2. 생성된 `Assets/Prefabs/UI/FieldPauseCanvas.prefab`을 필드 씬 최상위에 배치한다.
-3. 전체 게임 생성 메뉴는 프리팹 갱신과 40개 필드 배치를 자동으로 처리한다.
+3. 전체 게임 생성 메뉴는 프리팹 갱신과 63개 필드 배치를 자동으로 처리한다.
 
 ## 제공 기능
 

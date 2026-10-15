@@ -17,7 +17,7 @@ namespace ShadowTheater.EditorTools
             var canvasGo=new GameObject("FieldInventoryCanvas",typeof(RectTransform),typeof(Canvas),typeof(CanvasScaler),typeof(GraphicRaycaster),typeof(FieldInventoryController));
             var canvas=canvasGo.GetComponent<Canvas>(); canvas.renderMode=RenderMode.ScreenSpaceOverlay; canvas.sortingOrder=57;
             var scaler=canvasGo.GetComponent<CanvasScaler>(); scaler.uiScaleMode=CanvasScaler.ScaleMode.ScaleWithScreenSize; scaler.referenceResolution=new Vector2(1080,1920); scaler.matchWidthOrHeight=.5f;
-            var root=Rect("Root",canvasGo.transform,Vector2.zero,Vector2.one); root.gameObject.AddComponent<Image>().color=new Color(.012f,.008f,.028f,.99f);
+            var root=Rect("Root",canvasGo.transform,Vector2.zero,Vector2.one);root.gameObject.AddComponent<MobileSafeArea>(); root.gameObject.AddComponent<Image>().color=new Color(.012f,.008f,.028f,.99f);
             Text("Header",root,new Vector2(.05f,.925f),new Vector2(.55f,.985f),44,"도구 가방",TextAnchor.MiddleLeft);
             var gold=Text("Gold",root,new Vector2(.55f,.93f),new Vector2(.83f,.98f),22,"보유 금화",TextAnchor.MiddleRight); gold.color=new Color(1f,.83f,.42f);
             var close=Button("Close",root,new Vector2(.86f,.93f),new Vector2(.96f,.98f),"×",new Color(.16f,.10f,.25f));

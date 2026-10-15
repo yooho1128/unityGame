@@ -19,6 +19,8 @@ namespace ShadowTheater.EditorTools
         public const string IosBuildNumber = "1";
         private const string BuildRoot = "Builds";
         private const string TitleScenePath = "Assets/Scenes/Prologue/Title.unity";
+        private const int ExpectedFieldSceneCount = 63;
+        private const int ExpectedBuildSceneCount = ExpectedFieldSceneCount + 1;
 
         [MenuItem("Tools/Shadow Theater/Mobile/Configure Android and iOS")]
         public static void Apply()
@@ -87,7 +89,7 @@ namespace ShadowTheater.EditorTools
         public static void ValidateScenePolicyRegression(List<string> errors)
         {
             var valid = new List<string> { TitleScenePath };
-            for (int i = 0; i < 60; i++) valid.Add($"Assets/Scenes/Prologue/Field{i:00}.unity");
+            for (int i = 0; i < ExpectedFieldSceneCount; i++) valid.Add($"Assets/Scenes/Prologue/Field{i:00}.unity");
             var validErrors = new List<string>();
             ValidateScenePaths(valid, validErrors);
             if (validErrors.Count != 0) errors.Add("모바일 빌드 씬 정책: 정상 목록이 실패함");
@@ -100,8 +102,8 @@ namespace ShadowTheater.EditorTools
 
         private static void ValidateScenePaths(IReadOnlyList<string> scenes, List<string> errors)
         {
-            if (scenes == null || scenes.Count != 61)
-                errors.Add($"Build Settings 활성 씬 수 불일치: {scenes?.Count ?? 0}/61");
+            if (scenes == null || scenes.Count != ExpectedBuildSceneCount)
+                errors.Add($"Build Settings 활성 씬 수 불일치: {scenes?.Count ?? 0}/{ExpectedBuildSceneCount}");
             if (scenes == null || scenes.Count == 0 || scenes[0] != TitleScenePath)
                 errors.Add("Build Settings 첫 씬은 Title이어야 합니다");
             if (scenes != null && scenes.Any(string.IsNullOrWhiteSpace))
