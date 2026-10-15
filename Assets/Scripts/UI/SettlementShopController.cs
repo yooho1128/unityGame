@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using ShadowTheater.Data;
 using ShadowTheater.Field;
 using ShadowTheater.Save;
@@ -125,7 +126,16 @@ namespace ShadowTheater.UI
             _spawned.Clear();
             if (SaveManager.Current == null || ShadowDatabase.Instance == null) return;
             RegionData region = RegionRepository.GetByScene(SaveManager.Current.mapId);
-            if (regionText != null) regionText.text = region != null ? L10n.Text(region.displayName) + " · 기억 상점" : "기억 상점";
+            if (regionText != null)
+            {
+                string title = region != null ? L10n.Text(region.displayName) + " · 기억 상점" : "기억 상점";
+                string[] specialtyNames = TownServicePolicy.SpecialtyItemIds(region)
+                    .Select(id => ShadowDatabase.Instance.GetItem(id)?.displayName)
+                    .Where(x => !string.IsNullOrEmpty(x)).Select(L10n.Text).ToArray();
+                regionText.text = specialtyNames.Length > 0
+                    ? title + " · 전문 " + string.Join("·", specialtyNames)
+                    : title;
+            }
             if (goldText != null) goldText.text = L10n.Format("shop.gold", "보유 금화  {0:N0}", SaveManager.Current.gold);
             if (restButton != null)
             {
@@ -133,9 +143,11 @@ namespace ShadowTheater.UI
                 restButton.interactable = damaged && SaveManager.Current.gold >= restCost;
             }
             if (clearFeedback && feedbackText != null) feedbackText.text = string.Empty;
-            foreach (ItemData item in ShadowDatabase.Instance.items)
+            foreach (ItemData item in ShadowDatabase.Instance.items
+                         .Where(x => TownServicePolicy.AllowsItem(region, x))
+                         .OrderByDescending(x => TownServicePolicy.IsSpecialty(region, x.itemId))
+                         .ThenBy(x => x.shopUnlockAct).ThenBy(x => x.buyPrice))
             {
-                if (item == null || item.isEventOnly || item.shopUnlockAct > Mathf.Max(1, region?.act ?? 1)) continue;
                 ShopItemEntryView view = Instantiate(itemTemplate, contentRoot);
                 view.Bind(item, SaveManager.GetItemCount(item.itemId), SaveManager.Current.gold, Buy, Sell);
                 _spawned.Add(view.gameObject);

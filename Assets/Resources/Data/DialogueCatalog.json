@@ -456,6 +456,13 @@
     {"dialogueId":"hidden_echo_cavern_complete","lines":[{"speaker":"바람 없는 동굴","text":"높고 낮은 울림이 겹친 뒤 가운데 공명석이 떨리며, 존재하지 않던 방의 윤곽을 드러낸다.","emotion":"mystery"},{"speaker":"극단주","text":"침묵은 아무 소리도 없는 상태가 아니었어. 들키지 않으려 함께 숨을 죽인 기억이야.","emotion":"calm"}]},
     {"dialogueId":"hidden_echo_cavern_memory_intro","lines":[{"speaker":"울림지기의 기억","text":"나는 날갯소리로 피난굴의 인원을 세었다. 바람이 멎은 날에도 마지막 한 명이 돌아올 때까지 벽을 두드렸지.","emotion":"sad"},{"speaker":"울림지기의 기억","text":"가면 사냥꾼은 그 소리를 추적 명령으로 오해하고 있어. 오래된 명령을 멈춰 줘.","emotion":"serious"}]},
     {"dialogueId":"hidden_echo_cavern_memory_repeat","lines":[{"speaker":"울림지기의 기억","text":"대답 없는 메아리도 누군가 끝까지 불렀다는 기록은 남겨.","emotion":"calm"}]},
-    {"dialogueId":"hidden_echo_cavern_reward","lines":[{"speaker":"피난굴의 구호 상자","text":"상처 입은 순례자를 위해 남겨 둔 농축 시약과 공동 여비다. 이제 다시 길 위에서 쓰일 수 있다.","emotion":"hope"}]}
+    {"dialogueId":"hidden_echo_cavern_reward","lines":[{"speaker":"피난굴의 구호 상자","text":"상처 입은 순례자를 위해 남겨 둔 농축 시약과 공동 여비다. 이제 다시 길 위에서 쓰일 수 있다.","emotion":"hope"}]},
+    {"dialogueId":"town_rumor_prologue","lines":[{"speaker":"수레바퀴 이야기꾼","text":"채색 수레길의 바퀴 자국은 비가 와도 지워지지 않아. 재까마귀를 데려가면 노래가 끊긴 자리에서 따뜻한 흙을 찾는다는군.","emotion":"mystery"},{"speaker":"수레바퀴 이야기꾼","text":"종소리가 들려도 탑부터 찾지는 마. 수레가 어디로 떠났는지 먼저 살펴봐.","emotion":"calm"}]},
+    {"dialogueId":"town_rumor_cinder","lines":[{"speaker":"막간의 포스터 수집가","text":"붉은 포스터 골목에서 배우들의 눈이 한쪽 벽만 본대. 가면을 쓴 그림자가 지나간 날에는 벽 뒤에서 박수도 들렸다더군.","emotion":"mystery"},{"speaker":"막간의 포스터 수집가","text":"병영과 지하묘 사이의 큰길만 따라가면 오래된 천막 자국을 놓치기 쉽지.","emotion":"calm"}]},
+    {"dialogueId":"town_rumor_frost_port","lines":[{"speaker":"밀물 소식꾼","text":"밀물 판자길 아래에서 빈 배들의 이름이 거품으로 올라온대. 서리 갈매기는 그 거품을 쪼지 않고 오래 바라본다더군.","emotion":"mystery"},{"speaker":"밀물 소식꾼","text":"잔잔한 물길은 고무보트로 건널 수 있지만, 이름을 부르는 깊은 바다는 다른 안내자가 필요해.","emotion":"warning"}]},
+    {"dialogueId":"town_rumor_white_archive","lines":[{"speaker":"등불 기록상","text":"갈대밭의 등불은 바람이 아니라 낮은 울음에 맞춰 켜진대. 행렬 끝의 돌문은 밝을 때보다 그림자가 길 때 잘 보인다더군.","emotion":"mystery"},{"speaker":"등불 기록상","text":"우물 벽에서 글자가 물을 거슬러 오른다면 버려진 문장이라 단정하지 마.","emotion":"calm"}]},
+    {"dialogueId":"town_rumor_howl","lines":[{"speaker":"탈 깎는 노인","text":"탈춤 고갯길의 은빛 발자국은 달빛과 반대로 흐른다. 초승달 여우가 큰길을 외면하면 뒤를 따라가 보게.","emotion":"mystery"},{"speaker":"탈 깎는 노인","text":"봉인된 탈방에는 바람이 없는데도 날갯소리가 돌아온다더군. 높은 울음과 낮은 메아리 사이를 잘 들어봐.","emotion":"warning"}]},
+    {"dialogueId":"town_rumor_thread","lines":[{"speaker":"실감개 행상","text":"실밥 벌판의 붉은 실은 공방으로 돌아오지 않아. 천 조각 고양이가 매듭을 이은 날에는 버려진 장난감 창고 쪽으로 팽팽해졌지.","emotion":"mystery"},{"speaker":"실감개 행상","text":"태엽 소리가 제각각이면 고장 난 장난감이고, 한 박자로 맞으면 도시의 심장이 답하는 거래.","emotion":"calm"}]},
+    {"dialogueId":"town_rumor_station","lines":[{"speaker":"막차의 안내원","text":"노래 없는 회랑에는 표지판이 없지만, 표 없는 승객은 늘 같은 벽 앞에서 하차 준비를 해.","emotion":"mystery"},{"speaker":"막차의 안내원","text":"난간을 지휘봉처럼 두드렸을 때 누군가 숨을 들이쉬면 그 회랑은 비어 있지 않은 거야.","emotion":"warning"}]}
   ]
 }

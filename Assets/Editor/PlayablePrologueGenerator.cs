@@ -822,6 +822,7 @@ namespace ShadowTheater.EditorTools
                 var worldStateSo = new SerializedObject(worldState);
                 Set(worldStateSo, "regionId", region.regionId);
                 worldStateSo.ApplyModifiedPropertiesWithoutUndo();
+                if (region.isSettlement) CreateTownServices(fieldRoot.transform, region);
             }
             if (region?.AllowsRandomEncounters == true)
             {
@@ -1171,6 +1172,24 @@ namespace ShadowTheater.EditorTools
             Set(so, "completionFlag", flag); Set(so, "dialogueAccent", accent);
             so.ApplyModifiedPropertiesWithoutUndo();
             return go;
+        }
+
+        private static void CreateTownServices(Transform parent, RegionData region)
+        {
+            var healer = CreateFieldActor(parent, "TownHealer", new Vector2Int(-4, 4),
+                LoadShadow("mage"), false).AddComponent<TownHealerNpc>();
+            var healerSo = new SerializedObject(healer);
+            Set(healerSo, "regionId", region.regionId);
+            Set(healerSo, "restCost", 30);
+            healerSo.ApplyModifiedPropertiesWithoutUndo();
+
+            var rumor = CreateFieldActor(parent, "TownRumorKeeper", new Vector2Int(4, 4),
+                LoadShadow("crow"), false).AddComponent<TownRumorNpc>();
+            var rumorSo = new SerializedObject(rumor);
+            Set(rumorSo, "regionId", region.regionId);
+            Set(rumorSo, "dialogueId", TownServicePolicy.RumorDialogueId(region));
+            Set(rumorSo, "accent", region.AccentColor);
+            rumorSo.ApplyModifiedPropertiesWithoutUndo();
         }
 
         private static void CreateInteractable(Transform parent, string name, Vector2Int cell, string dialogueId,

@@ -113,6 +113,7 @@ namespace ShadowTheater.EditorTools
             ValidateRegionGraph(regions, result);
             ValidateRoster(regions, result);
             ValidateDatabase(result);
+            ValidateTownServices(regions, result);
             ValidateCompanionEvents(regions, result);
             ValidateQuestRewards(result);
             LocalizationAuditResult localization = LocalizationCoverageValidator.Run(true);
@@ -747,6 +748,37 @@ namespace ShadowTheater.EditorTools
                                   $"도구 {itemRewards}, 유대 {bondRewards} (각 3 필요)");
         }
 
+        private static void ValidateTownServices(List<RegionData> regions, ValidationReport result)
+        {
+            List<RegionData> settlements = regions.Where(x => x != null && x.isSettlement).ToList();
+            var rumorIds = new HashSet<string>(StringComparer.Ordinal);
+            DialogueCatalogData dialogues = File.Exists(DialoguePath)
+                ? JsonUtility.FromJson<DialogueCatalogData>(File.ReadAllText(DialoguePath)) : null;
+            var knownDialogues = new HashSet<string>(dialogues?.dialogues?.Where(x => x != null)
+                .Select(x => x.dialogueId) ?? Enumerable.Empty<string>(), StringComparer.Ordinal);
+            ShadowDatabase database = AssetDatabase.LoadAssetAtPath<ShadowDatabase>(DatabasePath);
+            var signatures = new HashSet<string>(StringComparer.Ordinal);
+            foreach (RegionData region in settlements)
+            {
+                if (!TownServicePolicy.IsConfigured(region))
+                { result.errors.Add($"{region.displayName}: 마을 서비스 정책 누락"); continue; }
+                string rumor = TownServicePolicy.RumorDialogueId(region);
+                if (string.IsNullOrEmpty(rumor) || !rumorIds.Add(rumor) || !knownDialogues.Contains(rumor))
+                    result.errors.Add($"{region.displayName}: 소문 대화 누락 또는 중복 ({rumor})");
+                IReadOnlyList<string> specialties = TownServicePolicy.SpecialtyItemIds(region);
+                if (specialties.Count == 0) result.errors.Add($"{region.displayName}: 전문 판매품 누락");
+                string signature = string.Join("|", specialties.OrderBy(x => x));
+                if (!signatures.Add(signature)) result.errors.Add($"{region.displayName}: 다른 마을과 전문 판매품 구성이 같음");
+                foreach (string itemId in specialties)
+                {
+                    ItemData item = database?.GetItem(itemId);
+                    if (item == null) result.errors.Add($"{region.displayName}: 전문 판매품 데이터 누락 ({itemId})");
+                    else if (!TownServicePolicy.AllowsItem(region, item))
+                        result.errors.Add($"{region.displayName}: 전문 판매품 해금 조건 불일치 ({itemId})");
+                }
+            }
+        }
+
         private static void ValidateDatabase(ValidationReport result)
         {
             var database = AssetDatabase.LoadAssetAtPath<ShadowDatabase>(DatabasePath);
@@ -1284,12 +1316,37 @@ namespace ShadowTheater.EditorTools
                     var encounters = roots.SelectMany(x => x.GetComponentsInChildren<EncounterSymbol>(true)).ToArray();
                     var randomEncounter = roots.SelectMany(x => x.GetComponentsInChildren<RandomEncounterController>(true)).FirstOrDefault();
                     var worldState = roots.SelectMany(x => x.GetComponentsInChildren<FieldWorldStateController>(true)).FirstOrDefault();
+                    var healers = roots.SelectMany(x => x.GetComponentsInChildren<TownHealerNpc>(true)).ToArray();
+                    var rumorKeepers = roots.SelectMany(x => x.GetComponentsInChildren<TownRumorNpc>(true)).ToArray();
                     result.portals += portals.Length;
                     result.encounters += encounters.Length;
                     if (portals.Length == 0) result.errors.Add($"{region.sceneName}: 포털 없음");
                     if (worldState == null) result.errors.Add($"{region.sceneName}: 시간대·날씨 컨트롤러 누락");
                     else if (new SerializedObject(worldState).FindProperty("regionId")?.stringValue != region.regionId)
                         result.errors.Add($"{region.sceneName}: 시간대·날씨 지역 ID 불일치");
+                    int expectedTownServices = region.isSettlement ? 1 : 0;
+                    if (healers.Length != expectedTownServices || rumorKeepers.Length != expectedTownServices)
+                        result.errors.Add($"{region.sceneName}: 회복/소문 NPC 수 불일치 " +
+                                          $"({healers.Length}/{rumorKeepers.Length}, 기대 {expectedTownServices})");
+                    foreach (TownHealerNpc healer in healers)
+                    {
+                        var healerSo = new SerializedObject(healer);
+                        if (healerSo.FindProperty("regionId")?.stringValue != region.regionId)
+                            result.errors.Add($"{region.sceneName}: 회복 NPC 지역 ID 불일치");
+                        if (fieldGrid != null && fieldGrid.IsBlocked(fieldGrid.WorldToCell(healer.transform.position),
+                                healer.GetComponent<Collider2D>(), false))
+                            result.errors.Add($"{region.sceneName}: 회복 NPC가 막힌 칸에 배치됨");
+                    }
+                    foreach (TownRumorNpc rumorKeeper in rumorKeepers)
+                    {
+                        var rumorSo = new SerializedObject(rumorKeeper);
+                        if (rumorSo.FindProperty("regionId")?.stringValue != region.regionId ||
+                            rumorSo.FindProperty("dialogueId")?.stringValue != TownServicePolicy.RumorDialogueId(region))
+                            result.errors.Add($"{region.sceneName}: 소문 NPC 데이터 불일치");
+                        if (fieldGrid != null && fieldGrid.IsBlocked(fieldGrid.WorldToCell(rumorKeeper.transform.position),
+                                rumorKeeper.GetComponent<Collider2D>(), false))
+                            result.errors.Add($"{region.sceneName}: 소문 NPC가 막힌 칸에 배치됨");
+                    }
                     if (region.AllowsRandomEncounters && randomEncounter == null)
                         result.errors.Add($"{region.sceneName}: 지역 랜덤 조우 컨트롤러 누락");
                     if (!region.AllowsRandomEncounters && randomEncounter != null)
