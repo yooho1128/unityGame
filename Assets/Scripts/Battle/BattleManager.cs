@@ -237,13 +237,7 @@ namespace ShadowTheater.Battle
                 AddFp(BattleSide.Player, fpPerTurn);
                 AddFp(BattleSide.Enemy, fpPerTurn);
 
-                if (Context.mode == BattleMode.Boss && !EnemyActive.IsFainted && EnemyActive.HpRatio <= .5f &&
-                    _bossPhaseActivated.Add(EnemyActive))
-                {
-                    AddFp(BattleSide.Enemy, 2);
-                    yield return _presenter.ShowMessage(L10n.Format("battle.boss_phase",
-                        "{0}의 비극이 폭주한다! 공연 열기가 치솟았다.", EnemyActive.Name));
-                }
+                yield return ApplyBossPhase();
 
                 yield return ApplyGimmickTurnStart();
 
@@ -305,6 +299,38 @@ namespace ShadowTheater.Battle
         #endregion
 
         #region Hidden Battle Gimmicks
+
+        private IEnumerator ApplyBossPhase()
+        {
+            if (Context.mode != BattleMode.Boss || EnemyActive.IsFainted ||
+                _bossPhaseActivated.Contains(EnemyActive)) yield break;
+            BossPhaseDefinition phase = BossPhaseRepository.Get(EnemyActive.Data.shadowId);
+            float threshold = phase != null && phase.hpThreshold > 0f ? phase.hpThreshold : .5f;
+            if (EnemyActive.HpRatio > threshold) yield break;
+            _bossPhaseActivated.Add(EnemyActive);
+
+            if (phase == null)
+            {
+                AddFp(BattleSide.Enemy, 2);
+                yield return _presenter.ShowMessage(L10n.Format("battle.boss_phase",
+                    "{0}의 비극이 폭주한다! 공연 열기가 치솟았다.", EnemyActive.Name));
+                yield break;
+            }
+
+            AddFp(BattleSide.Enemy, phase.enemyFpGain);
+            AddFp(BattleSide.Player, -phase.playerFpDrain);
+            if (phase.cleanseBoss) EnemyActive.ClearAllStatus();
+            int healed = phase.healRatio > 0f
+                ? EnemyActive.Heal(Mathf.RoundToInt(EnemyActive.MaxHp * phase.healRatio)) : 0;
+            yield return _presenter.ShowMessage(string.IsNullOrWhiteSpace(phase.message)
+                ? $"{EnemyActive.Name}의 숨겨진 장면이 시작된다!" : phase.message);
+            if (healed > 0) yield return _presenter.PlayHeal(EnemyActive, healed);
+            if (phase.TryGetPlayerStatus(out StatusEffectType status) &&
+                PlayerActive.ApplyStatus(status, Mathf.Max(1, phase.statusDuration)))
+                yield return _presenter.PlayStatusApplied(PlayerActive, status);
+            OnUnitChanged?.Invoke(EnemyActive);
+            OnUnitChanged?.Invoke(PlayerActive);
+        }
 
         private IEnumerator ApplyGimmickTurnStart()
         {

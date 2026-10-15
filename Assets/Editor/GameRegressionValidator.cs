@@ -28,6 +28,7 @@ namespace ShadowTheater.EditorTools
         private const string QuestPath = "Assets/Resources/Data/QuestCatalog.json";
         private const string CompanionEventPath = "Assets/Resources/Data/CompanionEventCatalog.json";
         private const string DialoguePath = "Assets/Resources/Data/DialogueCatalog.json";
+        private const string BossPhasePath = "Assets/Resources/Data/BossPhaseCatalog.json";
         private static string _declaredStoryFlags;
         private static string _worldSource;
 
@@ -99,6 +100,7 @@ namespace ShadowTheater.EditorTools
             ValidateHiddenBattleGimmicks(result);
             ValidateRegionalEncounterPolicy(result);
             ValidateCompanionPassives(result);
+            ValidateBossPhases(result);
             if (!File.Exists(RegionPath))
             {
                 result.errors.Add("RegionCatalog.json 누락");
@@ -152,6 +154,36 @@ namespace ShadowTheater.EditorTools
             if (support.fieldHealingMultiplier <= 1f || support.defenseMultiplier <= 1f ||
                 support.captureMultiplier <= 1f || support.attackMultiplier != 1f)
                 result.errors.Add("동행 패시브: 서리/지원 역할 보정 오류");
+        }
+
+        private static void ValidateBossPhases(ValidationReport result)
+        {
+            if (!File.Exists(BossPhasePath))
+            { result.errors.Add("BossPhaseCatalog.json 누락"); return; }
+            BossPhaseCatalogData catalog = JsonUtility.FromJson<BossPhaseCatalogData>(File.ReadAllText(BossPhasePath));
+            List<BossPhaseDefinition> phases = catalog?.phases ?? new List<BossPhaseDefinition>();
+            string[] expected =
+            {
+                "kneeling_captain", "headless_guard", "ash_king", "book_drake", "inverted_librarian",
+                "infinite_archive_dragon", "bloodmane_stalker", "night_devouring_beast", "wire_primadonna",
+                "last_puppeteer", "zero_warden", "extract_subject_m", "high_censor_nox", "drowned_painter",
+                "mourning_keeper", "interlude_manager", "rival_director", "outside_script_shadow"
+            };
+            var ids = new HashSet<string>(StringComparer.Ordinal);
+            foreach (BossPhaseDefinition phase in phases)
+            {
+                if (phase == null || string.IsNullOrWhiteSpace(phase.phaseId) ||
+                    string.IsNullOrWhiteSpace(phase.bossShadowId) || !ids.Add(phase.bossShadowId))
+                { result.errors.Add("보스 페이즈: ID 누락 또는 대상 중복"); continue; }
+                if (phase.hpThreshold < .1f || phase.hpThreshold > .9f || string.IsNullOrWhiteSpace(phase.message) ||
+                    phase.enemyFpGain + phase.playerFpDrain <= 0 && phase.healRatio <= 0f &&
+                    !phase.cleanseBoss && !phase.TryGetPlayerStatus(out _))
+                    result.errors.Add($"보스 페이즈 설정 오류: {phase.phaseId}");
+                if (!string.IsNullOrWhiteSpace(phase.playerStatus) && !phase.TryGetPlayerStatus(out _))
+                    result.errors.Add($"보스 페이즈 상태 이상 오류: {phase.phaseId}");
+            }
+            if (phases.Count != 18 || expected.Any(x => !ids.Contains(x)))
+                result.errors.Add($"주요 보스 개별 페이즈 수·대상 불일치: {phases.Count}/18");
         }
 
         private static void ValidateDevicePolicy(ValidationReport result)
