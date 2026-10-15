@@ -246,6 +246,7 @@ namespace ShadowTheater.EditorTools
                     if (!string.IsNullOrEmpty(shadow.displayName)) existingNames.Add(shadow.displayName);
             }
             var specs = new List<ShadowSpec>(needed);
+            var signatureSkills = new List<SkillSpec>();
             var manifest = new RegionalRosterManifest { entries = new List<RegionalRosterEntry>() };
             var slots = regionCatalog.regions.ToDictionary(x => x.regionId, _ => 1);
 
@@ -255,7 +256,7 @@ namespace ShadowTheater.EditorTools
             {
                 if (specs.Count >= needed) break;
                 if (string.IsNullOrEmpty(featured) || existingNames.Contains(featured)) continue;
-                AddRegionalShadow(specs, manifest, region, slots[region.regionId]++, featured, true);
+                AddRegionalShadow(specs, signatureSkills, manifest, region, slots[region.regionId]++, featured, true);
                 existingNames.Add(featured);
             }
 
@@ -276,16 +277,17 @@ namespace ShadowTheater.EditorTools
                 string name = $"{region.displayName}의 {suffixes[(regionalSlot + region.order) % suffixes.Length]}";
                 string stableId = $"exp_{identityRegion.regionId}_{identitySlot:00}";
                 if (existingNames.Add(name))
-                    AddRegionalShadow(specs, manifest, region, regionalSlot, name, false, stableId);
+                    AddRegionalShadow(specs, signatureSkills, manifest, region, regionalSlot, name, false, stableId);
                 pass++;
             }
 
             File.WriteAllText(RosterManifestPath, JsonUtility.ToJson(manifest, true));
             AssetDatabase.ImportAsset(RosterManifestPath, ImportAssetOptions.ForceSynchronousImport);
-            return new CoreCatalog { skills = Array.Empty<SkillSpec>(), items = Array.Empty<ItemSpec>(), shadows = specs.ToArray() };
+            return new CoreCatalog { skills = signatureSkills.ToArray(), items = Array.Empty<ItemSpec>(), shadows = specs.ToArray() };
         }
 
-        private static void AddRegionalShadow(List<ShadowSpec> output, RegionalRosterManifest manifest,
+        private static void AddRegionalShadow(List<ShadowSpec> output, List<SkillSpec> signatureSkills,
+            RegionalRosterManifest manifest,
             RegionSpec region, int slot, string displayName, bool featured, string stableId = null)
         {
             int act = Mathf.Max(1, region.act);
@@ -305,6 +307,13 @@ namespace ShadowTheater.EditorTools
                 : element == "Frost" ? new[] { "frost_sigil", "frost_breath" }
                 : element == "Shade" ? new[] { "night_leap", "black_ink" }
                 : new[] { "cut_string", "stitch" };
+            if (featured)
+            {
+                string signatureId = id + "_signature";
+                signatureSkills.Add(RegionalSignatureSkill(signatureId, displayName, role, element,
+                    region.recommendedLevelMin, region.act, region.accentHex));
+                skills = new[] { skills[0], skills[1], signatureId };
+            }
             output.Add(new ShadowSpec
             {
                 shadowId=id, displayName=displayName, title=$"{region.environment}에 남은 {(featured ? "대표 배역" : "떠도는 잔영")}",
@@ -323,6 +332,34 @@ namespace ShadowTheater.EditorTools
             manifest.entries.Add(new RegionalRosterEntry { shadowId=id, regionId=region.regionId,
                 sceneName=region.sceneName, minLevel=region.recommendedLevelMin,
                 maxLevel=region.recommendedLevelMax, featured=featured });
+        }
+
+        private static SkillSpec RegionalSignatureSkill(string id, string ownerName, string role, string element,
+            int requiredLevel, int act, string accentHex)
+        {
+            bool magical = role == "MagicNuker" || role == "Support";
+            string status = role == "SpeedUtility" ? "SpeedDown"
+                : element == "Flame" ? "Burn" : element == "Frost" ? "Freeze"
+                : element == "Shade" ? "DefenseDown" : "Bleed";
+            float statusChance = status == "Freeze" ? .22f : role == "Support" ? .55f : .38f;
+            string[] motifs = { "", "장막 독백", "잿빛 행진", "봉인 문장", "월광 추적",
+                "실끊기 춤", "먹칠 판결", "파도 호명", "별빛 퇴장" };
+            string motif = motifs[Mathf.Clamp(act, 1, 8)];
+            return new SkillSpec
+            {
+                skillId=id, displayName=$"{ownerName}의 {motif}",
+                description="이 지역에서 되풀이한 고유 배역을 펼쳐 상처와 기억의 흔적을 함께 남긴다.",
+                requiredLevel=Mathf.Max(1, requiredLevel), fpCost=2,
+                damageType=magical ? "Magical" : "Physical", element=element,
+                damageMultiplier=role == "PhysicalDealer" ? 1.7f : role == "MagicNuker" ? 1.62f : 1.38f,
+                accuracy=role == "SpeedUtility" ? 1f : .95f,
+                bonusCritRate=role == "SpeedUtility" ? .12f : .04f,
+                target="Enemy", statusEffect=status, statusChance=statusChance, statusDuration=2,
+                primaryFxColor=string.IsNullOrEmpty(accentHex) ? "#8F7CC9" : "#" + accentHex,
+                secondaryFxColor="#F4E8FF", ultimateBurstCount=16,
+                cameraShake=.32f, hitStopDuration=.035f, sfxVolume=.72f,
+                sfxPitch=role == "SpeedUtility" ? 1.12f : .98f
+            };
         }
 
         private static string[] RegionalSuffixes(int act)

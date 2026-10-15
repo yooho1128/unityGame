@@ -4,7 +4,11 @@ using UnityEngine;
 
 namespace ShadowTheater.Battle
 {
-    public enum BattleAiProfile { Normal, Boss, BossDesperate }
+    public enum BattleAiProfile
+    {
+        Normal, Aggressive, Controller, Survivor,
+        BossAggressive, BossController, BossGuardian, BossDesperate
+    }
 
     /// <summary>
     /// 적 AI + 플레이어 자동 전투(Auto)에 공용으로 쓰는 행동 선택기.
@@ -14,6 +18,21 @@ namespace ShadowTheater.Battle
     {
         private const float EmergencyHp = .28f;
         private const float SafeBenchHp = .48f;
+
+        public static BattleAiProfile ProfileFor(ShadowData shadow, bool boss)
+        {
+            if (shadow == null) return boss ? BattleAiProfile.BossAggressive : BattleAiProfile.Normal;
+            switch (shadow.role)
+            {
+                case ShadowRole.SpeedUtility:
+                    return boss ? BattleAiProfile.BossController : BattleAiProfile.Controller;
+                case ShadowRole.Tank:
+                case ShadowRole.Support:
+                    return boss ? BattleAiProfile.BossGuardian : BattleAiProfile.Survivor;
+                default:
+                    return boss ? BattleAiProfile.BossAggressive : BattleAiProfile.Aggressive;
+            }
+        }
 
         public static BattleAction Choose(BattleUnit self, BattleUnit opponent, int currentFp,
                                           BattleAiProfile profile = BattleAiProfile.Normal)
@@ -35,8 +54,12 @@ namespace ShadowTheater.Battle
             candidates.Sort((a, b) => b.score.CompareTo(a.score));
             var best = candidates[0];
             bool urgent = best.score >= 90f;
-            float conserveChance = profile == BattleAiProfile.Normal ? .25f
-                : profile == BattleAiProfile.Boss ? .12f : 0f;
+            bool desperate = profile == BattleAiProfile.BossDesperate ||
+                              (IsBossProfile(profile) && self.HpRatio <= .5f);
+            float conserveChance = desperate ? 0f : profile == BattleAiProfile.Normal ? .25f
+                : profile == BattleAiProfile.Survivor || profile == BattleAiProfile.BossGuardian ? .14f
+                : profile == BattleAiProfile.Controller || profile == BattleAiProfile.BossController ? .1f
+                : .06f;
             if (basic != null && Random.value < conserveChance && !best.skill.isUltimate && !urgent)
                 return BattleAction.Attack(self.Side, basic);
 
@@ -91,18 +114,27 @@ namespace ShadowTheater.Battle
 
         private static float Score(BattleUnit self, BattleUnit opponent, SkillData s, BattleAiProfile profile)
         {
+            bool boss = IsBossProfile(profile);
+            bool desperate = profile == BattleAiProfile.BossDesperate || (boss && self.HpRatio <= .5f);
             if (s.target == SkillTarget.Self)
             {
-                float healThreshold = profile == BattleAiProfile.BossDesperate ? .65f : .4f;
+                float healThreshold = profile == BattleAiProfile.Survivor ? .55f
+                    : profile == BattleAiProfile.BossGuardian ? .72f
+                    : desperate ? .65f : .4f;
                 return s.healRatio > 0f && self.HpRatio < healThreshold
-                    ? (profile == BattleAiProfile.BossDesperate ? 125f : 100f) : 0f;
+                    ? (profile == BattleAiProfile.BossGuardian ? 132f : desperate ? 125f : 100f) : 0f;
             }
 
             int expectedDamage = DamageCalculator.EstimateDamage(self, opponent, s);
             float score = expectedDamage * s.accuracy / Mathf.Max(1f, opponent.MaxHp) * 100f;
             if (expectedDamage >= opponent.Hp && expectedDamage > 0) score += 60f;
             if (s.isUltimate && expectedDamage < opponent.Hp * .35f) score -= 8f;
-            if (profile == BattleAiProfile.Boss) score *= 1.08f;
+            if (profile == BattleAiProfile.Aggressive) score *= 1.12f;
+            else if (profile == BattleAiProfile.BossAggressive)
+            {
+                score *= desperate ? 1.3f : 1.16f;
+                if (s.isUltimate) score += desperate ? 18f : 8f;
+            }
             else if (profile == BattleAiProfile.BossDesperate)
             {
                 score *= 1.22f;
@@ -113,12 +145,21 @@ namespace ShadowTheater.Battle
             {
                 if (!opponent.HasStatus(s.statusEffect) &&
                     (!BattleUnit.IsMajor(s.statusEffect) || opponent.MajorStatus == null))
-                    score += s.statusChance * (profile == BattleAiProfile.BossDesperate ? 9f : 5f);
+                {
+                    float statusBias = profile == BattleAiProfile.Controller ? 18f
+                        : profile == BattleAiProfile.BossController ? (desperate ? 28f : 23f)
+                        : desperate ? 11f : boss ? 8f : 5f;
+                    score += s.statusChance * statusBias;
+                }
                 else if (!s.DealsDamage)
                     score -= 5f;
             }
 
             return score;
         }
+
+        private static bool IsBossProfile(BattleAiProfile profile) =>
+            profile == BattleAiProfile.BossAggressive || profile == BattleAiProfile.BossController ||
+            profile == BattleAiProfile.BossGuardian || profile == BattleAiProfile.BossDesperate;
     }
 }

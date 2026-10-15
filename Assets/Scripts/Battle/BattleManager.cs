@@ -685,8 +685,13 @@ namespace ShadowTheater.Battle
                 if (next >= 0) return BattleAction.Switch(side, next);
             }
             BattleAiProfile profile = BattleAiProfile.Normal;
-            if (side == BattleSide.Enemy && Context?.mode == BattleMode.Boss)
-                profile = Active(side).HpRatio <= .5f ? BattleAiProfile.BossDesperate : BattleAiProfile.Boss;
+            if (side == BattleSide.Enemy)
+            {
+                bool boss = Context?.mode == BattleMode.Boss;
+                profile = boss && Active(side).HpRatio <= .22f
+                    ? BattleAiProfile.BossDesperate
+                    : BattleAI.ProfileFor(Active(side).Data, boss);
+            }
             return BattleAI.Choose(Active(side), Opponent(side), GetFp(side), profile);
         }
 

@@ -330,6 +330,16 @@ namespace ShadowTheater.EditorTools
                 var frostUnit = new BattleUnit(new ShadowInstance(frost, 5), BattleSide.Enemy);
                 var shadeOpponent = new BattleUnit(new ShadowInstance(shade, 5), BattleSide.Player);
                 var elementalParty = new List<BattleUnit> { flameUnit, frostUnit };
+                flame.role = ShadowRole.PhysicalDealer;
+                frost.role = ShadowRole.SpeedUtility;
+                neutral.role = ShadowRole.Support;
+                if (BattleAI.ProfileFor(flame, false) != BattleAiProfile.Aggressive ||
+                    BattleAI.ProfileFor(flame, true) != BattleAiProfile.BossAggressive ||
+                    BattleAI.ProfileFor(frost, false) != BattleAiProfile.Controller ||
+                    BattleAI.ProfileFor(frost, true) != BattleAiProfile.BossController ||
+                    BattleAI.ProfileFor(neutral, false) != BattleAiProfile.Survivor ||
+                    BattleAI.ProfileFor(neutral, true) != BattleAiProfile.BossGuardian)
+                    result.errors.Add("역할별 일반·보스 전투 성향 회귀 실패");
                 if (BattleAI.ChooseSwitchIndex(elementalParty, 0, shadeOpponent) != 1)
                     result.errors.Add("전투 AI 불리 상성 교체 회귀 실패");
                 if (BattleAI.ChooseSwitchIndex(elementalParty, 1, shadeOpponent) != -1)
@@ -804,6 +814,19 @@ namespace ShadowTheater.EditorTools
             if (ids.Distinct().Count() != ids.Count) result.errors.Add("ShadowDatabase shadowId 중복");
             var ultimates = database.skills.Where(x => x != null && x.isUltimate).ToList();
             if (ultimates.Count == 0) result.errors.Add("진명 필살기 데이터 없음");
+            if (File.Exists(RosterPath))
+            {
+                RosterManifest roster = JsonUtility.FromJson<RosterManifest>(File.ReadAllText(RosterPath));
+                foreach (RosterEntry entry in roster?.entries?.Where(x => x.featured) ?? Enumerable.Empty<RosterEntry>())
+                {
+                    ShadowData featured = database.GetShadow(entry.shadowId);
+                    string signatureId = entry.shadowId + "_signature";
+                    if (featured == null || featured.skills == null ||
+                        !featured.skills.Any(x => x != null && x.skillId == signatureId) ||
+                        database.GetSkill(signatureId) == null)
+                        result.errors.Add($"{entry.shadowId}: 지역 대표 고유 기술 누락 ({signatureId})");
+                }
+            }
             foreach (SkillData skill in database.skills.Where(x => x != null))
             {
                 if (skill.requiredLevel < 1 || skill.requiredLevel > ShadowInstance.MaxLevel)
@@ -909,6 +932,10 @@ namespace ShadowTheater.EditorTools
 
                 bool rare = shadow.growthTier == GrowthTier.Rare;
                 bool fullGrowth = shadow.growthTier == GrowthTier.RegionalBoss || shadow.growthTier == GrowthTier.Legendary;
+                if (fullGrowth && (shadow.skills == null || shadow.skills.Count(x => x != null) < 2))
+                    result.errors.Add($"{shadow.shadowId}: 보스 고유 전투 기술 부족");
+                if (fullGrowth && BattleAI.ProfileFor(shadow, true) == BattleAiProfile.Normal)
+                    result.errors.Add($"{shadow.shadowId}: 보스 전투 성향 누락");
                 if ((rare || fullGrowth) && shadow.restoredForm?.enabled != true)
                     result.errors.Add($"{shadow.shadowId}: 등급 필수 기억 복원 데이터 누락");
                 if (fullGrowth || shadow.salvationForm?.enabled == true || shadow.grudgeForm?.enabled == true)
