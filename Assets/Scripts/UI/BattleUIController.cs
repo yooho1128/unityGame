@@ -356,6 +356,12 @@ namespace ShadowTheater.UI
 
         public IEnumerator PlayIntro(BattleUnit player, BattleUnit enemy, BattleMode mode)
         { RefreshAll(); yield return Say(L10n.Format("battle.intro", "{0}이(가) 무대에 올랐다!\n가라, {1}!", L10n.Text(enemy.Name), L10n.Text(player.Name))); }
+        public IEnumerator PlayBossPhase(BattleUnit boss, BossPhaseDefinition phase)
+        {
+            if (fxDirector != null) yield return fxDirector.PlayBossPhase(enemyPanel, boss, phase, _speed);
+            yield return Say(string.IsNullOrWhiteSpace(phase?.message)
+                ? $"{L10n.Text(boss.Name)}의 숨겨진 장면이 시작된다!" : L10n.Text(phase.message), .85f);
+        }
         public IEnumerator PlaySendOut(BattleUnit unit) { yield return Say(L10n.Format("battle.send_out", "{0}, 무대로!", L10n.Text(unit.Name))); }
         public IEnumerator PlayWithdraw(BattleUnit unit) { yield return Say(L10n.Format("battle.withdraw", "{0}, 각본집으로 돌아와!", L10n.Text(unit.Name))); }
         public IEnumerator PlaySkill(BattleUnit a, BattleUnit d, SkillData s, HitResult hit)

@@ -87,6 +87,46 @@ namespace ShadowTheater.UI
             Object.Destroy(layer.gameObject);
         }
 
+        public IEnumerator PlayBossPhase(BattleUnitPanel bossPanel, BattleUnit boss,
+            BossPhaseDefinition phase, float playbackSpeed)
+        {
+            float speed = Mathf.Max(.1f, playbackSpeed);
+            Color accent = boss?.Data != null ? boss.Data.accentColor : new Color(.8f, .18f, .35f);
+            RectTransform layer = CreateLayer("BossPhaseShift");
+            Image dim = AddImage("WarningDim", layer, Vector2.zero, Vector2.one, new Color(.02f, 0f, .03f, 0f));
+            Image flash = AddImage("PhaseFlash", layer, Vector2.zero, Vector2.one, WithAlpha(accent, 0f));
+            Text warning = AddText("Warning", layer, new Vector2(.05f, .72f), new Vector2(.95f, .84f),
+                "비극의 제2막", new Color(1f, .32f, .42f), 34);
+            Text title = AddText("BossName", layer, new Vector2(.05f, .48f), new Vector2(.95f, .70f),
+                boss == null ? "보스" : L10n.Text(boss.Name), Color.white, 54);
+            Text phaseTitle = AddText("PhaseName", layer, new Vector2(.08f, .34f), new Vector2(.92f, .48f),
+                L10n.Text(phase?.PhaseName ?? "숨겨진 장면"), accent, 38);
+            Vector3 stageHome = stageRoot != null ? stageRoot.localPosition : Vector3.zero;
+            Vector3 bossHome = bossPanel?.MotionRoot != null ? bossPanel.MotionRoot.localScale : Vector3.one;
+            float duration = 1.15f / speed;
+            for (float elapsed = 0f; elapsed < duration; elapsed += Time.unscaledDeltaTime)
+            {
+                float p = Mathf.Clamp01(elapsed / duration);
+                float appear = Mathf.SmoothStep(0f, 1f, Mathf.Min(1f, p * 3f));
+                float vanish = 1f - Mathf.SmoothStep(0f, 1f, Mathf.Max(0f, (p - .72f) / .28f));
+                float alpha = appear * vanish;
+                dim.color = new Color(.02f, 0f, .03f, .88f * alpha);
+                flash.color = WithAlpha(accent, Mathf.Sin(p * Mathf.PI) * .22f);
+                warning.color = WithAlpha(new Color(1f, .32f, .42f), alpha);
+                title.color = WithAlpha(Color.white, alpha);
+                phaseTitle.color = WithAlpha(accent, alpha);
+                if (stageRoot != null)
+                    stageRoot.localPosition = stageHome + (Vector3)UnityEngine.Random.insideUnitCircle *
+                                              (p < .28f ? 10f : 3f) * alpha;
+                if (bossPanel?.MotionRoot != null)
+                    bossPanel.MotionRoot.localScale = bossHome * (1f + Mathf.Sin(p * Mathf.PI) * .16f);
+                yield return null;
+            }
+            if (stageRoot != null) stageRoot.localPosition = stageHome;
+            if (bossPanel?.MotionRoot != null) bossPanel.MotionRoot.localScale = bossHome;
+            Destroy(layer.gameObject);
+        }
+
         private static UltimateFxAssetPlayer CreateAssetFx(RectTransform layer, SkillData skill)
         {
             if (skill.fxPrefab == null) return null;

@@ -13,6 +13,7 @@ namespace ShadowTheater.Battle
         void SetSpeed(float timeScale);
 
         IEnumerator PlayIntro(BattleUnit player, BattleUnit enemy, BattleMode mode);
+        IEnumerator PlayBossPhase(BattleUnit boss, BossPhaseDefinition phase);
         IEnumerator PlaySendOut(BattleUnit unit);
         IEnumerator PlayWithdraw(BattleUnit unit);
 

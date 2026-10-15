@@ -28,6 +28,8 @@ namespace ShadowTheater.Battle
 
         public IEnumerator PlayIntro(BattleUnit p, BattleUnit e, BattleMode mode) =>
             Log($"[{mode}] {e.Name} Lv.{e.Level} 이(가) 무대에 올랐다! / 가라, {p.Name}!", 2f);
+        public IEnumerator PlayBossPhase(BattleUnit boss, BossPhaseDefinition phase) =>
+            Log($"[2페이즈: {phase?.PhaseName}] {phase?.message}", 2f);
 
         public IEnumerator PlaySendOut(BattleUnit u) => Log($"{u.Name} 등장 (HP {u.Hp}/{u.MaxHp})");
         public IEnumerator PlayWithdraw(BattleUnit u) => Log($"{u.Name}, 돌아와!");

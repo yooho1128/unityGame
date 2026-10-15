@@ -322,8 +322,7 @@ namespace ShadowTheater.Battle
             if (phase.cleanseBoss) EnemyActive.ClearAllStatus();
             int healed = phase.healRatio > 0f
                 ? EnemyActive.Heal(Mathf.RoundToInt(EnemyActive.MaxHp * phase.healRatio)) : 0;
-            yield return _presenter.ShowMessage(string.IsNullOrWhiteSpace(phase.message)
-                ? $"{EnemyActive.Name}의 숨겨진 장면이 시작된다!" : phase.message);
+            yield return _presenter.PlayBossPhase(EnemyActive, phase);
             if (healed > 0) yield return _presenter.PlayHeal(EnemyActive, healed);
             if (phase.TryGetPlayerStatus(out StatusEffectType status) &&
                 PlayerActive.ApplyStatus(status, Mathf.Max(1, phase.statusDuration)))

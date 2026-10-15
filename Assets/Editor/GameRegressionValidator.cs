@@ -175,6 +175,7 @@ namespace ShadowTheater.EditorTools
                 "mourning_keeper", "interlude_manager", "rival_director", "outside_script_shadow"
             };
             var ids = new HashSet<string>(StringComparer.Ordinal);
+            var phaseNames = new HashSet<string>(StringComparer.Ordinal);
             foreach (BossPhaseDefinition phase in phases)
             {
                 if (phase == null || string.IsNullOrWhiteSpace(phase.phaseId) ||
@@ -186,6 +187,8 @@ namespace ShadowTheater.EditorTools
                     result.errors.Add($"보스 페이즈 설정 오류: {phase.phaseId}");
                 if (!string.IsNullOrWhiteSpace(phase.playerStatus) && !phase.TryGetPlayerStatus(out _))
                     result.errors.Add($"보스 페이즈 상태 이상 오류: {phase.phaseId}");
+                if (string.IsNullOrWhiteSpace(phase.PhaseName) || !phaseNames.Add(phase.PhaseName))
+                    result.errors.Add($"보스 페이즈 연출명 누락 또는 중복: {phase.phaseId}");
             }
             if (phases.Count != 18 || expected.Any(x => !ids.Contains(x)))
                 result.errors.Add($"주요 보스 개별 페이즈 수·대상 불일치: {phases.Count}/18");
