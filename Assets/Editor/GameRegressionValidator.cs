@@ -208,6 +208,11 @@ namespace ShadowTheater.EditorTools
             if (string.IsNullOrWhiteSpace(FieldWorldState.RareEncounterSignal(
                     new FieldWorldSnapshot(FieldTimeOfDay.Night, FieldWeather.Starfall, 0))))
                 result.errors.Add("필드 효과: 희귀 조우 알림 누락");
+            WeatherEffectProfile rain = FieldWeatherEffects.Profile(FieldWeather.Rain);
+            WeatherEffectProfile clear = FieldWeatherEffects.Profile(FieldWeather.Clear);
+            if (rain.rate <= 0f || rain.speed >= 0f || rain.volume <= 0f || clear.rate != 0f ||
+                FieldWeatherEffects.SynthesizeSamples(FieldWeather.InkStorm).Length != FieldWeatherEffects.SampleRate * 4)
+                result.errors.Add("필드 효과: 날씨 파티클·환경음 정책 오류");
         }
 
         private static void ValidateDevicePolicy(ValidationReport result)
@@ -1433,6 +1438,8 @@ namespace ShadowTheater.EditorTools
                         if (ambienceSo.FindProperty("detailClip")?.objectReferenceValue == null)
                             result.errors.Add($"{region.sceneName}: 간헐 환경음 누락");
                     }
+                    FieldWeatherEffects weatherEffects = roots.SelectMany(x => x.GetComponentsInChildren<FieldWeatherEffects>(true)).FirstOrDefault();
+                    if (weatherEffects == null) result.errors.Add($"{region.sceneName}: 날씨 파티클·환경음 컨트롤러 누락");
                     FieldFootstepAudio footsteps = roots.SelectMany(x => x.GetComponentsInChildren<FieldFootstepAudio>(true)).FirstOrDefault();
                     if (footsteps == null) result.errors.Add($"{region.sceneName}: 발걸음 오디오 누락");
                     else

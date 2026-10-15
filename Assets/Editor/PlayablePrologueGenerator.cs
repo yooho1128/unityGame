@@ -822,6 +822,10 @@ namespace ShadowTheater.EditorTools
                 var worldStateSo = new SerializedObject(worldState);
                 Set(worldStateSo, "regionId", region.regionId);
                 worldStateSo.ApplyModifiedPropertiesWithoutUndo();
+                var weatherEffects = fieldRoot.AddComponent<FieldWeatherEffects>();
+                var weatherEffectsSo = new SerializedObject(weatherEffects);
+                Set(weatherEffectsSo, "regionId", region.regionId);
+                weatherEffectsSo.ApplyModifiedPropertiesWithoutUndo();
                 if (region.isSettlement) CreateTownServices(fieldRoot.transform, region);
             }
             if (region?.AllowsRandomEncounters == true)
