@@ -72,8 +72,8 @@ namespace ShadowTheater.Field
             int maxLevel = Mathf.Max(minLevel, candidate.maxLevel);
             int level = UnityEngine.Random.Range(minLevel, maxLevel + 1);
             _battlePending = true;
-            GameFlowController.Instance.StartScriptedBattle(BattleMode.Wild,
-                new List<ShadowInstance> { new ShadowInstance(candidate.shadow, level) }, string.Empty);
+            GameFlowController.Instance.StartRandomBattle(
+                new List<ShadowInstance> { new ShadowInstance(candidate.shadow, level) }, region);
         }
 
         private void OnBattleFinished(BattleContext context, BattleOutcome outcome)

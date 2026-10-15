@@ -45,6 +45,8 @@
 레벨·희귀도·출현 비중·포획률·스킬·Lore를 각 지역 설정에서 결정합니다. 상세 규칙은
 [`Docs/SHADOW_ROSTER_180.md`](Docs/SHADOW_ROSTER_180.md)를
 참고하세요.
+랜덤 조우가 발생하면 지역 포인트 색과 출현 그림자의 실루엣이 0.7초간 화면을 덮은 뒤 전투로 전환되어,
+필드에서 보이지 않던 그림자와 갑자기 마주치는 흐름을 시각적으로 전달합니다.
 
 ## 플레이 가능한 프롤로그 자동 생성
 1. Unity 메뉴 **Tools → Shadow Theater → Generate Playable Prologue** 실행

@@ -1134,6 +1134,15 @@ namespace ShadowTheater.EditorTools
                                 result.errors.Add($"{region.sceneName}: 전투 중 남을 수 있는 필드 Canvas: {fieldCanvas.name}");
                         }
                     }
+                    ScreenFader fader = roots.SelectMany(x => x.GetComponentsInChildren<ScreenFader>(true)).FirstOrDefault();
+                    if (fader == null) result.errors.Add($"{region.sceneName}: 화면 전환 페이더 누락");
+                    else
+                    {
+                        var faderSo = new SerializedObject(fader);
+                        if (faderSo.FindProperty("overlay")?.objectReferenceValue == null ||
+                            faderSo.FindProperty("encounterSilhouette")?.objectReferenceValue == null)
+                            result.errors.Add($"{region.sceneName}: 랜덤 조우 색상·실루엣 전환 참조 누락");
+                    }
                     RegionArrivalBanner arrival = roots.SelectMany(x => x.GetComponentsInChildren<RegionArrivalBanner>(true)).FirstOrDefault();
                     if (arrival == null) result.errors.Add($"{region.sceneName}: 지역 진입 타이틀 누락");
                     else

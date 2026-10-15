@@ -1535,7 +1535,17 @@ namespace ShadowTheater.EditorTools
             var go = new GameObject("FaderCanvas", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler),
                 typeof(GraphicRaycaster), typeof(CanvasGroup), typeof(Image), typeof(ScreenFader));
             var canvas = go.GetComponent<Canvas>(); canvas.renderMode = RenderMode.ScreenSpaceOverlay; canvas.sortingOrder = 100;
-            go.GetComponent<Image>().color = Color.black;
+            var overlay = go.GetComponent<Image>(); overlay.color = Color.black;
+            var silhouette = UiRect("EncounterSilhouette", go.transform, new Vector2(.22f, .22f),
+                new Vector2(.78f, .78f)).gameObject.AddComponent<Image>();
+            silhouette.color = Color.clear;
+            silhouette.preserveAspect = true;
+            silhouette.raycastTarget = false;
+            silhouette.gameObject.SetActive(false);
+            var faderSo = new SerializedObject(go.GetComponent<ScreenFader>());
+            Set(faderSo, "overlay", overlay);
+            Set(faderSo, "encounterSilhouette", silhouette);
+            faderSo.ApplyModifiedPropertiesWithoutUndo();
         }
 
         private static void CreateEventSystem()

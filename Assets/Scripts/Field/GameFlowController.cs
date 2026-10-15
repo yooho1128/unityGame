@@ -112,7 +112,7 @@ namespace ShadowTheater.Field
             if (!CanStartEncounter) return;
 
             var ctx = CreateContext(symbol.Mode, symbol.BuildEnemyParty(), symbol.EncounterId, symbol.Gimmick);
-            StartCoroutine(BattleFlow(ctx, symbol, null));
+            StartCoroutine(BattleFlow(ctx, symbol, null, null));
         }
 
         /// <summary>NPC 대화 후 라이벌전, 보스 연출 후 전투 등 스크립트에서 직접 시작</summary>
@@ -121,7 +121,21 @@ namespace ShadowTheater.Field
         {
             if (IsInBattle) return;
             var ctx = CreateContext(mode, enemies, encounterId, BattleGimmick.None);
-            StartCoroutine(BattleFlow(ctx, null, onFinished));
+            StartCoroutine(BattleFlow(ctx, null, onFinished, null));
+        }
+
+        /// <summary>지역 색상과 선두 적 실루엣을 사용해 랜덤 조우 전환을 재생한다.</summary>
+        public void StartRandomBattle(List<ShadowInstance> enemies, RegionData region)
+        {
+            if (IsInBattle || enemies == null || enemies.Count == 0) return;
+            var ctx = CreateContext(BattleMode.Wild, enemies, string.Empty, BattleGimmick.None);
+            ShadowInstance lead = enemies[0];
+            var cue = new EncounterEntranceCue
+            {
+                silhouette = lead?.Silhouette,
+                color = region != null ? region.AccentColor : new Color(.46f, .31f, .78f, 1f)
+            };
+            StartCoroutine(BattleFlow(ctx, null, null, cue));
         }
 
         #endregion
@@ -146,7 +160,8 @@ namespace ShadowTheater.Field
             };
         }
 
-        private IEnumerator BattleFlow(BattleContext ctx, EncounterSymbol symbol, Action<BattleOutcome> onFinished)
+        private IEnumerator BattleFlow(BattleContext ctx, EncounterSymbol symbol, Action<BattleOutcome> onFinished,
+            EncounterEntranceCue entranceCue)
         {
             IsInBattle = true;
             var player = PlayerController.Instance;
@@ -163,8 +178,13 @@ namespace ShadowTheater.Field
             // ── 진입 ──
             FieldAmbientAudio.Instance?.BeginFadeOut();
             AdaptiveMusicDirector.Instance?.EnterBattle(ctx.mode);
-            yield return new WaitForSeconds(encounterFlashTime);
-            yield return ScreenFader.Instance.FadeOut();
+            if (entranceCue != null)
+                yield return ScreenFader.Instance.PlayEncounterIntro(entranceCue.silhouette, entranceCue.color, .7f);
+            else
+            {
+                yield return new WaitForSeconds(encounterFlashTime);
+                yield return ScreenFader.Instance.FadeOut();
+            }
 
             fieldRoot.SetActive(false);
             battleRoot.SetActive(true);
@@ -216,6 +236,12 @@ namespace ShadowTheater.Field
             ShowCaptureDestination(outcome);
             onFinished?.Invoke(outcome);
             OnBattleFlowFinished?.Invoke(ctx, outcome);
+        }
+
+        private sealed class EncounterEntranceCue
+        {
+            public Sprite silhouette;
+            public Color color;
         }
 
         private void ApplyOutcome(BattleContext ctx, BattleOutcome outcome)
