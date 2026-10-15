@@ -196,6 +196,7 @@ namespace ShadowTheater.EditorTools
             SettlementShopPrefabGenerator.Generate();
             FieldInventoryPrefabGenerator.Generate();
             QuestLogPrefabGenerator.Generate();
+            BossInvestigationJournalPrefabGenerator.Generate();
             FieldPausePrefabGenerator.Generate();
             BattleUIPrefabGenerator.Generate();
         }
@@ -828,7 +829,9 @@ namespace ShadowTheater.EditorTools
                 weatherEffectsSo.ApplyModifiedPropertiesWithoutUndo();
                 if (!region.isSettlement && !region.isBossStage)
                 {
-                    var incident = fieldRoot.AddComponent<FieldIncidentController>();
+                    var incidentCell=FindRegionalEncounterCell(collision,startCell,new HashSet<Vector2Int>{startCell},StableHash("incident_"+region.regionId));
+                    var incidentObject=CreateFieldActor(fieldRoot.transform,"FieldIncident",incidentCell,LoadShadow("crow"),false);
+                    var incident = incidentObject.AddComponent<FieldIncidentController>();
                     var incidentSo = new SerializedObject(incident);
                     Set(incidentSo, "regionId", region.regionId);
                     incidentSo.ApplyModifiedPropertiesWithoutUndo();
@@ -877,6 +880,7 @@ namespace ShadowTheater.EditorTools
             InstantiatePrefab("Assets/Prefabs/UI/SettlementShopCanvas.prefab", fieldRoot.transform);
             InstantiatePrefab("Assets/Prefabs/UI/FieldInventoryCanvas.prefab", fieldRoot.transform);
             InstantiatePrefab("Assets/Prefabs/UI/QuestLogCanvas.prefab", fieldRoot.transform);
+            InstantiatePrefab("Assets/Prefabs/UI/BossInvestigationJournalCanvas.prefab", fieldRoot.transform);
             InstantiatePrefab("Assets/Prefabs/UI/FieldPauseCanvas.prefab", fieldRoot.transform);
             CreateFader();
             CreateEventSystem();
@@ -1187,6 +1191,11 @@ namespace ShadowTheater.EditorTools
 
         private static void CreateTownServices(Transform parent, RegionData region)
         {
+            var restoration=parent.gameObject.AddComponent<TownRestorationVisualController>();
+            var stageOne=new List<GameObject>{CreateRestorationProp(parent,"RelitFootlights",new Vector2Int(-6,2),region.AccentColor,1.0f)};
+            var stageTwo=new List<GameObject>{CreateRestorationProp(parent,"RepairedFacade",new Vector2Int(6,2),Color.Lerp(region.AccentColor,Color.white,.25f),1.45f),CreateRestorationProp(parent,"FestivalBanner",new Vector2Int(-7,5),region.AccentColor,.75f)};
+            var stageThree=new List<GameObject>{CreateRestorationProp(parent,"RestoredGrandStage",new Vector2Int(0,6),Color.Lerp(region.AccentColor,Color.white,.45f),2.1f),CreateRestorationProp(parent,"MarketLantern",new Vector2Int(7,5),new Color(1f,.72f,.3f),.8f)};
+            var restorationSo=new SerializedObject(restoration);Set(restorationSo,"regionId",region.regionId);Set(restorationSo,"restoredLightColor",Color.Lerp(region.AccentColor,new Color(1f,.78f,.48f),.55f));SetObjectArray(restorationSo.FindProperty("stageOneObjects"),stageOne);SetObjectArray(restorationSo.FindProperty("stageTwoObjects"),stageTwo);SetObjectArray(restorationSo.FindProperty("stageThreeObjects"),stageThree);restorationSo.ApplyModifiedPropertiesWithoutUndo();
             var healer = CreateFieldActor(parent, "TownHealer", new Vector2Int(-4, 4),
                 LoadShadow("mage"), false).AddComponent<TownHealerNpc>();
             var healerSo = new SerializedObject(healer);
@@ -1215,11 +1224,15 @@ namespace ShadowTheater.EditorTools
         private static void CreateRecoveryNpc(Transform parent, RegionData region, string name,
             Vector2Int cell, int stage, string shadowId)
         {
-            var npc = CreateFieldActor(parent, name, cell, LoadShadow(shadowId), false).AddComponent<TownRecoveryNpc>();
+            var actor=CreateFieldActor(parent, name, cell, LoadShadow(shadowId), false);var npc = actor.AddComponent<TownRecoveryNpc>();
             var so = new SerializedObject(npc);
             Set(so, "regionId", region.regionId); Set(so, "requiredStage", stage);
             so.ApplyModifiedPropertiesWithoutUndo();
+            var patrol=actor.AddComponent<TownNpcPatrol>();var patrolSo=new SerializedObject(patrol);Set(patrolSo,"requiredStage",stage);Set(patrolSo,"localOffset",stage>=3?new Vector2(-2f,0):new Vector2(2f,0));Set(patrolSo,"speed",stage>=3?.52f:.68f);patrolSo.ApplyModifiedPropertiesWithoutUndo();
         }
+
+        private static GameObject CreateRestorationProp(Transform parent,string name,Vector2Int cell,Color color,float scale)
+        {var go=new GameObject(name,typeof(SpriteRenderer));go.transform.SetParent(parent);go.transform.position=Cell(cell);go.transform.localScale=Vector3.one*scale;var r=go.GetComponent<SpriteRenderer>();r.sprite=_accentTile!=null?_accentTile.sprite:null;r.color=color;r.sortingOrder=4;go.SetActive(false);return go;}
 
         private static void CreateInteractable(Transform parent, string name, Vector2Int cell, string dialogueId,
                                                ShadowData visual, Color accent)
@@ -2646,6 +2659,8 @@ namespace ShadowTheater.EditorTools
         private static void Set(SerializedObject so, string name, Vector2 value) => so.FindProperty(name).vector2Value = value;
         private static void Set(SerializedObject so, string name, Vector2Int value) => so.FindProperty(name).vector2IntValue = value;
         private static void Set(SerializedObject so, string name, Color value) => so.FindProperty(name).colorValue = value;
+        private static void SetObjectArray(SerializedProperty property, IList<GameObject> values)
+        { property.arraySize=values?.Count??0;for(int i=0;i<property.arraySize;i++)property.GetArrayElementAtIndex(i).objectReferenceValue=values[i]; }
         private static void SetIntArray(SerializedProperty property, int[] values)
         {
             property.arraySize = values != null ? values.Length : 0;

@@ -74,6 +74,8 @@ namespace ShadowTheater.UI
         {
             if (QuestLogController.Instance != null && QuestLogController.Instance.IsOpen)
             { QuestLogController.Instance.Close(); return; }
+            if (BossInvestigationJournalController.Instance != null && BossInvestigationJournalController.Instance.IsOpen)
+            { BossInvestigationJournalController.Instance.Close(); return; }
             if (FieldInventoryController.Instance != null && FieldInventoryController.Instance.IsOpen)
             { FieldInventoryController.Instance.Close(); return; }
             if (SettlementShopController.Instance != null && SettlementShopController.Instance.IsOpen)
@@ -184,6 +186,12 @@ namespace ShadowTheater.UI
         {
             if (!IsOpen || _returning) return;
             Close(); QuestLogController.Instance?.Open();
+        }
+
+        public void OpenBossJournal()
+        {
+            if (!IsOpen || _returning) return;
+            Close(); BossInvestigationJournalController.Instance?.Open();
         }
 
         public void RequestReturnToTitle()

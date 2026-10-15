@@ -51,9 +51,10 @@ namespace ShadowTheater.EditorTools
 
             var feedback = Text("Feedback", card, new Vector2(.07f,.30f), new Vector2(.93f,.35f), 21, "", TextAnchor.MiddleCenter);
             feedback.color = new Color(.55f,1f,.84f);
-            var party = Button("Party", card, new Vector2(.07f,.21f), new Vector2(.34f,.285f), "파티 · 서고", new Color(.18f,.12f,.34f));
-            var inventory = Button("Inventory", card, new Vector2(.365f,.21f), new Vector2(.635f,.285f), "도구 가방", new Color(.16f,.18f,.31f));
-            var quests = Button("QuestLog", card, new Vector2(.66f,.21f), new Vector2(.93f,.285f), "기억 여정", new Color(.20f,.13f,.30f));
+            var party = Button("Party", card, new Vector2(.07f,.21f), new Vector2(.275f,.285f), "파티 · 서고", new Color(.18f,.12f,.34f));
+            var inventory = Button("Inventory", card, new Vector2(.29f,.21f), new Vector2(.495f,.285f), "도구 가방", new Color(.16f,.18f,.31f));
+            var quests = Button("QuestLog", card, new Vector2(.51f,.21f), new Vector2(.715f,.285f), "기억 여정", new Color(.20f,.13f,.30f));
+            var journal = Button("BossJournal", card, new Vector2(.73f,.21f), new Vector2(.93f,.285f), "보스 수첩", new Color(.28f,.10f,.20f));
             var save = Button("Save", card, new Vector2(.07f,.09f), new Vector2(.34f,.18f), "진행 저장", new Color(.13f,.30f,.29f));
             var recover = Button("RecoverPosition", card, new Vector2(.365f,.09f), new Vector2(.635f,.18f), "안전 위치 복귀", new Color(.18f,.18f,.34f));
             var title = Button("ReturnTitle", card, new Vector2(.66f,.09f), new Vector2(.93f,.18f), "타이틀로", new Color(.29f,.10f,.19f));
@@ -82,6 +83,7 @@ namespace ShadowTheater.EditorTools
             UnityEventTools.AddPersistentListener(party.onClick, controller.OpenPartyManagement);
             UnityEventTools.AddPersistentListener(inventory.onClick, controller.OpenInventory);
             UnityEventTools.AddPersistentListener(quests.onClick, controller.OpenQuestLog);
+            UnityEventTools.AddPersistentListener(journal.onClick, controller.OpenBossJournal);
             UnityEventTools.AddPersistentListener(save.onClick, controller.SaveNow);
             UnityEventTools.AddPersistentListener(recover.onClick, controller.RecoverSafePosition);
             UnityEventTools.AddPersistentListener(title.onClick, controller.RequestReturnToTitle);

@@ -127,6 +127,20 @@ namespace ShadowTheater.UI
             Destroy(layer.gameObject);
         }
 
+        public IEnumerator PlayJointSkill(BattleUnitPanel attacker, BattleUnitPanel defender, BattleUnit companion,
+            CompanionJointProfile profile, HitResult hit, float playbackSpeed)
+        {
+            float speed=Mathf.Max(.1f,playbackSpeed);Color accent=companion?.Data!=null?companion.Data.accentColor:Color.magenta;
+            Color element=profile.element==ShadowElement.Flame?new Color(1f,.28f,.12f):profile.element==ShadowElement.Frost
+                ?new Color(.35f,.82f,1f):profile.element==ShadowElement.Shade?new Color(.55f,.24f,.88f):Color.white;
+            RectTransform layer=CreateLayer("CompanionJointSkill");Image dim=AddImage("Dim",layer,Vector2.zero,Vector2.one,new Color(.01f,.005f,.03f,0));
+            Text title=AddText("JointTitle",layer,new Vector2(.06f,.62f),new Vector2(.94f,.79f),profile.displayName,accent,42);
+            for(int i=0;i<18;i++){float angle=i*Mathf.PI*2f/18f;Image shard=AddImage("BondShard"+i,layer,new Vector2(.5f,.5f),new Vector2(.5f,.5f),WithAlpha(i%2==0?accent:element,.8f));shard.rectTransform.sizeDelta=new Vector2(10,180);shard.rectTransform.anchoredPosition=new Vector2(Mathf.Cos(angle)*260,Mathf.Sin(angle)*310);shard.rectTransform.localRotation=Quaternion.Euler(0,0,-angle*Mathf.Rad2Deg);}
+            Vector3 home=attacker?.MotionRoot!=null?attacker.MotionRoot.localScale:Vector3.one;float duration=.72f/speed;
+            for(float t=0;t<duration;t+=Time.unscaledDeltaTime){float p=Mathf.Clamp01(t/duration),pulse=Mathf.Sin(p*Mathf.PI);dim.color=new Color(.01f,.005f,.03f,.72f*pulse);title.color=Color.Lerp(accent,Color.white,pulse);title.rectTransform.localScale=Vector3.one*(.7f+.45f*pulse);for(int i=2;i<layer.childCount;i++)layer.GetChild(i).Rotate(0,0,(i%2==0?1:-1)*2.5f);if(attacker?.MotionRoot!=null)attacker.MotionRoot.localScale=home*(1f+.15f*pulse);yield return null;}
+            if(attacker?.MotionRoot!=null)attacker.MotionRoot.localScale=home;if(!hit.missed&&defender!=null)defender.MotionRoot.localPosition+=(Vector3)Random.insideUnitCircle*8f;Destroy(layer.gameObject);
+        }
+
         private static UltimateFxAssetPlayer CreateAssetFx(RectTransform layer, SkillData skill)
         {
             if (skill.fxPrefab == null) return null;

@@ -1,98 +1,38 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using ShadowTheater.Save;
-using ShadowTheater.Story;
-using ShadowTheater.UI;
-using UnityEngine;
-
+using System;using System.Collections;using System.Collections.Generic;using System.Linq;using ShadowTheater.Battle;using ShadowTheater.Data;using ShadowTheater.Save;using ShadowTheater.Story;using ShadowTheater.UI;using UnityEngine;
 namespace ShadowTheater.Field
 {
-    public readonly struct FieldIncidentDefinition
-    {
-        public readonly string id, title, message, itemId;
-        public readonly FieldTimeOfDay time;
-        public readonly FieldWeather weather;
-        public readonly int act, gold, itemCount, bondExperience;
-        public FieldIncidentDefinition(string id, string title, string message, FieldTimeOfDay time,
-            FieldWeather weather, int act, int gold, string itemId, int itemCount, int bondExperience)
-        { this.id = id; this.title = title; this.message = message; this.time = time; this.weather = weather;
-          this.act = act; this.gold = gold; this.itemId = itemId; this.itemCount = itemCount;
-          this.bondExperience = bondExperience; }
-    }
-
-    /// <summary>특정 시간·날씨 조합의 지역 사건을 하루 한 번 판정하고 보상을 안전 저장한다.</summary>
-    public static class FieldIncidentService
-    {
-        private static readonly FieldIncidentDefinition[] Incidents =
-        {
-            new FieldIncidentDefinition("ash_procession", "재의 행렬", "해질녘 잿가루 속 배우들의 행렬을 끝까지 배웅했다.", FieldTimeOfDay.Evening, FieldWeather.Ashfall, 2, 90, "tonic", 1, 10),
-            new FieldIncidentDefinition("frozen_margin", "얼어붙은 여백", "새벽 서리눈 아래에서 사라질 문장을 한 줄 건졌다.", FieldTimeOfDay.Dawn, FieldWeather.Snow, 3, 110, "silver_ink", 1, 12),
-            new FieldIncidentDefinition("moonwind_footlights", "달바람 각광", "밤의 달바람이 동행 그림자의 잊힌 동선을 비췄다.", FieldTimeOfDay.Night, FieldWeather.MoonWind, 0, 70, "focus_elixir", 1, 14),
-            new FieldIncidentDefinition("rain_script", "비에 젖은 대본", "새벽 잔향비에서 번진 대사를 복원했다.", FieldTimeOfDay.Dawn, FieldWeather.Rain, 0, 80, "ink", 2, 8),
-            new FieldIncidentDefinition("thread_rehearsal", "실먼지 리허설", "해질녘 실먼지가 보이지 않는 인형극의 동선을 그렸다.", FieldTimeOfDay.Evening, FieldWeather.ThreadDust, 5, 130, "heart_winding_key", 1, 12),
-            new FieldIncidentDefinition("blackout_prompt", "먹물 폭풍의 프롬프트", "밤의 먹물 폭풍 속에서 지워진 지시문을 되찾았다.", FieldTimeOfDay.Night, FieldWeather.InkStorm, 6, 150, "silver_ink", 2, 15),
-            new FieldIncidentDefinition("starfall_encore", "별비의 앙코르", "별비가 그친 자리에 단 한 번의 앙코르 보상이 남았다.", FieldTimeOfDay.Night, FieldWeather.Starfall, 0, 180, "greater_potion", 1, 16),
-            new FieldIncidentDefinition("mist_applause", "안개 속 박수", "기억 안개 속 홀로 남은 박수의 주인을 찾아냈다.", FieldTimeOfDay.Night, FieldWeather.Mist, 0, 65, "salve", 2, 7)
-        };
-
-        public static IReadOnlyList<FieldIncidentDefinition> All => Incidents;
-
-        public static bool TryResolve(RegionData region, FieldWorldSnapshot world, out FieldIncidentDefinition incident)
-        {
-            incident = default;
-            if (region == null || region.isSettlement || region.isBossStage || SaveManager.Current == null) return false;
-            foreach (FieldIncidentDefinition candidate in Incidents)
-            {
-                if (!Matches(candidate, region, world)) continue;
-                FieldIncidentRecordData record = Record(candidate.id, true);
-                if (record.lastCompletedDay == world.dayIndex) continue;
-                record.lastCompletedDay = world.dayIndex;
-                record.completionCount = SaveValuePolicy.SaturatingAdd(record.completionCount, 1);
-                if (candidate.gold > 0) SaveManager.AddGold(candidate.gold);
-                if (!string.IsNullOrEmpty(candidate.itemId) && candidate.itemCount > 0)
-                    SaveManager.AddItem(candidate.itemId, candidate.itemCount);
-                ShadowTheater.Data.ShadowInstance companion = CompanionBondService.CurrentCompanion();
-                if (companion != null)
-                    CompanionBondService.AddExperience(companion.instanceId, candidate.bondExperience, out _, out _);
-                incident = candidate;
-                return true;
-            }
-            return false;
-        }
-
-        public static FieldIncidentRecordData Record(string id, bool create = false)
-        {
-            SaveData save = SaveManager.Current;
-            if (save == null || string.IsNullOrWhiteSpace(id)) return null;
-            save.fieldIncidentRecords ??= new List<FieldIncidentRecordData>();
-            FieldIncidentRecordData record = save.fieldIncidentRecords.Find(x => x.incidentId == id);
-            if (record == null && create)
-            {
-                record = new FieldIncidentRecordData { incidentId = id, lastCompletedDay = -1 };
-                save.fieldIncidentRecords.Add(record);
-            }
-            return record;
-        }
-
-        public static bool Matches(FieldIncidentDefinition incident, RegionData region, FieldWorldSnapshot world) =>
-            region != null && incident.time == world.timeOfDay && incident.weather == world.weather &&
-            (incident.act == 0 || incident.act == region.act);
-    }
-
-    public class FieldIncidentController : MonoBehaviour
-    {
-        [SerializeField] private string regionId;
-        private IEnumerator Start()
-        {
-            if (SaveManager.Current == null) yield return new WaitUntil(() => SaveManager.Current != null);
-            yield return new WaitForSeconds(.6f);
-            RegionData region = RegionRepository.Get(regionId);
-            if (region == null) yield break;
-            if (!FieldIncidentService.TryResolve(region, FieldWorldState.Current(region), out FieldIncidentDefinition incident)) yield break;
-            SaveManager.Instance?.Save();
-            string reward = $"금화 +{incident.gold}" + (string.IsNullOrEmpty(incident.itemId) ? string.Empty : $" · {incident.itemId} x{incident.itemCount}");
-            SaveFeedbackController.Instance?.ShowMessage($"[{incident.title}] {incident.message}\n{reward}");
-        }
-    }
+ public readonly struct FieldIncidentDefinition
+ {
+  public readonly string id,title,message,itemId,trackChoice,observeChoice;public readonly FieldTimeOfDay time;public readonly FieldWeather weather;public readonly int act,gold,itemCount,bondExperience;
+  public FieldIncidentDefinition(string id,string title,string message,FieldTimeOfDay time,FieldWeather weather,int act,int gold,string itemId,int itemCount,int bondExperience,string track="흔적을 따라간다",string observe="주변부터 조사한다"){this.id=id;this.title=title;this.message=message;this.time=time;this.weather=weather;this.act=act;this.gold=gold;this.itemId=itemId;this.itemCount=itemCount;this.bondExperience=bondExperience;trackChoice=track;observeChoice=observe;}
+ }
+ public static class FieldIncidentService
+ {
+  static readonly FieldIncidentDefinition[] Incidents={
+   new FieldIncidentDefinition("ash_procession","재의 행렬","잿가루 속 배우들의 발자국이 끊겼다.",FieldTimeOfDay.Evening,FieldWeather.Ashfall,2,90,"tonic",1,10,"행렬의 마지막 배우를 쫓는다","재에 남은 소품을 살핀다"),
+   new FieldIncidentDefinition("frozen_margin","얼어붙은 여백","서리눈 아래에서 사라진 문장 하나가 움직인다.",FieldTimeOfDay.Dawn,FieldWeather.Snow,3,110,"silver_ink",1,12),
+   new FieldIncidentDefinition("moonwind_footlights","달바람 각광","달바람이 동행 그림자의 낯선 동선을 비춘다.",FieldTimeOfDay.Night,FieldWeather.MoonWind,0,70,"focus_elixir",1,14),
+   new FieldIncidentDefinition("rain_script","비에 젖은 대본","번진 대사의 다음 장이 빗속으로 끌려간다.",FieldTimeOfDay.Dawn,FieldWeather.Rain,0,80,"ink",2,8),
+   new FieldIncidentDefinition("thread_rehearsal","실먼지 리허설","보이지 않는 인형극의 실이 숲 안쪽으로 이어진다.",FieldTimeOfDay.Evening,FieldWeather.ThreadDust,5,130,"heart_winding_key",1,12),
+   new FieldIncidentDefinition("blackout_prompt","먹물 폭풍의 프롬프트","지워진 지시문을 품은 그림자가 폭풍 속을 지난다.",FieldTimeOfDay.Night,FieldWeather.InkStorm,6,150,"silver_ink",2,15),
+   new FieldIncidentDefinition("starfall_encore","별비의 앙코르","별비가 그친 무대에서 누군가 앙코르를 기다린다.",FieldTimeOfDay.Night,FieldWeather.Starfall,0,180,"greater_potion",1,16),
+   new FieldIncidentDefinition("mist_applause","안개 속 박수","안개 너머의 박수가 한 걸음씩 멀어진다.",FieldTimeOfDay.Night,FieldWeather.Mist,0,65,"salve",2,7)};
+  public static IReadOnlyList<FieldIncidentDefinition> All=>Incidents;
+  public static bool TryBegin(RegionData region,FieldWorldSnapshot world,out FieldIncidentDefinition incident){incident=default;if(region==null||region.isSettlement||region.isBossStage||SaveManager.Current==null)return false;foreach(var c in Incidents){if(!Matches(c,region,world))continue;var r=Record(c.id,true);if(r.lastCompletedDay==world.dayIndex)continue;if(r.activeDay==world.dayIndex&&r.regionId==region.regionId&&(r.stage==1||r.stage==2)){incident=c;return true;}if(r.activeDay==world.dayIndex&&r.stage>0)continue;r.activeDay=world.dayIndex;r.regionId=region.regionId;r.stage=1;incident=c;return true;}return false;}
+  public static void Choose(FieldIncidentDefinition incident,RegionData region,int choice){var r=Record(incident.id,true);r.choiceId=choice==0?"track":"observe";r.stage=choice==0?2:3;r.regionId=region?.regionId??r.regionId;SaveManager.Instance?.Save();}
+  public static void Complete(FieldIncidentDefinition incident,bool tracked){var r=Record(incident.id,true);r.stage=4;r.encounterCleared|=tracked;r.lastCompletedDay=r.activeDay;r.completionCount=SaveValuePolicy.SaturatingAdd(r.completionCount,1);SaveManager.AddGold(tracked?incident.gold:Mathf.CeilToInt(incident.gold*.55f));if(!string.IsNullOrEmpty(incident.itemId)&&incident.itemCount>0)SaveManager.AddItem(incident.itemId,tracked?incident.itemCount:1);ShadowInstance companion=CompanionBondService.CurrentCompanion();if(companion!=null)CompanionBondService.AddExperience(companion.instanceId,tracked?incident.bondExperience:Mathf.Max(1,incident.bondExperience/2),out _,out _);SaveManager.Instance?.Save();}
+  public static ShadowData FixedEncounter(RegionData region){if(region==null||ShadowDatabase.Instance==null)return null;foreach(string name in region.featuredShadows??Array.Empty<string>()){ShadowData value=ShadowDatabase.Instance.shadows.FirstOrDefault(x=>x!=null&&x.displayName==name&&RegionalEncounterPolicy.IsEligible(region,x));if(value!=null)return value;}return ShadowDatabase.Instance.shadows.FirstOrDefault(x=>RegionalEncounterPolicy.IsEligible(region,x)&&x.element==ElementFor(FieldWorldState.Current(region).weather));}
+  public static FieldIncidentRecordData Record(string id,bool create=false){SaveData save=SaveManager.Current;if(save==null||string.IsNullOrWhiteSpace(id))return null;save.fieldIncidentRecords??=new List<FieldIncidentRecordData>();var r=save.fieldIncidentRecords.Find(x=>x.incidentId==id);if(r==null&&create){r=new FieldIncidentRecordData{incidentId=id,lastCompletedDay=-1,activeDay=-1};save.fieldIncidentRecords.Add(r);}return r;}
+  public static bool Matches(FieldIncidentDefinition incident,RegionData region,FieldWorldSnapshot world)=>region!=null&&incident.time==world.timeOfDay&&incident.weather==world.weather&&(incident.act==0||incident.act==region.act);
+  static ShadowElement ElementFor(FieldWeather weather)=>weather==FieldWeather.Snow?ShadowElement.Frost:weather==FieldWeather.Ashfall||weather==FieldWeather.InkStorm?ShadowElement.Flame:ShadowElement.Shade;
+ }
+ public class FieldIncidentController:MonoBehaviour,IInteractable
+ {
+  [SerializeField]string regionId;RegionData _region;FieldIncidentDefinition _incident;bool _available;
+  IEnumerator Start(){if(SaveManager.Current==null)yield return new WaitUntil(()=>SaveManager.Current!=null);yield return new WaitForSeconds(.6f);_region=RegionRepository.Get(regionId);_available=_region!=null&&FieldIncidentService.TryBegin(_region,FieldWorldState.Current(_region),out _incident);gameObject.SetActive(_available);if(_available)SaveFeedbackController.Instance?.ShowMessage($"[{_incident.title}] 이 지역 어딘가에서 사건의 기척이 느껴집니다.");}
+  public void Interact(PlayerController player){if(!_available||DialogueController.Instance==null||DialogueController.Instance.IsPlaying)return;var record=FieldIncidentService.Record(_incident.id);if(record?.stage==2){BeginTrackedEncounter();return;}var sequence=new DialogueSequence{dialogueId="field_incident_"+_incident.id,lines=new List<DialogueLine>{new DialogueLine{speaker=_incident.title,text=_incident.message}},choices=new List<DialogueChoice>{new DialogueChoice{text=_incident.trackChoice},new DialogueChoice{text=_incident.observeChoice}}};DialogueController.Instance.PlayDynamic(sequence,_region.AccentColor,ResolveChoice);}
+  void ResolveChoice(int choice){FieldIncidentService.Choose(_incident,_region,choice);if(choice!=0){FieldIncidentService.Complete(_incident,false);_available=false;gameObject.SetActive(false);SaveFeedbackController.Instance?.ShowMessage($"[{_incident.title}] 현장 조사 완료 · 일부 보상을 확보했습니다.");return;}BeginTrackedEncounter();}
+  void BeginTrackedEncounter(){ShadowData enemy=FieldIncidentService.FixedEncounter(_region);if(enemy==null){FieldIncidentService.Complete(_incident,false);gameObject.SetActive(false);return;}int level=UnityEngine.Random.Range(Mathf.Max(1,_region.recommendedLevelMin),Mathf.Max(_region.recommendedLevelMin+1,_region.recommendedLevelMax+1));StartCoroutine(StartTrackedEncounter(new ShadowInstance(enemy,level)));}
+  IEnumerator StartTrackedEncounter(ShadowInstance enemy){yield return null;while(DialogueController.Instance!=null&&DialogueController.Instance.IsPlaying)yield return null;GameFlowController.Instance?.StartScriptedBattle(BattleMode.Wild,new List<ShadowInstance>{enemy},"incident_"+_incident.id,outcome=>{if(outcome.result==BattleResult.Victory){FieldIncidentService.Complete(_incident,true);_available=false;gameObject.SetActive(false);SaveFeedbackController.Instance?.ShowMessage($"[{_incident.title}] 추적 완료 · 특별 보상을 획득했습니다.");}else{var r=FieldIncidentService.Record(_incident.id,true);r.stage=2;SaveManager.Instance?.Save();}});}
+ }
 }

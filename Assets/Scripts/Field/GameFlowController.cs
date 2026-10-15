@@ -282,7 +282,8 @@ namespace ShadowTheater.Field
                         bool leveled = CompanionBondService.AddExperience(companion.instanceId,
                             CompanionBondService.VictoryExperience(ctx.mode), out int oldBond, out int newBond);
                         if (leveled) SaveFeedbackController.Instance?.ShowMessage(
-                            $"{L10n.Text(companion.DisplayName)}과의 유대가 Lv.{oldBond} → Lv.{newBond}(으)로 깊어졌습니다.");
+                            $"{L10n.Text(companion.DisplayName)}과의 유대가 Lv.{oldBond} → Lv.{newBond}(으)로 깊어졌습니다.\n" +
+                            CompanionBondService.BondDialogue(companion,newBond));
                     }
                     break;
 

@@ -12,13 +12,14 @@ namespace ShadowTheater.Story
 {
     public readonly struct BossInvestigationSnapshot
     {
-        public readonly string bossShadowId, bossName, weaknessHint, phaseHint;
+        public readonly string bossShadowId, bossName, weaknessHint, phaseHint, bossRegionId, bossRegionName, sourceTownName;
         public readonly ShadowElement weakness;
         public readonly int cluesFound, totalClues;
         public BossInvestigationSnapshot(string id, string name, ShadowElement weakness, string weaknessHint,
-            string phaseHint, int found, int total)
+            string phaseHint, int found, int total, string bossRegionId = "", string bossRegionName = "", string sourceTownName = "")
         { bossShadowId = id; bossName = name; this.weakness = weakness; this.weaknessHint = weaknessHint;
-          this.phaseHint = phaseHint; cluesFound = found; totalClues = total; }
+          this.phaseHint = phaseHint; cluesFound = found; totalClues = total; this.bossRegionId = bossRegionId;
+          this.bossRegionName = bossRegionName; this.sourceTownName = sourceTownName; }
     }
 
     /// <summary>마을 조사 NPC의 단서를 보스 속성·페이즈 데이터와 연결한다.</summary>
@@ -33,9 +34,34 @@ namespace ShadowTheater.Story
             BossPhaseDefinition phase = BossPhaseRepository.Get(boss.shadowId);
             ShadowElement weakness = WeaknessOf(boss.element);
             int found = Mathf.Clamp(SaveManager.GetFlag(Prefix + boss.shadowId), 0, TotalClues);
+            RegionData bossRegion = RegionRepository.Ordered().FirstOrDefault(x =>
+                !string.IsNullOrWhiteSpace(x.bossShadowName) && Normalize(x.bossShadowName) == Normalize(boss.displayName));
+            RegionData town = bossRegion == null ? null : RegionRepository.Ordered().FirstOrDefault(x => x.act == bossRegion.act && x.isSettlement);
             return new BossInvestigationSnapshot(boss.shadowId, boss.displayName, weakness,
-                WeaknessHint(weakness), PhaseHint(phase), found, TotalClues);
+                WeaknessHint(weakness), PhaseHint(phase), found, TotalClues, bossRegion?.regionId ?? string.Empty,
+                bossRegion?.displayName ?? "미확인 지역", town?.displayName ?? "떠돌이 조사관");
         }
+
+        public static IReadOnlyList<BossInvestigationSnapshot> JournalEntries()
+        {
+            if (ShadowDatabase.Instance == null) return Array.Empty<BossInvestigationSnapshot>();
+            return RegionRepository.Ordered().Where(x => !string.IsNullOrWhiteSpace(x.bossShadowName))
+                .Select(x => FindByName(x.bossShadowName)).Where(x => x != null)
+                .GroupBy(x => x.shadowId).Select(x => ForBoss(x.First())).ToArray();
+        }
+
+        public static string ClueText(BossInvestigationSnapshot info, int clueIndex)
+        {
+            if (clueIndex < 1 || clueIndex > TotalClues) return string.Empty;
+            if (clueIndex > info.cluesFound) return "아직 발견하지 못한 단서";
+            return clueIndex == 1 ? info.weaknessHint
+                : clueIndex == 2 ? info.phaseHint
+                : $"약점은 {ElementName(info.weakness)}. 완전 조사 보정이 활성화된다.";
+        }
+
+        public static string ClueSource(BossInvestigationSnapshot info, int clueIndex) => clueIndex == 1
+            ? $"목격자 · {info.sourceTownName}" : clueIndex == 2
+                ? $"무대 기록관 · {info.bossRegionName}" : $"현장 조사 · {info.bossRegionName}";
 
         public static int ClueCount(string bossShadowId) =>
             Mathf.Clamp(SaveManager.GetFlag(Prefix + bossShadowId), 0, TotalClues);

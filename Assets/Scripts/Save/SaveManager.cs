@@ -463,10 +463,13 @@ namespace ShadowTheater.Save
             foreach (var record in data.fieldIncidentRecords)
             {
                 if (record == null || string.IsNullOrWhiteSpace(record.incidentId)) continue;
+                if(record.stage==0&&record.completionCount>0&&record.lastCompletedDay>=0){record.stage=4;record.activeDay=Mathf.Max(record.activeDay,record.lastCompletedDay);}
                 if (!incidents.TryGetValue(record.incidentId, out FieldIncidentRecordData merged))
                     incidents.Add(record.incidentId, new FieldIncidentRecordData { incidentId = record.incidentId, lastCompletedDay = -1 });
                 incidents[record.incidentId].lastCompletedDay = Mathf.Max(incidents[record.incidentId].lastCompletedDay, record.lastCompletedDay);
                 incidents[record.incidentId].completionCount = Mathf.Max(incidents[record.incidentId].completionCount, Mathf.Max(0, record.completionCount));
+                incidents[record.incidentId].encounterCleared|=record.encounterCleared;
+                if(record.activeDay>=incidents[record.incidentId].activeDay){incidents[record.incidentId].activeDay=record.activeDay;incidents[record.incidentId].stage=Mathf.Clamp(record.stage,0,4);incidents[record.incidentId].regionId=record.regionId;incidents[record.incidentId].choiceId=record.choiceId;}
             }
             data.fieldIncidentRecords = incidents.Values.ToList();
         }

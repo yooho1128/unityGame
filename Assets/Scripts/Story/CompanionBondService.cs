@@ -1,6 +1,7 @@
 using ShadowTheater.Data;
 using ShadowTheater.Save;
 using ShadowTheater.Battle;
+using ShadowTheater.UI;
 using System.Collections.Generic;
 using System;
 using UnityEngine;
@@ -93,20 +94,42 @@ namespace ShadowTheater.Story
         {
             if (companion?.Data == null) return CompanionJointProfile.None;
             ShadowData data = companion.Data;
-            string name;
+            string motif;
             switch (data.element)
             {
-                case ShadowElement.Flame: name = "붉은 막의 이중주"; break;
-                case ShadowElement.Frost: name = "서리 장면의 이중주"; break;
-                case ShadowElement.Shade: name = "그림자 막간의 이중주"; break;
-                default: name = "무명의 합동 연출"; break;
+                case ShadowElement.Flame: motif = "붉은 막"; break;
+                case ShadowElement.Frost: motif = "서리 장면"; break;
+                case ShadowElement.Shade: motif = "그림자 막간"; break;
+                default: motif = "무명의 무대"; break;
             }
             StatusEffectType status = data.role == ShadowRole.SpeedUtility ? StatusEffectType.SpeedDown
                 : data.role == ShadowRole.Tank ? StatusEffectType.AttackDown
                 : data.role == ShadowRole.Support ? StatusEffectType.DefenseDown : StatusEffectType.None;
             int level = BondLevel(companion.instanceId);
+            string rank = level >= 5 ? "최종장" : level >= 4 ? "심화막" : "이중주";
+            string name = $"{L10n.Text(data.displayName)} · {motif}의 {rank}";
             return new CompanionJointProfile(name, data.element, 1.35f + level * .08f,
                 status, status == StatusEffectType.None ? 0f : .45f + level * .05f);
+        }
+
+        /// <summary>각 그림자의 이름·속성·역할과 유대 단계가 반영된 전용 대사.</summary>
+        public static string BondDialogue(ShadowInstance companion, int level)
+        {
+            if (companion?.Data == null) return string.Empty;
+            string name = L10n.Text(companion.Data.displayName);
+            string promise = companion.Data.role == ShadowRole.Tank ? "이번에는 내가 네 앞에 설게."
+                : companion.Data.role == ShadowRole.Support ? "네가 잊은 대사는 내가 이어 줄게."
+                : companion.Data.role == ShadowRole.SpeedUtility ? "네 발걸음보다 먼저 길을 찾아둘게."
+                : companion.Data.role == ShadowRole.MagicNuker ? "우리의 장면을 빛으로 새겨 보자."
+                : "네가 신호하면 끝까지 함께 베어 나갈게.";
+            switch (Mathf.Clamp(level,1,MaxBondLevel))
+            {
+                case 1:return $"{name}: 아직 네 무대의 규칙을 배우는 중이야.";
+                case 2:return $"{name}: 네가 멈추는 순간을 이제 조금은 알 것 같아.";
+                case 3:return $"{name}: {promise} 이제 합동 연출을 시작할 수 있어.";
+                case 4:return $"{name}: 같은 장면을 몇 번이고 다시 선택해도 괜찮아.";
+                default:return $"{name}: 내 진짜 이름보다 먼저, 네 곁을 선택하겠어.";
+            }
         }
 
         public static void RecordJointSkillUse(string instanceId)

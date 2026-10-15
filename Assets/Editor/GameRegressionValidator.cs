@@ -91,7 +91,6 @@ namespace ShadowTheater.EditorTools
             CoreContentBatchGenerator.ValidateGrowthPolicyRegression(result.errors);
             CombatBalanceAnalyzer.ValidatePolicyRegression(result.errors);
             RegionDifficultySimulator.ValidatePolicyRegression(result.errors);
-            ShadowBattleSimulator.ValidatePolicyRegression(result.errors);
             LocalizationTranslationImporter.ValidateRegression(result.errors);
             MobileBuildConfigurator.ValidateScenePolicyRegression(result.errors);
             MobileBuildConfigurator.ValidateSettings(result.errors);
@@ -174,6 +173,12 @@ namespace ShadowTheater.EditorTools
                 BossInvestigationService.ReducePhaseFp(2, 3) != 1 ||
                 BossInvestigationService.PhaseHealMultiplier(3) >= 1f)
                 result.errors.Add("보스 사전 조사: 약점·페이즈 완화 정책 오류");
+            var journalSample=new BossInvestigationSnapshot("boss_test","시험 보스",ShadowElement.Frost,
+                "서리 흔적","체력 절반에 전환",2,3,"boss_room","숨은 무대","첫 극단 마을");
+            if(!BossInvestigationService.ClueSource(journalSample,1).Contains("첫 극단 마을")||
+               !BossInvestigationService.ClueSource(journalSample,2).Contains("숨은 무대")||
+               BossInvestigationService.ClueText(journalSample,3)!="아직 발견하지 못한 단서")
+                result.errors.Add("보스 조사 수첩: 단서 공개·NPC/지역 출처 정책 오류");
             if (TownRestorationService.StageFor(false, 99) != 0 ||
                 TownRestorationService.StageFor(true, 3) != 1 ||
                 TownRestorationService.StageFor(true, 6) != 2 ||
@@ -187,6 +192,9 @@ namespace ShadowTheater.EditorTools
                 FieldIncidentService.Matches(incident, region,
                     new FieldWorldSnapshot(FieldTimeOfDay.Day, FieldWeather.Starfall, 0)))
                 result.errors.Add("필드 사건: 시간·날씨 조건 판정 오류");
+            if (string.IsNullOrWhiteSpace(incident.trackChoice) || string.IsNullOrWhiteSpace(incident.observeChoice))
+                result.errors.Add("필드 사건: 선택지 정의 누락");
+            ShadowBattleSimulator.ValidatePolicyRegression(result.errors);
         }
 
         private static void ValidateBossPhases(ValidationReport result)
@@ -1498,9 +1506,13 @@ namespace ShadowTheater.EditorTools
                     var rumorKeepers = roots.SelectMany(x => x.GetComponentsInChildren<TownRumorNpc>(true)).ToArray();
                     var investigators = roots.SelectMany(x => x.GetComponentsInChildren<BossInvestigatorNpc>(true)).ToArray();
                     var recoveryNpcs = roots.SelectMany(x => x.GetComponentsInChildren<TownRecoveryNpc>(true)).ToArray();
+                    var restorationVisuals = roots.SelectMany(x => x.GetComponentsInChildren<TownRestorationVisualController>(true)).ToArray();
+                    var townPatrols = roots.SelectMany(x => x.GetComponentsInChildren<TownNpcPatrol>(true)).ToArray();
+                    var bossJournals = roots.SelectMany(x => x.GetComponentsInChildren<BossInvestigationJournalController>(true)).ToArray();
                     result.portals += portals.Length;
                     result.encounters += encounters.Length;
                     if (portals.Length == 0) result.errors.Add($"{region.sceneName}: 포털 없음");
+                    if(bossJournals.Length!=1)result.errors.Add($"{region.sceneName}: 보스 조사 수첩 UI 수 불일치 ({bossJournals.Length}/1)");
                     if (worldState == null) result.errors.Add($"{region.sceneName}: 시간대·날씨 컨트롤러 누락");
                     else if (new SerializedObject(worldState).FindProperty("regionId")?.stringValue != region.regionId)
                         result.errors.Add($"{region.sceneName}: 시간대·날씨 지역 ID 불일치");
@@ -1512,12 +1524,17 @@ namespace ShadowTheater.EditorTools
                     if (fieldIncidents.Length != expectedIncidentControllers)
                         result.errors.Add($"{region.sceneName}: 시간·날씨 필드 사건 컨트롤러 수 불일치 " +
                                           $"({fieldIncidents.Length}/{expectedIncidentControllers})");
+                    if(fieldIncidents.Any(x=>x.GetComponent<Collider2D>()==null))
+                        result.errors.Add($"{region.sceneName}: 필드 사건 상호작용 충돌체 누락");
                     if (fieldIncidents.Length == 1 &&
                         new SerializedObject(fieldIncidents[0]).FindProperty("regionId")?.stringValue != region.regionId)
                         result.errors.Add($"{region.sceneName}: 필드 사건 지역 ID 불일치");
                     if (investigators.Length != expectedTownServices || recoveryNpcs.Length != expectedTownServices * 2)
                         result.errors.Add($"{region.sceneName}: 조사/복구 NPC 수 불일치 " +
                                           $"({investigators.Length}/{recoveryNpcs.Length}, 기대 {expectedTownServices}/{expectedTownServices * 2})");
+                    if(restorationVisuals.Length!=expectedTownServices||townPatrols.Length!=expectedTownServices*2)
+                        result.errors.Add($"{region.sceneName}: 마을 복구 시각/동선 구성 불일치 " +
+                                          $"({restorationVisuals.Length}/{townPatrols.Length}, 기대 {expectedTownServices}/{expectedTownServices*2})");
                     foreach (TownHealerNpc healer in healers)
                     {
                         var healerSo = new SerializedObject(healer);

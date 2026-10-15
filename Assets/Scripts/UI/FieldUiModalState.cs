@@ -16,6 +16,7 @@ namespace ShadowTheater.UI
         Shop,
         Inventory,
         QuestLog,
+        BossJournal,
         Pause
     }
 
@@ -32,6 +33,7 @@ namespace ShadowTheater.UI
             if (requested != FieldUiModal.Shop && SettlementShopController.Instance != null && SettlementShopController.Instance.IsOpen) return false;
             if (requested != FieldUiModal.Inventory && FieldInventoryController.Instance != null && FieldInventoryController.Instance.IsOpen) return false;
             if (requested != FieldUiModal.QuestLog && QuestLogController.Instance != null && QuestLogController.Instance.IsOpen) return false;
+            if (requested != FieldUiModal.BossJournal && BossInvestigationJournalController.Instance != null && BossInvestigationJournalController.Instance.IsOpen) return false;
             if (requested != FieldUiModal.Pause && FieldPauseMenuController.Instance != null && FieldPauseMenuController.Instance.IsOpen) return false;
             return true;
         }
@@ -44,6 +46,7 @@ namespace ShadowTheater.UI
             (SettlementShopController.Instance != null && SettlementShopController.Instance.IsOpen) ||
             (FieldInventoryController.Instance != null && FieldInventoryController.Instance.IsOpen) ||
             (QuestLogController.Instance != null && QuestLogController.Instance.IsOpen) ||
+            (BossInvestigationJournalController.Instance != null && BossInvestigationJournalController.Instance.IsOpen) ||
             (FieldPauseMenuController.Instance != null && FieldPauseMenuController.Instance.IsOpen);
     }
 }

@@ -7,6 +7,7 @@ using ShadowTheater.Field;
 using ShadowTheater.Save;
 using ShadowTheater.UI;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 namespace ShadowTheater.Story
 {
@@ -181,6 +182,7 @@ namespace ShadowTheater.Story
     public static class TownRestorationService
     {
         private static readonly int[] Thresholds = { 0, 3, 6, 10 };
+        public static event Action<string, int> StageChanged;
 
         public static TownRestorationProgressData Progress(string regionId, bool create = false)
         {
@@ -212,10 +214,11 @@ namespace ShadowTheater.Story
 
         public static int AddActivity(string regionId, int points)
         {
+            int before = Stage(regionId);
             if (!TownServicePolicy.IsRumorResolved(regionId) || points <= 0) return Stage(regionId);
             TownRestorationProgressData progress = Progress(regionId, true);
             progress.points = SaveValuePolicy.SaturatingAdd(Mathf.Max(3, progress.points), points);
-            return Stage(regionId);
+            int after=Stage(regionId);if(after!=before)StageChanged?.Invoke(regionId,after);return after;
         }
 
         public static bool ClaimReturnVisit(string regionId, out int stage)
@@ -227,6 +230,7 @@ namespace ShadowTheater.Story
             progress.points = Mathf.Max(3, progress.points);
             progress.points = SaveValuePolicy.SaturatingAdd(progress.points, 3);
             stage = Stage(regionId);
+            StageChanged?.Invoke(regionId, stage);
             return true;
         }
 
@@ -304,6 +308,7 @@ namespace ShadowTheater.Story
     {
         [SerializeField] private string regionId;
         [SerializeField, Range(1, 3)] private int requiredStage = 2;
+        public int RequiredStage => requiredStage;
 
         private IEnumerator Start()
         {
@@ -319,5 +324,39 @@ namespace ShadowTheater.Story
                 : "복구 인력이 길과 무대를 고쳤습니다. 상점의 전문 물품도 늘어났습니다.";
             SaveFeedbackController.Instance?.ShowMessage($"[{TownRestorationService.StageLabel(stage)}] {message}");
         }
+    }
+
+    /// <summary>복구 단계에 맞춰 마을 건물·배경 장식·조명·주민 동선을 함께 바꾼다.</summary>
+    public class TownRestorationVisualController : MonoBehaviour
+    {
+        [SerializeField] private string regionId;
+        [SerializeField] private Color restoredLightColor = new Color(1f,.78f,.48f);
+        [SerializeField] private List<GameObject> stageOneObjects = new List<GameObject>();
+        [SerializeField] private List<GameObject> stageTwoObjects = new List<GameObject>();
+        [SerializeField] private List<GameObject> stageThreeObjects = new List<GameObject>();
+        private IEnumerator Start(){if(SaveManager.Current==null)yield return new WaitUntil(()=>SaveManager.Current!=null);Apply(TownRestorationService.Stage(regionId));}
+        private void OnEnable()=>TownRestorationService.StageChanged+=OnStageChanged;
+        private void OnDisable()=>TownRestorationService.StageChanged-=OnStageChanged;
+        private void OnStageChanged(string id,int stage){if(id==regionId)Apply(stage);}
+        public void Apply(int stage)
+        {
+            Set(stageOneObjects,stage>=1);Set(stageTwoObjects,stage>=2);Set(stageThreeObjects,stage>=3);
+            foreach(Light2D light in GetComponentsInChildren<Light2D>(true))
+            {if(light.lightType==Light2D.LightType.Global){light.intensity=Mathf.Lerp(.62f,1f,stage/3f);light.color=Color.Lerp(light.color,restoredLightColor,stage*.16f);}}
+            foreach(TownNpcPatrol patrol in GetComponentsInChildren<TownNpcPatrol>(true))patrol.SetRestorationStage(stage);
+            foreach(TownRecoveryNpc npc in GetComponentsInChildren<TownRecoveryNpc>(true))npc.gameObject.SetActive(stage>=npc.RequiredStage);
+        }
+        private static void Set(List<GameObject> values,bool active){foreach(GameObject value in values)if(value!=null)value.SetActive(active);}
+    }
+
+    public class TownNpcPatrol : MonoBehaviour
+    {
+        [SerializeField,Range(1,3)]private int requiredStage=2;
+        [SerializeField]private Vector2 localOffset=new Vector2(2f,0);
+        [SerializeField,Min(.1f)]private float speed=.65f;
+        private Vector3 _origin;private bool _enabled;
+        private void Awake()=>_origin=transform.localPosition;
+        public void SetRestorationStage(int stage)=>_enabled=stage>=requiredStage;
+        private void Update(){if(!_enabled)return;float wave=(Mathf.Sin(Time.time*speed)+1f)*.5f;transform.localPosition=_origin+(Vector3)(localOffset*wave);}
     }
 }

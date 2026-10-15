@@ -394,6 +394,7 @@ namespace ShadowTheater.UI
         public IEnumerator PlayJointSkill(BattleUnit a, BattleUnit companion, BattleUnit d,
             CompanionJointProfile profile, HitResult hit)
         {
+            if (fxDirector != null) yield return fxDirector.PlayJointSkill(playerPanel, enemyPanel, companion, profile, hit, _speed);
             yield return Say($"{L10n.Text(a.Name)}과 {L10n.Text(companion.Name)}의 합동 연출!\n[{profile.displayName}]", .8f);
             string message = $"{L10n.Text(d.Name)}에게 {hit.damage} 피해";
             if (hit.critical) message += " · 치명타";

@@ -38,6 +38,7 @@ namespace ShadowTheater.UI
         private bool _lockedPlayer;
         private string _fullLine;
         private Action _onComplete;
+        private Action<int> _onChoice;
         private readonly List<DialogueChoice> _visibleChoices = new List<DialogueChoice>();
         private bool _awaitingChoice;
         private Coroutine _emotionRoutine;
@@ -110,6 +111,14 @@ namespace ShadowTheater.UI
             return true;
         }
 
+        public bool PlayDynamic(DialogueSequence sequence, Color accent, Action<int> onChoice = null, Action onComplete = null)
+        {
+            if(IsPlaying||sequence==null||!HasContent(sequence)||!FieldUiModalState.CanOpen(FieldUiModal.Dialogue))return false;
+            _sequence=sequence;_lineIndex=0;_onComplete=onComplete;_onChoice=onChoice;IsPlaying=true;_baseAccent=accent;
+            if(accentBar!=null)accentBar.color=accent;if(PlayerController.Instance!=null){PlayerController.Instance.MoveInput=Vector2.zero;PlayerController.Instance.Lock();_lockedPlayer=true;}
+            SetVisible(true);HideChoices();ShowNextAvailableLine();return true;
+        }
+
         /// <summary>UI의 전체 화면 투명 버튼 또는 '다음' 버튼에 연결.</summary>
         public void Advance()
         {
@@ -129,6 +138,7 @@ namespace ShadowTheater.UI
         {
             if (!_awaitingChoice || visibleIndex < 0 || visibleIndex >= _visibleChoices.Count) return;
             var choice = _visibleChoices[visibleIndex];
+            _onChoice?.Invoke(visibleIndex);
 
             if (!string.IsNullOrEmpty(choice.setFlag))
                 SaveManager.SetFlag(choice.setFlag, choice.setFlagValue);
@@ -270,7 +280,7 @@ namespace ShadowTheater.UI
             _isTyping = false;
             IsPlaying = false;
             _sequence = null;
-            _onComplete = null;
+            _onComplete = null;_onChoice=null;
             StopEmotionMotion();
             HideChoices();
             SetVisible(false);
