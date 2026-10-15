@@ -866,6 +866,10 @@ namespace ShadowTheater.EditorTools
                     !rumorQuest.objectives[0].TryGetType(out QuestObjectiveType type) || type != QuestObjectiveType.Reach ||
                     !rumorQuest.objectives[0].targetId.StartsWith("area_", StringComparison.Ordinal))
                     result.errors.Add($"{region.displayName}: 소문 탐험 퀘스트 설정 오류 ({questId})");
+                string followup = TownServicePolicy.RumorFollowupDialogueId(region.regionId);
+                if (string.IsNullOrEmpty(followup) || !knownDialogues.Contains(followup) ||
+                    string.IsNullOrEmpty(TownServicePolicy.RumorCompletionFlag(region.regionId)))
+                    result.errors.Add($"{region.displayName}: 소문 후일담·생활권 변화 설정 오류");
                 IReadOnlyList<string> specialties = TownServicePolicy.SpecialtyItemIds(region);
                 if (specialties.Count == 0) result.errors.Add($"{region.displayName}: 전문 판매품 누락");
                 string signature = string.Join("|", specialties.OrderBy(x => x));
@@ -891,6 +895,10 @@ namespace ShadowTheater.EditorTools
                 TownServicePolicy.ShouldShowHiddenHint(true, true, false) ||
                 !TownServicePolicy.ShouldShowHiddenHint(true, true, true))
                 result.errors.Add("숨은 지역 월드맵 ? 공개 조건 회귀 실패");
+            if (TownServicePolicy.CalculateRestCost(30, false) != 30 ||
+                TownServicePolicy.CalculateRestCost(30, true) != 20 ||
+                TownServicePolicy.CalculateRestCost(5, true) != 0)
+                result.errors.Add("소문 완료 생활권 휴식비 보정 오류");
         }
 
         private static void ValidateDatabase(ValidationReport result)

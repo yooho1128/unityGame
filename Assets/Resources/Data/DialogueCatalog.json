@@ -463,6 +463,13 @@
     {"dialogueId":"town_rumor_white_archive","lines":[{"speaker":"등불 기록상","text":"갈대밭의 등불은 바람이 아니라 낮은 울음에 맞춰 켜진대. 행렬 끝의 돌문은 밝을 때보다 그림자가 길 때 잘 보인다더군.","emotion":"mystery"},{"speaker":"등불 기록상","text":"우물 벽에서 글자가 물을 거슬러 오른다면 버려진 문장이라 단정하지 마.","emotion":"calm"}]},
     {"dialogueId":"town_rumor_howl","lines":[{"speaker":"탈 깎는 노인","text":"탈춤 고갯길의 은빛 발자국은 달빛과 반대로 흐른다. 초승달 여우가 큰길을 외면하면 뒤를 따라가 보게.","emotion":"mystery"},{"speaker":"탈 깎는 노인","text":"봉인된 탈방에는 바람이 없는데도 날갯소리가 돌아온다더군. 높은 울음과 낮은 메아리 사이를 잘 들어봐.","emotion":"warning"}]},
     {"dialogueId":"town_rumor_thread","lines":[{"speaker":"실감개 행상","text":"실밥 벌판의 붉은 실은 공방으로 돌아오지 않아. 천 조각 고양이가 매듭을 이은 날에는 버려진 장난감 창고 쪽으로 팽팽해졌지.","emotion":"mystery"},{"speaker":"실감개 행상","text":"태엽 소리가 제각각이면 고장 난 장난감이고, 한 박자로 맞으면 도시의 심장이 답하는 거래.","emotion":"calm"}]},
-    {"dialogueId":"town_rumor_station","lines":[{"speaker":"막차의 안내원","text":"노래 없는 회랑에는 표지판이 없지만, 표 없는 승객은 늘 같은 벽 앞에서 하차 준비를 해.","emotion":"mystery"},{"speaker":"막차의 안내원","text":"난간을 지휘봉처럼 두드렸을 때 누군가 숨을 들이쉬면 그 회랑은 비어 있지 않은 거야.","emotion":"warning"}]}
+    {"dialogueId":"town_rumor_station","lines":[{"speaker":"막차의 안내원","text":"노래 없는 회랑에는 표지판이 없지만, 표 없는 승객은 늘 같은 벽 앞에서 하차 준비를 해.","emotion":"mystery"},{"speaker":"막차의 안내원","text":"난간을 지휘봉처럼 두드렸을 때 누군가 숨을 들이쉬면 그 회랑은 비어 있지 않은 거야.","emotion":"warning"}]},
+    {"dialogueId":"town_rumor_prologue_resolved","lines":[{"speaker":"수레바퀴 이야기꾼","text":"잊힌 천막의 사람들이 돌아갈 길을 찾았다는 소식이 퍼졌어. 마을 사람들이 여행자의 휴식비를 조금씩 보태기로 했지.","emotion":"hope"}]},
+    {"dialogueId":"town_rumor_cinder_resolved","lines":[{"speaker":"막간의 포스터 수집가","text":"옥상에서 다시 연습 소리가 들려. 찢어진 포스터도 새 공연 안내지와 나란히 붙기 시작했어.","emotion":"hope"}]},
+    {"dialogueId":"town_rumor_frost_port_resolved","lines":[{"speaker":"밀물 소식꾼","text":"거품 속 이름들이 항구 명부로 돌아왔어. 뱃사람들이 네 일행의 정박비와 휴식비를 덜 받겠대.","emotion":"relief"}]},
+    {"dialogueId":"town_rumor_white_archive_resolved","lines":[{"speaker":"등불 기록상","text":"우물에서 건진 문장을 기록원들이 밤마다 읽고 있어. 갈대 등불도 이제 귀환하는 사람을 위해 켜진다네.","emotion":"calm"}]},
+    {"dialogueId":"town_rumor_howl_resolved","lines":[{"speaker":"탈 깎는 노인","text":"봉인된 탈의 주인들을 기억하는 새 탈춤이 생겼네. 마을의 울음이 오랜만에 노랫가락으로 바뀌었어.","emotion":"hope"}]},
+    {"dialogueId":"town_rumor_thread_resolved","lines":[{"speaker":"실감개 행상","text":"장난감 창고의 태엽을 고쳐 시장 시계와 맞췄어. 상인들이 길을 되찾아 준 답례로 휴식을 돕고 있지.","emotion":"hope"}]},
+    {"dialogueId":"town_rumor_station_resolved","lines":[{"speaker":"막차의 안내원","text":"노래 없는 회랑에 귀가 열차 안내가 다시 울려. 표 없는 승객도 이제 이름으로 불리고 있어.","emotion":"relief"}]}
   ]
 }

@@ -51,6 +51,18 @@ namespace ShadowTheater.Story
                 { "erased_station", "rumor_silent_foyer" }
             };
 
+        private static readonly Dictionary<string, string> RumorFollowups =
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                { "prologue_theater", "town_rumor_prologue_resolved" },
+                { "cinder_city", "town_rumor_cinder_resolved" },
+                { "frost_port", "town_rumor_frost_port_resolved" },
+                { "white_archive", "town_rumor_white_archive_resolved" },
+                { "howl_village", "town_rumor_howl_resolved" },
+                { "thread_market", "town_rumor_thread_resolved" },
+                { "erased_station", "town_rumor_station_resolved" }
+            };
+
         private static readonly Dictionary<string, string> HiddenRumorSources =
             new Dictionary<string, string>(StringComparer.Ordinal)
             {
@@ -102,6 +114,27 @@ namespace ShadowTheater.Story
         public static string RumorQuestId(string regionId) =>
             regionId != null && RumorQuests.TryGetValue(regionId, out string id) ? id : string.Empty;
 
+        public static string RumorFollowupDialogueId(string regionId) =>
+            regionId != null && RumorFollowups.TryGetValue(regionId, out string id) ? id : string.Empty;
+
+        public static string RumorCompletionFlag(string regionId)
+        {
+            string questId = RumorQuestId(regionId);
+            return string.IsNullOrEmpty(questId) ? string.Empty : questId + "_complete";
+        }
+
+        public static bool IsRumorResolved(string regionId)
+        {
+            string flag = RumorCompletionFlag(regionId);
+            return !string.IsNullOrEmpty(flag) && SaveManager.HasFlag(flag);
+        }
+
+        public static int RestCost(string regionId, int baseCost) =>
+            CalculateRestCost(baseCost, IsRumorResolved(regionId));
+
+        public static int CalculateRestCost(int baseCost, bool resolved) =>
+            resolved ? Mathf.Max(0, baseCost - 10) : Mathf.Max(0, baseCost);
+
         public static IReadOnlyList<string> SpecialtyItemIds(RegionData region)
         {
             return region != null && Specialties.TryGetValue(region.regionId, out string[] ids)
@@ -148,7 +181,9 @@ namespace ShadowTheater.Story
         {
             RegionData current = RegionRepository.GetByScene(SaveManager.Current?.mapId);
             if (current == null || current.regionId != regionId || !current.isSettlement) return;
-            bool success = SaveManager.TryRestParty(restCost, out string message);
+            int cost = TownServicePolicy.RestCost(regionId, restCost);
+            bool success = SaveManager.TryRestParty(cost, out string message);
+            if (success && cost < restCost) message += " · 되찾은 생활권 도움 -10 금화";
             if (success) SaveManager.Instance?.Save();
             SaveFeedbackController.Instance?.ShowMessage(message);
         }
@@ -160,19 +195,32 @@ namespace ShadowTheater.Story
         [SerializeField] private string dialogueId;
         [SerializeField] private Color accent = new Color(.72f, .62f, 1f, 1f);
 
+        private void Start() => ApplyResolvedVisual();
+
         public void Interact(PlayerController player)
         {
             RegionData current = RegionRepository.GetByScene(SaveManager.Current?.mapId);
             if (current == null || current.regionId != regionId || !current.isSettlement) return;
             DialogueController dialogue = DialogueController.Instance;
             if (dialogue == null || dialogue.IsPlaying) return;
-            dialogue.Play(dialogueId, accent, () =>
+            bool resolved = TownServicePolicy.IsRumorResolved(regionId);
+            string selectedDialogue = resolved ? TownServicePolicy.RumorFollowupDialogueId(regionId) : dialogueId;
+            dialogue.Play(selectedDialogue, resolved ? Color.Lerp(accent, Color.white, .35f) : accent, () =>
             {
+                if (resolved) return;
                 SaveManager.SetFlag("heard_rumor_" + regionId);
                 string questId = TownServicePolicy.RumorQuestId(regionId);
                 if (!string.IsNullOrEmpty(questId)) QuestManager.Instance?.TryStartQuest(questId, false);
                 SaveManager.Instance?.Save();
             });
+        }
+
+        private void ApplyResolvedVisual()
+        {
+            if (!TownServicePolicy.IsRumorResolved(regionId)) return;
+            SpriteRenderer actor = GetComponent<SpriteRenderer>();
+            if (actor != null) actor.color = Color.Lerp(actor.color, accent, .45f);
+            transform.localScale *= 1.08f;
         }
     }
 }
