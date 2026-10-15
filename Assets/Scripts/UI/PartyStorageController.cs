@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using ShadowTheater.Data;
 using ShadowTheater.Field;
 using ShadowTheater.Save;
+using ShadowTheater.Story;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -18,6 +19,7 @@ namespace ShadowTheater.UI
         [SerializeField] private Text partyCountText;
         [SerializeField] private Text storageCountText;
         [SerializeField] private Text selectedText;
+        [SerializeField] private Text companionPassiveText;
         [SerializeField] private Text feedbackText;
         [SerializeField] private Button toPartyButton;
         [SerializeField] private Button toStorageButton;
@@ -131,6 +133,16 @@ namespace ShadowTheater.UI
             if (selectedText != null) selectedText.text = _selected == null ? L10n.Get("party.select", "그림자를 선택하세요")
                 : $"{L10n.Text(_selected.DisplayName)} · Lv.{_selected.level}" +
                   (isCompanion ? L10n.Get("party.companion_badge", " · 동행 중") : "");
+            if (companionPassiveText != null)
+            {
+                ShadowInstance current = save.party.Find(x => x.instanceId == save.companionInstanceId) ??
+                                         (save.party.Count > 0 ? save.party[0] : null);
+                string currentLine = current?.Data == null ? "현재 동행: 없음"
+                    : $"현재 {L10n.Text(current.DisplayName)}: {CompanionBondService.Describe(current.Data)}";
+                string selectedLine = _selected?.Data == null ? "선택한 그림자의 동행 효과를 확인할 수 있습니다."
+                    : $"선택 {L10n.Text(_selected.DisplayName)}: {CompanionBondService.Describe(_selected.Data)}";
+                companionPassiveText.text = currentLine + "\n" + selectedLine;
+            }
             if (toPartyButton != null) toPartyButton.interactable = _selected != null && !_selectedInParty && save.party.Count < SaveData.MaxPartySize;
             if (toStorageButton != null) toStorageButton.interactable = _selected != null && _selectedInParty && save.party.Count > 1;
             int index = _selectedInParty && _selected != null ? save.party.IndexOf(_selected) : -1;

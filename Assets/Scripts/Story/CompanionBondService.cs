@@ -1,5 +1,6 @@
 using ShadowTheater.Data;
 using ShadowTheater.Save;
+using System.Collections.Generic;
 
 namespace ShadowTheater.Story
 {
@@ -59,6 +60,25 @@ namespace ShadowTheater.Story
             return new CompanionPassiveSnapshot(shadow.shadowId, encounter, healing, safeSteps,
                 attack, defense, speed, critical, evasion, capture);
         }
+
+        public static string Describe(ShadowData shadow)
+        {
+            if (shadow == null) return "동행 효과 없음";
+            CompanionPassiveSnapshot p = From(shadow);
+            var values = new List<string>();
+            if (p.safeStepBonus > 0) values.Add($"안전 걸음 +{p.safeStepBonus}");
+            if (p.encounterMultiplier < 1f) values.Add($"조우율 -{Percent(1f - p.encounterMultiplier)}");
+            if (p.fieldHealingMultiplier > 1f) values.Add($"필드 회복 +{Percent(p.fieldHealingMultiplier - 1f)}");
+            if (p.attackMultiplier > 1f) values.Add($"공격 +{Percent(p.attackMultiplier - 1f)}");
+            if (p.defenseMultiplier > 1f) values.Add($"방어 +{Percent(p.defenseMultiplier - 1f)}");
+            if (p.speedMultiplier > 1f) values.Add($"속도 +{Percent(p.speedMultiplier - 1f)}");
+            if (p.criticalBonus > 0f) values.Add($"치명 +{Percent(p.criticalBonus)}");
+            if (p.evasionBonus > 0f) values.Add($"회피 +{Percent(p.evasionBonus)}");
+            if (p.captureMultiplier > 1f) values.Add($"기록률 +{Percent(p.captureMultiplier - 1f)}");
+            return string.Join(" · ", values);
+        }
+
+        private static int Percent(float value) => UnityEngine.Mathf.RoundToInt(value * 100f);
     }
 
     public readonly struct CompanionPassiveSnapshot

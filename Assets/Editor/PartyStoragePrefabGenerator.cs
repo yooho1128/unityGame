@@ -20,12 +20,13 @@ namespace ShadowTheater.EditorTools
             var panel=Rect("Root",root.transform,Vector2.zero,Vector2.one);panel.gameObject.AddComponent<Image>().color=new Color(.015f,.01f,.035f,.99f);
             Text("Header",panel,new Vector2(.05f,.92f),new Vector2(.75f,.985f),44,"파티 · 각본 서고",TextAnchor.MiddleLeft);
             var close=Btn("Close",panel,new Vector2(.86f,.93f),new Vector2(.96f,.98f),"×");
-            var selected=Text("Selected",panel,new Vector2(.05f,.84f),new Vector2(.65f,.91f),28,"그림자를 선택하세요",TextAnchor.MiddleLeft);
-            var feedback=Text("Feedback",panel,new Vector2(.05f,.79f),new Vector2(.95f,.84f),20,"",TextAnchor.MiddleLeft);
-            var partyLabel=Text("PartyCount",panel,new Vector2(.05f,.73f),new Vector2(.5f,.79f),27,"파티",TextAnchor.MiddleLeft);
-            Scroll("Party",panel,new Vector2(.05f,.46f),new Vector2(.95f,.73f),out var partyContent,out var partyTemplate);
-            var storageLabel=Text("StorageCount",panel,new Vector2(.05f,.39f),new Vector2(.5f,.45f),27,"각본 서고",TextAnchor.MiddleLeft);
-            Scroll("Storage",panel,new Vector2(.05f,.12f),new Vector2(.95f,.39f),out var storageContent,out var storageTemplate);
+            var selected=Text("Selected",panel,new Vector2(.05f,.86f),new Vector2(.65f,.92f),28,"그림자를 선택하세요",TextAnchor.MiddleLeft);
+            var passive=Text("CompanionPassive",panel,new Vector2(.05f,.785f),new Vector2(.95f,.86f),17,"현재 동행 효과",TextAnchor.UpperLeft);
+            var feedback=Text("Feedback",panel,new Vector2(.05f,.74f),new Vector2(.95f,.785f),19,"",TextAnchor.MiddleLeft);
+            var partyLabel=Text("PartyCount",panel,new Vector2(.05f,.685f),new Vector2(.5f,.74f),25,"파티",TextAnchor.MiddleLeft);
+            Scroll("Party",panel,new Vector2(.05f,.43f),new Vector2(.95f,.685f),out var partyContent,out var partyTemplate);
+            var storageLabel=Text("StorageCount",panel,new Vector2(.05f,.375f),new Vector2(.5f,.425f),25,"각본 서고",TextAnchor.MiddleLeft);
+            Scroll("Storage",panel,new Vector2(.05f,.11f),new Vector2(.95f,.375f),out var storageContent,out var storageTemplate);
             var toParty=Btn("ToParty",panel,new Vector2(.05f,.04f),new Vector2(.19f,.10f),"파티로");
             var toStorage=Btn("ToStorage",panel,new Vector2(.20f,.04f),new Vector2(.34f,.10f),"서고로");
             var companion=Btn("Companion",panel,new Vector2(.35f,.04f),new Vector2(.49f,.10f),"동행");
@@ -34,7 +35,7 @@ namespace ShadowTheater.EditorTools
             var down=Btn("Down",panel,new Vector2(.80f,.04f),new Vector2(.95f,.10f),"아래로");
             var ctrl=root.GetComponent<PartyStorageController>();var so=new SerializedObject(ctrl);
             Set(so,"root",panel.gameObject);Set(so,"partyContent",partyContent);Set(so,"storageContent",storageContent);Set(so,"partyTemplate",partyTemplate);Set(so,"storageTemplate",storageTemplate);
-            Set(so,"partyCountText",partyLabel);Set(so,"storageCountText",storageLabel);Set(so,"selectedText",selected);Set(so,"feedbackText",feedback);
+            Set(so,"partyCountText",partyLabel);Set(so,"storageCountText",storageLabel);Set(so,"selectedText",selected);Set(so,"companionPassiveText",passive);Set(so,"feedbackText",feedback);
             Set(so,"toPartyButton",toParty);Set(so,"toStorageButton",toStorage);Set(so,"companionButton",companion);Set(so,"healButton",heal);Set(so,"upButton",up);Set(so,"downButton",down);so.ApplyModifiedPropertiesWithoutUndo();
             UnityEditor.Events.UnityEventTools.AddPersistentListener(close.onClick,ctrl.Close);UnityEditor.Events.UnityEventTools.AddPersistentListener(toParty.onClick,ctrl.MoveSelectedToParty);
             UnityEditor.Events.UnityEventTools.AddPersistentListener(toStorage.onClick,ctrl.MoveSelectedToStorage);UnityEditor.Events.UnityEventTools.AddPersistentListener(companion.onClick,ctrl.SetSelectedCompanion);UnityEditor.Events.UnityEventTools.AddPersistentListener(heal.onClick,ctrl.HealSelected);UnityEditor.Events.UnityEventTools.AddPersistentListener(up.onClick,ctrl.MoveSelectedUp);UnityEditor.Events.UnityEventTools.AddPersistentListener(down.onClick,ctrl.MoveSelectedDown);

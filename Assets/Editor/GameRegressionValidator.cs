@@ -152,10 +152,13 @@ namespace ShadowTheater.EditorTools
             frostSupport.element = ShadowElement.Frost;
             frostSupport.role = ShadowRole.Support;
             CompanionPassiveSnapshot support = CompanionBondService.From(frostSupport);
-            UnityEngine.Object.DestroyImmediate(frostSupport);
             if (support.fieldHealingMultiplier <= 1f || support.defenseMultiplier <= 1f ||
                 support.captureMultiplier <= 1f || support.attackMultiplier != 1f)
                 result.errors.Add("동행 패시브: 서리/지원 역할 보정 오류");
+            if (!CompanionBondService.Describe(frostSupport).Contains("필드 회복") ||
+                !CompanionBondService.Describe(frostSupport).Contains("기록률"))
+                result.errors.Add("동행 패시브: UI 설명 누락");
+            UnityEngine.Object.DestroyImmediate(frostSupport);
         }
 
         private static void ValidateBossPhases(ValidationReport result)
@@ -1336,7 +1339,8 @@ namespace ShadowTheater.EditorTools
                             partySo.FindProperty("partyContent")?.objectReferenceValue == null ||
                             partySo.FindProperty("storageContent")?.objectReferenceValue == null ||
                             partySo.FindProperty("healButton")?.objectReferenceValue == null ||
-                            partySo.FindProperty("companionButton")?.objectReferenceValue == null)
+                            partySo.FindProperty("companionButton")?.objectReferenceValue == null ||
+                            partySo.FindProperty("companionPassiveText")?.objectReferenceValue == null)
                             result.errors.Add($"{region.sceneName}: 파티·각본 서고 UI 참조 누락");
                         foreach (string property in new[] { "partyTemplate", "storageTemplate" })
                         {
