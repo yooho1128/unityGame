@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using ShadowTheater.Data;
+using ShadowTheater.Story;
 using UnityEngine;
 
 namespace ShadowTheater.Battle
@@ -23,15 +24,19 @@ namespace ShadowTheater.Battle
         public ShadowInstance Instance { get; }
         public ShadowData Data => Instance.Data;
         public BattleSide Side { get; }
+        public CompanionPassiveSnapshot CompanionPassive { get; }
 
         public StatusState MajorStatus { get; private set; } // Freeze/Burn/Bleed 중 1개
         private readonly List<StatusState> _debuffs = new List<StatusState>();
         public IReadOnlyList<StatusState> Debuffs => _debuffs;
 
-        public BattleUnit(ShadowInstance instance, BattleSide side)
+        public BattleUnit(ShadowInstance instance, BattleSide side,
+            CompanionPassiveSnapshot companionPassive = default)
         {
             Instance = instance;
             Side = side;
+            CompanionPassive = string.IsNullOrEmpty(companionPassive.shadowId)
+                ? CompanionPassiveSnapshot.None : companionPassive;
             Instance.EnsureHp();
         }
 
@@ -43,13 +48,13 @@ namespace ShadowTheater.Battle
         public float HpRatio => (float)Hp / MaxHp;
         public bool IsFainted => Hp <= 0;
 
-        public int Atk => Mathf.RoundToInt(Instance.Atk
+        public int Atk => Mathf.RoundToInt(Instance.Atk * CompanionPassive.attackMultiplier
             * (HasDebuff(StatusEffectType.AttackDown) ? 0.7f : 1f)
             * (HasStatus(StatusEffectType.Burn) ? BurnAttackFactor : 1f));
-        public int Def => Mathf.RoundToInt(Instance.Def * (HasDebuff(StatusEffectType.DefenseDown) ? 0.7f : 1f));
-        public int Spd => Mathf.RoundToInt(Instance.Spd * (HasDebuff(StatusEffectType.SpeedDown) ? 0.5f : 1f));
-        public float CritRate => Instance.CritRate;
-        public float Evasion => Instance.Evasion;
+        public int Def => Mathf.RoundToInt(Instance.Def * CompanionPassive.defenseMultiplier * (HasDebuff(StatusEffectType.DefenseDown) ? 0.7f : 1f));
+        public int Spd => Mathf.RoundToInt(Instance.Spd * CompanionPassive.speedMultiplier * (HasDebuff(StatusEffectType.SpeedDown) ? 0.5f : 1f));
+        public float CritRate => Mathf.Clamp01(Instance.CritRate + CompanionPassive.criticalBonus);
+        public float Evasion => Mathf.Clamp01(Instance.Evasion + CompanionPassive.evasionBonus);
         public SkillData BasicAttack => Data.basicAttack;
         public List<SkillData> Skills => Instance.GetAvailableSkills();
 

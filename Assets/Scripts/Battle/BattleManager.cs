@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using ShadowTheater.Data;
+using ShadowTheater.Story;
 using ShadowTheater.UI;
 using UnityEngine;
 
@@ -111,7 +112,8 @@ namespace ShadowTheater.Battle
             Context = context;
             _playerUnits.Clear();
             _enemyUnits.Clear();
-            foreach (var s in context.playerParty) _playerUnits.Add(new BattleUnit(s, BattleSide.Player));
+            CompanionPassiveSnapshot passive = CompanionBondService.CurrentPassive();
+            foreach (var s in context.playerParty) _playerUnits.Add(new BattleUnit(s, BattleSide.Player, passive));
             foreach (var s in context.enemyParty) _enemyUnits.Add(new BattleUnit(s, BattleSide.Enemy));
 
             _playerIdx = FindNextAlive(_playerUnits, -1);
@@ -464,7 +466,8 @@ namespace ShadowTheater.Battle
                 yield break;
             }
 
-            float chance = DamageCalculator.CaptureChance(target, _captureBonus);
+            float chance = DamageCalculator.CaptureChance(target,
+                _captureBonus * PlayerActive.CompanionPassive.captureMultiplier);
             _captureBonus = 1f; // 특수 잉크는 다음 한 번의 기록 시도에만 적용한다.
             bool success = UnityEngine.Random.value < chance;
             yield return _presenter.PlayRecordAttempt(target, success);

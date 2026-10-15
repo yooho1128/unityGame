@@ -61,7 +61,8 @@ namespace ShadowTheater.Field
                 !GameFlowController.Instance.CanStartEncounter) return;
             if (_safeSteps-- > 0) return;
             _eligibleSteps++;
-            float chance = chancePerStep * CompanionBondService.EncounterChanceMultiplier(
+            CompanionPassiveSnapshot passive = CompanionBondService.CurrentPassive();
+            float chance = chancePerStep * passive.encounterMultiplier * CompanionBondService.EncounterChanceMultiplier(
                 CompanionBondService.CurrentCompanionShadowId());
             if (_eligibleSteps < pitySteps && UnityEngine.Random.value > chance) return;
 
@@ -93,7 +94,8 @@ namespace ShadowTheater.Field
 
         private void ResetCounter()
         {
-            int bonus = CompanionBondService.EncounterSafeStepBonus(CompanionBondService.CurrentCompanionShadowId());
+            int bonus = CompanionBondService.CurrentPassive().safeStepBonus +
+                        CompanionBondService.EncounterSafeStepBonus(CompanionBondService.CurrentCompanionShadowId());
             _safeSteps = UnityEngine.Random.Range(safeStepsMin, Mathf.Max(safeStepsMin + 1, safeStepsMax + 1)) + bonus;
             _eligibleSteps = 0;
         }

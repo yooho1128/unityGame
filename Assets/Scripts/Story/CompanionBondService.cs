@@ -1,3 +1,4 @@
+using ShadowTheater.Data;
 using ShadowTheater.Save;
 
 namespace ShadowTheater.Story
@@ -28,6 +29,64 @@ namespace ShadowTheater.Story
             if (save?.party == null) return string.Empty;
             var companion = save.party.Find(x => x.instanceId == save.companionInstanceId);
             return companion?.shadowId ?? (save.party.Count > 0 ? save.party[0].shadowId : string.Empty);
+        }
+
+        /// <summary>
+        /// 지정 동행의 속성은 탐험 보정, 역할은 전투 보정을 결정한다.
+        /// 개별 유대 이벤트 보정과 달리 모든 그림자에 항상 적용된다.
+        /// </summary>
+        public static CompanionPassiveSnapshot CurrentPassive()
+        {
+            SaveData save = SaveManager.Current;
+            if (save?.party == null) return CompanionPassiveSnapshot.None;
+            ShadowInstance companion = save.party.Find(x => x.instanceId == save.companionInstanceId) ??
+                                       (save.party.Count > 0 ? save.party[0] : null);
+            return companion?.Data == null ? CompanionPassiveSnapshot.None : From(companion.Data);
+        }
+
+        public static CompanionPassiveSnapshot From(ShadowData shadow)
+        {
+            if (shadow == null) return CompanionPassiveSnapshot.None;
+            float encounter = shadow.element == ShadowElement.Shade ? .92f : 1f;
+            float healing = shadow.element == ShadowElement.Frost ? 1.08f : 1f;
+            int safeSteps = shadow.element == ShadowElement.Flame ? 1 : 0;
+            float attack = shadow.role == ShadowRole.PhysicalDealer || shadow.role == ShadowRole.MagicNuker ? 1.05f : 1f;
+            float defense = shadow.role == ShadowRole.Tank ? 1.07f : shadow.role == ShadowRole.Support ? 1.03f : 1f;
+            float speed = shadow.role == ShadowRole.SpeedUtility ? 1.07f : 1f;
+            float critical = shadow.role == ShadowRole.PhysicalDealer ? .02f : 0f;
+            float evasion = shadow.role == ShadowRole.SpeedUtility ? .02f : 0f;
+            float capture = shadow.role == ShadowRole.Support ? 1.08f : 1f;
+            return new CompanionPassiveSnapshot(shadow.shadowId, encounter, healing, safeSteps,
+                attack, defense, speed, critical, evasion, capture);
+        }
+    }
+
+    public readonly struct CompanionPassiveSnapshot
+    {
+        public static readonly CompanionPassiveSnapshot None = new CompanionPassiveSnapshot(
+            string.Empty, 1f, 1f, 0, 1f, 1f, 1f, 0f, 0f, 1f);
+
+        public readonly string shadowId;
+        public readonly float encounterMultiplier, fieldHealingMultiplier;
+        public readonly int safeStepBonus;
+        public readonly float attackMultiplier, defenseMultiplier, speedMultiplier;
+        public readonly float criticalBonus, evasionBonus, captureMultiplier;
+
+        public CompanionPassiveSnapshot(string shadowId, float encounterMultiplier,
+            float fieldHealingMultiplier, int safeStepBonus, float attackMultiplier,
+            float defenseMultiplier, float speedMultiplier, float criticalBonus,
+            float evasionBonus, float captureMultiplier)
+        {
+            this.shadowId = shadowId;
+            this.encounterMultiplier = encounterMultiplier;
+            this.fieldHealingMultiplier = fieldHealingMultiplier;
+            this.safeStepBonus = safeStepBonus;
+            this.attackMultiplier = attackMultiplier;
+            this.defenseMultiplier = defenseMultiplier;
+            this.speedMultiplier = speedMultiplier;
+            this.criticalBonus = criticalBonus;
+            this.evasionBonus = evasionBonus;
+            this.captureMultiplier = captureMultiplier;
         }
     }
 }

@@ -98,6 +98,7 @@ namespace ShadowTheater.EditorTools
             ValidateBattleStatusDisplay(result);
             ValidateHiddenBattleGimmicks(result);
             ValidateRegionalEncounterPolicy(result);
+            ValidateCompanionPassives(result);
             if (!File.Exists(RegionPath))
             {
                 result.errors.Add("RegionCatalog.json 누락");
@@ -128,6 +129,29 @@ namespace ShadowTheater.EditorTools
             ValidateBuildSettings(regions, result);
             DeviceValidationReportUtility.ValidateImported(result.errors, result.warnings, requireDeviceReports);
             return result;
+        }
+
+        private static void ValidateCompanionPassives(ValidationReport result)
+        {
+            var flameDealer = ScriptableObject.CreateInstance<ShadowData>();
+            flameDealer.shadowId = "passive_flame";
+            flameDealer.element = ShadowElement.Flame;
+            flameDealer.role = ShadowRole.PhysicalDealer;
+            CompanionPassiveSnapshot offense = CompanionBondService.From(flameDealer);
+            UnityEngine.Object.DestroyImmediate(flameDealer);
+            if (offense.safeStepBonus != 1 || offense.attackMultiplier <= 1f || offense.criticalBonus <= 0f ||
+                offense.captureMultiplier != 1f)
+                result.errors.Add("동행 패시브: 불꽃/물리 역할 보정 오류");
+
+            var frostSupport = ScriptableObject.CreateInstance<ShadowData>();
+            frostSupport.shadowId = "passive_frost";
+            frostSupport.element = ShadowElement.Frost;
+            frostSupport.role = ShadowRole.Support;
+            CompanionPassiveSnapshot support = CompanionBondService.From(frostSupport);
+            UnityEngine.Object.DestroyImmediate(frostSupport);
+            if (support.fieldHealingMultiplier <= 1f || support.defenseMultiplier <= 1f ||
+                support.captureMultiplier <= 1f || support.attackMultiplier != 1f)
+                result.errors.Add("동행 패시브: 서리/지원 역할 보정 오류");
         }
 
         private static void ValidateDevicePolicy(ValidationReport result)

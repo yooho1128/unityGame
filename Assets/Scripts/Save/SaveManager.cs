@@ -773,6 +773,7 @@ namespace ShadowTheater.Save
                 int amount = item.effectType == ItemEffectType.HealRatio
                     ? Mathf.Max(1, Mathf.RoundToInt(target.MaxHp * Mathf.Clamp01(item.value)))
                     : Mathf.Max(1, Mathf.RoundToInt(item.value));
+                amount = Mathf.CeilToInt(amount * CompanionBondService.CurrentPassive().fieldHealingMultiplier);
                 amount = CompanionBondService.ModifyFieldHealing(
                     CompanionBondService.CurrentCompanionShadowId(), amount);
                 int waste = Mathf.Abs(amount - missing) + (amount < missing ? missing : 0);
@@ -800,6 +801,7 @@ namespace ShadowTheater.Save
             int healed = item.effectType == ItemEffectType.HealRatio
                 ? Mathf.Max(1, Mathf.RoundToInt(target.MaxHp * Mathf.Clamp01(item.value)))
                 : Mathf.Max(1, Mathf.RoundToInt(item.value));
+            healed = Mathf.CeilToInt(healed * CompanionBondService.CurrentPassive().fieldHealingMultiplier);
             healed = CompanionBondService.ModifyFieldHealing(
                 CompanionBondService.CurrentCompanionShadowId(), healed);
             int before = target.currentHp;
