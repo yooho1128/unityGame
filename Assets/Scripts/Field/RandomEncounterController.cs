@@ -6,6 +6,7 @@ using ShadowTheater.Battle;
 using ShadowTheater.Data;
 using ShadowTheater.Save;
 using ShadowTheater.Story;
+using ShadowTheater.UI;
 using UnityEngine;
 
 namespace ShadowTheater.Field
@@ -64,6 +65,8 @@ namespace ShadowTheater.Field
             CompanionPassiveSnapshot passive = CompanionBondService.CurrentPassive();
             float chance = chancePerStep * passive.encounterMultiplier * CompanionBondService.EncounterChanceMultiplier(
                 CompanionBondService.CurrentCompanionShadowId());
+            FieldWorldSnapshot world = FieldWorldState.Current(RegionRepository.Get(regionId));
+            chance *= FieldWorldState.EncounterRateMultiplier(world);
             if (_eligibleSteps < pitySteps && UnityEngine.Random.value > chance) return;
 
             RegionData region = RegionRepository.Get(regionId);
@@ -73,6 +76,19 @@ namespace ShadowTheater.Field
             int maxLevel = Mathf.Max(minLevel, candidate.maxLevel);
             int level = UnityEngine.Random.Range(minLevel, maxLevel + 1);
             _battlePending = true;
+            StartCoroutine(BeginEncounter(candidate, level, region, world));
+        }
+
+        private IEnumerator BeginEncounter(EncounterCandidate candidate, int level, RegionData region,
+            FieldWorldSnapshot world)
+        {
+            if (candidate.shadow.growthTier == GrowthTier.Rare)
+            {
+                SaveFeedbackController.Instance?.ShowMessage(FieldWorldState.RareEncounterSignal(world));
+                yield return new WaitForSecondsRealtime(.8f);
+            }
+            if (GameFlowController.Instance == null || !GameFlowController.Instance.CanStartEncounter)
+            { _battlePending = false; yield break; }
             GameFlowController.Instance.StartRandomBattle(
                 new List<ShadowInstance> { new ShadowInstance(candidate.shadow, level) }, region);
         }

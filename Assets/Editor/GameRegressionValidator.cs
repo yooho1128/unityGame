@@ -101,6 +101,7 @@ namespace ShadowTheater.EditorTools
             ValidateRegionalEncounterPolicy(result);
             ValidateCompanionPassives(result);
             ValidateBossPhases(result);
+            ValidateFieldWorldEffects(result);
             if (!File.Exists(RegionPath))
             {
                 result.errors.Add("RegionCatalog.json 누락");
@@ -184,6 +185,22 @@ namespace ShadowTheater.EditorTools
             }
             if (phases.Count != 18 || expected.Any(x => !ids.Contains(x)))
                 result.errors.Add($"주요 보스 개별 페이즈 수·대상 불일치: {phases.Count}/18");
+        }
+
+        private static void ValidateFieldWorldEffects(ValidationReport result)
+        {
+            var clearDay = new FieldWorldSnapshot(FieldTimeOfDay.Day, FieldWeather.Clear, 0);
+            var inkNight = new FieldWorldSnapshot(FieldTimeOfDay.Night, FieldWeather.InkStorm, 0);
+            var dawnRain = new FieldWorldSnapshot(FieldTimeOfDay.Dawn, FieldWeather.Rain, 0);
+            if (FieldWorldState.EncounterRateMultiplier(inkNight) <=
+                FieldWorldState.EncounterRateMultiplier(clearDay))
+                result.errors.Add("필드 효과: 밤 먹물 폭풍 조우율 보정 오류");
+            if (FieldWorldState.MovementDurationMultiplier(inkNight) <= 1f ||
+                FieldWorldState.FieldHealingMultiplier(dawnRain) <= 1f)
+                result.errors.Add("필드 효과: 이동·회복 날씨 보정 오류");
+            if (string.IsNullOrWhiteSpace(FieldWorldState.RareEncounterSignal(
+                    new FieldWorldSnapshot(FieldTimeOfDay.Night, FieldWeather.Starfall, 0))))
+                result.errors.Add("필드 효과: 희귀 조우 알림 누락");
         }
 
         private static void ValidateDevicePolicy(ValidationReport result)

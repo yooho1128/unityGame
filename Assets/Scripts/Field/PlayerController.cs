@@ -1,5 +1,7 @@
 using System;
 using System.Collections;
+using ShadowTheater.Save;
+using ShadowTheater.Story;
 using UnityEngine;
 
 namespace ShadowTheater.Field
@@ -151,10 +153,12 @@ namespace ShadowTheater.Field
             Vector3 to = FieldGrid.Current.CellToWorld(target);
             Cell = target; // 출발 시점에 칸 예약 (심볼과 겹침 방지)
 
+            RegionData region = RegionRepository.GetByScene(SaveManager.Current?.mapId);
+            float duration = stepDuration * FieldWorldState.MovementDurationMultiplier(FieldWorldState.Current(region));
             float t = 0f;
             while (t < 1f)
             {
-                t += Time.deltaTime / stepDuration;
+                t += Time.deltaTime / Mathf.Max(.01f, duration);
                 Vector3 p = Vector3.Lerp(from, to, Mathf.Clamp01(t));
                 p.y += Mathf.Sin(Mathf.Clamp01(t) * Mathf.PI) * bobHeight;
                 transform.position = p;

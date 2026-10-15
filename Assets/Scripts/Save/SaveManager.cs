@@ -774,6 +774,9 @@ namespace ShadowTheater.Save
                     ? Mathf.Max(1, Mathf.RoundToInt(target.MaxHp * Mathf.Clamp01(item.value)))
                     : Mathf.Max(1, Mathf.RoundToInt(item.value));
                 amount = Mathf.CeilToInt(amount * CompanionBondService.CurrentPassive().fieldHealingMultiplier);
+                RegionData region = RegionRepository.GetByScene(Current.mapId);
+                amount = Mathf.Max(1, Mathf.RoundToInt(amount *
+                    FieldWorldState.FieldHealingMultiplier(FieldWorldState.Current(region))));
                 amount = CompanionBondService.ModifyFieldHealing(
                     CompanionBondService.CurrentCompanionShadowId(), amount);
                 int waste = Mathf.Abs(amount - missing) + (amount < missing ? missing : 0);
@@ -802,6 +805,9 @@ namespace ShadowTheater.Save
                 ? Mathf.Max(1, Mathf.RoundToInt(target.MaxHp * Mathf.Clamp01(item.value)))
                 : Mathf.Max(1, Mathf.RoundToInt(item.value));
             healed = Mathf.CeilToInt(healed * CompanionBondService.CurrentPassive().fieldHealingMultiplier);
+            RegionData region = RegionRepository.GetByScene(Current.mapId);
+            healed = Mathf.Max(1, Mathf.RoundToInt(healed *
+                FieldWorldState.FieldHealingMultiplier(FieldWorldState.Current(region))));
             healed = CompanionBondService.ModifyFieldHealing(
                 CompanionBondService.CurrentCompanionShadowId(), healed);
             int before = target.currentHp;

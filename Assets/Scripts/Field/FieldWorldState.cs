@@ -85,6 +85,47 @@ namespace ShadowTheater.Field
             return Mathf.Clamp(value, .6f, 1.6f);
         }
 
+        public static float EncounterRateMultiplier(FieldWorldSnapshot state)
+        {
+            float value = state.timeOfDay == FieldTimeOfDay.Night ? 1.12f
+                : state.timeOfDay == FieldTimeOfDay.Dawn ? .94f : 1f;
+            if (state.weather == FieldWeather.Mist) value *= 1.15f;
+            else if (state.weather == FieldWeather.InkStorm) value *= 1.25f;
+            else if (state.weather == FieldWeather.Starfall) value *= 1.1f;
+            else if (state.weather == FieldWeather.Clear) value *= .92f;
+            return value;
+        }
+
+        public static float MovementDurationMultiplier(FieldWorldSnapshot state)
+        {
+            float value = state.timeOfDay == FieldTimeOfDay.Night ? 1.04f : 1f;
+            if (state.weather == FieldWeather.Rain || state.weather == FieldWeather.Snow) value *= 1.12f;
+            else if (state.weather == FieldWeather.InkStorm) value *= 1.16f;
+            else if (state.weather == FieldWeather.MoonWind) value *= .92f;
+            else if (state.weather == FieldWeather.ThreadDust) value *= .96f;
+            return value;
+        }
+
+        public static float FieldHealingMultiplier(FieldWorldSnapshot state)
+        {
+            float value = state.timeOfDay == FieldTimeOfDay.Dawn ? 1.1f : 1f;
+            if (state.weather == FieldWeather.Rain) value *= 1.05f;
+            else if (state.weather == FieldWeather.Ashfall || state.weather == FieldWeather.InkStorm) value *= .9f;
+            return value;
+        }
+
+        public static string RareEncounterSignal(FieldWorldSnapshot state)
+        {
+            string sky = state.timeOfDay == FieldTimeOfDay.Night ? "어둠 속에서" : "바람 너머에서";
+            switch (state.weather)
+            {
+                case FieldWeather.Mist: return "기억 안개 속에서 낯선 숨결이 가까워진다…";
+                case FieldWeather.Starfall: return "별비가 한 점에 모인다. 희귀한 그림자가 응답했다…";
+                case FieldWeather.InkStorm: return "먹물 폭풍 사이로 지워지지 않는 형체가 드러난다…";
+                default: return sky + " 좀처럼 마주치기 힘든 기척이 느껴진다…";
+            }
+        }
+
         public static string TimeLabel(FieldTimeOfDay value)
         {
             switch (value)
