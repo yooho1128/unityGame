@@ -790,6 +790,11 @@ namespace ShadowTheater.EditorTools
                 ? JsonUtility.FromJson<DialogueCatalogData>(File.ReadAllText(DialoguePath)) : null;
             var knownDialogues = new HashSet<string>(dialogues?.dialogues?.Where(x => x != null)
                 .Select(x => x.dialogueId) ?? Enumerable.Empty<string>(), StringComparer.Ordinal);
+            QuestCatalogData questCatalog = File.Exists(QuestPath)
+                ? JsonUtility.FromJson<QuestCatalogData>(File.ReadAllText(QuestPath)) : null;
+            var questsById = (questCatalog?.quests ?? new List<QuestDefinition>())
+                .Where(x => x != null && !string.IsNullOrEmpty(x.questId))
+                .ToDictionary(x => x.questId, StringComparer.Ordinal);
             ShadowDatabase database = AssetDatabase.LoadAssetAtPath<ShadowDatabase>(DatabasePath);
             var signatures = new HashSet<string>(StringComparer.Ordinal);
             foreach (RegionData region in settlements)
@@ -799,6 +804,12 @@ namespace ShadowTheater.EditorTools
                 string rumor = TownServicePolicy.RumorDialogueId(region);
                 if (string.IsNullOrEmpty(rumor) || !rumorIds.Add(rumor) || !knownDialogues.Contains(rumor))
                     result.errors.Add($"{region.displayName}: 소문 대화 누락 또는 중복 ({rumor})");
+                string questId = TownServicePolicy.RumorQuestId(region.regionId);
+                if (!questsById.TryGetValue(questId, out QuestDefinition rumorQuest) || !rumorQuest.isSideQuest ||
+                    rumorQuest.autoStart || rumorQuest.objectives?.Count != 1 ||
+                    !rumorQuest.objectives[0].TryGetType(out QuestObjectiveType type) || type != QuestObjectiveType.Reach ||
+                    !rumorQuest.objectives[0].targetId.StartsWith("area_", StringComparison.Ordinal))
+                    result.errors.Add($"{region.displayName}: 소문 탐험 퀘스트 설정 오류 ({questId})");
                 IReadOnlyList<string> specialties = TownServicePolicy.SpecialtyItemIds(region);
                 if (specialties.Count == 0) result.errors.Add($"{region.displayName}: 전문 판매품 누락");
                 string signature = string.Join("|", specialties.OrderBy(x => x));

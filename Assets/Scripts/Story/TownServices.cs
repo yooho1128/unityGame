@@ -39,6 +39,18 @@ namespace ShadowTheater.Story
                 { "erased_station", "town_rumor_station" }
             };
 
+        private static readonly Dictionary<string, string> RumorQuests =
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                { "prologue_theater", "rumor_forgotten_tent" },
+                { "cinder_city", "rumor_rooftop_rehearsal" },
+                { "frost_port", "rumor_bubble_cave" },
+                { "white_archive", "rumor_shadow_well" },
+                { "howl_village", "rumor_sealed_mask" },
+                { "thread_market", "rumor_toy_store" },
+                { "erased_station", "rumor_silent_foyer" }
+            };
+
         private static readonly Dictionary<string, string> HiddenRumorSources =
             new Dictionary<string, string>(StringComparer.Ordinal)
             {
@@ -86,6 +98,9 @@ namespace ShadowTheater.Story
         {
             return region != null && Rumors.TryGetValue(region.regionId, out string id) ? id : string.Empty;
         }
+
+        public static string RumorQuestId(string regionId) =>
+            regionId != null && RumorQuests.TryGetValue(regionId, out string id) ? id : string.Empty;
 
         public static IReadOnlyList<string> SpecialtyItemIds(RegionData region)
         {
@@ -154,6 +169,8 @@ namespace ShadowTheater.Story
             dialogue.Play(dialogueId, accent, () =>
             {
                 SaveManager.SetFlag("heard_rumor_" + regionId);
+                string questId = TownServicePolicy.RumorQuestId(regionId);
+                if (!string.IsNullOrEmpty(questId)) QuestManager.Instance?.TryStartQuest(questId, false);
                 SaveManager.Instance?.Save();
             });
         }
