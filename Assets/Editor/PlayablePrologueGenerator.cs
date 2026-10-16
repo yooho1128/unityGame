@@ -185,6 +185,7 @@ namespace ShadowTheater.EditorTools
             LegendaryGrowthBatchGenerator.Generate();
             FinalPixelArtPipeline.ImportAndValidate();
             UltimateFxAssetGenerator.Generate();
+            StandardSkillAudioAssetGenerator.Generate();
             FieldAudioAssetGenerator.Generate();
             FrontEndPrefabGenerator.Generate();
             DialogueUIPrefabGenerator.Generate();

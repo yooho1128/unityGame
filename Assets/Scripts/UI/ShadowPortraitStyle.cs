@@ -8,7 +8,9 @@ namespace ShadowTheater.UI
         public static Color Tint(Sprite sprite)
         {
             if (sprite == null || sprite.texture == null) return Color.black;
-            return sprite.texture.width >= 512 && sprite.texture.height >= 512 ? Color.white : Color.black;
+            bool coloredProcedural = sprite.texture.name.EndsWith("_procedural", System.StringComparison.Ordinal);
+            return coloredProcedural || sprite.texture.width >= 512 && sprite.texture.height >= 512
+                ? Color.white : Color.black;
         }
     }
 }

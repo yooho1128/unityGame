@@ -591,7 +591,7 @@ namespace ShadowTheater.EditorTools
                 shadow.growthTier = Parse(spec.growthTier, GrowthTier.Standard);
                 shadow.element = Parse(spec.element, ShadowElement.None);
                 shadow.role = Parse(spec.role, ShadowRole.PhysicalDealer);
-                shadow.silhouetteSprite = LoadFinalPortrait(spec.shadowId) ?? GeneratePlaceholderSprite(spec.shadowId, spec.shape);
+                shadow.silhouetteSprite = LoadFinalPortrait(spec.shadowId) ?? GenerateProceduralPortrait(spec);
                 shadow.accentColor = ParseColor(spec.accentColor, Color.white);
                 shadow.baseHp = spec.baseHp;
                 shadow.baseAtk = spec.baseAtk;
@@ -656,16 +656,18 @@ namespace ShadowTheater.EditorTools
             target.loreAppend = spec.loreAppend;
         }
 
-        private static Sprite GeneratePlaceholderSprite(string id, string shape)
+        private static Sprite GenerateProceduralPortrait(ShadowSpec spec)
         {
-            string path = $"{ArtFolder}/{id}_placeholder.png";
+            string path = $"{ArtFolder}/{spec.shadowId}_procedural.png";
             if (!File.Exists(path))
             {
                 const int size = 192;
                 var texture = new Texture2D(size, size, TextureFormat.RGBA32, false);
                 var pixels = Enumerable.Repeat(Color.clear, size * size).ToArray();
                 texture.SetPixels(pixels);
-                DrawSilhouette(texture, shape);
+                Color accent = ParseColor(spec.accentColor, new Color(.62f, .35f, 1f, 1f));
+                DrawSilhouette(texture, spec.shape, new Color(.035f, .025f, .075f, 1f));
+                DecorateProceduralPortrait(texture, spec, accent);
                 texture.Apply();
                 File.WriteAllBytes(path, texture.EncodeToPNG());
                 UnityEngine.Object.DestroyImmediate(texture);
@@ -680,7 +682,8 @@ namespace ShadowTheater.EditorTools
                 importer.spritePixelsPerUnit = 96f;
                 importer.alphaIsTransparency = true;
                 importer.mipmapEnabled = false;
-                importer.filterMode = FilterMode.Bilinear;
+                importer.filterMode = FilterMode.Point;
+                importer.textureCompression = TextureImporterCompression.Uncompressed;
                 importer.SaveAndReimport();
             }
             return AssetDatabase.LoadAssetAtPath<Sprite>(path);
@@ -705,9 +708,8 @@ namespace ShadowTheater.EditorTools
             return AssetDatabase.LoadAssetAtPath<Sprite>(path);
         }
 
-        private static void DrawSilhouette(Texture2D texture, string shape)
+        private static void DrawSilhouette(Texture2D texture, string shape, Color ink)
         {
-            Color ink = new Color(0.96f, 0.96f, 0.98f, 1f); // UI에서 검게 틴트된다.
             switch (shape)
             {
                 case "Knight":
@@ -734,6 +736,76 @@ namespace ShadowTheater.EditorTools
                 default:
                     Circle(texture, 96, 139, 18, ink); Triangle(texture, 49, 28, 143, 28, 96, 127, ink);
                     Rect(texture, 38, 73, 55, 151, ink); Rect(texture, 137, 73, 154, 151, ink); break;
+            }
+        }
+
+        private static void DecorateProceduralPortrait(Texture2D texture, ShadowSpec spec, Color accent)
+        {
+            Color glow = Color.Lerp(accent, Color.white, .55f);
+            Color shade = Color.Lerp(accent, Color.black, .48f);
+            int leftEye = 90, rightEye = 102, eyeY = 141;
+            switch (spec.shape)
+            {
+                case "Knight": leftEye = 80; rightEye = 92; eyeY = 139; break;
+                case "Mage": leftEye = 91; rightEye = 101; eyeY = 129; break;
+                case "Beast": leftEye = 123; rightEye = 135; eyeY = 108; break;
+                case "Puppet": leftEye = 90; rightEye = 102; eyeY = 142; break;
+                case "Crow": leftEye = 90; rightEye = 101; eyeY = 107; break;
+                case "Mask": leftEye = 72; rightEye = 120; eyeY = 111; break;
+            }
+
+            Circle(texture, leftEye, eyeY, 5, shade);
+            Circle(texture, rightEye, eyeY, 5, shade);
+            Rect(texture, leftEye - 2, eyeY - 1, leftEye + 2, eyeY + 1, glow);
+            Rect(texture, rightEye - 2, eyeY - 1, rightEye + 2, eyeY + 1, glow);
+
+            int seed = StablePortraitHash(spec.shadowId);
+            for (int i = 0; i < 5; i++)
+            {
+                int x = 70 + ((seed >> (i * 3)) & 7) * 7;
+                int y = 51 + i * 11;
+                Rect(texture, x, y, x + 3 + (i & 1), y + 3, i % 2 == 0 ? accent : shade);
+            }
+
+            ShadowRole role = Parse(spec.role, ShadowRole.PhysicalDealer);
+            if (role == ShadowRole.PhysicalDealer)
+            {
+                Line(texture, 132, 45, 158, 126, 4, accent);
+                Triangle(texture, 151, 126, 166, 139, 156, 112, glow);
+            }
+            else if (role == ShadowRole.MagicNuker || role == ShadowRole.Support)
+            {
+                Circle(texture, 151, 88, 11, shade);
+                Circle(texture, 151, 88, 5, glow);
+                Line(texture, 151, 45, 151, 78, 4, accent);
+            }
+            else if (role == ShadowRole.SpeedUtility)
+            {
+                Triangle(texture, 39, 72, 68, 86, 46, 101, accent);
+                Triangle(texture, 153, 72, 124, 86, 146, 101, accent);
+            }
+            else if (role == ShadowRole.Tank)
+            {
+                Rect(texture, 37, 67, 52, 125, shade);
+                Rect(texture, 40, 71, 48, 121, accent);
+            }
+
+            GrowthTier tier = Parse(spec.growthTier, GrowthTier.Standard);
+            if (tier == GrowthTier.RegionalBoss || tier == GrowthTier.Legendary)
+            {
+                Triangle(texture, 72, 159, 84, 159, 78, 181, accent);
+                Triangle(texture, 88, 163, 100, 163, 94, 187, glow);
+                Triangle(texture, 104, 159, 116, 159, 110, 181, accent);
+            }
+        }
+
+        private static int StablePortraitHash(string value)
+        {
+            unchecked
+            {
+                int hash = 23;
+                for (int i = 0; i < value.Length; i++) hash = hash * 31 + value[i];
+                return hash & int.MaxValue;
             }
         }
 

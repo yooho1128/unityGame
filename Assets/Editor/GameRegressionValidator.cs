@@ -139,6 +139,7 @@ namespace ShadowTheater.EditorTools
                                   LocalizationCoverageValidator.ReportPath);
             ValidateFinalArt(result);
             ValidateMusic(result);
+            ReleaseAssetPipeline.Validate(result.errors, result.warnings);
             ValidateFrontEnd(result);
             ValidateScenes(regions, result);
             ValidateBuildSettings(regions, result);

@@ -26,6 +26,15 @@ namespace ShadowTheater.UI
             {
                 if (skill.target == SkillTarget.Self) yield return Pulse(attacker, skill, 0.18f / speed, speed);
                 else yield return Lunge(attacker, defender, skill, hit, 0.18f / speed, skill.cameraShake, speed);
+                if (skill.target == SkillTarget.Self || !hit.missed)
+                {
+                    RectTransform standardLayer = CreateLayer($"Skill_{skill.skillId}");
+                    Vector2 effectCenter = EffectCenter(standardLayer,
+                        skill.target == SkillTarget.Self || defender == null ? attacker.MotionRoot : defender.MotionRoot);
+                    BuildStandardMotif(standardLayer, skill, effectCenter);
+                    yield return AnimateStandardMotif(standardLayer, skill, effectCenter, .14f / speed);
+                    Object.Destroy(standardLayer.gameObject);
+                }
                 yield break;
             }
 
@@ -269,6 +278,77 @@ namespace ShadowTheater.UI
                 r.anchoredPosition = MotifPosition(skill.ultimateFxStyle, angle, i);
                 r.localRotation = Quaternion.Euler(0f, 0f, MotifRotation(skill.ultimateFxStyle, angle));
                 shard.raycastTarget = false;
+            }
+        }
+
+        private static void BuildStandardMotif(RectTransform layer, SkillData skill, Vector2 center)
+        {
+            Color primary = StandardColor(skill.element);
+            Color secondary = skill.target == SkillTarget.Self
+                ? new Color(.45f, 1f, .72f, .9f)
+                : Color.Lerp(primary, Color.white, .45f);
+            int count = skill.damageType == DamageType.Magical ? 16 : 12;
+            for (int i = 0; i < count; i++)
+            {
+                float angle = (360f / count) * i + (skill.element == ShadowElement.Shade ? i * 11f : 0f);
+                Image shard = AddImage($"Burst_{i:00}", layer, new Vector2(.5f, .5f), new Vector2(.5f, .5f),
+                    i % 2 == 0 ? primary : secondary);
+                RectTransform rect = shard.rectTransform;
+                float length = skill.damageType == DamageType.Physical ? 58f + i % 4 * 14f : 34f + i % 5 * 10f;
+                rect.sizeDelta = skill.element == ShadowElement.Frost
+                    ? new Vector2(7f + i % 3 * 3f, length * 1.3f)
+                    : skill.target == SkillTarget.Self
+                        ? new Vector2(18f + i % 3 * 6f, 18f + i % 3 * 6f)
+                        : new Vector2(8f + i % 3 * 4f, length);
+                rect.anchoredPosition = center;
+                rect.localRotation = Quaternion.Euler(0f, 0f, angle - 90f);
+                rect.localScale = Vector3.zero;
+                shard.raycastTarget = false;
+            }
+        }
+
+        private static IEnumerator AnimateStandardMotif(RectTransform layer, SkillData skill, Vector2 center, float duration)
+        {
+            float elapsed = 0f;
+            int count = Mathf.Max(1, layer.childCount);
+            while (elapsed < duration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                float p = Mathf.Clamp01(elapsed / duration);
+                float radius = Mathf.Lerp(8f, skill.target == SkillTarget.Self ? 92f : 138f, EaseOut(p));
+                for (int i = 0; i < layer.childCount; i++)
+                {
+                    var rect = layer.GetChild(i) as RectTransform;
+                    if (rect == null) continue;
+                    float angle = ((360f / count) * i + (skill.element == ShadowElement.Shade ? i * 11f : 0f)) * Mathf.Deg2Rad;
+                    rect.anchoredPosition = center + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius;
+                    float scale = Mathf.Sin(p * Mathf.PI) * (skill.statusEffect == StatusEffectType.None ? 1f : 1.18f);
+                    rect.localScale = Vector3.one * scale;
+                    Image image = rect.GetComponent<Image>();
+                    if (image != null) image.color = WithAlpha(image.color, 1f - p * .75f);
+                }
+                yield return null;
+            }
+        }
+
+        private static Vector2 EffectCenter(RectTransform layer, RectTransform target)
+        {
+            if (layer == null || target == null) return Vector2.zero;
+            Canvas canvas = layer.GetComponentInParent<Canvas>();
+            Camera camera = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.worldCamera : null;
+            Vector2 screen = RectTransformUtility.WorldToScreenPoint(camera, target.position);
+            return RectTransformUtility.ScreenPointToLocalPointInRectangle(layer, screen, camera, out Vector2 local)
+                ? local : Vector2.zero;
+        }
+
+        private static Color StandardColor(ShadowElement element)
+        {
+            switch (element)
+            {
+                case ShadowElement.Flame: return new Color(1f, .22f, .08f, .92f);
+                case ShadowElement.Frost: return new Color(.12f, .82f, 1f, .92f);
+                case ShadowElement.Shade: return new Color(.62f, .22f, 1f, .92f);
+                default: return new Color(.92f, .82f, .58f, .9f);
             }
         }
 
