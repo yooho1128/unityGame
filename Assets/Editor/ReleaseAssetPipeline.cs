@@ -97,6 +97,7 @@ namespace ShadowTheater.EditorTools
             report.footstepsReady = Enum.GetNames(typeof(FootstepSurface)).Sum(name =>
                 Enumerable.Range(1, 4).Count(i =>
                     AudioReady($"Assets/Audio/Generated/Field/Footsteps/{name}_{i:00}.wav", report)));
+            report.regionArrivalArtReady = RegionArrivalArtReady();
 
             if (report.shadowCount != 180) report.errors.Add($"그림자 데이터 수 {report.shadowCount}/180");
             if (report.shadowsWithPortrait != report.shadowCount)
@@ -113,6 +114,8 @@ namespace ShadowTheater.EditorTools
                 report.errors.Add($"환경음 파일 {report.ambienceReady}/{report.ambienceExpected}");
             if (report.footstepsReady != report.footstepsExpected)
                 report.errors.Add($"발걸음 파일 {report.footstepsReady}/{report.footstepsExpected}");
+            if (!report.regionArrivalArtReady)
+                report.errors.Add("지역 진입 카드 배경·모티프 참조 누락");
             if (report.finalPortraits < report.shadowCount || report.finalFieldActors < report.shadowCount)
                 report.warnings.Add($"수작업 최종 아트 교체율 — 초상 {report.finalPortraits}/{report.shadowCount}, " +
                                     $"필드 {report.finalFieldActors}/{report.shadowCount}; 나머지는 생성 실루엣 사용");
@@ -134,6 +137,17 @@ namespace ShadowTheater.EditorTools
                 return false;
             }
             return true;
+        }
+
+        private static bool RegionArrivalArtReady()
+        {
+            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/UI/RegionArrivalCanvas.prefab");
+            RegionArrivalBanner banner = prefab != null ? prefab.GetComponent<RegionArrivalBanner>() : null;
+            if (banner == null) return false;
+            var serialized = new SerializedObject(banner);
+            return serialized.FindProperty("atmosphereGlow")?.objectReferenceValue != null &&
+                   serialized.FindProperty("motifLeft")?.objectReferenceValue != null &&
+                   serialized.FindProperty("motifRight")?.objectReferenceValue != null;
         }
 
         private static ReleaseAssetCoverageReport Finish(ReleaseAssetCoverageReport report, bool writeReport)
@@ -161,6 +175,7 @@ namespace ShadowTheater.EditorTools
         public int ultimateSkillCount, ultimatesWithFxAndAudio;
         public int standardAudioExpected, standardAudioReady;
         public int musicExpected, musicReady, ambienceExpected, ambienceReady, footstepsExpected, footstepsReady;
+        public bool regionArrivalArtReady;
         public List<string> errors = new List<string>();
         public List<string> warnings = new List<string>();
     }

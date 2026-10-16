@@ -13,6 +13,9 @@ namespace ShadowTheater.UI
         [SerializeField] private CanvasGroup root;
         [SerializeField] private RectTransform card;
         [SerializeField] private Image accent;
+        [SerializeField] private Image atmosphereGlow;
+        [SerializeField] private Image motifLeft;
+        [SerializeField] private Image motifRight;
         [SerializeField] private Text actText;
         [SerializeField] private Text regionText;
         [SerializeField] private Text environmentText;
@@ -42,11 +45,34 @@ namespace ShadowTheater.UI
                     L10n.Text(FieldWorldState.WeatherLabel(world.weather));
             }
             if (accent != null) accent.color = region.AccentColor;
+            ConfigureRegionalArt(region);
 
             if (delay > 0f) yield return new WaitForSecondsRealtime(delay);
             yield return Fade(0f, 1f, fadeIn, 28f, 0f);
             if (hold > 0f) yield return new WaitForSecondsRealtime(hold);
             yield return Fade(1f, 0f, fadeOut, 0f, -18f);
+        }
+
+        private void ConfigureRegionalArt(RegionData region)
+        {
+            Color color = region.AccentColor;
+            if (atmosphereGlow != null)
+                atmosphereGlow.color = new Color(color.r, color.g, color.b, region.isBossStage ? .28f : .16f);
+            if (motifLeft != null)
+            {
+                motifLeft.color = new Color(color.r, color.g, color.b, .34f);
+                motifLeft.rectTransform.localRotation = Quaternion.Euler(0f, 0f,
+                    region.isDungeon ? -38f : region.isSettlement ? -8f : -22f);
+                motifLeft.rectTransform.localScale = region.isBossStage ? new Vector3(1.45f, 1.45f, 1f) : Vector3.one;
+            }
+            if (motifRight != null)
+            {
+                Color pale = Color.Lerp(color, Color.white, .38f);
+                motifRight.color = new Color(pale.r, pale.g, pale.b, region.isHidden ? .42f : .24f);
+                motifRight.rectTransform.localRotation = Quaternion.Euler(0f, 0f,
+                    region.isLegendary ? 45f : region.isHidden ? 18f : 28f);
+                motifRight.rectTransform.localScale = region.isLegendary ? new Vector3(1.35f, 1.35f, 1f) : Vector3.one;
+            }
         }
 
         private IEnumerator Fade(float from, float to, float duration, float fromY, float toY)

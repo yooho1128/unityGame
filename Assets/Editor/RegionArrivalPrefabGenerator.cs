@@ -24,6 +24,12 @@ namespace ShadowTheater.EditorTools
             var group = card.gameObject.AddComponent<CanvasGroup>(); group.alpha = 0f; group.interactable = false; group.blocksRaycasts = false;
             var bg = card.gameObject.AddComponent<Image>(); bg.color = new Color(.018f,.014f,.045f,.9f); bg.raycastTarget = false;
             var outline = card.gameObject.AddComponent<Outline>(); outline.effectColor = new Color(.42f,.30f,.68f,.65f); outline.effectDistance = new Vector2(2,-2);
+            var glow = Rect("AtmosphereGlow", card, new Vector2(.02f,.08f), new Vector2(.98f,.92f)).gameObject.AddComponent<Image>();
+            glow.color = new Color(.35f,.2f,.7f,.16f); glow.raycastTarget = false;
+            var motifLeft = Rect("MotifLeft", card, new Vector2(.04f,.12f), new Vector2(.12f,.88f)).gameObject.AddComponent<Image>();
+            motifLeft.color = new Color(.55f,.34f,.9f,.3f); motifLeft.raycastTarget = false;
+            var motifRight = Rect("MotifRight", card, new Vector2(.88f,.16f), new Vector2(.95f,.84f)).gameObject.AddComponent<Image>();
+            motifRight.color = new Color(.78f,.68f,1f,.22f); motifRight.raycastTarget = false;
             var accent = Rect("Accent", card, new Vector2(0,.04f), new Vector2(.012f,.96f)).gameObject.AddComponent<Image>(); accent.raycastTarget = false;
             var act = Text("Act", card, new Vector2(.055f,.67f), new Vector2(.95f,.91f), 24, FontStyle.Bold, TextAnchor.MiddleCenter);
             act.color = new Color(.72f,.64f,.88f,1f);
@@ -32,7 +38,8 @@ namespace ShadowTheater.EditorTools
             environment.color = new Color(.72f,.70f,.80f,1f);
 
             var banner = canvasGo.GetComponent<RegionArrivalBanner>(); var so = new SerializedObject(banner);
-            Set(so,"root",group); Set(so,"card",card); Set(so,"accent",accent); Set(so,"actText",act);
+            Set(so,"root",group); Set(so,"card",card); Set(so,"accent",accent);
+            Set(so,"atmosphereGlow",glow); Set(so,"motifLeft",motifLeft); Set(so,"motifRight",motifRight); Set(so,"actText",act);
             Set(so,"regionText",region); Set(so,"environmentText",environment); so.ApplyModifiedPropertiesWithoutUndo();
             PrefabUtility.SaveAsPrefabAsset(canvasGo,PrefabPath); Object.DestroyImmediate(canvasGo);
             AssetDatabase.SaveAssets(); AssetDatabase.Refresh();
