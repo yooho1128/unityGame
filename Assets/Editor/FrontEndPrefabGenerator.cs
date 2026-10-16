@@ -60,6 +60,8 @@ namespace ShadowTheater.EditorTools
             var background = CreateRect("Background", root.transform, Vector2.zero, Vector2.one);
             var backgroundImage = background.gameObject.AddComponent<Image>();
             backgroundImage.color = new Color(0.018f, 0.012f, 0.045f, 1f);
+            Sprite titleArt = Resources.Load<Sprite>("Art/BattleBackgrounds/Theater");
+            if (titleArt != null) { backgroundImage.sprite = titleArt; backgroundImage.color = new Color(.5f, .5f, .6f, 1); }
 
             var titleRoot = CreateRect("TitleRoot", root.transform, Vector2.zero, Vector2.one);
             titleRoot.gameObject.AddComponent<MobileSafeArea>();

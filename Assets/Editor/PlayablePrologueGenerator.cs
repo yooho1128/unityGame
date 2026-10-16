@@ -182,6 +182,7 @@ namespace ShadowTheater.EditorTools
 
         private static void GenerateDependencies()
         {
+            ReleaseVisualAssetGenerator.Generate();
             CoreContentBatchGenerator.Generate();
             LegendaryGrowthBatchGenerator.Generate();
             FinalPixelArtPipeline.ImportAndValidate();
@@ -910,6 +911,7 @@ namespace ShadowTheater.EditorTools
                 : LoadShadow("knight")?.silhouetteSprite;
             renderer.color = Color.white;
             renderer.sortingOrder = 10;
+            go.AddComponent<GroundContactShadow>().Configure(renderer);
             go.GetComponent<Rigidbody2D>().gravityScale = 0f;
             go.GetComponent<CapsuleCollider2D>().size = new Vector2(0.55f, 0.75f);
             var so = new SerializedObject(go.GetComponent<PlayerController>());
@@ -1395,6 +1397,7 @@ namespace ShadowTheater.EditorTools
             if (renderer.sprite == null) renderer.sprite = visual?.silhouetteSprite;
             renderer.color = Color.white;
             renderer.sortingOrder = 8;
+            go.AddComponent<GroundContactShadow>().Configure(renderer);
             var box = go.GetComponent<BoxCollider2D>(); box.size = new Vector2(0.72f, 0.82f); box.isTrigger = trigger;
             visualObject.GetComponent<ShadowFieldMotion>().Configure(visual, frames);
             return go;
@@ -1413,6 +1416,7 @@ namespace ShadowTheater.EditorTools
             renderer.sprite = frames.Length > 0 ? frames[0] : CreatePixelEncounterSprite();
             renderer.color = Color.white;
             renderer.sortingOrder = 7;
+            go.AddComponent<GroundContactShadow>().Configure(renderer);
             go.GetComponent<CircleCollider2D>().radius = 0.38f;
             var so = new SerializedObject(go.GetComponent<EncounterSymbol>());
             Set(so, "leadShadow", shadow); Set(so, "levelRange", new Vector2Int(minLevel, maxLevel));

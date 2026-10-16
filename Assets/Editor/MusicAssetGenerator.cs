@@ -15,6 +15,7 @@ namespace ShadowTheater.EditorTools
         [MenuItem("Tools/Shadow Theater/Generate Adaptive Music")]
         public static void Generate()
         {
+            ReleaseMusicComposer.GenerateMissing();
             EnsureFolders();
             int count = 0;
             foreach (MusicCue cue in Enum.GetValues(typeof(MusicCue)))
@@ -48,7 +49,8 @@ namespace ShadowTheater.EditorTools
         {
             Array values = Enum.GetValues(typeof(MusicCue));
             var result = new AudioClip[values.Length];
-            foreach (MusicCue cue in values) result[(int)cue] = AssetDatabase.LoadAssetAtPath<AudioClip>(PathFor(cue));
+            foreach (MusicCue cue in values) result[(int)cue] = ReleaseAssetOverrides.Prefer(
+                $"Assets/Audio/Final/Music/{cue}.wav", AssetDatabase.LoadAssetAtPath<AudioClip>(PathFor(cue)));
             return result;
         }
 

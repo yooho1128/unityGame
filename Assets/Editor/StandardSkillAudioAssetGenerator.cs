@@ -32,8 +32,8 @@ namespace ShadowTheater.EditorTools
                 var skill = AssetDatabase.LoadAssetAtPath<SkillData>(AssetDatabase.GUIDToAssetPath(guid));
                 if (skill == null || skill.isUltimate) continue;
                 ShadowElement element = casts.ContainsKey(skill.element) ? skill.element : ShadowElement.None;
-                skill.sfxClip = casts[element];
-                skill.impactSfxClip = impacts[element];
+                skill.sfxClip = ReleaseAssetOverrides.SkillAudio(skill, false, casts[element]);
+                skill.impactSfxClip = ReleaseAssetOverrides.SkillAudio(skill, true, impacts[element]);
                 skill.sfxPitch = Pitch(skill);
                 skill.sfxVolume = skill.target == SkillTarget.Self ? .72f : .82f;
                 EditorUtility.SetDirty(skill);

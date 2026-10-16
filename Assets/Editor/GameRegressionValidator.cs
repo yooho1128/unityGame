@@ -1414,6 +1414,10 @@ namespace ShadowTheater.EditorTools
                             result.errors.Add($"{region.sceneName}: 월드맵 도착 좌표가 막힘 {region.ArrivalCell}");
                     }
                     if (!roots.Any(x => x.GetComponentInChildren<PlayerController>(true) != null)) result.errors.Add($"{region.sceneName}: Player 누락");
+                    if (!roots.Any(x => x.GetComponentInChildren<GroundContactShadow>(true) != null))
+                        result.errors.Add($"{region.sceneName}: 필드 접지 그림자 누락");
+                    if (!roots.Any(x => x.GetComponentInChildren<BattleStageBackdrop>(true) != null))
+                        result.errors.Add($"{region.sceneName}: 지역별 출시 전투 배경 누락");
                     if (!roots.Any(x => x.GetComponentInChildren<GameFlowController>(true) != null)) result.errors.Add($"{region.sceneName}: GameFlow 누락");
                     int endingTriggers=roots.SelectMany(x=>x.GetComponentsInChildren<EndingTrigger>(true)).Count();
                     if(region.sceneName=="FinalCurtain"&&endingTriggers!=1)result.errors.Add($"{region.sceneName}: 최종 엔딩 상호작용 수 불일치 ({endingTriggers}/1)");

@@ -34,8 +34,9 @@ Unity 메뉴 `Tools > Shadow Theater > Generate Field Audio Assets`를 실행하
 ## 폴백과 최종 교체
 
 생성 WAV가 연결되지 않았을 때도 두 런타임 컴포넌트가 같은 테마의 합성 클립을 메모리에 만들어
-게임 진행을 유지한다. 최종 음원은 씬의 AudioClip 참조를 바꾸면 된다. 전체 생성 메뉴를 다시 실행하면
-자동 자산이 재연결되므로 수동 교체는 데이터·씬 생성이 끝난 뒤 적용한다.
+게임 진행을 유지한다. 최종 음원은 같은 파일명을 유지한 채
+`Assets/Audio/Final/Field/Ambience`와 `Assets/Audio/Final/Field/Footsteps`에 넣는다.
+씬 생성기는 Final 파일을 우선 연결하며 이 파일들은 자동 생성기가 덮어쓰지 않는다.
 
 `Tools > Shadow Theater > Validate Full Game`은 63개 필드 모두에 지속·간헐 환경음과 발걸음 4개가
 연결되었는지 검사한다.

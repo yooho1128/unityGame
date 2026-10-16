@@ -195,6 +195,13 @@ namespace ShadowTheater.EditorTools
                 importer.mipmapEnabled = false;
                 importer.filterMode = filter;
                 importer.textureCompression = TextureImporterCompression.Uncompressed;
+                if (folder == PortraitFolder)
+                {
+                    var mobile = importer.GetPlatformTextureSettings("Android");
+                    mobile.name = "Android"; mobile.overridden = true; mobile.maxTextureSize = 1024;
+                    mobile.format = TextureImporterFormat.ETC2_RGBA8; mobile.compressionQuality = 75;
+                    importer.SetPlatformTextureSettings(mobile);
+                }
                 importer.SaveAndReimport();
                 Texture2D texture = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
                 if (texture != null) validate(path, texture);

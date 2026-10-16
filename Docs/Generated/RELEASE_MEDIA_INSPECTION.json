@@ -1,0 +1,318 @@
+{
+  "music": [
+    {
+      "name": "Act1",
+      "seconds": 43.636,
+      "peak": 0.77997,
+      "rms": 0.2015,
+      "dc": -6e-06,
+      "seam": 0.0,
+      "passed": true
+    },
+    {
+      "name": "Act2",
+      "seconds": 41.739,
+      "peak": 0.77997,
+      "rms": 0.1953,
+      "dc": -0.0,
+      "seam": 0.0,
+      "passed": true
+    },
+    {
+      "name": "Act3",
+      "seconds": 40.0,
+      "peak": 0.77997,
+      "rms": 0.20212,
+      "dc": 2e-06,
+      "seam": 0.0,
+      "passed": true
+    },
+    {
+      "name": "Act4",
+      "seconds": 45.714,
+      "peak": 0.77997,
+      "rms": 0.19072,
+      "dc": -3e-06,
+      "seam": 0.0,
+      "passed": true
+    },
+    {
+      "name": "Act5",
+      "seconds": 43.636,
+      "peak": 0.77997,
+      "rms": 0.19398,
+      "dc": 0.0,
+      "seam": 0.0,
+      "passed": true
+    },
+    {
+      "name": "Act6",
+      "seconds": 41.739,
+      "peak": 0.77997,
+      "rms": 0.19321,
+      "dc": 2e-06,
+      "seam": 0.0,
+      "passed": true
+    },
+    {
+      "name": "Act7",
+      "seconds": 40.0,
+      "peak": 0.77997,
+      "rms": 0.18431,
+      "dc": -1e-06,
+      "seam": 0.0,
+      "passed": true
+    },
+    {
+      "name": "Act8",
+      "seconds": 45.714,
+      "peak": 0.77997,
+      "rms": 0.19629,
+      "dc": -0.0,
+      "seam": 0.0,
+      "passed": true
+    },
+    {
+      "name": "BossBattle",
+      "seconds": 34.286,
+      "peak": 0.77997,
+      "rms": 0.21153,
+      "dc": -2e-06,
+      "seam": 0.0,
+      "passed": true
+    },
+    {
+      "name": "Ending",
+      "seconds": 53.333,
+      "peak": 0.77997,
+      "rms": 0.17201,
+      "dc": -1e-06,
+      "seam": 0.0,
+      "passed": true
+    },
+    {
+      "name": "RivalBattle",
+      "seconds": 30.968,
+      "peak": 0.77997,
+      "rms": 0.20687,
+      "dc": -4e-06,
+      "seam": 0.0,
+      "passed": true
+    },
+    {
+      "name": "Title",
+      "seconds": 45.714,
+      "peak": 0.77997,
+      "rms": 0.18433,
+      "dc": 2e-06,
+      "seam": 0.0,
+      "passed": true
+    },
+    {
+      "name": "WildBattle",
+      "seconds": 30.968,
+      "peak": 0.77997,
+      "rms": 0.20543,
+      "dc": -1e-06,
+      "seam": 0.0,
+      "passed": true
+    }
+  ],
+  "portraits": [
+    {
+      "name": "ash_king",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "opaqueEdgePixels": 0,
+      "bbox": [
+        21,
+        17,
+        1236,
+        1254
+      ]
+    },
+    {
+      "name": "infinite_archive_dragon",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "opaqueEdgePixels": 0,
+      "bbox": [
+        0,
+        0,
+        1254,
+        1254
+      ]
+    },
+    {
+      "name": "night_devouring_beast",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "opaqueEdgePixels": 0,
+      "bbox": [
+        0,
+        21,
+        1242,
+        1254
+      ]
+    },
+    {
+      "name": "last_puppeteer",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "opaqueEdgePixels": 0,
+      "bbox": [
+        17,
+        2,
+        1254,
+        1254
+      ]
+    },
+    {
+      "name": "high_censor_nox",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "opaqueEdgePixels": 0,
+      "bbox": [
+        0,
+        0,
+        1244,
+        1254
+      ]
+    },
+    {
+      "name": "drowned_painter",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "opaqueEdgePixels": 0,
+      "bbox": [
+        0,
+        15,
+        1230,
+        1254
+      ]
+    },
+    {
+      "name": "rival_director",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "opaqueEdgePixels": 0,
+      "bbox": [
+        0,
+        13,
+        1236,
+        1254
+      ]
+    },
+    {
+      "name": "boss_moonlit_widow",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "opaqueEdgePixels": 0,
+      "bbox": [
+        0,
+        15,
+        1238,
+        1254
+      ]
+    }
+  ],
+  "backgrounds": [
+    {
+      "name": "Archive",
+      "size": [
+        1672,
+        941
+      ],
+      "aspect": 1.77683
+    },
+    {
+      "name": "Cosmos",
+      "size": [
+        1672,
+        941
+      ],
+      "aspect": 1.77683
+    },
+    {
+      "name": "Ember",
+      "size": [
+        1672,
+        941
+      ],
+      "aspect": 1.77683
+    },
+    {
+      "name": "Ocean",
+      "size": [
+        1672,
+        941
+      ],
+      "aspect": 1.77683
+    },
+    {
+      "name": "Theater",
+      "size": [
+        1672,
+        941
+      ],
+      "aspect": 1.77683
+    }
+  ],
+  "musicPassed": true
+}

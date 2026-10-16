@@ -20,6 +20,7 @@ namespace ShadowTheater.EditorTools
         [MenuItem("Tools/Shadow Theater/Release/Generate and Audit Assets")]
         public static void GenerateAndAudit()
         {
+            ReleaseVisualAssetGenerator.Generate();
             MobileBrandingAssetGenerator.GenerateAndApply();
             CoreContentBatchGenerator.Generate();
             LegendaryGrowthBatchGenerator.Generate();
@@ -124,8 +125,9 @@ namespace ShadowTheater.EditorTools
             if (!report.mobileBrandingReady)
                 report.errors.Add("1024px 모바일 앱 아이콘 파일 또는 Android/iOS 연결 누락");
             if (report.finalPortraits < report.shadowCount || report.finalFieldActors < report.shadowCount)
-                report.warnings.Add($"수작업 최종 아트 교체율 — 초상 {report.finalPortraits}/{report.shadowCount}, " +
+                report.warnings.Add($"전용 최종 아트 교체율 — 초상 {report.finalPortraits}/{report.shadowCount}, " +
                                     $"필드 {report.finalFieldActors}/{report.shadowCount}; 나머지는 생성 실루엣 사용");
+            ReleasePresentationValidator.Validate(report.errors);
             return Finish(report, writeReport);
         }
 

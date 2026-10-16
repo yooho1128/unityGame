@@ -275,6 +275,7 @@ namespace ShadowTheater.UI
                 Image shard = AddImage($"Shard_{i:00}", layer, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
                     WithAlpha(i % 2 == 0 ? skill.primaryFxColor : skill.secondaryFxColor, 0.85f));
                 RectTransform r = shard.rectTransform;
+                shard.sprite = BattleFxSpriteLibrary.ForStyle(skill.ultimateFxStyle);
                 r.sizeDelta = MotifSize(skill.ultimateFxStyle, i);
                 r.anchoredPosition = MotifPosition(skill.ultimateFxStyle, angle, i);
                 r.localRotation = Quaternion.Euler(0f, 0f, MotifRotation(skill.ultimateFxStyle, angle));
@@ -295,6 +296,7 @@ namespace ShadowTheater.UI
                 Image shard = AddImage($"Burst_{i:00}", layer, new Vector2(.5f, .5f), new Vector2(.5f, .5f),
                     i % 2 == 0 ? primary : secondary);
                 RectTransform rect = shard.rectTransform;
+                shard.sprite = BattleFxSpriteLibrary.ForSkill(skill);
                 float length = skill.damageType == DamageType.Physical ? 58f + i % 4 * 14f : 34f + i % 5 * 10f;
                 rect.sizeDelta = skill.element == ShadowElement.Frost
                     ? new Vector2(7f + i % 3 * 3f, length * 1.3f)

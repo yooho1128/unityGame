@@ -38,9 +38,10 @@ namespace ShadowTheater.EditorTools
             {
                 var skill = AssetDatabase.LoadAssetAtPath<SkillData>(AssetDatabase.GUIDToAssetPath(guid));
                 if (skill == null || !skill.isUltimate || skill.ultimateFxStyle == UltimateFxStyle.None) continue;
-                skill.fxPrefab = prefabs[skill.ultimateFxStyle];
-                skill.sfxClip = casts[skill.ultimateFxStyle];
-                skill.impactSfxClip = impacts[skill.ultimateFxStyle];
+                skill.fxPrefab = ReleaseAssetOverrides.Prefer($"Assets/Prefabs/FX/Final/{skill.skillId}.prefab",
+                    ReleaseAssetOverrides.Prefer($"Assets/Prefabs/FX/Final/{skill.ultimateFxStyle}.prefab", prefabs[skill.ultimateFxStyle]));
+                skill.sfxClip = ReleaseAssetOverrides.SkillAudio(skill, false, casts[skill.ultimateFxStyle]);
+                skill.impactSfxClip = ReleaseAssetOverrides.SkillAudio(skill, true, impacts[skill.ultimateFxStyle]);
                 EditorUtility.SetDirty(skill);
                 assigned++;
             }
@@ -67,6 +68,7 @@ namespace ShadowTheater.EditorTools
                 rect.localRotation = Quaternion.Euler(0f, 0f, Rotation(style, i));
                 var image = child.GetComponent<Image>();
                 image.color = Color.white;
+                image.sprite = BattleFxSpriteLibrary.ForStyle(style);
                 image.raycastTarget = false;
                 particles[i] = rect;
             }

@@ -1,6 +1,7 @@
 # 출시 자산 파이프라인
 
-기준 버전은 Unity 2022.3.52f3입니다. 출시 후보를 만들기 전에 Unity 메뉴
+프로젝트에 기록된 기준 버전은 Unity 2022.3.52f3이며, 현재 로컬 실행 검증은 설치된 2022.3.62f3에서 수행했습니다.
+출시 후보를 만들기 전에 전체 게임 생성·검증을 마친 뒤 Unity 메뉴
 `Tools → Shadow Theater → Release → Generate and Audit Assets`를 실행합니다.
 
 이 메뉴는 다음 작업을 순서대로 수행합니다.
@@ -10,9 +11,18 @@
 3. 수작업 최종 초상·필드 도트를 우선 적용하고 규격을 검사합니다.
 4. 진명 필살기 9개 테마의 FX 프리팹과 캐스트/타격 WAV를 연결합니다.
 5. 일반 기술에 불꽃·서리·그림자·무속성 캐스트/타격 WAV 8개를 생성해 연결합니다.
-6. 13개 BGM, 29개 환경 테마의 지속/간헐음 58개, 8개 지형의 발걸음 32개를 생성합니다.
+6. Final 폴더의 13개 편곡 BGM을 우선 연결하고, 폴백 BGM·29개 환경 테마 58개·8개 지형 발걸음 32개를 준비합니다.
 7. 지역 진입 카드의 지역색 배경 광원과 마을·던전·숨은 지역·보스·전설 모티프 참조를 검사합니다.
 8. `Assets/Reports/ReleaseAssetCoverage.json`에 실제 연결 수와 누락 목록을 기록합니다.
+
+출시 배경 5종은 `Assets/Resources/Art/BattleBackgrounds`에 있으며 전투 시 막별로 선택됩니다.
+현재 전용 초상은 21/180종입니다. 주요 보스 8종의 신규 이미지와 생성 프롬프트는
+`Docs/RELEASE_ASSET_MANIFEST.json`에서 확인할 수 있습니다. Android에서는 초상에 ETC2 RGBA,
+배경에 ETC2 RGB 압축을 적용하며 원본 PNG는 보존합니다.
+
+`ReleaseReadinessBatch.ValidateAndCapture`는 검증 후 실제 전투 프리팹을 1920×1080 PNG로 렌더링합니다.
+`ReleaseReadinessBatch.BuildAndroidQaForCi`는 전체 회귀를 다시 검사하고 Android Development APK를 빌드하며
+실패한 BuildReport를 성공 종료 코드로 처리하지 않습니다.
 
 일반 기술은 전용 프리팹이 없어도 공격 대상 위치에 속성색 파편이 터집니다. 물리 기술은 긴 파편,
 마법 기술은 많은 파편, 회복 기술은 녹색 원형 파동, 상태 이상 기술은 더 큰 맥동으로 구분됩니다.

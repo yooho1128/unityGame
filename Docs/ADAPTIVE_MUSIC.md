@@ -10,7 +10,12 @@
 - 일반·라이벌·보스 전투 음악 3개
 - 엔딩 음악 1개
 
-총 13개 8초 무봉제 WAV가 `Assets/Audio/Generated/Music`에 생성된다. 메뉴
+출시용 음악은 `Assets/Audio/Final/Music/{MusicCue}.wav`의 13개 16마디 편곡 루프를 우선 사용한다.
+곡 길이는 약 31~53초이며 스트리밍으로 가져온다. `ReleaseMusicComposer`는 없는 곡만 생성하므로
+같은 경로에 제작 음원을 넣어도 재생성으로 덮어쓰지 않는다. 반복 경계·클리핑·무음·DC 편향과 실제
+CoreSystems 참조는 출시 자산 감사에서 검사한다.
+
+폴백용 13개 8초 무봉제 WAV는 `Assets/Audio/Generated/Music`에 생성된다. 메뉴
 `Tools > Shadow Theater > Generate Adaptive Music`으로 단독 생성할 수 있으며,
 `Generate Title and Starter UI`와 전체 게임 생성에도 자동 포함된다.
 
@@ -20,7 +25,7 @@
 
 생성 음악이 누락되어도 런타임 합성 루프가 폴백으로 작동한다. 전문 제작 음악으로 교체할 때는
 `CoreSystems.prefab`의 `AdaptiveMusicDirector.clips` 배열에서 같은 `MusicCue` 순서로 AudioClip을
-바꾸면 된다. 전체 생성 메뉴를 다시 실행하면 자동 음악이 재연결되므로 최종 교체는 생성 후 적용한다.
+바꾸면 된다. 재생성 후에도 유지할 제작 음원은 `Assets/Audio/Final/Music/{MusicCue}.wav`에 넣는다.
 
 `Tools > Shadow Theater > Validate Full Game`은 CoreSystems의 음악 감독, 13개 큐와 클립 연결을
 검사한다.

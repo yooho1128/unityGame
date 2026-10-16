@@ -1,0 +1,83 @@
+{
+  "date": "2026-10-17",
+  "imageGeneration": "built-in image_gen",
+  "images": [
+    {
+      "id": "ash_king",
+      "path": "Assets/Art/Final/Portraits/ash_king.png",
+      "prompt": "Use case: stylized-concept. Asset type: one production battle portrait PNG for the existing dark fantasy mobile RPG Shadow Theater, shadowId ash_king. Reference image 1 is style reference only: keep its chunky, readable high-detail pixel-art rendering and restrained dark values, but create a distinct character. Subject: the Ash King, a tragic fallen monarch in cracked blackened royal armor, ember-orange fire inside the armor, ruined crown hovering above his head, burned burgundy ceremonial cloak, holding a charred scepter and a lowered broad sword. Full body, centered, three-quarter view facing slightly left, powerful but sorrowful posture. Composition: square 1024x1024, complete figure and flame tips within 8% safe margin, high readable silhouette, no ground plane, no cast shadow outside silhouette. Pixel art with deliberate pixel clusters, charcoal black, ash grey, dark wine red and brilliant warm orange accents; same game aesthetic as reference. TRUE TRANSPARENT alpha background. No writing, no letters, no UI, no watermark, no extra characters. This is a new character illustration, do not reproduce the reference knight."
+    },
+    {
+      "id": "infinite_archive_dragon",
+      "path": "Assets/Art/Final/Portraits/infinite_archive_dragon.png",
+      "prompt": "Use case: stylized-concept. Asset type: production square battle portrait for existing shadow infinite_archive_dragon in Shadow Theater, a dark fantasy 2D pixel-art RPG. A magnificent ancient ice-blue dragon whose layered scales are open book pages and dark leather covers, luminous frozen runes WITHOUT readable letters, antler-like crystal horns, luminous cyan eyes, wings resembling a vast ruined library's arched bookcases. Curling regal full-body three-quarter pose, tail and wing tips entirely inside frame with 8% margin. Hand-crafted detailed pixel art, deliberate crisp pixel clusters, charcoal outlines, navy and desaturated frost palette, sharp cyan highlights, readable silhouette even at small UI scale. 1024x1024 square composition. Truly transparent alpha background, isolated creature, no scenery, no ground plane, no text, no watermark, no extra figures. Powerful, tragic and ancient, never cute."
+    },
+    {
+      "id": "night_devouring_beast",
+      "path": "Assets/Art/Final/Portraits/night_devouring_beast.png",
+      "prompt": "Use case: stylized-concept. Asset type: one square transparent production battle portrait for existing shadow night_devouring_beast in Shadow Theater, a tragic dark fantasy 2D pixel-art RPG. Enormous spectral midnight wolf-beast, once a protector who swallowed the world's terror. Four strong legs, a mane flowing like torn dark theater curtains, ivory crescent antlers, small mournful luminous violet eyes, smoky galaxy flecks within blue-black fur, subtle silver claws. Fierce but sorrowful, not evil caricature. Whole creature in three-quarter view facing slightly left, curled tail and all claws fully contained with at least 10 percent transparent padding on ALL four edges. Match detailed crisp pixel-art sprites, intentional large pixel clusters and charcoal outlines, readable silhouette, midnight indigo, black plum and restrained pale moonlight highlights. Square 1024x1024. TRUE transparent alpha background. No scenery, ground plane, text, writing, UI, watermark or extra figures."
+    },
+    {
+      "id": "last_puppeteer",
+      "path": "Assets/Art/Final/Portraits/last_puppeteer.png",
+      "prompt": "Use case: stylized-concept. Asset type: one square transparent production battle portrait for existing shadow last_puppeteer in Shadow Theater, a dark fantasy 2D pixel-art RPG. The last puppeteer, tall tragic theatrical conductor with a fractured porcelain half-mask, deep plum velvet long coat, brass finger mechanisms, thin luminous violet marionette strings descending from an ornate wooden control cross floating above his raised hand. His other hand cradles a tiny broken theatrical doll. Elegant threatening silhouette, layered tattered coattails, antique gold fittings, no top hat. Full body centered in a three-quarter pose, all fingers, coat tails and control cross fully contained inside a generous 10 percent transparent margin on EVERY side. Detailed crisp pixel-art rendering with intentional pixel clusters, black charcoal outlines, muted plum, antique brass and controlled lilac glows. Square 1024x1024, TRUE transparent alpha background, no scenery, ground, text, letters, UI, watermark or extra life-size characters."
+    },
+    {
+      "id": "high_censor_nox",
+      "path": "Assets/Art/Final/Portraits/high_censor_nox.png",
+      "prompt": "Use case: stylized-concept. Asset type: square transparent production battle portrait for existing shadow high_censor_nox in Shadow Theater dark fantasy pixel-art RPG. Nox, the High Censor: a tall austere masked magistrate in layered ink-black ceremonial robes with antique silver clasps, a split featureless porcelain mask, dim violet light behind its eye slits, one hand holding a sealed black ledger and the other a long ink-feather quill that dissolves into a few dark paper strips. Severe sorrowful authority, erased memories rather than generic wizard, a subtle broken halo of blank document shards. Full body three-quarter view, all robes, quill tips and halo entirely contained in at least ten percent transparent padding on all sides. Detailed intentional pixel-art clusters matching premium dark fantasy battle sprites, charcoal, desaturated purple, pale silver, restrained violet highlights. 1024x1024 square TRUE transparent alpha, no scenery or ground plane, no readable text, symbols resembling letters, UI, logo or watermark."
+    },
+    {
+      "id": "drowned_painter",
+      "path": "Assets/Art/Final/Portraits/drowned_painter.png",
+      "prompt": "Use case: stylized-concept. Asset type: square transparent production battle portrait for existing shadow drowned_painter in Shadow Theater dark fantasy pixel-art RPG. A drowned spectral painter who tried to preserve the world's last scenery, gaunt sorrowful adult artist in a long waterlogged navy coat and faded scarf, face partially veiled by pale translucent water, holding a luminous cyan paintbrush and a broken antique gold picture frame, ribbons of blue water and a few tiny painterly pigment wisps around his boots. Tragically elegant, no gore. Full body in three-quarter pose facing slightly left, every brush tip, frame edge and water wisp fully inside a generous ten percent transparent margin. Crisp detailed pixel art with deliberate readable pixel clusters, charcoal outlines, slate navy, muted turquoise, antique gold and restrained pale cyan illumination. Square 1024x1024. TRUE transparent alpha background, isolated character, no scenery, ground, readable text, UI, logo, watermark or other figures."
+    },
+    {
+      "id": "rival_director",
+      "path": "Assets/Art/Final/Portraits/rival_director.png",
+      "prompt": "Use case: stylized-concept. Asset type: square transparent production battle portrait for existing shadow rival_director in Shadow Theater dark fantasy pixel-art RPG. The rival theater director, a composed haunted young adult man with dark swept-back hair, a sharp black burgundy tailcoat with antique gold embroidery, a fractured half-mask in one hand and a glowing purple conductor's baton in the other, torn script pages circling his boots without readable marks, long burgundy scarf sweeping behind him. He builds a stage out of resentment, charismatic and wounded rather than a generic king or magician. Full body three-quarter view facing slightly left, entire figure and every scarf/page/baton tip inside generous ten-percent transparent padding on every side. High-detail deliberate crisp pixel-art clusters, readable strong silhouette, charcoal, oxblood, antique gold, restrained violet glows. 1024x1024 square TRUE transparent alpha, isolated character, no scenery, floor plane, readable text, UI, watermark, logos or other figures."
+    },
+    {
+      "id": "boss_moonlit_widow",
+      "path": "Assets/Art/Final/Portraits/boss_moonlit_widow.png",
+      "prompt": "Use case: stylized-concept. Asset type: square transparent production battle portrait for existing shadow boss_moonlit_widow, the Moonlit Widow in Shadow Theater dark fantasy pixel-art RPG. A tragic spectral woman mourning forgotten names, elegant black silver mourning kimono-like gown with trailing translucent dark veils, long black hair with delicate pale moonflower ornaments, a half-open silver folding fan in her right hand, a thin luminous crescent halo behind her upper body and a few cool pale moon petals. Her face partially veiled, luminous gentle silver eyes, sorrowful poised stance. Full body three-quarter view facing slightly left, fan, crescent and all veils entirely within a generous ten percent transparent margin on every side. Detailed intentional pixel-art clusters and charcoal outlines, black blue, muted silver, cold lavender and tiny pale cyan highlights, coherent premium dark fantasy 2D battle sprite aesthetic. Square 1024x1024 TRUE transparent alpha. No scenery, ground plane, text, UI, logos, watermark or other characters."
+    },
+    {
+      "id": "Theater",
+      "path": "Assets/Resources/Art/BattleBackgrounds/Theater.png",
+      "prompt": "Use case: stylized-concept. Asset type: production landscape battle stage backdrop for Shadow Theater, a premium dark fantasy 2D pixel-art mobile RPG. Moonlit ruined open-air theater, distant violet forest and a huge pale crescent moon, broken theater arches framing both edges, black velvet stage curtains with subtle burgundy folds, blue silver footlights and a few ghostly fireflies, weathered stage floor across lower quarter. Wide 16:9 landscape composition, horizon around 45%, open uncluttered center and empty foreground floor for two combatant portraits and HUD; architectural detail concentrated at far edges and horizon. Refined high-detail pixel art with clear deliberate pixel clusters, navy charcoal muted plum and pale moonlight, atmospheric depth and controlled luminous accents, polished game background rather than concept sketch. Full opaque image. No people, creatures, silhouettes, lettering, logos, UI, frame, grid or watermark."
+    },
+    {
+      "id": "Ember",
+      "path": "Assets/Resources/Art/BattleBackgrounds/Ember.png",
+      "prompt": "Use case: stylized-concept. Asset type: production landscape 16:9 battle-stage background for Shadow Theater, a premium dark fantasy pixel-art RPG. The abandoned throne courtyard of a kingdom turned to ash: massive burned gothic archways framing the sides, distant collapsed royal palace, low red-orange ember glow behind a crown-shaped broken throne at the distant horizon, drifting tiny embers, charcoal flagstones and scorched burgundy theatrical banners. Empty broad stage floor covers lower quarter. Keep center and foreground uncluttered for two character portraits and mobile HUD. Wide landscape, horizon about 45 percent, restrained focal contrast, detailed deliberate crisp pixel clusters matching high-end dark fantasy 2D sprite art. Palette charcoal, ash grey, oxblood, copper and carefully controlled orange highlights; readable dark silhouettes without a flat black image. Opaque full image. No people, creatures, UI, text, logos, watermarks, grids or frames."
+    },
+    {
+      "id": "Archive",
+      "path": "Assets/Resources/Art/BattleBackgrounds/Archive.png",
+      "prompt": "Use case: stylized-concept. Asset type: production landscape 16:9 battle-stage background for Shadow Theater, a premium dark fantasy pixel-art RPG. An immense forbidden library of frozen memories: tall navy stone arches and towering bookcases at both edges, cyan crystal chandeliers, a distant circular stained-glass moon window above the horizon, sparse floating parchment without readable writing, cold mist between the shelves. Broad empty frost-dusted dark stone floor across lower quarter, uncluttered center and foreground for two character portraits and mobile HUD. Wide landscape composition, horizon around 45%, detailed deliberate crisp pixel clusters consistent with high-end dark fantasy 2D sprite art. Palette midnight blue, desaturated teal, icy cyan, silver and a touch of muted antique gold; controlled luminous highlights and atmospheric depth. Opaque full image. No people, creatures, readable letters, UI, logos, watermarks, grids or frame."
+    },
+    {
+      "id": "Ocean",
+      "path": "Assets/Resources/Art/BattleBackgrounds/Ocean.png",
+      "prompt": "Use case: stylized-concept. Asset type: production landscape 16:9 battle backdrop for Shadow Theater dark fantasy pixel-art RPG. A drowned art gallery opening onto the sea of memory at night: weathered marble pillars and empty gilded frames at both sides, a luminous silver-blue moon low above black water, submerged gallery arches visible through shallow reflective water, distant lighthouse beam and sparse floating pale petals. Broad dark stone terrace and shallow water reflections across lower quarter, empty center and foreground reserved for two character portraits and HUD. Deliberate crisp high-detail pixel clusters, premium 2D game art, deep midnight teal, slate blue, desaturated turquoise, controlled pale silver highlights, atmospheric depth. Opaque full image, wide landscape. No people, creatures, text, UI, logos, watermarks, grid or borders."
+    },
+    {
+      "id": "Cosmos",
+      "path": "Assets/Resources/Art/BattleBackgrounds/Cosmos.png",
+      "prompt": "Use case: stylized-concept. Asset type: production landscape 16:9 battle backdrop for Shadow Theater dark fantasy pixel-art RPG's existing final theater. A ruined cosmic theater beyond reality: towering black velvet curtains and broken gilded proscenium pillars framing both edges, galaxies and tiny luminous star-seats receding into an enormous silent auditorium, a restrained eclipsed violet-white moon at distant center, floating broken stage arch fragments. Dark elegant theater floor covers lower quarter, broad uncluttered center and foreground for two character portraits and mobile HUD. Deliberate crisp high-detail pixel art clusters, charcoal navy, muted plum, antique gold and controlled lavender-silver highlights. Atmospheric theatrical depth, premium cohesive game background. Full opaque landscape image. No people, creatures, faces, text, UI, logos, watermark, grid or frame."
+    }
+  ],
+  "music": {
+    "folder": "Assets/Audio/Final/Music",
+    "source": "Original project-local score and additive synthesis in ReleaseMusicComposer.cs",
+    "count": 13,
+    "bars": 16
+  },
+  "fx": {
+    "folder": "Assets/Resources/Art/FX",
+    "source": "Project-native geometric masks in BattleFxSpriteLibrary.cs",
+    "count": 12,
+    "note": "10 effect masks, one ground contact shadow, one persistent HP bar fill sprite"
+  }
+}

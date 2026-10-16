@@ -35,10 +35,14 @@
 
 ## 최종 음원·아트로 교체
 
-자동 생성 WAV는 개발·플레이 테스트용 원본 자산이다. 전문 제작 음원을 사용할 때는 WAV를 덮어쓸
-필요 없이 해당 `SkillData`의 `sfxClip` 또는 `impactSfxClip`만 새 AudioClip으로 바꾸면 된다.
-필살기 전용 아트도 같은 방식으로 `fxPrefab`을 교체할 수 있다. 전체 생성 메뉴를 다시 실행하면 자동
-자산이 재연결되므로 수동 교체본을 유지해야 하는 빌드에서는 데이터 생성 후 마지막에 연결한다.
+자동 생성 WAV는 폴백 자산이다. 제작 음원은 `Assets/Audio/Final/Ultimate/{테마}_{Cast,Impact}.wav`에
+넣으면 재생성 후에도 우선 연결된다. 특정 스킬 전용 음원은
+`Assets/Audio/Final/Skills/{skillId}_{Cast,Impact}.wav`로 테마 음원보다 우선한다.
+전용 FX 프리팹은 `Assets/Prefabs/FX/Final/{skillId}.prefab` 또는 `{테마}.prefab`을 사용하며,
+스킬 전용 프리팹이 테마 프리팹보다 우선한다. Final 파일은 자동 생성기가 덮어쓰지 않는다.
+
+필살기와 일반 기술은 `Assets/Resources/Art/FX`의 불꽃·결정·초승달·깃털·꽃잎·참격·고리·별·문양·실
+마스크를 공유한다. 사각형 파편을 대체하며, 출시 감사는 프리팹에 실제 영구 Sprite 참조가 있는지 검사한다.
 
 `Tools > Shadow Theater > Validate Full Game`은 모든 필살기의 테마, FX 프리팹, 시전 SFX,
 타격 SFX가 지정되었는지 검사한다.

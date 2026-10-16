@@ -43,16 +43,17 @@ namespace ShadowTheater.EditorTools
         }
 
         public static AudioClip LoadBed(FieldAmbienceStyle style) =>
-            AssetDatabase.LoadAssetAtPath<AudioClip>(BedPath(style));
+            ReleaseAssetOverrides.Prefer($"Assets/Audio/Final/Field/Ambience/{style}_Bed.wav", AssetDatabase.LoadAssetAtPath<AudioClip>(BedPath(style)));
 
         public static AudioClip LoadDetail(FieldAmbienceStyle style) =>
-            AssetDatabase.LoadAssetAtPath<AudioClip>(DetailPath(style));
+            ReleaseAssetOverrides.Prefer($"Assets/Audio/Final/Field/Ambience/{style}_Detail.wav", AssetDatabase.LoadAssetAtPath<AudioClip>(DetailPath(style)));
 
         public static AudioClip[] LoadFootsteps(FootstepSurface surface)
         {
             var result = new AudioClip[4];
             for (int i = 0; i < result.Length; i++)
-                result[i] = AssetDatabase.LoadAssetAtPath<AudioClip>(FootstepPath(surface, i));
+                result[i] = ReleaseAssetOverrides.Prefer($"Assets/Audio/Final/Field/Footsteps/{surface}_{i + 1:00}.wav",
+                    AssetDatabase.LoadAssetAtPath<AudioClip>(FootstepPath(surface, i)));
             return result;
         }
 
