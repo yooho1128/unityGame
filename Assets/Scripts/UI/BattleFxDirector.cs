@@ -1,6 +1,7 @@
 using System.Collections;
 using ShadowTheater.Battle;
 using ShadowTheater.Data;
+using ShadowTheater.Story;
 using UnityEngine;
 using UnityEngine.UI;
 

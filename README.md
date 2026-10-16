@@ -249,6 +249,8 @@ HP와 함께 표시합니다. 비활성 UI 템플릿을 복제한 후보가 보�
 출시 직전에는 **Tools → Shadow Theater → Release → Generate and Audit Assets**를 실행해 180종 초상,
 전체 스킬 음향·필살기 FX, 13개 BGM, 58개 환경음, 32개 발걸음의 생성과 연결 상태를 한 번에 검사합니다.
 이 메뉴는 장막·각본집·그림자 눈을 조합한 1024px 앱 아이콘도 생성해 Android/iOS에 연결합니다.
+Unity 2022.3의 URP에도 `ShadowData`라는 동명 타입이 있으므로 필드 월드 상태 코드는 게임 데이터 타입을
+명시적으로 사용하며, 동행 합동기 연출은 스토리 네임스페이스의 `CompanionJointProfile`을 참조합니다.
 결과는 `Assets/Reports/ReleaseAssetCoverage.json`에 저장되며 전체 회귀 검사에도 포함됩니다. 자세한 순서는
 [`Docs/RELEASE_ASSET_PIPELINE.md`](Docs/RELEASE_ASSET_PIPELINE.md)를 참고하세요.
 

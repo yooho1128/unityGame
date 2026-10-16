@@ -5,6 +5,7 @@ using ShadowTheater.Save;
 using ShadowTheater.Story;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
+using ShadowData = ShadowTheater.Data.ShadowData;
 
 namespace ShadowTheater.Field
 {
