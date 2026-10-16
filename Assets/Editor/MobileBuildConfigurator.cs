@@ -25,6 +25,7 @@ namespace ShadowTheater.EditorTools
         [MenuItem("Tools/Shadow Theater/Mobile/Configure Android and iOS")]
         public static void Apply()
         {
+            MobileBrandingAssetGenerator.GenerateAndApply();
             PlayerSettings.productName = "Shadow Theater";
             PlayerSettings.bundleVersion = Version;
             PlayerSettings.colorSpace = ColorSpace.Linear;
@@ -83,6 +84,10 @@ namespace ShadowTheater.EditorTools
             if (PlayerSettings.GetScriptingBackend(NamedBuildTarget.Android) != ScriptingImplementation.IL2CPP ||
                 PlayerSettings.GetScriptingBackend(NamedBuildTarget.iOS) != ScriptingImplementation.IL2CPP)
                 errors.Add("Android/iOS Scripting Backend는 IL2CPP여야 합니다");
+            if (!MobileBrandingAssetGenerator.HasConfiguredIcon(BuildTargetGroup.Android))
+                errors.Add("Android 앱 아이콘이 연결되지 않았습니다");
+            if (!MobileBrandingAssetGenerator.HasConfiguredIcon(BuildTargetGroup.iOS))
+                errors.Add("iOS 앱 아이콘이 연결되지 않았습니다");
             ValidateScenePaths(EditorBuildSettings.scenes.Where(x => x.enabled).Select(x => x.path).ToList(), errors);
         }
 

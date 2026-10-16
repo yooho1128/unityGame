@@ -248,6 +248,7 @@ HP와 함께 표시합니다. 비활성 UI 템플릿을 복제한 후보가 보�
 일반 기술도 불꽃·서리·그림자·무속성별 캐스트/타격음과 대상 위치 기반 파편 이펙트를 사용합니다.
 출시 직전에는 **Tools → Shadow Theater → Release → Generate and Audit Assets**를 실행해 180종 초상,
 전체 스킬 음향·필살기 FX, 13개 BGM, 58개 환경음, 32개 발걸음의 생성과 연결 상태를 한 번에 검사합니다.
+이 메뉴는 장막·각본집·그림자 눈을 조합한 1024px 앱 아이콘도 생성해 Android/iOS에 연결합니다.
 결과는 `Assets/Reports/ReleaseAssetCoverage.json`에 저장되며 전체 회귀 검사에도 포함됩니다. 자세한 순서는
 [`Docs/RELEASE_ASSET_PIPELINE.md`](Docs/RELEASE_ASSET_PIPELINE.md)를 참고하세요.
 
