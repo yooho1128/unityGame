@@ -129,6 +129,7 @@ namespace ShadowTheater.EditorTools
                 Color cameraColor = Color.Lerp(region.AccentColor, Color.black, .76f);
                 var map = BeginFieldScene(region.sceneName, region.displayName, region.ArrivalCell,
                     cameraColor, theme);
+                CreateAreaTrigger(map.fieldRoot, region.ArrivalCell, "area_" + region.regionId);
                 string[] connections = region.connectedRegionIds ?? new string[0];
                 if (connections.Length > portalCells.Length)
                     Debug.LogError($"[World] {region.regionId}: 연결 {connections.Length}개 중 " +
@@ -1190,6 +1191,14 @@ namespace ShadowTheater.EditorTools
             return go;
         }
 
+        private static Vector2Int TownServiceCell(Transform parent, Vector2Int preferred)
+        {
+            FieldGrid grid = parent.GetComponentInChildren<FieldGrid>();
+            if (grid != null && grid.TryFindNearestWalkable(preferred, out Vector2Int cell, null, 12, false))
+                return cell;
+            throw new System.InvalidOperationException("마을 서비스 NPC의 이동 가능한 배치 좌표가 없습니다.");
+        }
+
         private static void CreateTownServices(Transform parent, RegionData region)
         {
             var restoration=parent.gameObject.AddComponent<TownRestorationVisualController>();
@@ -1197,14 +1206,14 @@ namespace ShadowTheater.EditorTools
             var stageTwo=new List<GameObject>{CreateRestorationProp(parent,"RepairedFacade",new Vector2Int(6,2),Color.Lerp(region.AccentColor,Color.white,.25f),1.45f),CreateRestorationProp(parent,"FestivalBanner",new Vector2Int(-7,5),region.AccentColor,.75f)};
             var stageThree=new List<GameObject>{CreateRestorationProp(parent,"RestoredGrandStage",new Vector2Int(0,6),Color.Lerp(region.AccentColor,Color.white,.45f),2.1f),CreateRestorationProp(parent,"MarketLantern",new Vector2Int(7,5),new Color(1f,.72f,.3f),.8f)};
             var restorationSo=new SerializedObject(restoration);Set(restorationSo,"regionId",region.regionId);Set(restorationSo,"restoredLightColor",Color.Lerp(region.AccentColor,new Color(1f,.78f,.48f),.55f));SetObjectArray(restorationSo.FindProperty("stageOneObjects"),stageOne);SetObjectArray(restorationSo.FindProperty("stageTwoObjects"),stageTwo);SetObjectArray(restorationSo.FindProperty("stageThreeObjects"),stageThree);restorationSo.ApplyModifiedPropertiesWithoutUndo();
-            var healer = CreateFieldActor(parent, "TownHealer", new Vector2Int(-4, 4),
+            var healer = CreateFieldActor(parent, "TownHealer", TownServiceCell(parent, new Vector2Int(-4, 4)),
                 LoadShadow("mage"), false).AddComponent<TownHealerNpc>();
             var healerSo = new SerializedObject(healer);
             Set(healerSo, "regionId", region.regionId);
             Set(healerSo, "restCost", 30);
             healerSo.ApplyModifiedPropertiesWithoutUndo();
 
-            var rumor = CreateFieldActor(parent, "TownRumorKeeper", new Vector2Int(4, 4),
+            var rumor = CreateFieldActor(parent, "TownRumorKeeper", TownServiceCell(parent, new Vector2Int(4, 4)),
                 LoadShadow("crow"), false).AddComponent<TownRumorNpc>();
             var rumorSo = new SerializedObject(rumor);
             Set(rumorSo, "regionId", region.regionId);
@@ -1212,7 +1221,7 @@ namespace ShadowTheater.EditorTools
             Set(rumorSo, "accent", region.AccentColor);
             rumorSo.ApplyModifiedPropertiesWithoutUndo();
 
-            var investigator = CreateFieldActor(parent, "BossInvestigator", new Vector2Int(0, 5),
+            var investigator = CreateFieldActor(parent, "BossInvestigator", TownServiceCell(parent, new Vector2Int(0, 5)),
                 LoadShadow("mask"), false).AddComponent<BossInvestigatorNpc>();
             var investigatorSo = new SerializedObject(investigator);
             Set(investigatorSo, "act", region.act);
@@ -1225,7 +1234,7 @@ namespace ShadowTheater.EditorTools
         private static void CreateRecoveryNpc(Transform parent, RegionData region, string name,
             Vector2Int cell, int stage, string shadowId)
         {
-            var actor=CreateFieldActor(parent, name, cell, LoadShadow(shadowId), false);var npc = actor.AddComponent<TownRecoveryNpc>();
+            var actor=CreateFieldActor(parent, name, TownServiceCell(parent, cell), LoadShadow(shadowId), false);var npc = actor.AddComponent<TownRecoveryNpc>();
             var so = new SerializedObject(npc);
             Set(so, "regionId", region.regionId); Set(so, "requiredStage", stage);
             so.ApplyModifiedPropertiesWithoutUndo();

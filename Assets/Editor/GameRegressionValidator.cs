@@ -56,8 +56,18 @@ namespace ShadowTheater.EditorTools
         public static void ValidateForCi()
         {
             var report = Run(false);
+            foreach (string warning in report.warnings) Debug.LogWarning("[Regression] " + warning);
             if (report.errors.Count > 0)
                 throw new BuildFailedException("Shadow Theater regression failed:\n" + string.Join("\n", report.errors));
+            Debug.Log($"[Regression] PASS: {report.regions} regions, {report.scenes} fields, " +
+                      $"{report.shadows} shadows, {report.portals} portals, {report.encounters} encounters");
+        }
+
+        public static void GenerateAndValidateForCi()
+        {
+            MobileBuildConfigurator.Apply();
+            PlayablePrologueGenerator.Generate();
+            ValidateForCi();
         }
 
         public static void ValidateReleaseForCi()
@@ -95,6 +105,7 @@ namespace ShadowTheater.EditorTools
         private static ValidationReport Run(bool requireDeviceReports)
         {
             var result = new ValidationReport();
+            ValidateScriptBindings(result);
             ValidateDevicePolicy(result);
             CoreContentBatchGenerator.ValidateGrowthPolicyRegression(result.errors);
             CombatBalanceAnalyzer.ValidatePolicyRegression(result.errors);
@@ -130,7 +141,7 @@ namespace ShadowTheater.EditorTools
             ValidateDatabase(result);
             ValidateTownServices(regions, result);
             ValidateCompanionEvents(regions, result);
-            ValidateQuestRewards(result);
+            ValidateQuestRewards(regions, result);
             ValidateStoryCompletion(result);
             LocalizationAuditResult localization = LocalizationCoverageValidator.Run(true);
             if (!localization.Passed)
@@ -145,6 +156,17 @@ namespace ShadowTheater.EditorTools
             ValidateBuildSettings(regions, result);
             DeviceValidationReportUtility.ValidateImported(result.errors, result.warnings, requireDeviceReports);
             return result;
+        }
+
+        private static void ValidateScriptBindings(ValidationReport result)
+        {
+            var scriptTypes = new HashSet<Type>(AssetDatabase.FindAssets("t:MonoScript", new[] { "Assets/Scripts" })
+                .Select(guid => AssetDatabase.LoadAssetAtPath<MonoScript>(AssetDatabase.GUIDToAssetPath(guid))?.GetClass())
+                .Where(type => type != null));
+            foreach (Type type in typeof(GameFlowController).Assembly.GetTypes())
+                if (!type.IsAbstract && typeof(MonoBehaviour).IsAssignableFrom(type) &&
+                    type.Namespace?.StartsWith("ShadowTheater", StringComparison.Ordinal) == true && !scriptTypes.Contains(type))
+                    result.errors.Add($"Unity 스크립트 연결 누락: {type.FullName} — 클래스 이름과 같은 .cs 파일이 필요합니다");
         }
 
         private static void ValidateCompanionPassives(ValidationReport result)
@@ -856,6 +878,8 @@ namespace ShadowTheater.EditorTools
                 File.ReadAllText(CompanionEventPath));
             List<CompanionEventDefinition> events = catalog?.events ?? new List<CompanionEventDefinition>();
             if (events.Count != 12) result.errors.Add($"핵심 동행 이벤트 수 불일치: {events.Count}/12");
+            if (IsDeclaredStoryFlag("companion_event_missing_regression_event_complete"))
+                result.errors.Add("존재하지 않는 동행 이벤트 완료 플래그를 허용함");
 
             var regionIds = new HashSet<string>(regions.Where(x => x != null).Select(x => x.regionId), StringComparer.Ordinal);
             var database = AssetDatabase.LoadAssetAtPath<ShadowDatabase>(DatabasePath);
@@ -875,6 +899,8 @@ namespace ShadowTheater.EditorTools
                 if (definition == null || string.IsNullOrWhiteSpace(definition.eventId))
                 { result.errors.Add("동행 이벤트의 eventId 누락"); continue; }
                 if (!eventIds.Add(definition.eventId)) result.errors.Add("동행 이벤트 ID 중복: " + definition.eventId);
+                if (!IsDeclaredStoryFlag(definition.CompletionFlag))
+                    result.errors.Add($"{definition.eventId}: 동행 이벤트 완료 플래그 인식 실패");
                 if (!regionIds.Contains(definition.regionId))
                     result.errors.Add($"{definition.eventId}: 알 수 없는 지역 {definition.regionId}");
                 if (!shadowIds.Contains(definition.requiredShadowId))
@@ -1138,12 +1164,20 @@ namespace ShadowTheater.EditorTools
         private static bool IsDeclaredStoryFlag(string flag)
         {
             if (string.IsNullOrEmpty(flag) || DeclaredStoryFlags.Contains(flag)) return true;
+            const string companionPrefix = "companion_event_";
+            if (flag.StartsWith(companionPrefix, StringComparison.Ordinal))
+            {
+                var catalog = JsonUtility.FromJson<CompanionEventCatalogData>(File.ReadAllText(CompanionEventPath));
+                return catalog?.events?.Any(definition => definition != null &&
+                    !string.IsNullOrWhiteSpace(definition.eventId) && definition.CompletionFlag == flag) == true;
+            }
             const string prefix = "quest_";
             const string suffix = "_complete";
             if (!flag.StartsWith(prefix, StringComparison.Ordinal) || !flag.EndsWith(suffix, StringComparison.Ordinal))
                 return false;
             string questId = flag.Substring(prefix.Length, flag.Length - prefix.Length - suffix.Length);
-            return File.ReadAllText(QuestPath).Contains($"\"questId\": \"{questId}\"");
+            var quests = JsonUtility.FromJson<QuestCatalogData>(File.ReadAllText(QuestPath));
+            return quests?.quests?.Any(quest => quest != null && quest.questId == questId) == true;
         }
 
         private static void ValidateTrueNameForm(ShadowData shadow, MemoryFormData form, string path,
@@ -1158,18 +1192,24 @@ namespace ShadowTheater.EditorTools
                 result.errors.Add($"{shadow.shadowId}: {path} 진명 필살기 누락");
         }
 
-        private static void ValidateQuestRewards(ValidationReport result)
+        private static void ValidateQuestRewards(List<RegionData> regions, ValidationReport result)
         {
             var database = AssetDatabase.LoadAssetAtPath<ShadowDatabase>(DatabasePath);
             if (database == null || !File.Exists(QuestPath)) return;
             var itemIds = new HashSet<string>(database.items.Where(x => x != null).Select(x => x.itemId));
             var catalog = JsonUtility.FromJson<QuestCatalogData>(File.ReadAllText(QuestPath));
             var quests = catalog?.quests ?? new List<QuestDefinition>();
-            if (quests.Count != 47) result.errors.Add($"퀘스트 데이터 수 불일치: {quests.Count}/47");
+            if (quests.Count != 54) result.errors.Add($"퀘스트 데이터 수 불일치: {quests.Count}/54");
             var mainQuests = quests.Where(x => x != null && !x.isSideQuest).ToList();
             var sideQuests = quests.Where(x => x != null && x.isSideQuest).ToList();
-            if (mainQuests.Count != 41 || sideQuests.Count != 6)
-                result.errors.Add($"메인/개인 기억 퀘스트 수 불일치: {mainQuests.Count}/41, {sideQuests.Count}/6");
+            var rumorFlags = regions.Where(x => x != null && x.isSettlement)
+                .ToDictionary(x => TownServicePolicy.RumorQuestId(x.regionId),
+                    x => TownServicePolicy.RumorCompletionFlag(x.regionId), StringComparer.Ordinal);
+            int memoryCount = sideQuests.Count(x =>
+                MemoryAwakeningService.IsRegisteredMemoryQuest(x.questId, x.completionFlag));
+            int rumorCount = sideQuests.Count(x => rumorFlags.ContainsKey(x.questId));
+            if (mainQuests.Count != 41 || memoryCount != 6 || rumorCount != 7 || sideQuests.Count != 13)
+                result.errors.Add($"메인/개인 기억/소문 퀘스트 수 불일치: {mainQuests.Count}/41, {memoryCount}/6, {rumorCount}/7");
             var ids = quests.Where(x => x != null && !string.IsNullOrEmpty(x.questId)).Select(x => x.questId).ToList();
             if (ids.Distinct().Count() != ids.Count) result.errors.Add("퀘스트 ID 중복");
             var byId = quests.Where(x => x != null && !string.IsNullOrEmpty(x.questId))
@@ -1184,8 +1224,9 @@ namespace ShadowTheater.EditorTools
                     result.errors.Add($"{quest.questId}: 선행 퀘스트 누락 {quest.prerequisiteQuestId}");
                 if (!string.IsNullOrEmpty(quest.nextQuestId) && !byId.ContainsKey(quest.nextQuestId))
                     result.errors.Add($"{quest.questId}: 다음 퀘스트 누락 {quest.nextQuestId}");
-                if (quest.isSideQuest && !MemoryAwakeningService.IsRegisteredMemoryQuest(quest.questId, quest.completionFlag))
-                    result.errors.Add($"{quest.questId}: 개인 기억 성장 플래그 연결 오류 ({quest.completionFlag})");
+                if (quest.isSideQuest && !MemoryAwakeningService.IsRegisteredMemoryQuest(quest.questId, quest.completionFlag) &&
+                    (!rumorFlags.TryGetValue(quest.questId, out string rumorFlag) || rumorFlag != quest.completionFlag))
+                    result.errors.Add($"{quest.questId}: 개인 기억/소문 완료 플래그 연결 오류 ({quest.completionFlag})");
                 var objectiveIds = new HashSet<string>();
                 if (quest.objectives == null || quest.objectives.Count == 0)
                     result.errors.Add($"{quest.questId}: 목표가 없습니다");
@@ -1197,7 +1238,7 @@ namespace ShadowTheater.EditorTools
                     if (string.IsNullOrEmpty(objective.targetId)) result.errors.Add($"{quest.questId}: 목표 대상 누락 ({objective.objectiveId})");
                     if (objective.TryGetType(out QuestObjectiveType type) && objective.targetId != "*")
                     {
-                        if ((type == QuestObjectiveType.Talk || type == QuestObjectiveType.Reach ||
+                        if ((type == QuestObjectiveType.Talk ||
                              type == QuestObjectiveType.Defeat) && !WorldSource.Contains($"\"{objective.targetId}\""))
                             result.errors.Add($"{quest.questId}: 필드에 배치되지 않은 {type} 대상 {objective.targetId}");
                     }
@@ -1342,6 +1383,7 @@ namespace ShadowTheater.EditorTools
         {
             var portalLinks = new List<PortalValidationLink>();
             var traversalRouteCounts = new Dictionary<string, int>(StringComparer.Ordinal);
+            var reachTargets = new HashSet<string>(StringComparer.Ordinal);
             foreach (var region in regions)
             {
                 string path = $"{SceneFolder}/{region.sceneName}.unity";
@@ -1353,6 +1395,11 @@ namespace ShadowTheater.EditorTools
                 try
                 {
                     var roots = scene.GetRootGameObjects();
+                    foreach (QuestAreaTrigger area in roots.SelectMany(x => x.GetComponentsInChildren<QuestAreaTrigger>(true)))
+                    {
+                        string areaId = new SerializedObject(area).FindProperty("areaId")?.stringValue;
+                        if (!string.IsNullOrEmpty(areaId)) reachTargets.Add(areaId);
+                    }
                     FieldGrid fieldGrid = roots.SelectMany(x => x.GetComponentsInChildren<FieldGrid>(true)).FirstOrDefault();
                     if (fieldGrid == null) result.errors.Add($"{region.sceneName}: FieldGrid 누락");
                     else
@@ -1737,6 +1784,15 @@ namespace ShadowTheater.EditorTools
                 result.errors.Add($"FrostPort: 서리 수로 이동 경로 수 불일치 ({frostRoutes}/2)");
             if (!traversalRouteCounts.TryGetValue("GlassCoast", out int boatRoutes) || boatRoutes != 2)
                 result.errors.Add($"GlassCoast: 고무보트 이동 경로 수 불일치 ({boatRoutes}/2)");
+            if (File.Exists(QuestPath))
+            {
+                var quests = JsonUtility.FromJson<QuestCatalogData>(File.ReadAllText(QuestPath));
+                foreach (QuestDefinition quest in quests?.quests ?? new List<QuestDefinition>())
+                foreach (QuestObjectiveDefinition objective in quest?.objectives ?? new List<QuestObjectiveDefinition>())
+                    if (objective != null && objective.TryGetType(out QuestObjectiveType type) &&
+                        type == QuestObjectiveType.Reach && objective.targetId != "*" && !reachTargets.Contains(objective.targetId))
+                        result.errors.Add($"{quest.questId}: 생성 씬에 배치되지 않은 Reach 대상 {objective.targetId}");
+            }
             ValidatePortalArrivals(portalLinks, result);
         }
 

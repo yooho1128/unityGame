@@ -124,17 +124,4 @@ namespace ShadowTheater.Story
         public static string ElementName(ShadowElement value) => value == ShadowElement.Flame ? "불꽃"
             : value == ShadowElement.Frost ? "서리" : value == ShadowElement.Shade ? "그림자" : "무속성";
     }
-
-    public class BossInvestigatorNpc : MonoBehaviour, IInteractable
-    {
-        [SerializeField] private int act;
-        public void Interact(PlayerController player)
-        {
-            ShadowData boss = BossInvestigationService.NextBossForAct(act);
-            if (boss == null) { SaveFeedbackController.Instance?.ShowMessage("이 생활권에서 더 조사할 보스 흔적은 없습니다."); return; }
-            BossInvestigationService.DiscoverNext(boss, out string clue);
-            SaveManager.Instance?.Save();
-            SaveFeedbackController.Instance?.ShowMessage(clue);
-        }
-    }
 }

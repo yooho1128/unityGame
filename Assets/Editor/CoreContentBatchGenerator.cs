@@ -129,6 +129,9 @@ namespace ShadowTheater.EditorTools
             if (samples[3].restored != null || samples[3].salvation != null || samples[3].grudge != null ||
                 samples[4].restored == null || samples[4].salvation != null || samples[4].grudge != null)
                 errors.Add("진명 생성: Standard/Rare 성장 단계 규칙 위반");
+            var emptyForm = new MemoryFormData { enabled = true };
+            ApplyForm(emptyForm, new FormSpec(), new Dictionary<string, SkillData>());
+            if (emptyForm.enabled) errors.Add("성장 생성: JSON null에서 복원된 빈 형태가 활성화됨");
         }
 
         private static int ApplyTierGrowthPolicy(CoreCatalog catalog)
@@ -638,10 +641,10 @@ namespace ShadowTheater.EditorTools
         private static void ApplyForm(MemoryFormData target, FormSpec spec,
                                       IReadOnlyDictionary<string, SkillData> skills)
         {
-            target.enabled = spec != null;
+            target.enabled = spec != null && !string.IsNullOrWhiteSpace(spec.formName);
             target.silhouetteSprite = null; // 전용 아트가 없으면 기본 실루엣과 포인트 컬러를 사용한다.
             target.bonusSkills = new List<SkillData>();
-            if (spec == null) return;
+            if (!target.enabled) return;
             target.formName = spec.formName;
             target.accentColor = ParseColor(spec.accentColor, Color.white);
             target.requiredLevel = spec.requiredLevel;
@@ -864,9 +867,21 @@ namespace ShadowTheater.EditorTools
                 database = ScriptableObject.CreateInstance<ShadowDatabase>();
                 AssetDatabase.CreateAsset(database, DatabasePath);
             }
+            var currentShadows = shadows.ToList();
+            var currentIds = new HashSet<string>(currentShadows.Select(x => x.shadowId), StringComparer.Ordinal);
+            if (File.Exists(LegendaryCatalogPath))
+            {
+                var legendary = JsonUtility.FromJson<CoreCatalog>(File.ReadAllText(LegendaryCatalogPath));
+                foreach (ShadowSpec shadow in legendary?.shadows ?? Array.Empty<ShadowSpec>())
+                    currentIds.Add(shadow.shadowId);
+            }
+            // 이전 지역 로스터의 생성 에셋은 보존하되 현재 데이터베이스에서는 제외한다.
+            database.shadows.RemoveAll(shadow => shadow == null ||
+                (!currentIds.Contains(shadow.shadowId) && AssetDatabase.GetAssetPath(shadow)
+                    .StartsWith(ShadowFolder + "/", StringComparison.Ordinal)));
             foreach (var skill in skills) AddOrReplace(database.skills, skill, x => x.skillId);
             foreach (var item in items) AddOrReplace(database.items, item, x => x.itemId);
-            foreach (var shadow in shadows) AddOrReplace(database.shadows, shadow, x => x.shadowId);
+            foreach (var shadow in currentShadows) AddOrReplace(database.shadows, shadow, x => x.shadowId);
             EditorUtility.SetDirty(database);
         }
 

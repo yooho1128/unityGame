@@ -34,6 +34,8 @@ Unity 메뉴 `Tools > Shadow Theater > Generate and Validate Full Game`을 실�
 - 63개 씬의 바닥/충돌 Tilemap 참조, 월드맵 및 모든 포털 도착 좌표가 실제 이동 가능한 타일인지
 - 심볼 인카운터에 ShadowData가 연결됐는지
 - Missing Script가 남아 있지 않은지
+- 모든 게임 MonoBehaviour가 Unity에서 다시 로드할 수 있는 개별 스크립트에 연결되는지
+- 메인 41개·개인 기억 6개·마을 소문 7개 퀘스트의 완료 플래그와 실제 씬의 도착 트리거가 연결되는지
 - Title과 63개 필드가 Build Settings에서 활성화됐는지
 - v1 형식의 손상·중복 샘플이 현재 세이브 버전으로 정상 변환되는지
 - Android/iOS 앱 ID·화면 방향·ARM64·IL2CPP 설정이 일치하는지
@@ -42,6 +44,14 @@ Unity 메뉴 `Tools > Shadow Theater > Generate and Validate Full Game`을 실�
 CI에서는 Unity batchmode에 아래 메서드를 지정하면 오류가 하나라도 있을 때 빌드 실패로 종료된다.
 
 `ShadowTheater.EditorTools.GameRegressionValidator.ValidateForCi`
+
+첫 실행이거나 생성기가 변경된 경우에는 모바일 설정·데이터·프리팹·64개 씬을 먼저 재생성하는 아래 메서드를 사용한다.
+기존 생성물을 덮어쓰므로 로컬 변경이 있는 프로젝트는 사본에서 먼저 실행한다.
+
+`ShadowTheater.EditorTools.GameRegressionValidator.GenerateAndValidateForCi`
+
+두 CI 메서드는 검증 실패 시 예외로 Unity를 실패 종료하며, 일반 회귀 검사가 통과하면 규모와 경고를 로그에 남긴다.
+메뉴용 `GenerateAndValidate`는 실패를 Console에만 기록하므로 CI 종료 코드 판정에는 사용하지 않는다.
 
 실제 출시 CI는 Android/iOS 최신 PASS 리포트까지 요구하는 아래 메서드를 사용한다.
 
