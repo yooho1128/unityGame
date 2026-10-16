@@ -23,6 +23,9 @@
 따라서 생성 초상은 출시 중 누락 이미지를 막는 안전망이며, 보고서의 `finalPortraits`와
 `finalFieldActors`는 수작업 교체 진척을 별도로 보여 줍니다.
 
+앱 아이콘은 `Assets/Art/Branding/ShadowTheater_AppIcon.png`가 없을 때만 자동 생성합니다. 이후 같은 경로에
+1024×1024 수작업 PNG를 넣으면 자동 생성기가 덮어쓰지 않고 그대로 Android/iOS에 다시 연결합니다.
+
 ## 출시 전 실행 순서
 
 1. `Generate and Audit Assets`

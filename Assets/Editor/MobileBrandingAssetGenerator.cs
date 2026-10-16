@@ -15,7 +15,7 @@ namespace ShadowTheater.EditorTools
         public static void GenerateAndApply()
         {
             EnsureFolders();
-            GenerateIcon();
+            if (!File.Exists(IconPath)) GenerateIcon();
             AssetDatabase.ImportAsset(IconPath, ImportAssetOptions.ForceSynchronousImport);
             var importer = AssetImporter.GetAtPath(IconPath) as TextureImporter;
             if (importer != null)
@@ -30,6 +30,11 @@ namespace ShadowTheater.EditorTools
                 importer.SaveAndReimport();
             }
             Texture2D icon = AssetDatabase.LoadAssetAtPath<Texture2D>(IconPath);
+            if (icon == null || icon.width != 1024 || icon.height != 1024)
+            {
+                Debug.LogError($"[Branding] 앱 아이콘은 1024x1024 PNG여야 합니다: {IconPath}");
+                return;
+            }
             ApplyIcons(BuildTargetGroup.Android, icon);
             ApplyIcons(BuildTargetGroup.iOS, icon);
             PlayerSettings.SplashScreen.backgroundColor = new Color(.018f, .012f, .045f, 1f);

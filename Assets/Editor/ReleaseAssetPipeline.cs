@@ -99,7 +99,8 @@ namespace ShadowTheater.EditorTools
                 Enumerable.Range(1, 4).Count(i =>
                     AudioReady($"Assets/Audio/Generated/Field/Footsteps/{name}_{i:00}.wav", report)));
             report.regionArrivalArtReady = RegionArrivalArtReady();
-            report.mobileBrandingReady = File.Exists(MobileBrandingAssetGenerator.IconPath) &&
+            Texture2D brandingIcon = AssetDatabase.LoadAssetAtPath<Texture2D>(MobileBrandingAssetGenerator.IconPath);
+            report.mobileBrandingReady = brandingIcon != null && brandingIcon.width == 1024 && brandingIcon.height == 1024 &&
                                          MobileBrandingAssetGenerator.HasConfiguredIcon(BuildTargetGroup.Android) &&
                                          MobileBrandingAssetGenerator.HasConfiguredIcon(BuildTargetGroup.iOS);
 
