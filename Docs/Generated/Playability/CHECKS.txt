@@ -1,0 +1,13 @@
+180 field-art bindings >=96px PASS; solo intro Lv.4 / duo Lv.6 caps + rare gate + recovery cadence PASS
+knight Lv.5 solo vs available introductory roster: 640/640 automated duels won
+mage Lv.5 solo vs available introductory roster: 637/640 automated duels won
+beast Lv.5 solo vs available introductory roster: 636/640 automated duels won
+2184x1968: normal + forced switch pointer raycast PASS, six-member scrolling PASS
+2184x1968: book row width + reading area PASS
+2184x1968: field controls + companion one-tile bounds PASS (preview renderer)
+2400x1080: normal + forced switch pointer raycast PASS, six-member scrolling PASS
+2400x1080: book row width + reading area PASS
+2400x1080: field controls + companion one-tile bounds PASS (preview renderer)
+1920x1080: normal + forced switch pointer raycast PASS, six-member scrolling PASS
+1920x1080: book row width + reading area PASS
+1920x1080: field controls + companion one-tile bounds PASS (preview renderer)

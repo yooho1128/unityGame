@@ -9,7 +9,11 @@ namespace ShadowTheater.Field
         public static void GetCadence(RegionData region, out int safeMin, out int safeMax,
             out float chancePerStep, out int pitySteps)
         {
-            if (region != null && region.isHidden)
+            if (IntroEncounterPolicy.IsIntro(region))
+            {
+                safeMin = 14; safeMax = 20; chancePerStep = .08f; pitySteps = 24;
+            }
+            else if (region != null && region.isHidden)
             {
                 safeMin = 9; safeMax = 13; chancePerStep = .09f; pitySteps = 22;
             }

@@ -18,17 +18,19 @@ namespace ShadowTheater.UI
 
         private ShadowData _data;
         private Action<ShadowData> _onSelected;
+        private bool _bound;
 
         private void Awake()
         {
             if (button == null) button = GetComponent<Button>();
-            button?.onClick.AddListener(Select);
+            EnsureBinding();
         }
 
         private void OnDestroy() => button?.onClick.RemoveListener(Select);
 
         public void Bind(ShadowData data, int index, ScriptBookEntryState state, Action<ShadowData> onSelected)
         {
+            EnsureBinding();
             _data = data;
             _onSelected = onSelected;
             if (numberText != null) numberText.text = $"No.{index + 1:000}";
@@ -39,7 +41,7 @@ namespace ShadowTheater.UI
             {
                 silhouette.sprite = state == ScriptBookEntryState.Unknown ? null : data.silhouetteSprite;
                 silhouette.color = state == ScriptBookEntryState.Recorded
-                    ? new Color(0.08f, 0.06f, 0.12f, 1f)
+                    ? ShadowPortraitStyle.Tint(silhouette.sprite)
                     : Color.black;
                 silhouette.preserveAspect = true;
             }
@@ -51,6 +53,12 @@ namespace ShadowTheater.UI
         }
 
         private void Select() => _onSelected?.Invoke(_data);
+        private void EnsureBinding()
+        {
+            if (button == null) button = GetComponent<Button>();
+            if (_bound || button == null) return;
+            button.onClick.AddListener(Select); _bound = true;
+        }
 
         private static string StateLabel(ScriptBookEntryState state)
         {

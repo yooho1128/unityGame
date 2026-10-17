@@ -1,0 +1,16 @@
+starter	enemy	enemyLevel	wins	trials	winRate	averageSurvivingHp
+knight	crow	4	128	128	1.000	0.740
+knight	exp_echo_village_04	4	128	128	1.000	0.721
+knight	exp_lantern_reed_field_01	4	128	128	1.000	0.744
+knight	mask	4	128	128	1.000	0.883
+knight	puppet	4	128	128	1.000	0.779
+mage	crow	4	125	128	0.977	0.404
+mage	exp_echo_village_04	4	128	128	1.000	0.753
+mage	exp_lantern_reed_field_01	4	128	128	1.000	0.771
+mage	mask	4	128	128	1.000	0.755
+mage	puppet	4	128	128	1.000	0.760
+beast	crow	4	128	128	1.000	0.904
+beast	exp_echo_village_04	4	128	128	1.000	0.707
+beast	exp_lantern_reed_field_01	4	128	128	1.000	0.732
+beast	mask	4	124	128	0.969	0.401
+beast	puppet	4	128	128	1.000	0.772

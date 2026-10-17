@@ -27,6 +27,7 @@ namespace ShadowTheater.Field
                 ? Mathf.FloorToInt(Time.time * framesPerSecond) % frames.Length
                 : 0;
             target.sprite = frames[index];
+            FieldSpriteSizing.Fit(target);
             target.flipX = controller.Facing == FacingDir.Left;
         }
 

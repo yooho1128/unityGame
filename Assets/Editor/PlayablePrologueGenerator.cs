@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Linq;
 using ShadowTheater.Battle;
 using ShadowTheater.Data;
 using ShadowTheater.Field;
@@ -60,6 +61,13 @@ namespace ShadowTheater.EditorTools
             GenerateDependencies();
             MissingScriptRepairUtility.RepairGeneratedPrefabs();
             EnsureFolders();
+            FieldArtAtlasImporter.Import();
+            foreach (ShadowData shadow in AssetDatabase.LoadAssetAtPath<ShadowDatabase>("Assets/Resources/ShadowDatabase.asset").shadows)
+            {
+                shadow.fieldFrames = CreatePixelFieldActorFrames(shadow);
+                EditorUtility.SetDirty(shadow);
+            }
+            AssetDatabase.SaveAssets();
             EnsureUrp2DRenderer();
             CreateTitleScene();
             CreatePrologueTheater();
@@ -202,6 +210,7 @@ namespace ShadowTheater.EditorTools
             BossInvestigationJournalPrefabGenerator.Generate();
             FieldPausePrefabGenerator.Generate();
             BattleUIPrefabGenerator.Generate();
+            MobileUiPolish.ApplyToGeneratedPrefabs();
         }
 
         private static void CreateTitleScene()
@@ -892,6 +901,20 @@ namespace ShadowTheater.EditorTools
 
         private static void FinishFieldScene(FieldSceneContext context, string sceneName)
         {
+            foreach (MonoBehaviour npc in context.fieldRoot.GetComponentsInChildren<MonoBehaviour>(true))
+            {
+                bool friendly = npc is StoryNpc || npc is TownHealerNpc || npc is TownRumorNpc ||
+                    npc is TownRecoveryNpc || npc is BossInvestigatorNpc;
+                if (!friendly) continue;
+                SpriteRenderer renderer = npc.GetComponentsInChildren<SpriteRenderer>(true).FirstOrDefault(x => x.name == "Visual");
+                if (renderer == null) continue;
+                string cast = npc.name == "Aria" ? "Guide" : npc is TownHealerNpc ? "Healer"
+                    : npc is TownRumorNpc ? "Scholar" : npc is BossInvestigatorNpc ? "Guard"
+                    : npc is TownRecoveryNpc ? "Merchant" : "Messenger";
+                renderer.sprite = FieldArtAtlasImporter.Actor(cast); renderer.color = Color.white;
+                FieldSpriteSizing.Fit(renderer);
+                renderer.GetComponent<ShadowFieldMotion>()?.Configure(null, new[] { renderer.sprite });
+            }
             foreach (EncounterSymbol symbol in context.fieldRoot.GetComponentsInChildren<EncounterSymbol>(true))
                 if (!symbol.IsFixed) Object.DestroyImmediate(symbol.gameObject);
             Save(context.scene, sceneName);
@@ -911,6 +934,7 @@ namespace ShadowTheater.EditorTools
                 : LoadShadow("knight")?.silhouetteSprite;
             renderer.color = Color.white;
             renderer.sortingOrder = 10;
+            FieldSpriteSizing.Fit(renderer);
             go.AddComponent<GroundContactShadow>().Configure(renderer);
             go.GetComponent<Rigidbody2D>().gravityScale = 0f;
             go.GetComponent<CapsuleCollider2D>().size = new Vector2(0.55f, 0.75f);
@@ -972,6 +996,13 @@ namespace ShadowTheater.EditorTools
         private static PlayerSpriteSet LoadPixelPlayerSprites()
         {
             if (_pixelPlayerSprites != null) return _pixelPlayerSprites;
+            Sprite down = FieldArtAtlasImporter.PlayerFrame("Down0");
+            if (down != null) return _pixelPlayerSprites = new PlayerSpriteSet
+            {
+                down = new[] { down, FieldArtAtlasImporter.PlayerFrame("Down1") },
+                up = new[] { FieldArtAtlasImporter.PlayerFrame("Up0"), FieldArtAtlasImporter.PlayerFrame("Up1") },
+                side = new[] { FieldArtAtlasImporter.PlayerFrame("Side0"), FieldArtAtlasImporter.PlayerFrame("Side1") }
+            };
             PlayerSpriteSet final = LoadFinalPlayerSprites();
             if (final != null) return _pixelPlayerSprites = final;
             _pixelPlayerSprites = new PlayerSpriteSet
@@ -1397,6 +1428,7 @@ namespace ShadowTheater.EditorTools
             if (renderer.sprite == null) renderer.sprite = visual?.silhouetteSprite;
             renderer.color = Color.white;
             renderer.sortingOrder = 8;
+            FieldSpriteSizing.Fit(renderer);
             go.AddComponent<GroundContactShadow>().Configure(renderer);
             var box = go.GetComponent<BoxCollider2D>(); box.size = new Vector2(0.72f, 0.82f); box.isTrigger = trigger;
             visualObject.GetComponent<ShadowFieldMotion>().Configure(visual, frames);
@@ -1416,6 +1448,7 @@ namespace ShadowTheater.EditorTools
             renderer.sprite = frames.Length > 0 ? frames[0] : CreatePixelEncounterSprite();
             renderer.color = Color.white;
             renderer.sortingOrder = 7;
+            FieldSpriteSizing.Fit(renderer);
             go.AddComponent<GroundContactShadow>().Configure(renderer);
             go.GetComponent<CircleCollider2D>().radius = 0.38f;
             var so = new SerializedObject(go.GetComponent<EncounterSymbol>());
@@ -1575,12 +1608,18 @@ namespace ShadowTheater.EditorTools
             root.transform.SetParent(parent, false);
             var canvas = root.GetComponent<Canvas>(); canvas.renderMode = RenderMode.ScreenSpaceOverlay; canvas.sortingOrder = 20;
             var scaler = root.GetComponent<CanvasScaler>(); scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1080, 1920); scaler.matchWidthOrHeight = 0.5f;
-            DirectionButton("Up", root.transform, new Vector2(.13f,.15f), new Vector2(.25f,.22f), "▲", Vector2.up);
-            DirectionButton("Left", root.transform, new Vector2(.02f,.08f), new Vector2(.14f,.15f), "◀", Vector2.left);
-            DirectionButton("Right", root.transform, new Vector2(.24f,.08f), new Vector2(.36f,.15f), "▶", Vector2.right);
-            DirectionButton("Down", root.transform, new Vector2(.13f,.01f), new Vector2(.25f,.08f), "▼", Vector2.down);
-            var action = UiButton("Action", root.transform, new Vector2(.80f,.04f), new Vector2(.96f,.15f), "A");
+            scaler.referenceResolution = new Vector2(1600, 900); scaler.matchWidthOrHeight = 1f;
+            var safe = UiRect("SafeArea", root.transform, Vector2.zero, Vector2.one);
+            safe.gameObject.AddComponent<MobileSafeArea>();
+            var pad = UiRect("DirectionPad", safe, Vector2.zero, Vector2.zero);
+            MobileUiPolish.Fixed(pad, Vector2.zero, new Vector2(28, 28), new Vector2(264, 264));
+            DirectionButton("Up", pad, new Vector2(.34f,.67f), new Vector2(.66f,1f), "▲", Vector2.up);
+            DirectionButton("Left", pad, new Vector2(0,.34f), new Vector2(.33f,.66f), "◀", Vector2.left);
+            DirectionButton("Right", pad, new Vector2(.67f,.34f), new Vector2(1f,.66f), "▶", Vector2.right);
+            DirectionButton("Down", pad, new Vector2(.34f,0), new Vector2(.66f,.33f), "▼", Vector2.down);
+            var action = UiButton("Action", safe, Vector2.zero, Vector2.one, "대화 · 조사");
+            MobileUiPolish.Fixed(action.transform as RectTransform, new Vector2(1, 0), new Vector2(-36, 48), new Vector2(164, 100));
+            action.GetComponentInChildren<Text>().fontSize = 26;
             action.gameObject.AddComponent<VirtualActionButton>();
         }
 
@@ -1595,7 +1634,8 @@ namespace ShadowTheater.EditorTools
         private static Button UiButton(string name, Transform parent, Vector2 min, Vector2 max, string label)
         {
             var rect = UiRect(name, parent, min, max); var image = rect.gameObject.AddComponent<Image>();
-            image.color = new Color(.09f,.055f,.17f,.78f); var button = rect.gameObject.AddComponent<Button>(); button.targetGraphic = image;
+            image.sprite = Resources.Load<Sprite>("Art/UI/ControlPlate"); image.type = Image.Type.Sliced;
+            image.color = Color.white; var button = rect.gameObject.AddComponent<Button>(); button.targetGraphic = image;
             var text = UiText("Label", rect, Vector2.zero, Vector2.one, 34, TextAnchor.MiddleCenter); text.text = label;
             return button;
         }
@@ -1604,8 +1644,11 @@ namespace ShadowTheater.EditorTools
         {
             var root = new GameObject("RegionCanvas", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler));
             root.transform.SetParent(parent, false); var canvas = root.GetComponent<Canvas>(); canvas.renderMode = RenderMode.ScreenSpaceOverlay; canvas.sortingOrder = 15;
-            var scaler = root.GetComponent<CanvasScaler>(); scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize; scaler.referenceResolution = new Vector2(1080,1920);
-            var text = UiText("RegionName", root.transform, new Vector2(.20f,.94f), new Vector2(.80f,.985f), 28, TextAnchor.MiddleCenter);
+            var scaler = root.GetComponent<CanvasScaler>(); scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1600,900); scaler.matchWidthOrHeight = 1f;
+            var safe = UiRect("SafeArea", root.transform, Vector2.zero, Vector2.one); safe.gameObject.AddComponent<MobileSafeArea>();
+            var text = UiText("RegionName", safe, Vector2.zero, Vector2.one, 26, TextAnchor.MiddleLeft);
+            MobileUiPolish.Fixed(text.rectTransform, new Vector2(0, 1), new Vector2(24, -92), new Vector2(460, 42));
             text.text = displayName; text.color = new Color(.85f,.78f,1f,.82f);
         }
 
@@ -2468,7 +2511,11 @@ namespace ShadowTheater.EditorTools
         {
             if (shadow == null) return System.Array.Empty<Sprite>();
             Sprite[] finalFrames = LoadFinalFieldFrames(shadow.shadowId);
-            if (finalFrames != null) return finalFrames;
+            if (finalFrames != null && finalFrames[0].rect.height >= 96) return finalFrames;
+            Sprite portrait = LoadFinalPixelSprite($"Assets/Art/Final/Portraits/{shadow.shadowId}.png", 256f, new Vector2(.5f, 0));
+            if (portrait != null) return new[] { portrait };
+            Sprite cast = FieldArtAtlasImporter.Monster(shadow);
+            if (cast != null) return new[] { cast };
             return new[] { CreatePixelFieldActorSprite(shadow, 0), CreatePixelFieldActorSprite(shadow, 1) };
         }
 

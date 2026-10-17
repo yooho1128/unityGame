@@ -126,7 +126,7 @@ namespace ShadowTheater.EditorTools
             var listPanel = CreateRect("ListPanel", galleryRoot, new Vector2(.05f,.18f), new Vector2(.49f,.80f));
             listPanel.gameObject.AddComponent<Image>().color = new Color(.04f,.028f,.075f,.96f);
             var content = CreateRect("Content", listPanel, new Vector2(.04f,.04f), new Vector2(.96f,.96f));
-            var layout = content.gameObject.AddComponent<VerticalLayoutGroup>();
+            var layout = content.gameObject.AddComponent<VerticalLayoutGroup>();layout.childControlWidth=true;layout.childForceExpandWidth=true;
             layout.spacing = 10f; layout.childControlHeight = true; layout.childForceExpandHeight = false;
             var entryTemplate = CreateEndingEntry("EndingEntryTemplate", content);
             entryTemplate.gameObject.SetActive(false);

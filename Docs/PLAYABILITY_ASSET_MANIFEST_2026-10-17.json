@@ -1,0 +1,9 @@
+{
+  "date": "2026-10-17",
+  "mode": "builtin image_gen",
+  "asset": "Assets/Resources/Art/Field/ReleaseCast.png",
+  "generatedSource": "C:/Users/yoohochoi/.codex/generated_images/01a14516-4e2c-7502-930d-d9fdf4bb671c/exec-8e809490-8719-4bc8-bfa1-4b7f6aab5a84.png",
+  "layout": "4 columns x 3 rows, 12 shared character archetypes; alpha-bounded Sprite slices imported by Unity",
+  "player": "DirectorWalk.png reuses Assets/Art/Source/Player/Director_WalkSheet.png at original 1536x1024 resolution, six directional frames; original remains untouched",
+  "controls": "ControlPlate.png is a project-native rounded and beveled UI nine-slice texture created by MobileUiPolish.GenerateControlPlate; no external samples"
+}

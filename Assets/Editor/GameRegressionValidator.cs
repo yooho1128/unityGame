@@ -612,6 +612,7 @@ namespace ShadowTheater.EditorTools
 
         private static void ValidateRegionalEncounterPolicy(ValidationReport result)
         {
+            AssertEncounterCadence(new RegionData { act = 1, recommendedLevelMin = 3 }, 14, 20, .08f, 24, "초반 필드", result);
             AssertEncounterCadence(new RegionData { isHidden = true }, 9, 13, .09f, 22, "숨겨진 지역", result);
             AssertEncounterCadence(new RegionData { isDungeon = true }, 5, 8, .16f, 14, "던전", result);
             AssertEncounterCadence(new RegionData(), 7, 11, .12f, 18, "일반 필드", result);
@@ -632,6 +633,15 @@ namespace ShadowTheater.EditorTools
                 candidate.displayName = "필드 그림자";
                 candidate.growthTier = GrowthTier.Standard;
                 candidate.baseCaptureRate = .3f;
+                var intro = new RegionData { act = 1, recommendedLevelMin = 3 };
+                var solo = new[] { new ShadowInstance(candidate, 5) };
+                if (IntroEncounterPolicy.ClampLevel(intro, 10, solo) != 4)
+                    result.errors.Add("초반 솔로 조우 Lv.4 상한 회귀 실패");
+                candidate.growthTier = GrowthTier.Rare;
+                if (IntroEncounterPolicy.IsAvailable(intro, candidate, solo) ||
+                    !IntroEncounterPolicy.IsAvailable(intro, candidate, new[] { solo[0], new ShadowInstance(candidate, 5) }))
+                    result.errors.Add("초반 동료 확보 전 희귀 그림자 보호 정책 회귀 실패");
+                candidate.growthTier = GrowthTier.Standard;
                 if (!RegionalEncounterPolicy.IsEligible(region, candidate))
                     result.errors.Add("일반 그림자 랜덤 조우 후보 회귀 실패");
                 candidate.displayName = region.bossShadowName;
@@ -1428,7 +1438,8 @@ namespace ShadowTheater.EditorTools
                     else
                     {
                         CanvasScaler battleScaler = battleUi.GetComponent<CanvasScaler>();
-                        if (battleScaler == null || battleScaler.referenceResolution != new Vector2(1920f, 1080f))
+                        if (battleScaler == null || battleScaler.referenceResolution != new Vector2(1600f, 900f) ||
+                            !Mathf.Approximately(battleScaler.matchWidthOrHeight, 1f))
                             result.errors.Add($"{region.sceneName}: 전투 UI 가로 기준 해상도 불일치");
                         if (battleUi.GetComponentInChildren<MobileSafeArea>(true) == null)
                             result.errors.Add($"{region.sceneName}: 전투 UI 안전영역 보정 누락");

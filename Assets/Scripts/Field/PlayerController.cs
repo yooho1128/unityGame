@@ -103,16 +103,24 @@ namespace ShadowTheater.Field
         public void TryInteract()
         {
             if (IsLocked || IsMoving) return;
+            if (TryGetInteraction(out var interaction)) interaction.Interact(this);
+        }
+
+        public bool TryGetInteraction(out IInteractable interaction)
+        {
+            interaction = null;
+            if (FieldGrid.Current == null) return false;
             var target = FieldGrid.Current.CellToWorld(Cell + FieldGrid.DirToVector(Facing));
             var hits = Physics2D.OverlapPointAll(target);
             foreach (var h in hits)
             {
                 if (h.TryGetComponent<IInteractable>(out var it))
                 {
-                    it.Interact(this);
-                    return;
+                    interaction = it;
+                    return true;
                 }
             }
+            return false;
         }
 
         // ────────────────────────────────────────────

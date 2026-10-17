@@ -61,7 +61,7 @@ namespace ShadowTheater.EditorTools
             var viewport = Rect("Viewport", options, new Vector2(0.025f, 0.06f), new Vector2(0.975f, 0.70f));
             viewport.gameObject.AddComponent<Image>().color = new Color(1,1,1,0.01f); viewport.gameObject.AddComponent<Mask>().showMaskGraphic = false;
             var content = Rect("Content", viewport, new Vector2(0,1), Vector2.one); content.pivot = new Vector2(0.5f,1);
-            var layout = content.gameObject.AddComponent<VerticalLayoutGroup>(); layout.spacing = 6; layout.childForceExpandHeight = false; layout.childControlHeight = true;
+            var layout = content.gameObject.AddComponent<VerticalLayoutGroup>();layout.childControlWidth=true;layout.childForceExpandWidth=true; layout.spacing = 6; layout.childForceExpandHeight = false; layout.childControlHeight = true;
             content.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
             var scroll = viewport.gameObject.AddComponent<ScrollRect>(); scroll.viewport = viewport; scroll.content = content; scroll.horizontal = false;
             var template = OptionTemplate(content); template.gameObject.SetActive(false); options.gameObject.SetActive(false);

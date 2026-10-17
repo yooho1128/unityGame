@@ -18,12 +18,14 @@ namespace ShadowTheater.UI
         [SerializeField] private Text expText;
         private ShadowInstance _instance;
         private Action<ShadowInstance> _onSelected;
+        private bool _bound;
 
-        private void Awake() { if (button == null) button = GetComponent<Button>(); button?.onClick.AddListener(Select); }
+        private void Awake() => EnsureBinding();
         private void OnDestroy() => button?.onClick.RemoveListener(Select);
 
         public void Bind(ShadowInstance instance, Action<ShadowInstance> onSelected)
         {
+            EnsureBinding();
             _instance = instance; _onSelected = onSelected;
             if (portrait != null) { portrait.sprite = instance.Silhouette; portrait.color = ShadowPortraitStyle.Tint(portrait.sprite); portrait.preserveAspect = true; }
             if (hpFill != null) hpFill.fillAmount = instance.MaxHp > 0 ? (float)instance.currentHp / instance.MaxHp : 0f;
@@ -34,6 +36,18 @@ namespace ShadowTheater.UI
             if (expText != null) expText.text = instance.IsMaxLevel ? "EXP MAX" : $"EXP {instance.exp} / {instance.ExpToNext}";
             gameObject.SetActive(true);
         }
+        private void EnsureBinding()
+        {
+            if (button == null) button = GetComponent<Button>();
+            if (_bound || button == null) return;
+            button.onClick.AddListener(Select); _bound = true;
+        }
         private void Select() => _onSelected?.Invoke(_instance);
+        public void SetSelected(string instanceId)
+        {
+            if (button?.targetGraphic != null)
+                button.targetGraphic.color = _instance?.instanceId == instanceId
+                    ? new Color(.24f, .15f, .38f) : new Color(.07f, .05f, .12f);
+        }
     }
 }

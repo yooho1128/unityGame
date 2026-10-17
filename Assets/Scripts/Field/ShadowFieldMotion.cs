@@ -31,6 +31,9 @@ namespace ShadowTheater.Field
         {
             target = GetComponent<SpriteRenderer>();
             frames = animationFrames;
+            _baseScale = transform.localScale;
+            _baseRotation = transform.localRotation;
+            _baseColor = target != null ? target.color : Color.white;
             if (shadow == null) return;
             role = shadow.role;
             growthTier = shadow.growthTier;

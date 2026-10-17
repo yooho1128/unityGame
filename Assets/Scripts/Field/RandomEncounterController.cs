@@ -75,6 +75,7 @@ namespace ShadowTheater.Field
             int minLevel = Mathf.Max(1, candidate.minLevel);
             int maxLevel = Mathf.Max(minLevel, candidate.maxLevel);
             int level = UnityEngine.Random.Range(minLevel, maxLevel + 1);
+            level = IntroEncounterPolicy.ClampLevel(region, level, SaveManager.Current?.party);
             _battlePending = true;
             StartCoroutine(BeginEncounter(candidate, level, region, world));
         }
@@ -171,19 +172,22 @@ namespace ShadowTheater.Field
             FieldWorldSnapshot world = FieldWorldState.Current(region);
             float total = 0f;
             foreach (EncounterCandidate candidate in _candidates)
-                total += EffectiveWeight(candidate, world);
+                total += EffectiveWeight(candidate, world, region);
             if (total <= 0f) return null;
             float roll = UnityEngine.Random.value * total;
             foreach (EncounterCandidate candidate in _candidates)
             {
-                roll -= EffectiveWeight(candidate, world);
+                float weight = EffectiveWeight(candidate, world, region);
+                if (weight <= 0f) continue;
+                roll -= weight;
                 if (roll <= 0f) return candidate;
             }
-            return _candidates[_candidates.Count - 1];
+            return _candidates.LastOrDefault(x => EffectiveWeight(x, world, region) > 0f);
         }
 
-        private static float EffectiveWeight(EncounterCandidate candidate, FieldWorldSnapshot world)
+        private static float EffectiveWeight(EncounterCandidate candidate, FieldWorldSnapshot world, RegionData region)
         {
+            if (!IntroEncounterPolicy.IsAvailable(region, candidate.shadow, SaveManager.Current?.party)) return 0f;
             return Mathf.Max(0f, candidate.weight) *
                    FieldWorldState.EncounterWeightMultiplier(candidate.shadow, world);
         }

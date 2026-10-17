@@ -19,6 +19,18 @@ namespace ShadowTheater.EditorTools
 
         public static void Validate(List<string> errors)
         {
+            var database = AssetDatabase.LoadAssetAtPath<ShadowDatabase>("Assets/Resources/ShadowDatabase.asset");
+            if (database != null) foreach (ShadowData shadow in database.shadows.Where(x => x != null))
+                if (shadow.fieldFrames == null || shadow.fieldFrames.Length == 0 || shadow.fieldFrames.Any(x =>
+                    x == null || !AssetDatabase.Contains(x) || x.rect.height < 96))
+                    errors.Add("필드 전용 고해상도 아트 연결 누락: " + shadow.shadowId);
+            foreach (string guid in AssetDatabase.FindAssets("t:Prefab", new[] { "Assets/Prefabs/UI" }))
+            {
+                var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(guid));
+                foreach (VerticalLayoutGroup layout in prefab.GetComponentsInChildren<VerticalLayoutGroup>(true))
+                    if (!layout.childControlWidth || !layout.childForceExpandWidth)
+                        errors.Add("목록 항목 폭 배치 누락: " + prefab.name + "/" + layout.name);
+            }
             foreach (string name in Backgrounds)
             {
                 Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>($"Assets/Resources/Art/BattleBackgrounds/{name}.png");

@@ -88,7 +88,7 @@ namespace ShadowTheater.UI
 
         private void Refresh()
         {
-            foreach (var go in _spawned) Destroy(go); _spawned.Clear();
+            foreach (var go in _spawned) { go.SetActive(false); Destroy(go); } _spawned.Clear();
             var save = SaveManager.Current; if (save == null) return;
             foreach (var instance in save.party) Spawn(partyTemplate, partyContent, instance);
             foreach (var instance in save.storage) Spawn(storageTemplate, storageContent, instance);
@@ -123,6 +123,7 @@ namespace ShadowTheater.UI
         private void Select(ShadowInstance instance)
         {
             _selected = instance; _selectedInParty = SaveManager.Current.party.Contains(instance); RefreshSelection();
+            foreach (var row in _spawned) row.GetComponent<PartyStorageEntryView>()?.SetSelected(instance.instanceId);
         }
 
         private void RefreshSelection()

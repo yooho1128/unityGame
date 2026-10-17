@@ -24,7 +24,7 @@ namespace ShadowTheater.Field
             if (_player == null) yield break;
             CreateActor();
             _lastPlayerCell = _player.Cell;
-            _actor.position = FieldGrid.Current.CellToWorld(_lastPlayerCell);
+            ResetTrail();
             _player.OnStepFinished += FollowStep;
             SaveManager.PartyChanged += RefreshCompanion;
             RefreshCompanion();
@@ -34,9 +34,23 @@ namespace ShadowTheater.Field
         private void OnEnable()
         {
             if (!_started || _player == null || _actor == null) return;
-            _lastPlayerCell = _player.Cell;
-            _actor.position = FieldGrid.Current.CellToWorld(_lastPlayerCell);
             _move = null;
+            StartCoroutine(ResumeTrail());
+        }
+
+        private IEnumerator ResumeTrail()
+        {
+            // FieldGrid restores its static reference when the field is re-enabled after battle.
+            while (FieldGrid.Current == null) yield return null;
+            ResetTrail();
+        }
+
+        private void ResetTrail()
+        {
+            if (_actor == null || _player == null || FieldGrid.Current == null) return;
+            _lastPlayerCell = _player.Cell;
+            Vector2Int behind = _lastPlayerCell - FieldGrid.DirToVector(_player.Facing);
+            _actor.position = FieldGrid.Current.CellToWorld(FieldGrid.Current.IsBlocked(behind) ? _lastPlayerCell : behind);
         }
 
         private void OnDisable()
@@ -61,6 +75,7 @@ namespace ShadowTheater.Field
             _renderer = visual.GetComponent<SpriteRenderer>();
             _renderer.sortingOrder = 9;
             _motion = visual.GetComponent<ShadowFieldMotion>();
+            actor.AddComponent<GroundContactShadow>().Configure(_renderer);
         }
 
         private void RefreshCompanion()
@@ -71,9 +86,11 @@ namespace ShadowTheater.Field
             if (_actor == null) return;
             _actor.gameObject.SetActive(companion != null);
             if (companion == null) return;
-            _renderer.sprite = companion.Silhouette;
+            Sprite[] frames = companion.Data.fieldFrames;
+            _renderer.sprite = frames != null && frames.Length > 0 ? frames[0] : companion.Silhouette;
             _renderer.color = Color.white;
-            _motion.Configure(companion.Data);
+            FieldSpriteSizing.Fit(_renderer, .92f);
+            _motion.Configure(companion.Data, frames);
         }
 
         private void FollowStep(Vector2Int newPlayerCell)

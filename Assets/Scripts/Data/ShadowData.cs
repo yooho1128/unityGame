@@ -41,6 +41,8 @@ namespace ShadowTheater.Data
 
         [Header("비주얼 (실루엣 + 포인트 컬러)")]
         public Sprite silhouetteSprite;
+        [Tooltip("필드 전용 프레임. 전투 초상과 독립적인 크기/해상도로 표시한다.")]
+        public Sprite[] fieldFrames;
         [ColorUsage(true, true)] public Color accentColor = Color.white; // 눈/무기 발광 (HDR)
         public RuntimeAnimatorController animator; // 선택. 없으면 DOTween 연출만 사용
 

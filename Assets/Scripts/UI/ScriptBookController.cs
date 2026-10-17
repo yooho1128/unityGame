@@ -133,7 +133,7 @@ namespace ShadowTheater.UI
 
         private void RefreshList()
         {
-            foreach (var item in _spawned) Destroy(item);
+            foreach (var item in _spawned) { item.SetActive(false); Destroy(item); }
             _spawned.Clear();
 
             var database = ShadowDatabase.Instance;

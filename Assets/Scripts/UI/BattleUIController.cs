@@ -357,7 +357,11 @@ namespace ShadowTheater.UI
 
         private void ClearOptions()
         {
-            foreach (var option in _options) Destroy(option);
+            foreach (var option in _options)
+            {
+                option.SetActive(false);
+                if (Application.isPlaying) Destroy(option); else DestroyImmediate(option);
+            }
             _options.Clear();
         }
 

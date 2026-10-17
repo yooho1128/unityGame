@@ -14,8 +14,8 @@ namespace ShadowTheater.EditorTools
     public static class MobileBuildConfigurator
     {
         public const string ApplicationId = "com.yooho.shadowtheater";
-        public const string Version = "0.1.0";
-        public const int AndroidVersionCode = 1;
+        public const string Version = "0.1.1";
+        public const int AndroidVersionCode = 2;
         public const string IosBuildNumber = "1";
         private const string BuildRoot = "Builds";
         private const string TitleScenePath = "Assets/Scenes/Prologue/Title.unity";
@@ -41,7 +41,7 @@ namespace ShadowTheater.EditorTools
             PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel26;
             PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevelAuto;
             PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
-            PlayerSettings.Android.resizableWindow = false;
+            PlayerSettings.Android.resizableWindow = true;
             PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
             PlayerSettings.SetApiCompatibilityLevel(NamedBuildTarget.Android, ApiCompatibilityLevel.NET_Standard_2_0);
             PlayerSettings.SetManagedStrippingLevel(NamedBuildTarget.Android, ManagedStrippingLevel.Medium);
