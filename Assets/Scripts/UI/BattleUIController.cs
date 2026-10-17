@@ -405,14 +405,14 @@ namespace ShadowTheater.UI
             if (hit.IsEffective) message += " · 효과가 굉장했다";
             yield return Say(message, .8f);
         }
-        public IEnumerator PlayHeal(BattleUnit unit, int amount) { yield return Say(L10n.Format("battle.heal", "{0}의 HP가 {1} 회복됐다.", L10n.Text(unit.Name), amount)); }
+        public IEnumerator PlayHeal(BattleUnit unit, int amount) { GameFeedbackAudio.Play(FeedbackCue.Heal); yield return Say(L10n.Format("battle.heal", "{0}의 HP가 {1} 회복됐다.", L10n.Text(unit.Name), amount)); }
         public IEnumerator PlayStatusApplied(BattleUnit unit, StatusEffectType status) { yield return Say(L10n.Format("battle.status_applied", "{0}에게 {1} 상태가 걸렸다.", L10n.Text(unit.Name), StatusLabel(status))); }
         public IEnumerator PlayStatusDamage(BattleUnit unit, StatusEffectType status, int damage) { yield return Say(L10n.Format("battle.status_damage", "{0}은(는) {1}로 {2} 피해!", L10n.Text(unit.Name), StatusLabel(status), damage)); }
         public IEnumerator PlayCantMove(BattleUnit unit) { yield return Say(L10n.Format("battle.cannot_move", "{0}은(는) 움직일 수 없다!", L10n.Text(unit.Name))); }
-        public IEnumerator PlayFaint(BattleUnit unit) { yield return Say(L10n.Format("battle.faint", "{0}의 실루엣이 흩어졌다.", L10n.Text(unit.Name))); }
-        public IEnumerator PlayRecordAttempt(BattleUnit target, bool success) { yield return Say(success ? L10n.Format("battle.recorded", "{0}의 기억을 기록했다!", L10n.Text(target.Name)) : L10n.Get("battle.record_failed", "기록에 실패했다!")); }
+        public IEnumerator PlayFaint(BattleUnit unit) { GameFeedbackAudio.Play(FeedbackCue.Faint); yield return Say(L10n.Format("battle.faint", "{0}의 실루엣이 흩어졌다.", L10n.Text(unit.Name))); }
+        public IEnumerator PlayRecordAttempt(BattleUnit target, bool success) { GameFeedbackAudio.Play(success ? FeedbackCue.Record : FeedbackCue.Denied); yield return Say(success ? L10n.Format("battle.recorded", "{0}의 기억을 기록했다!", L10n.Text(target.Name)) : L10n.Get("battle.record_failed", "기록에 실패했다!")); }
         public IEnumerator PlayItem(BattleUnit target, ItemData item) { yield return Say(L10n.Format("battle.used_item", "{0} 사용!", L10n.Text(item.displayName))); }
-        public IEnumerator PlayEscape(bool success) { yield return Say(success ? L10n.Get("battle.escaped", "무대에서 벗어났다.") : L10n.Get("battle.escape_failed", "도망칠 수 없다!")); }
+        public IEnumerator PlayEscape(bool success) { GameFeedbackAudio.Play(success ? FeedbackCue.Escape : FeedbackCue.Denied); yield return Say(success ? L10n.Get("battle.escaped", "무대에서 벗어났다.") : L10n.Get("battle.escape_failed", "도망칠 수 없다!")); }
         public IEnumerator ShowMessage(string message) { yield return Say(message); }
         public IEnumerator PlayResult(BattleOutcome outcome)
         {

@@ -139,6 +139,10 @@ namespace ShadowTheater.EditorTools
             using (var preview = new Preview(size, false))
             {
                 EditorSceneManager.OpenScene("Assets/Scenes/Prologue/PrologueTheater.unity");
+                foreach (var map in Object.FindObjectsOfType<UnityEngine.Tilemaps.Tilemap>())
+                    map.gameObject.AddComponent<ReleaseTerrainPresentation>().Apply(map);
+                foreach (var portal in Object.FindObjectsOfType<MapPortal>())
+                    ReleaseTerrainPresentation.StylePortal(portal);
                 var field = GameObject.Find("FieldRoot");
                 if (field == null) field = Object.FindObjectOfType<FieldGrid>().transform.parent.gameObject;
                 Camera camera = Object.FindObjectsOfType<Camera>().First(x => x.orthographic);

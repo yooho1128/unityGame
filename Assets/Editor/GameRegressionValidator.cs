@@ -116,6 +116,7 @@ namespace ShadowTheater.EditorTools
             ValidateMigration(result);
             QuestRecordRegressionChecks.Validate(result.errors);
             ExplorationRegressionChecks.Validate(result.errors);
+            AssetCompletionBatch.Validate(result.errors);
             ValidateBattleAi(result);
             ValidateBattleActions(result);
             ValidateBattleRewards(result);
