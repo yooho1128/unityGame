@@ -52,6 +52,8 @@
           "type": "Record",
           "targetId": "*",
           "description": "야생 그림자 기록하기",
+          "countKnownRecords": true,
+          "excludeStarterRecord": true,
           "requiredCount": 1
         }
       ]
@@ -69,7 +71,8 @@
           "objectiveId": "record_more",
           "type": "Record",
           "targetId": "*",
-          "description": "그림자 추가 기록하기",
+          "description": "서로 다른 그림자 3종 기록하기 (첫 그림자 포함)",
+          "countKnownRecords": true,
           "requiredCount": 3
         },
         {

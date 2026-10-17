@@ -114,6 +114,7 @@ namespace ShadowTheater.EditorTools
             MobileBuildConfigurator.ValidateScenePolicyRegression(result.errors);
             MobileBuildConfigurator.ValidateSettings(result.errors);
             ValidateMigration(result);
+            QuestRecordRegressionChecks.Validate(result.errors);
             ValidateBattleAi(result);
             ValidateBattleActions(result);
             ValidateBattleRewards(result);

@@ -43,6 +43,9 @@ namespace ShadowTheater.Story
         public string targetId;
         public string description;
         public int requiredCount = 1;
+        // Explicit opt-in: existing collection facts count, independent of quest start time.
+        public bool countKnownRecords;
+        public bool excludeStarterRecord;
 
         public bool TryGetType(out QuestObjectiveType objectiveType) =>
             Enum.TryParse(type, true, out objectiveType);
