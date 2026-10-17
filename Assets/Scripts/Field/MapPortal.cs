@@ -40,7 +40,7 @@ namespace ShadowTheater.Field
 
         private void TryTravel()
         {
-            if (!string.IsNullOrEmpty(requiredFlag) && !SaveManager.HasFlag(requiredFlag))
+            if (!RegionProgress.MeetsTravelRequirement(targetScene, requiredFlag))
             {
                 ShowLockedFeedback();
                 return;
@@ -64,10 +64,8 @@ namespace ShadowTheater.Field
 
         private void ShowLockedFeedback()
         {
-            var quest = QuestManager.Instance?.TrackedQuest;
-            string message = quest != null
-                ? L10n.Format("portal.locked_quest", "아직 길이 열리지 않았습니다 · 현재 기억: {0}", L10n.Text(quest.title))
-                : L10n.Get("portal.locked", "아직 이 길로 나아갈 수 없습니다.");
+            string message = L10n.Get("portal.exploration_gate",
+                "아직 관문이 열리지 않았습니다 · 월드맵에서 다른 길을 확인하세요.");
             ShowFeedback(message);
         }
 

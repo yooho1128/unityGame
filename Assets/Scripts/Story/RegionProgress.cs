@@ -39,7 +39,7 @@ namespace ShadowTheater.Story
             var save = SaveManager.Current;
             if (region == null || save == null) return false;
             if (region.order <= 1 || save.mapId == region.sceneName) return true;
-            bool requirementMet = string.IsNullOrEmpty(region.requiredFlag) || SaveManager.HasFlag(region.requiredFlag);
+            bool requirementMet = MeetsTravelRequirement(region.sceneName, region.requiredFlag);
             if (save.unlockedRegionIds.Contains(region.regionId) || save.visitedRegionIds.Contains(region.regionId))
                 return requirementMet;
             RegionData current = RegionRepository.GetByScene(save.mapId);
@@ -47,6 +47,16 @@ namespace ShadowTheater.Story
                     connectedId => connectedId == region.regionId))
                 return requirementMet;
             return false;
+        }
+
+        /// <summary>일반 길은 퀘스트 체크리스트와 분리한다. 보스 관문과 숨은 길의 조건은 유지한다.</summary>
+        public static bool MeetsTravelRequirement(string targetScene, string requiredFlag)
+        {
+            if (string.IsNullOrEmpty(requiredFlag) || SaveManager.HasFlag(requiredFlag)) return true;
+            RegionData destination = RegionRepository.GetByScene(targetScene);
+            return destination != null && !destination.isHidden &&
+                requiredFlag.StartsWith("quest_", System.StringComparison.Ordinal) &&
+                requiredFlag.EndsWith("_complete", System.StringComparison.Ordinal);
         }
 
         public static void SyncCurrentMap()
