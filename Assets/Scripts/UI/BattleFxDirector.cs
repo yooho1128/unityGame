@@ -25,13 +25,34 @@ namespace ShadowTheater.UI
             if (sfxPlayer != null) sfxPlayer.PlaySkill(skill);
             if (!skill.isUltimate)
             {
+                if (skill.target != SkillTarget.Self)
+                {
+                    using (var attack = new BattleAttackPresentation(CreateLayer("AttackSequence"), attacker, defender, skill, hit.missed))
+                    {
+                        float duration = .64f / speed;
+                        bool impactPlayed = false;
+                        for (float elapsed = 0f; elapsed < duration; elapsed += Time.unscaledDeltaTime)
+                        {
+                            float progress = elapsed / duration;
+                            attack.Sample(progress);
+                            if (!impactPlayed && progress >= BattleAttackPresentation.ImpactProgress && !hit.missed)
+                            {
+                                impactPlayed = true;
+                                if (sfxPlayer != null) sfxPlayer.PlayImpact(skill);
+                                GameSettings.TryVibrate();
+                                yield return HitStop(skill.hitStopDuration / Mathf.Sqrt(speed));
+                            }
+                            yield return null;
+                        }
+                    }
+                    yield break;
+                }
                 if (skill.target == SkillTarget.Self) yield return Pulse(attacker, skill, 0.18f / speed, speed);
                 else yield return Lunge(attacker, defender, skill, hit, 0.18f / speed, skill.cameraShake, speed);
                 if (skill.target == SkillTarget.Self || !hit.missed)
                 {
                     RectTransform standardLayer = CreateLayer($"Skill_{skill.skillId}");
-                    Vector2 effectCenter = EffectCenter(standardLayer,
-                        skill.target == SkillTarget.Self || defender == null ? attacker.MotionRoot : defender.MotionRoot);
+                    Vector2 effectCenter = EffectCenter(standardLayer, attacker.Portrait != null ? attacker.Portrait.rectTransform : attacker.MotionRoot);
                     BuildStandardMotif(standardLayer, skill, effectCenter);
                     yield return AnimateStandardMotif(standardLayer, skill, effectCenter, .14f / speed);
                     Object.Destroy(standardLayer.gameObject);

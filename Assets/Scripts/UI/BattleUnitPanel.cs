@@ -23,7 +23,33 @@ namespace ShadowTheater.UI
         private ShadowRole _motionRole;
         private float _motionAmount = 0.025f;
         private float _motionPhase;
-        public RectTransform MotionRoot => (RectTransform)transform;
+        private RectTransform _actorMotion;
+        public RectTransform MotionRoot
+        {
+            get
+            {
+                if (_actorMotion == null && portrait != null)
+                {
+                    var source = portrait.rectTransform;
+                    Vector2 min = source.anchorMin, max = source.anchorMax, size = source.sizeDelta;
+                    Vector3 anchored = source.anchoredPosition3D, scale = source.localScale;
+                    Quaternion rotation = source.localRotation;
+                    _actorMotion = new GameObject("ActorMotion", typeof(RectTransform)).GetComponent<RectTransform>();
+                    _actorMotion.SetParent(source.parent, false);
+                    _actorMotion.SetSiblingIndex(source.GetSiblingIndex());
+                    _actorMotion.anchorMin = Vector2.zero; _actorMotion.anchorMax = Vector2.one;
+                    _actorMotion.offsetMin = _actorMotion.offsetMax = Vector2.zero;
+                    source.SetParent(_actorMotion, false);
+                    source.anchorMin = min; source.anchorMax = max; source.sizeDelta = size;
+                    source.anchoredPosition3D = anchored; source.localScale = scale; source.localRotation = rotation;
+                    _restPosition = _actorMotion.localPosition;
+                    _portraitPosition = source.anchoredPosition3D;
+                    _portraitScale = source.localScale;
+                    _portraitRotation = source.localRotation;
+                }
+                return _actorMotion != null ? _actorMotion : (RectTransform)transform;
+            }
+        }
         public Image Portrait => portrait;
         public ShadowRole MotionRole => _motionRole;
 
@@ -32,7 +58,7 @@ namespace ShadowTheater.UI
             _restPosition = MotionRoot.localPosition;
             if (portrait != null)
             {
-                _portraitPosition = portrait.rectTransform.localPosition;
+                _portraitPosition = portrait.rectTransform.anchoredPosition3D;
                 _portraitScale = portrait.rectTransform.localScale;
                 _portraitRotation = portrait.rectTransform.localRotation;
             }
@@ -93,7 +119,7 @@ namespace ShadowTheater.UI
             float wave = Mathf.Sin((Time.unscaledTime + _motionPhase) * speed);
             float rise = (_motionRole == ShadowRole.MagicNuker || _motionRole == ShadowRole.Support)
                 ? wave * 5f : Mathf.Abs(wave) * 2f;
-            portrait.rectTransform.localPosition = _portraitPosition + Vector3.up * rise;
+            portrait.rectTransform.anchoredPosition3D = _portraitPosition + Vector3.up * rise;
             portrait.rectTransform.localScale = Vector3.Scale(_portraitScale,
                 new Vector3(1f - wave * _motionAmount * .25f, 1f + wave * _motionAmount, 1f));
             float tilt = _motionRole == ShadowRole.SpeedUtility ? wave * 2.5f : wave * .7f;

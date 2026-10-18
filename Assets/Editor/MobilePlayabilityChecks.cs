@@ -48,6 +48,7 @@ namespace ShadowTheater.EditorTools
                 foreach (Vector2Int size in new[] { new Vector2Int(2184, 1968), new Vector2Int(2400, 1080), new Vector2Int(1920, 1080) })
                 {
                     CheckSwitches(size, notes);
+                    CheckAttackPresentation(size, notes);
                     CheckBook(size, notes);
                     CaptureField(size, notes);
                 }
@@ -105,6 +106,68 @@ namespace ShadowTheater.EditorTools
                 ui.OpenSwitches(); preview.Layout(root);
                 preview.Save("Switch");
                 notes.Add($"{size.x}x{size.y}: normal + forced switch pointer raycast PASS, six-member scrolling PASS");
+            }
+        }
+
+        private static void CheckAttackPresentation(Vector2Int size, List<string> notes)
+        {
+            using (var preview = new Preview(size))
+            {
+                GameObject root = preview.Prefab("BattleCanvas");
+                var ui = root.GetComponent<BattleUIController>();
+                var player = (BattleUnitPanel)typeof(BattleUIController).GetField("playerPanel", Private).GetValue(ui);
+                var enemy = (BattleUnitPanel)typeof(BattleUIController).GetField("enemyPanel", Private).GetValue(ui);
+                preview.Layout(root);
+                Vector3 playerImageHome = player.Portrait.rectTransform.position, enemyImageHome = enemy.Portrait.rectTransform.position;
+                Invoke(player, "Awake"); Invoke(enemy, "Awake");
+                player.Bind(new BattleUnit(new ShadowInstance(Load("knight"), 5), BattleSide.Player));
+                enemy.Bind(new BattleUnit(new ShadowInstance(Load("mage"), 5), BattleSide.Enemy));
+                preview.Layout(root);
+                Require(Vector3.Distance(player.Portrait.rectTransform.position, playerImageHome) < .01f &&
+                    Vector3.Distance(enemy.Portrait.rectTransform.position, enemyImageHome) < .01f, "Portrait moved while separating HUD");
+                Require(player.MotionRoot != player.transform && enemy.MotionRoot != enemy.transform, "Attack still moves HUD panel");
+                var hud = new[] { player.transform, enemy.transform };
+                var homes = hud.Select(t => t.position).ToArray();
+                var actorHomes = new[] { player.MotionRoot.localPosition, enemy.MotionRoot.localPosition };
+                var health = root.GetComponentsInChildren<Text>().Select(t => t.transform.position).ToArray();
+                var skill = ScriptableObject.CreateInstance<SkillData>();
+                try
+                {
+                    foreach (bool reverse in new[] { false, true })
+                    foreach (bool magical in new[] { false, true })
+                    foreach (bool miss in new[] { false, true })
+                    {
+                        skill.damageType = magical ? DamageType.Magical : DamageType.Physical;
+                        skill.element = magical ? ShadowElement.Flame : ShadowElement.Shade;
+                        var director = root.GetComponent<BattleFxDirector>();
+                        var layer = (RectTransform)typeof(BattleFxDirector).GetMethod("CreateLayer", Private).Invoke(director, new object[] { "AttackPreview" });
+                        preview.Layout(root);
+                        RectTransform targetPortrait = (reverse ? player : enemy).Portrait.rectTransform;
+                        Vector2 targetCenter = layer.InverseTransformPoint(targetPortrait.TransformPoint(targetPortrait.rect.center));
+                        using (var attack = new BattleAttackPresentation(layer, reverse ? enemy : player, reverse ? player : enemy, skill, miss))
+                        {
+                            foreach (float p in new[] { 0f, .15f, .35f, .53f, .65f, .85f, 1f })
+                            {
+                                attack.Sample(p); preview.Layout(root);
+                                for (int i = 0; i < hud.Length; i++) Require(Vector3.Distance(hud[i].position, homes[i]) < .01f, "Attack moved panel");
+                                var now = root.GetComponentsInChildren<Text>().Select(t => t.transform.position).ToArray();
+                                for (int i = 0; i < health.Length; i++) Require(Vector3.Distance(now[i], health[i]) < .01f, "Attack moved HP/name label");
+                                var projectile = layer.Find("ElementProjectile").GetComponent<Image>();
+                                Require(projectile.enabled == (magical && p >= .22f && p < .52f), "Projectile travel timing");
+                                Require(layer.Find("ImpactRing").GetComponent<Image>().enabled == (!miss && p >= .52f && p < .9f), "Impact on missed/early attack");
+                                if (!miss && p >= .52f && p < .9f)
+                                    Require(Vector2.Distance(((RectTransform)layer.Find("ImpactRing")).anchoredPosition, targetCenter) < .01f, "Impact missed portrait center");
+                                foreach (Image effect in layer.GetComponentsInChildren<Image>()) Require(effect.sprite != null && !effect.raycastTarget, "Square or input-blocking effect");
+                                if (!reverse && !miss && (p == .35f && magical || p == .65f))
+                                    preview.Save((magical ? "Magic" : "Melee") + "Attack_" + (p < .52f ? "Travel" : "Impact"));
+                            }
+                            attack.Sample(.65f); // Interrupted mid-impact: Dispose must restore both actors.
+                        }
+                        Require(Vector3.Distance(player.MotionRoot.localPosition, actorHomes[0]) < .01f && Vector3.Distance(enemy.MotionRoot.localPosition, actorHomes[1]) < .01f, "Attack restoration failed");
+                    }
+                }
+                finally { Object.DestroyImmediate(skill); }
+                notes.Add($"{size.x}x{size.y}: melee/magic, both sides, miss, stationary HP/name HUD, interruption recovery PASS");
             }
         }
 
