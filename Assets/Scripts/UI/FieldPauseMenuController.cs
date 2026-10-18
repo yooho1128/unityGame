@@ -121,9 +121,11 @@ namespace ShadowTheater.UI
 
         public void SaveNow()
         {
-            if (SaveManager.Instance == null || SaveManager.Current == null) return;
-            SaveManager.Instance.Save();
-            if (feedbackText != null) feedbackText.text = L10n.Get("menu.saved", "저장했습니다.");
+            if (!IsOpen || _returning || SaveManager.Instance == null || SaveManager.Current == null) return;
+            bool saved = SaveManager.Instance.TrySave();
+            if (feedbackText != null) feedbackText.text = saved
+                ? L10n.Get("menu.saved", "저장했습니다.")
+                : L10n.Get("save.failed", "저장하지 못했습니다. 현재 게임을 유지하고 다시 저장해 주세요.");
             RefreshStatus();
         }
 
@@ -204,7 +206,7 @@ namespace ShadowTheater.UI
 
         public void ConfirmReturnToTitle()
         {
-            if (_returning) return;
+            if (!IsOpen || _returning) return;
             StartCoroutine(ReturnToTitleRoutine());
         }
 
@@ -297,7 +299,18 @@ namespace ShadowTheater.UI
         {
             _returning = true;
             titleConfirmRoot?.SetActive(false);
-            SaveManager.Instance?.Save();
+            if (!Application.CanStreamedLevelBeLoaded("Title"))
+            {
+                _returning = false;
+                if (feedbackText != null) feedbackText.text = L10n.Get("menu.title_unavailable", "타이틀 화면을 열 수 없습니다. 현재 게임을 계속할 수 있습니다.");
+                yield break;
+            }
+            if (SaveManager.Instance == null || !SaveManager.Instance.TrySave())
+            {
+                _returning = false;
+                if (feedbackText != null) feedbackText.text = L10n.Get("save.failed", "저장하지 못했습니다. 현재 게임을 유지하고 다시 저장해 주세요.");
+                yield break;
+            }
             if (feedbackText != null) feedbackText.text = L10n.Get("menu.returning", "저장 후 타이틀로 돌아갑니다…");
             if (ScreenFader.Instance != null) yield return ScreenFader.Instance.FadeOut(.3f);
             ReleasePlayer();

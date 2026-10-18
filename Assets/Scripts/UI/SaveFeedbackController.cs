@@ -16,6 +16,8 @@ namespace ShadowTheater.UI
         [SerializeField, Min(.01f)] private float fadeDuration = .2f;
 
         private Coroutine _routine;
+        private SaveManager _saveManager;
+        private string _messageKey;
 
         private void Awake()
         {
@@ -26,14 +28,39 @@ namespace ShadowTheater.UI
 
         private void OnEnable()
         {
-            if (SaveManager.Instance != null) SaveManager.Instance.OnSaved += ShowSaved;
+            BindSaveManager();
             L10n.Changed += RefreshLabel;
+        }
+
+        private void Start() => BindSaveManager();
+
+        private void BindSaveManager()
+        {
+            if (_saveManager == SaveManager.Instance) return;
+            UnbindSaveManager();
+            _saveManager = SaveManager.Instance;
+            if (_saveManager == null) return;
+            _saveManager.OnSaved += ShowSaved;
+            _saveManager.OnSaveFailed += ShowSaveFailed;
+        }
+
+        private void UnbindSaveManager()
+        {
+            if (_saveManager != null)
+            {
+                _saveManager.OnSaved -= ShowSaved;
+                _saveManager.OnSaveFailed -= ShowSaveFailed;
+            }
+            _saveManager = null;
         }
 
         private void OnDisable()
         {
-            if (SaveManager.Instance != null) SaveManager.Instance.OnSaved -= ShowSaved;
+            UnbindSaveManager();
             L10n.Changed -= RefreshLabel;
+            if (_routine != null) StopCoroutine(_routine);
+            _routine = null;
+            HideImmediate();
         }
 
         private void OnDestroy()
@@ -44,21 +71,31 @@ namespace ShadowTheater.UI
         public void ShowSaved()
         {
             ShowMessage(L10n.Get("save.recorded", "기억을 기록했습니다"));
+            _messageKey = "save.recorded";
         }
 
-        public void ShowMessage(string message)
+        public void ShowSaveFailed()
+        {
+            ShowMessage(L10n.Get("save.failed", "저장하지 못했습니다. 현재 게임을 유지하고 다시 저장해 주세요."), 3.5f);
+            _messageKey = "save.failed";
+        }
+
+        public void ShowMessage(string message) => ShowMessage(message, holdDuration);
+
+        private void ShowMessage(string message, float duration)
         {
             if (!isActiveAndEnabled || root == null) return;
             if (_routine != null) StopCoroutine(_routine);
+            _messageKey = null;
             if (label != null) label.text = message ?? string.Empty;
-            _routine = StartCoroutine(ShowRoutine());
+            _routine = StartCoroutine(ShowRoutine(duration));
         }
 
-        private IEnumerator ShowRoutine()
+        private IEnumerator ShowRoutine(float duration)
         {
             root.gameObject.SetActive(true);
             yield return FadeTo(1f);
-            yield return new WaitForSecondsRealtime(holdDuration);
+            yield return new WaitForSecondsRealtime(duration);
             yield return FadeTo(0f);
             root.gameObject.SetActive(false);
             _routine = null;
@@ -77,7 +114,10 @@ namespace ShadowTheater.UI
 
         private void RefreshLabel()
         {
-            if (label != null) label.text = L10n.Get("save.recorded", "기억을 기록했습니다");
+            if (label != null && !string.IsNullOrEmpty(_messageKey))
+                label.text = _messageKey == "save.failed"
+                    ? L10n.Get("save.failed", "저장하지 못했습니다. 현재 게임을 유지하고 다시 저장해 주세요.")
+                    : L10n.Get("save.recorded", "기억을 기록했습니다");
         }
 
         private void HideImmediate()

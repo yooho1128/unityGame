@@ -63,6 +63,7 @@ namespace ShadowTheater.Save
         /// <summary>새 게임/회차 시작 또는 불러오기로 현재 세이브 객체가 교체된 직후.</summary>
         public static event Action CurrentChanged;
         public event Action OnSaved;
+        public event Action OnSaveFailed;
         public event Action OnLoaded;
         public static event Action PartyChanged;
         public static event Action InventoryChanged;
@@ -152,9 +153,12 @@ namespace ShadowTheater.Save
             return _current;
         }
 
-        public void Save(bool captureRuntimeState = true)
+        public void Save(bool captureRuntimeState = true) => TrySave(captureRuntimeState);
+
+        /// <summary>실제 파일 교체가 완료됐는지 반환한다. 실패 시 현재 플레이 데이터는 유지한다.</summary>
+        public bool TrySave(bool captureRuntimeState = true)
         {
-            if (_current == null || _suppressSaveWrites) return;
+            if (_current == null || _suppressSaveWrites) return false;
             try
             {
                 if (captureRuntimeState) BeforeSave?.Invoke();
@@ -171,12 +175,25 @@ namespace ShadowTheater.Save
                     File.Move(SavePath, BackupPath);
                 }
                 File.Move(TempPath, SavePath);
-
-                OnSaved?.Invoke();
             }
             catch (Exception e)
             {
                 Debug.LogError($"[SaveManager] 저장 실패: {e}");
+                NotifySaveListeners(OnSaveFailed);
+                return false;
+            }
+            // HUD 구독자의 예외가 파일 저장 성공을 실패로 바꾸지 않도록 분리한다.
+            NotifySaveListeners(OnSaved);
+            return true;
+        }
+
+        private static void NotifySaveListeners(Action notification)
+        {
+            if (notification == null) return;
+            foreach (Action listener in notification.GetInvocationList())
+            {
+                try { listener(); }
+                catch (Exception e) { Debug.LogWarning($"[SaveManager] 저장 알림 처리 실패: {e.Message}"); }
             }
         }
 

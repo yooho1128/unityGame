@@ -1,5 +1,7 @@
 {
   "strings": [
+    {"key":"save.failed","ko":"저장하지 못했습니다. 현재 게임을 유지하고 다시 저장해 주세요.","en":"Could not save. Keep this game open and try saving again."},
+    {"key":"menu.title_unavailable","ko":"타이틀 화면을 열 수 없습니다. 현재 게임을 계속할 수 있습니다.","en":"The title screen is unavailable. You can continue the current game."},
     {"key":"battle.invalid_action","ko":"선택할 수 없는 행동입니다.","en":"This action is unavailable."},
     {"key":"battle.switch_unavailable","ko":"지금은 이 그림자로 교체할 수 없습니다.","en":"You cannot switch to this shadow right now."},
     {"key":"battle.input_unavailable","ko":"행동을 처리 중입니다. 다음 선택을 기다려 주세요.","en":"An action is being processed. Wait for the next choice."},

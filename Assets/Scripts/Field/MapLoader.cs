@@ -106,7 +106,7 @@ namespace ShadowTheater.Field
                 save.checkpointY = arrivalCell.y;
             }
             // 이전 씬의 BeforeSave 위치 캡처가 목표 좌표를 덮지 않게 한다.
-            SaveManager.Instance.Save(false);
+            bool saved = SaveManager.Instance.TrySave(false);
 
             var operation = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
             if (operation == null)
@@ -130,7 +130,8 @@ namespace ShadowTheater.Field
             _travelEnabledAt = Time.unscaledTime + arrivalPortalCooldown;
             GameFlowController.Instance?.AllowTimeToLeave();
             IsTransitioning = false;
-            SaveFeedbackController.Instance?.ShowSaved();
+            if (saved) SaveFeedbackController.Instance?.ShowSaved();
+            else SaveFeedbackController.Instance?.ShowSaveFailed();
         }
     }
 }
