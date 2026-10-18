@@ -1,5 +1,6 @@
 using System;
 using ShadowTheater.Data;
+using ShadowTheater.Save;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,15 +20,24 @@ namespace ShadowTheater.UI
         private ItemData _item;
         private Action<ItemData> _onBuy;
         private Action<ItemData> _onSell;
+        private bool _bound;
 
         private void Awake()
         {
+            EnsureBinding();
+        }
+
+        private void EnsureBinding()
+        {
+            if (_bound) return;
             buyButton?.onClick.AddListener(Buy);
             sellButton?.onClick.AddListener(Sell);
+            _bound = true;
         }
 
         private void OnDestroy()
         {
+            EnsureBinding();
             buyButton?.onClick.RemoveListener(Buy);
             sellButton?.onClick.RemoveListener(Sell);
         }
@@ -43,13 +53,12 @@ namespace ShadowTheater.UI
             if (ownedText != null) ownedText.text = L10n.Format("shop.owned", "보유 {0}", owned);
             if (buyPriceText != null) buyPriceText.text = L10n.Format("shop.buy_price", "구매 {0:N0}", item.buyPrice);
             if (sellPriceText != null) sellPriceText.text = L10n.Format("shop.sell_price", "판매 {0:N0}", item.sellPrice);
-            if (buyButton != null) buyButton.interactable = item.buyPrice >= 0 && gold >= item.buyPrice &&
-                                                               (!item.isKeyItem || owned == 0);
-            if (sellButton != null) sellButton.interactable = !item.isKeyItem && owned > 0 && item.sellPrice > 0;
+            if (buyButton != null) buyButton.interactable = SaveManager.CanBuyItem(item, out _);
+            if (sellButton != null) sellButton.interactable = SaveManager.CanSellItem(item, out _);
             gameObject.SetActive(true);
         }
 
-        private void Buy() => _onBuy?.Invoke(_item);
-        private void Sell() => _onSell?.Invoke(_item);
+        private void Buy() { if (isActiveAndEnabled && buyButton != null && buyButton.interactable) _onBuy?.Invoke(_item); }
+        private void Sell() { if (isActiveAndEnabled && sellButton != null && sellButton.interactable) _onSell?.Invoke(_item); }
     }
 }

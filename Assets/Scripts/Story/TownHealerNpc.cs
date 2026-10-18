@@ -23,8 +23,12 @@ namespace ShadowTheater.Story
             int cost = TownServicePolicy.RestCost(regionId, restCost);
             bool success = SaveManager.TryRestParty(cost, out string message);
             GameFeedbackAudio.Play(success ? FeedbackCue.Heal : FeedbackCue.Denied);
-            if (success && cost < restCost) message += " · 되찾은 생활권 도움 -10 금화";
-            if (success) SaveManager.Instance?.Save();
+            if (success)
+            {
+                TownRestorationService.AddActivity(regionId, 1);
+                if (!SaveManager.Instance.TrySave())
+                    message += "\n" + L10n.Get("save.failed", "저장하지 못했습니다. 현재 게임을 유지하고 다시 저장해 주세요.");
+            }
             SaveFeedbackController.Instance?.ShowMessage(message);
         }
     }

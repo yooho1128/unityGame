@@ -686,18 +686,25 @@ namespace ShadowTheater.Save
             PartyChanged?.Invoke();
         }
 
-        public static bool TryRestParty(int cost, out string message)
+        public static bool CanRestParty(int cost, out string message)
         {
             message = string.Empty;
-            if (Current == null) { message = "휴식할 파티가 없습니다."; return false; }
+            if (Current == null || Current.party.Count == 0) { message = L10n.Get("shop.no_party", "휴식할 파티가 없습니다."); return false; }
             bool needsRest = Current.party.Exists(x => x.currentHp < x.MaxHp);
-            if (!needsRest) { message = "파티의 HP가 이미 가득합니다."; return false; }
+            if (!needsRest) { message = L10n.Get("shop.party_full", "파티의 HP가 이미 가득합니다."); return false; }
             cost = Mathf.Max(0, cost);
-            if (Current.gold < cost) { message = "휴식에 필요한 금화가 부족합니다."; return false; }
+            if (Current.gold < cost) { message = L10n.Get("shop.rest_gold_short", "휴식에 필요한 금화가 부족합니다."); return false; }
+            return true;
+        }
+
+        public static bool TryRestParty(int cost, out string message)
+        {
+            if (!CanRestParty(cost, out message)) return false;
+            cost = Mathf.Max(0, cost);
             Current.gold -= cost;
             HealParty();
             EconomyChanged?.Invoke();
-            message = $"막간 휴식 완료 · 파티 전원 회복 (-{cost} 금화)";
+            message = L10n.Format("shop.rest_done", "막간 휴식 완료 · 파티 전원 회복 (-{0:N0} 금화)", cost);
             return true;
         }
 
@@ -810,30 +817,54 @@ namespace ShadowTheater.Save
             InventoryChanged?.Invoke();
         }
 
-        public static bool TryBuyItem(ItemData item, out string message)
+        public static bool CanBuyItem(ItemData item, out string message)
         {
             message = string.Empty;
-            if (Current == null || item == null) { message = "구매할 도구가 없습니다."; return false; }
+            if (Current == null || item == null || string.IsNullOrEmpty(item.itemId) || item.buyPrice < 0)
+            { message = L10n.Get("shop.invalid_buy", "구매할 수 없는 도구입니다."); return false; }
             if (item.isKeyItem && GetItemCount(item.itemId) > 0)
-            { message = "이미 보유한 핵심 도구입니다."; return false; }
-            int price = Mathf.Max(0, item.buyPrice);
-            if (Current.gold < price) { message = "금화가 부족합니다."; return false; }
-            Current.gold -= price;
-            AddItem(item.itemId, 1);
+            { message = L10n.Get("shop.key_owned", "이미 보유한 핵심 도구입니다."); return false; }
+            if (GetItemCount(item.itemId) == int.MaxValue)
+            { message = L10n.Get("shop.stack_full", "이 도구를 더 보관할 수 없습니다."); return false; }
+            if (Current.gold < item.buyPrice) { message = L10n.Get("shop.gold_short", "금화가 부족합니다."); return false; }
+            return true;
+        }
+
+        public static bool TryBuyItem(ItemData item, out string message)
+        {
+            if (!CanBuyItem(item, out message)) return false;
+            var stack = Current.inventory.Find(x => x.itemId == item.itemId);
+            if (stack == null) { stack = new ItemStack { itemId = item.itemId }; Current.inventory.Add(stack); }
+            Current.gold -= item.buyPrice;
+            stack.count++;
+            InventoryChanged?.Invoke();
             EconomyChanged?.Invoke();
-            message = $"{item.displayName}을(를) 구매했습니다.";
+            message = L10n.Format("shop.buy_done", "{0}을(를) 구매했습니다.", L10n.Text(item.displayName));
+            return true;
+        }
+
+        public static bool CanSellItem(ItemData item, out string message)
+        {
+            message = string.Empty;
+            if (Current == null || item == null || string.IsNullOrEmpty(item.itemId) || GetItemCount(item.itemId) <= 0)
+            { message = L10n.Get("shop.no_sell_item", "판매할 도구가 없습니다."); return false; }
+            if (item.isKeyItem) { message = L10n.Get("shop.key_no_sell", "핵심 도구는 판매할 수 없습니다."); return false; }
+            if (item.sellPrice <= 0) { message = L10n.Get("shop.unsellable", "판매할 수 없는 도구입니다."); return false; }
+            if (Current.gold > int.MaxValue - item.sellPrice)
+            { message = L10n.Get("shop.gold_full", "금화를 더 보관할 수 없습니다."); return false; }
             return true;
         }
 
         public static bool TrySellItem(ItemData item, out string message)
         {
-            message = string.Empty;
-            if (Current == null || item == null || GetItemCount(item.itemId) <= 0)
-            { message = "판매할 도구가 없습니다."; return false; }
-            if (item.isKeyItem) { message = "핵심 도구는 판매할 수 없습니다."; return false; }
-            AddItem(item.itemId, -1);
-            AddGold(Mathf.Max(0, item.sellPrice));
-            message = $"{item.displayName}을(를) 판매했습니다.";
+            if (!CanSellItem(item, out message)) return false;
+            var stack = Current.inventory.Find(x => x.itemId == item.itemId);
+            stack.count--;
+            if (stack.count == 0) Current.inventory.Remove(stack);
+            Current.gold += item.sellPrice;
+            InventoryChanged?.Invoke();
+            EconomyChanged?.Invoke();
+            message = L10n.Format("shop.sell_done", "{0}을(를) 판매했습니다.", L10n.Text(item.displayName));
             return true;
         }
 

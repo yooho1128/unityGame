@@ -28,6 +28,7 @@ namespace ShadowTheater.UI
         private readonly List<GameObject> _spawned = new List<GameObject>();
         private bool _lockedPlayer;
         private bool _refreshPending;
+        private int _lastTransactionFrame = -1;
         public bool IsOpen { get; private set; }
 
         private void Awake()
@@ -44,6 +45,9 @@ namespace ShadowTheater.UI
             L10n.Changed += RefreshIfOpen;
             SaveManager.InventoryChanged += RefreshIfOpen;
             SaveManager.EconomyChanged += RefreshIfOpen;
+            SaveManager.PartyChanged += RefreshIfOpen;
+            SaveManager.CurrentChanged += OnCurrentChanged;
+            TownRestorationService.StageChanged += OnTownStageChanged;
             RefreshAvailability();
         }
 
@@ -58,6 +62,9 @@ namespace ShadowTheater.UI
             L10n.Changed -= RefreshIfOpen;
             SaveManager.InventoryChanged -= RefreshIfOpen;
             SaveManager.EconomyChanged -= RefreshIfOpen;
+            SaveManager.PartyChanged -= RefreshIfOpen;
+            SaveManager.CurrentChanged -= OnCurrentChanged;
+            TownRestorationService.StageChanged -= OnTownStageChanged;
             if (IsOpen) Close();
         }
 
@@ -95,34 +102,44 @@ namespace ShadowTheater.UI
 
         public void RestParty()
         {
-            bool success = SaveManager.TryRestParty(restCost, out string message);
+            if (!BeginTransaction()) return;
+            var region = RegionRepository.GetByScene(SaveManager.Current.mapId);
+            int cost = TownServicePolicy.RestCost(region.regionId, restCost);
+            bool success = SaveManager.TryRestParty(cost, out string message);
+            GameFeedbackAudio.Play(success ? FeedbackCue.Heal : FeedbackCue.Denied);
             Transact(success, message);
         }
 
         private void Buy(ItemData item)
         {
+            if (!BeginTransaction()) return;
+            var region = RegionRepository.GetByScene(SaveManager.Current.mapId);
+            if (!TownServicePolicy.AllowsItem(region, item)) return;
             bool success = SaveManager.TryBuyItem(item, out string message);
             Transact(success, message);
         }
 
         private void Sell(ItemData item)
         {
+            if (!BeginTransaction()) return;
             bool success = SaveManager.TrySellItem(item, out string message);
             Transact(success, message);
         }
 
         private void Transact(bool success, string message)
         {
-            if (feedbackText != null)
-            {
-                feedbackText.text = message;
-                feedbackText.color = success ? new Color(.55f,1f,.72f) : new Color(1f,.58f,.67f);
-            }
+            bool saved = true;
             if (success)
             {
                 RegionData region = RegionRepository.GetByScene(SaveManager.Current?.mapId);
                 if (region != null) TownRestorationService.AddActivity(region.regionId, 1);
-                SaveManager.Instance.Save();
+                saved = SaveManager.Instance.TrySave();
+                if (!saved) message += "\n" + L10n.Get("save.failed", "저장하지 못했습니다. 현재 게임을 유지하고 다시 저장해 주세요.");
+            }
+            if (feedbackText != null)
+            {
+                feedbackText.text = message;
+                feedbackText.color = success && saved ? new Color(.55f,1f,.72f) : new Color(1f,.58f,.67f);
             }
             Refresh(false);
         }
@@ -132,7 +149,8 @@ namespace ShadowTheater.UI
             _refreshPending = false;
             Vector2 position = UiListLayout.Position(contentRoot);
             UiListLayout.Clear(_spawned);
-            if (SaveManager.Current == null || ShadowDatabase.Instance == null) return;
+            if (SaveManager.Current == null || !IsSettlement()) { Close(); RefreshAvailability(); return; }
+            if (ShadowDatabase.Instance == null) return;
             RegionData region = RegionRepository.GetByScene(SaveManager.Current.mapId);
             if (regionText != null)
             {
@@ -147,8 +165,10 @@ namespace ShadowTheater.UI
             if (goldText != null) goldText.text = L10n.Format("shop.gold", "보유 금화  {0:N0}", SaveManager.Current.gold);
             if (restButton != null)
             {
-                bool damaged = SaveManager.Current.party.Exists(x => x.currentHp < x.MaxHp);
-                restButton.interactable = damaged && SaveManager.Current.gold >= restCost;
+                int cost = TownServicePolicy.RestCost(region.regionId, restCost);
+                restButton.interactable = SaveManager.CanRestParty(cost, out _);
+                var label = restButton.GetComponentInChildren<Text>(true);
+                if (label != null) label.text = L10n.Format("shop.rest_price", "막간 휴식 {0:N0}", cost);
             }
             if (clearFeedback && feedbackText != null) feedbackText.text = string.Empty;
             foreach (ItemData item in ShadowDatabase.Instance.items
@@ -167,6 +187,16 @@ namespace ShadowTheater.UI
         {
             return FieldUiModalState.CanOpen(FieldUiModal.Shop);
         }
+
+        private bool BeginTransaction()
+        {
+            if (!IsOpen || !IsSettlement() || !CanOpen() || _lastTransactionFrame == Time.frameCount) return false;
+            _lastTransactionFrame = Time.frameCount;
+            return true;
+        }
+
+        private void OnTownStageChanged(string regionId, int stage) => RefreshIfOpen();
+        private void OnCurrentChanged() { if (IsOpen) Close(); RefreshAvailability(); }
 
         private static bool IsSettlement()
         {
