@@ -25,40 +25,48 @@ namespace ShadowTheater.UI
         private readonly List<GameObject> _spawned=new List<GameObject>();
         private bool _showCompleted;
         private bool _lockedPlayer;
+        private bool _refreshPending;
         private QuestDefinition _selectedQuest;
         private QuestProgressData _selectedProgress;
         public bool IsOpen{get;private set;}
 
         private void Awake(){if(Instance!=null&&Instance!=this){Destroy(gameObject);return;}Instance=this;if(root!=null&&root.GetComponent<MobileSafeArea>()==null)root.AddComponent<MobileSafeArea>();root?.SetActive(false);entryTemplate?.gameObject.SetActive(false);}
-        private void OnEnable(){QuestManager.GlobalQuestChanged+=RefreshIfOpen;L10n.Changed+=RefreshIfOpen;}
-        private void OnDisable(){QuestManager.GlobalQuestChanged-=RefreshIfOpen;L10n.Changed-=RefreshIfOpen;if(IsOpen)Close();}
+        private void OnEnable(){QuestManager.GlobalQuestChanged+=RefreshIfOpen;L10n.Changed+=RefreshIfOpen;SaveManager.CurrentChanged+=RefreshIfOpen;}
+        private void OnDisable(){QuestManager.GlobalQuestChanged-=RefreshIfOpen;L10n.Changed-=RefreshIfOpen;SaveManager.CurrentChanged-=RefreshIfOpen;if(IsOpen)Close();}
+        private void LateUpdate(){if(IsOpen&&_refreshPending)Refresh();}
         private void OnDestroy(){if(Instance==this)Instance=null;ReleasePlayer();}
-        public void Open(){if(IsOpen||SaveManager.Current==null||!CanOpen())return;IsOpen=true;root?.SetActive(true);if(PlayerController.Instance!=null){PlayerController.Instance.MoveInput=Vector2.zero;PlayerController.Instance.Lock();_lockedPlayer=true;}_showCompleted=false;_selectedQuest=null;Refresh();}
+        public void Open(){if(IsOpen||SaveManager.Current==null||!CanOpen())return;IsOpen=true;root?.SetActive(true);if(PlayerController.Instance!=null){PlayerController.Instance.MoveInput=Vector2.zero;PlayerController.Instance.Lock();_lockedPlayer=true;}_showCompleted=false;ResetSelection();Refresh();}
         public void Close(){if(!IsOpen)return;IsOpen=false;root?.SetActive(false);ReleasePlayer();}
-        public void ShowActive(){_showCompleted=false;_selectedQuest=null;Refresh();}
-        public void ShowCompleted(){_showCompleted=true;_selectedQuest=null;Refresh();}
+        public void ShowActive(){_showCompleted=false;ResetSelection();Refresh();}
+        public void ShowCompleted(){_showCompleted=true;ResetSelection();Refresh();}
+        private void ResetSelection(){_selectedQuest=null;_selectedProgress=null;if(contentRoot is RectTransform content)content.anchoredPosition=Vector2.zero;}
 
         private void Refresh()
         {
-            foreach(var go in _spawned)Destroy(go);_spawned.Clear();var save=SaveManager.Current;if(save==null)return;
-            if(_selectedProgress!=null&&_selectedProgress.completed!=_showCompleted){_selectedQuest=null;_selectedProgress=null;}
+            _refreshPending=false;
+            Vector2 position=UiListLayout.Position(contentRoot);
+            string selectedId=_selectedQuest?.questId;
+            UiListLayout.Clear(_spawned);var save=SaveManager.Current;if(save==null){Close();return;}
+            _selectedQuest=null;_selectedProgress=null;
             int active=0,completed=0,shown=0;
             foreach(var progress in save.quests)
             {
                 if(progress.completed)completed++;else active++;
                 if(progress.completed!=_showCompleted||!QuestRepository.TryGet(progress.questId,out var quest))continue;
                 var view=Instantiate(entryTemplate,contentRoot);view.Bind(quest,progress,Select);_spawned.Add(view.gameObject);shown++;
-                if(_selectedQuest==null){_selectedQuest=quest;_selectedProgress=progress;}
+                if(_selectedQuest==null||quest.questId==selectedId){_selectedQuest=quest;_selectedProgress=progress;}
             }
             if(countText!=null)countText.text=L10n.Format("questlog.count","진행 {0} · 완료 {1}",active,completed);
             if(emptyText!=null)emptyText.gameObject.SetActive(shown==0);
             if(activeFilterButton!=null)activeFilterButton.interactable=_showCompleted;
             if(completedFilterButton!=null)completedFilterButton.interactable=!_showCompleted;
-            if(contentRoot is RectTransform content){Canvas.ForceUpdateCanvases();LayoutRebuilder.ForceRebuildLayoutImmediate(content);content.anchoredPosition=new Vector2(content.anchoredPosition.x,0);}
+            UiListLayout.Rebuild(contentRoot,position);
+            RefreshSelection();
             RefreshDetail();
         }
 
-        private void Select(QuestDefinition quest,QuestProgressData progress){_selectedQuest=quest;_selectedProgress=progress;RefreshDetail();}
+        private void Select(QuestDefinition quest,QuestProgressData progress){_selectedQuest=quest;_selectedProgress=progress;RefreshSelection();RefreshDetail();}
+        private void RefreshSelection(){foreach(var row in _spawned)row.GetComponent<QuestLogEntryView>()?.SetSelected(_selectedQuest?.questId);}
         private void RefreshDetail()
         {
             bool has=_selectedQuest!=null&&_selectedProgress!=null;
@@ -76,6 +84,6 @@ namespace ShadowTheater.UI
             }
         }
         private bool CanOpen()=>FieldUiModalState.CanOpen(FieldUiModal.QuestLog);
-        private void RefreshIfOpen(){if(IsOpen)Refresh();}private void ReleasePlayer(){if(!_lockedPlayer)return;PlayerController.Instance?.Unlock();_lockedPlayer=false;}
+        private void RefreshIfOpen(){if(IsOpen)_refreshPending=true;}private void ReleasePlayer(){if(!_lockedPlayer)return;PlayerController.Instance?.Unlock();_lockedPlayer=false;}
     }
 }

@@ -13,14 +13,19 @@ namespace ShadowTheater.UI
         [SerializeField] private Text nameText;
         [SerializeField] private Text levelText;
         [SerializeField] private Text stateText;
+        private RegionData _region;
+        private RegionMapKnowledge _knowledge;
 
         public void Bind(RegionData region, RegionMapKnowledge knowledge, Action<RegionData> onSelected)
         {
+            _region = region;
+            _knowledge = knowledge;
+            if (button == null) button = GetComponent<Button>();
             bool detailed = knowledge == RegionMapKnowledge.Visited || knowledge == RegionMapKnowledge.Current;
             bool rumored = knowledge == RegionMapKnowledge.Rumored;
             bool selectable = detailed || rumored || knowledge == RegionMapKnowledge.RouteKnown;
             if (orderText != null) orderText.text = detailed ? $"{region.order:00}" : rumored ? "?" : "--";
-            if (nameText != null) nameText.text = detailed
+            if (nameText != null) nameText.text = detailed || knowledge == RegionMapKnowledge.RouteKnown
                 ? L10n.Get($"region.{region.regionId}.name", L10n.Text(region.displayName))
                 : rumored ? L10n.Get("map.rumored_path", "?")
                 : L10n.Get("common.unknown_path", "아직 걷지 않은 길");
@@ -37,6 +42,12 @@ namespace ShadowTheater.UI
                 button.onClick.AddListener(() => onSelected?.Invoke(region));
             }
             gameObject.SetActive(true);
+        }
+
+        public void SetSelected(RegionData selected)
+        {
+            bool active = _region != null && selected?.regionId == _region.regionId;
+            if (stateText != null) stateText.text = (active ? "▶ " : "") + KnowledgeLabel(_knowledge);
         }
 
         private static string KnowledgeLabel(RegionMapKnowledge knowledge)

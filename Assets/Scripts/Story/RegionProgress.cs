@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using ShadowTheater.Save;
 
 namespace ShadowTheater.Story
@@ -32,6 +33,39 @@ namespace ShadowTheater.Story
         {
             var region = RegionRepository.GetByScene(sceneName);
             return region != null && CanEnter(region);
+        }
+
+        /// <summary>현재 지도에서 발견한 길만 따라가는 최단 도보 경로. 숨은 길과 미해금 관문은 안내하지 않는다.</summary>
+        public static List<RegionData> FindKnownRoute(RegionData destination)
+        {
+            var origin = RegionRepository.GetByScene(SaveManager.Current?.mapId);
+            var route = new List<RegionData>();
+            if (origin == null || destination == null) return route;
+            var previous = new Dictionary<string, RegionData> { [origin.regionId] = null };
+            var pending = new Queue<RegionData>();
+            pending.Enqueue(origin);
+            while (pending.Count > 0)
+            {
+                var region = pending.Dequeue();
+                if (region.regionId == destination.regionId)
+                {
+                    for (var step = region; step != null; step = previous[step.regionId]) route.Add(step);
+                    route.Reverse();
+                    return route;
+                }
+                foreach (string id in region.connectedRegionIds ?? System.Array.Empty<string>())
+                {
+                    if (string.IsNullOrEmpty(id) || previous.ContainsKey(id)) continue;
+                    var next = RegionRepository.Get(id);
+                    var knowledge = GetKnowledge(next);
+                    if (next == null || (knowledge != RegionMapKnowledge.Current &&
+                        knowledge != RegionMapKnowledge.Visited && knowledge != RegionMapKnowledge.RouteKnown) ||
+                        !MeetsTravelRequirement(next.sceneName, next.requiredFlag)) continue;
+                    previous.Add(id, region);
+                    pending.Enqueue(next);
+                }
+            }
+            return route;
         }
 
         public static bool CanEnter(RegionData region)

@@ -31,6 +31,7 @@ namespace ShadowTheater.UI
         private readonly List<GameObject> _spawned = new List<GameObject>();
         private RegionData _selected;
         private bool _lockedPlayer;
+        private bool _refreshPending;
         public bool IsOpen { get; private set; }
 
         private void Awake()
@@ -41,11 +42,12 @@ namespace ShadowTheater.UI
             nodeTemplate?.gameObject.SetActive(false);
         }
 
-        private void OnEnable() => L10n.Changed += RefreshIfOpen;
+        private void OnEnable() { L10n.Changed += RefreshIfOpen; SaveManager.CurrentChanged += RefreshIfOpen; }
 
         private void OnDestroy() { if (Instance == this) Instance = null; ReleasePlayer(); }
-        private void OnDisable() { L10n.Changed -= RefreshIfOpen; if (IsOpen) Close(); }
-        private void RefreshIfOpen() { if (IsOpen) Refresh(); }
+        private void OnDisable() { L10n.Changed -= RefreshIfOpen; SaveManager.CurrentChanged -= RefreshIfOpen; if (IsOpen) Close(); }
+        private void RefreshIfOpen() { if (IsOpen) _refreshPending = true; }
+        private void LateUpdate() { if (IsOpen && _refreshPending) Refresh(); }
 
         public void Toggle() { if (IsOpen) Close(); else Open(); }
 
@@ -55,6 +57,8 @@ namespace ShadowTheater.UI
             if (!FieldUiModalState.CanOpen(FieldUiModal.WorldMap)) return;
             IsOpen = true;
             root?.SetActive(true);
+            _selected = null;
+            if (contentRoot is RectTransform content) content.anchoredPosition = Vector2.zero;
             if (PlayerController.Instance != null)
             {
                 PlayerController.Instance.MoveInput = Vector2.zero;
@@ -93,27 +97,35 @@ namespace ShadowTheater.UI
 
         private void Refresh()
         {
-            foreach (var go in _spawned) Destroy(go);
-            _spawned.Clear();
+            _refreshPending = false;
+            if (SaveManager.Current == null) { Close(); return; }
+            Vector2 position = UiListLayout.Position(contentRoot);
+            string selectedId = _selected?.regionId;
+            UiListLayout.Clear(_spawned);
             var ordered = RegionRepository.Ordered().ToList();
             foreach (var region in ordered)
             {
-                RegionMapState state = RegionProgress.GetState(region);
                 RegionMapKnowledge knowledge = RegionProgress.GetKnowledge(region);
                 if (knowledge == RegionMapKnowledge.Hidden) continue;
                 var view = Instantiate(nodeTemplate, contentRoot);
                 view.Bind(region, knowledge, Select);
                 _spawned.Add(view.gameObject);
             }
-            int visited = SaveManager.Current?.visitedRegionIds?.Count ?? 0;
+            int visited = ordered.Count(x => RegionProgress.GetState(x) == RegionMapState.Visited ||
+                RegionProgress.GetState(x) == RegionMapState.Current);
             if (progressText != null) progressText.text = L10n.Format("map.progress", "방문 {0} / {1}", visited, ordered.Count);
             var current = RegionRepository.GetByScene(SaveManager.Current?.mapId);
-            Select(current ?? ordered.FirstOrDefault(x => RegionProgress.GetState(x) != RegionMapState.Locked));
+            var selected = ordered.FirstOrDefault(x => x.regionId == selectedId &&
+                RegionProgress.GetKnowledge(x) != RegionMapKnowledge.Hidden &&
+                RegionProgress.GetKnowledge(x) != RegionMapKnowledge.Locked);
+            Select(selected ?? current ?? ordered.FirstOrDefault(x => RegionProgress.GetState(x) != RegionMapState.Locked));
+            UiListLayout.Rebuild(contentRoot, position);
         }
 
         private void Select(RegionData region)
         {
             _selected = region;
+            foreach (var row in _spawned) row.GetComponent<RegionMapNodeView>()?.SetSelected(region);
             if (region == null) { ShowEmpty(); return; }
             var state = RegionProgress.GetState(region);
             RegionMapKnowledge knowledge = RegionProgress.GetKnowledge(region);
@@ -123,7 +135,7 @@ namespace ShadowTheater.UI
                 ? L10n.Get($"region.{region.regionId}.act", L10n.Text(region.actTitle))
                 : rumored ? L10n.Get("map.rumored_act", "소문 속 숨은 길")
                 : L10n.Get("map.undiscovered_act", "아직 공개되지 않은 막");
-            if (nameText != null) nameText.text = detailed
+            if (nameText != null) nameText.text = detailed || knowledge == RegionMapKnowledge.RouteKnown
                 ? L10n.Get($"region.{region.regionId}.name", L10n.Text(region.displayName))
                 : rumored ? "?" : L10n.Get("common.unknown_path", "아직 걷지 않은 길");
             if (environmentText != null)
@@ -142,6 +154,20 @@ namespace ShadowTheater.UI
                 ? L10n.Get($"region.{region.regionId}.summary", L10n.Text(region.summary))
                 : rumored ? L10n.Text(TownServicePolicy.HiddenMapHint(region))
                 : L10n.Get("map.locked_hint", "출구를 찾아 직접 걸어가면 지역 정보가 기록됩니다.");
+            if (summaryText != null && (detailed || knowledge == RegionMapKnowledge.RouteKnown))
+            {
+                var connections = new List<string>();
+                foreach (string id in region.connectedRegionIds ?? System.Array.Empty<string>())
+                {
+                    var next = RegionRepository.Get(id);
+                    var known = RegionProgress.GetKnowledge(next);
+                    if (known == RegionMapKnowledge.Current || known == RegionMapKnowledge.Visited ||
+                        known == RegionMapKnowledge.RouteKnown)
+                        connections.Add(L10n.Get($"region.{next.regionId}.name", L10n.Text(next.displayName)));
+                }
+                if (connections.Count > 0) summaryText.text += "\n" +
+                    L10n.Format("map.connections", "연결된 길 · {0}", string.Join(" · ", connections));
+            }
             if (shadowsText != null) shadowsText.text = detailed
                 ? L10n.Get("map.shadows", "출현 그림자 · ") + Join(region.featuredShadows) : L10n.Get("map.shadows_unknown", "출현 그림자 · ???");
             if (bossText != null) bossText.text = detailed && !string.IsNullOrEmpty(region.bossShadowName)
@@ -164,11 +190,22 @@ namespace ShadowTheater.UI
                 ? L10n.Get("map.first_visit", "출구를 통해 직접 방문하면 상세 정보가 기록됩니다.")
                 : state == RegionMapState.Visited && !region.isSettlement
                     ? L10n.Get("map.settlement_only", "빠른 이동은 방문한 극단 마을에서만 이용할 수 있습니다.") : "";
+            if (feedbackText != null && !rumored && state != RegionMapState.Current && state != RegionMapState.Locked)
+            {
+                var route = RegionProgress.FindKnownRoute(region);
+                string guidance = route.Count > 1
+                    ? L10n.Format("map.walk_next", "도보 경로 · 먼저 {0} 방면 출구로 이동 ({1}개 지역 이동)",
+                        L10n.Get($"region.{route[1].regionId}.name", L10n.Text(route[1].displayName)), route.Count - 1)
+                    : L10n.Get("map.route_unavailable", "현재 위치에서 이어지는 알려진 경로가 없습니다.");
+                feedbackText.text = guidance;
+            }
         }
 
         private void ShowEmpty()
         {
             if (nameText != null) nameText.text = L10n.Get("map.no_info", "지역 정보 없음");
+            foreach (var label in new[] { actText, environmentText, levelText, summaryText, shadowsText, bossText, feedbackText })
+                if (label != null) label.text = string.Empty;
             if (travelButton != null) travelButton.interactable = false;
         }
 

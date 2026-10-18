@@ -1,5 +1,8 @@
 {
   "strings": [
+    {"key":"map.connections","ko":"연결된 길 · {0}","en":"Connected paths · {0}"},
+    {"key":"map.walk_next","ko":"도보 경로 · 먼저 {0} 방면 출구로 이동 ({1}개 지역 이동)","en":"Walking route · Take the exit toward {0} first ({1} region transitions)"},
+    {"key":"map.route_unavailable","ko":"현재 위치에서 이어지는 알려진 경로가 없습니다.","en":"No known route connects this destination to your current location."},
     {"key":"inventory.traversal_hint","ko":"이동 경로에서 자동으로 사용하는 도구입니다.","en":"This tool is used automatically on traversal routes."},
     {"key":"inventory.passive_hint","ko":"가방에서 직접 사용하는 도구가 아닙니다.","en":"This item cannot be used directly from the bag."},
     {"key":"party.swap_invalid","ko":"교체할 두 그림자를 선택하세요. 파티에는 전투 가능한 그림자가 한 명 이상 필요합니다.","en":"Choose both shadows. Keep at least one battle-ready shadow in the party."},
