@@ -2,15 +2,19 @@
 knight Lv.5 solo vs available introductory roster: 640/640 automated duels won
 mage Lv.5 solo vs available introductory roster: 637/640 automated duels won
 beast Lv.5 solo vs available introductory roster: 636/640 automated duels won
+DPad: pointer ownership, second finger, sliding release, unrelated drag, menu lock, pause/focus loss, disable PASS
 2184x1968: normal + forced switch pointer raycast PASS, six-member scrolling PASS
 2184x1968: melee/magic, both sides, miss, stationary HP/name HUD, interruption recovery PASS
+2184x1968: damage/heal HP tween, repeated bind, actual numbers, no raycast, float/fade, bench heal, faint/switch PASS
 2184x1968: book row width + reading area PASS
 2184x1968: field controls + companion one-tile bounds PASS (preview renderer)
 2400x1080: normal + forced switch pointer raycast PASS, six-member scrolling PASS
 2400x1080: melee/magic, both sides, miss, stationary HP/name HUD, interruption recovery PASS
+2400x1080: damage/heal HP tween, repeated bind, actual numbers, no raycast, float/fade, bench heal, faint/switch PASS
 2400x1080: book row width + reading area PASS
 2400x1080: field controls + companion one-tile bounds PASS (preview renderer)
 1920x1080: normal + forced switch pointer raycast PASS, six-member scrolling PASS
 1920x1080: melee/magic, both sides, miss, stationary HP/name HUD, interruption recovery PASS
+1920x1080: damage/heal HP tween, repeated bind, actual numbers, no raycast, float/fade, bench heal, faint/switch PASS
 1920x1080: book row width + reading area PASS
 1920x1080: field controls + companion one-tile bounds PASS (preview renderer)

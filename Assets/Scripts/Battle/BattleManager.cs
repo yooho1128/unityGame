@@ -629,8 +629,8 @@ namespace ShadowTheater.Battle
                 if (dot > 0)
                 {
                     var status = unit.MajorStatus.type;
-                    unit.TakeDamage(dot);
-                    yield return _presenter.PlayStatusDamage(unit, status, dot);
+                    int dealt = unit.TakeDamage(dot);
+                    yield return _presenter.PlayStatusDamage(unit, status, dealt);
                 }
 
                 var expired = unit.TickStatus();

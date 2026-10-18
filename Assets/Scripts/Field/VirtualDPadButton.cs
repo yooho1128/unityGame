@@ -14,15 +14,30 @@ namespace ShadowTheater.Field
         [SerializeField] private Vector2 direction = Vector2.up;
 
         private static VirtualDPadButton _pressed;
+        private static VirtualDPadButton _origin;
+        private static int? _pointerId;
 
-        public void OnPointerDown(PointerEventData e) => Press();
-        public void OnPointerUp(PointerEventData e) => Release();
-        public void OnPointerExit(PointerEventData e) => Release();
+        public void OnPointerDown(PointerEventData e)
+        {
+            if (e.button != PointerEventData.InputButton.Left ||
+                _pointerId.HasValue && _pointerId != e.pointerId) return;
+            var player = PlayerController.Instance;
+            if (player == null || player.IsLocked) return;
+            if (!_pointerId.HasValue) { _origin = this; _pointerId = e.pointerId; }
+            Press();
+        }
+        public void OnPointerUp(PointerEventData e) { if (_pointerId == e.pointerId) CancelInput(); }
+        public void OnPointerExit(PointerEventData e)
+        {
+            if (_pointerId != e.pointerId || _pressed != this) return;
+            _pressed = null;
+            if (PlayerController.Instance != null) PlayerController.Instance.MoveInput = Vector2.zero;
+        }
 
         // 손가락을 떼지 않고 다른 방향 버튼으로 미끄러질 때
         public void OnPointerEnter(PointerEventData e)
         {
-            if (e.dragging || e.pointerPress != null) Press();
+            if (_pointerId == e.pointerId && _origin != null && PlayerController.Instance != null && !PlayerController.Instance.IsLocked) Press();
         }
 
         private void Press()
@@ -31,13 +46,18 @@ namespace ShadowTheater.Field
             if (PlayerController.Instance != null) PlayerController.Instance.MoveInput = direction;
         }
 
-        private void Release()
+        public static void CancelInput()
         {
-            if (_pressed != this) return;
             _pressed = null;
+            _origin = null;
+            _pointerId = null;
             if (PlayerController.Instance != null) PlayerController.Instance.MoveInput = Vector2.zero;
         }
 
-        private void OnDisable() => Release();
+        private void OnDisable() { if (_pressed == this || _origin == this) CancelInput(); }
+        private void OnApplicationPause(bool paused) { if (paused) CancelInput(); }
+        private void OnApplicationFocus(bool focused) { if (!focused) CancelInput(); }
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetPointers() { _pressed = null; _origin = null; _pointerId = null; }
     }
 }

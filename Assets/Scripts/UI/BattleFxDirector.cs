@@ -16,7 +16,7 @@ namespace ShadowTheater.UI
         [SerializeField] private Camera battleCamera;
 
         public IEnumerator Play(BattleUnitPanel attacker, BattleUnitPanel defender, SkillData skill,
-                                HitResult hit, float playbackSpeed)
+                                HitResult hit, float playbackSpeed, System.Action onImpact = null)
         {
             if (attacker == null || skill == null) yield break;
             float speed = Mathf.Max(0.1f, playbackSpeed);
@@ -27,7 +27,7 @@ namespace ShadowTheater.UI
             {
                 if (skill.target != SkillTarget.Self)
                 {
-                    using (var attack = new BattleAttackPresentation(CreateLayer("AttackSequence"), attacker, defender, skill, hit.missed))
+                    using (var attack = new BattleAttackPresentation(CreateLayer("AttackSequence"), attacker, defender, skill, hit.missed, onImpact))
                     {
                         float duration = .64f / speed;
                         bool impactPlayed = false;
@@ -44,11 +44,12 @@ namespace ShadowTheater.UI
                             }
                             yield return null;
                         }
+                        attack.Sample(1f);
                     }
                     yield break;
                 }
-                if (skill.target == SkillTarget.Self) yield return Pulse(attacker, skill, 0.18f / speed, speed);
-                else yield return Lunge(attacker, defender, skill, hit, 0.18f / speed, skill.cameraShake, speed);
+                yield return Pulse(attacker, skill, 0.18f / speed, speed);
+                onImpact?.Invoke();
                 if (skill.target == SkillTarget.Self || !hit.missed)
                 {
                     RectTransform standardLayer = CreateLayer($"Skill_{skill.skillId}");
@@ -89,8 +90,9 @@ namespace ShadowTheater.UI
                 yield return null;
             }
 
-            if (skill.target == SkillTarget.Self) yield return Pulse(attacker, skill, 0.24f / speed, speed);
-            else yield return Lunge(attacker, defender, skill, hit, 0.24f / speed, skill.cameraShake + 0.5f, speed);
+            if (skill.target == SkillTarget.Self)
+            { yield return Pulse(attacker, skill, 0.24f / speed, speed); onImpact?.Invoke(); }
+            else yield return Lunge(attacker, defender, skill, hit, 0.24f / speed, skill.cameraShake + 0.5f, speed, onImpact);
 
             t = 0f;
             float burst = 0.22f / speed;
@@ -159,7 +161,7 @@ namespace ShadowTheater.UI
         }
 
         public IEnumerator PlayJointSkill(BattleUnitPanel attacker, BattleUnitPanel defender, BattleUnit companion,
-            CompanionJointProfile profile, HitResult hit, float playbackSpeed)
+            CompanionJointProfile profile, HitResult hit, float playbackSpeed, System.Action onImpact = null)
         {
             float speed=Mathf.Max(.1f,playbackSpeed);Color accent=companion?.Data!=null?companion.Data.accentColor:Color.magenta;
             Color element=profile.element==ShadowElement.Flame?new Color(1f,.28f,.12f):profile.element==ShadowElement.Frost
@@ -169,7 +171,9 @@ namespace ShadowTheater.UI
             for(int i=0;i<18;i++){float angle=i*Mathf.PI*2f/18f;Image shard=AddImage("BondShard"+i,layer,new Vector2(.5f,.5f),new Vector2(.5f,.5f),WithAlpha(i%2==0?accent:element,.8f));shard.rectTransform.sizeDelta=new Vector2(10,180);shard.rectTransform.anchoredPosition=new Vector2(Mathf.Cos(angle)*260,Mathf.Sin(angle)*310);shard.rectTransform.localRotation=Quaternion.Euler(0,0,-angle*Mathf.Rad2Deg);}
             Vector3 home=attacker?.MotionRoot!=null?attacker.MotionRoot.localScale:Vector3.one;float duration=.72f/speed;
             for(float t=0;t<duration;t+=Time.unscaledDeltaTime){float p=Mathf.Clamp01(t/duration),pulse=Mathf.Sin(p*Mathf.PI);dim.color=new Color(.01f,.005f,.03f,.72f*pulse);title.color=Color.Lerp(accent,Color.white,pulse);title.rectTransform.localScale=Vector3.one*(.7f+.45f*pulse);for(int i=2;i<layer.childCount;i++)layer.GetChild(i).Rotate(0,0,(i%2==0?1:-1)*2.5f);if(attacker?.MotionRoot!=null)attacker.MotionRoot.localScale=home*(1f+.15f*pulse);yield return null;}
-            if(attacker?.MotionRoot!=null)attacker.MotionRoot.localScale=home;if(!hit.missed&&defender!=null)defender.MotionRoot.localPosition+=(Vector3)Random.insideUnitCircle*8f;Destroy(layer.gameObject);
+            if(attacker?.MotionRoot!=null)attacker.MotionRoot.localScale=home;
+            onImpact?.Invoke();
+            Destroy(layer.gameObject);
         }
 
         private static UltimateFxAssetPlayer CreateAssetFx(RectTransform layer, SkillData skill)
@@ -238,7 +242,7 @@ namespace ShadowTheater.UI
         }
 
         private IEnumerator Lunge(BattleUnitPanel attacker, BattleUnitPanel defender, SkillData skill, HitResult hit,
-                                  float duration, float shakePower, float speed)
+                                  float duration, float shakePower, float speed, System.Action onImpact = null)
         {
             RectTransform a = attacker.MotionRoot;
             Vector3 start = a.localPosition;
@@ -265,18 +269,22 @@ namespace ShadowTheater.UI
                 float tilt = attacker.MotionRole == ShadowRole.SpeedUtility ? -10f :
                     attacker.MotionRole == ShadowRole.MagicNuker || attacker.MotionRole == ShadowRole.Support ? 4f : -3f;
                 a.localRotation = startRotation * Quaternion.Euler(0f, 0f, motion * tilt);
+                if (t >= half && !impacted)
+                {
+                    impacted = true;
+                    onImpact?.Invoke();
+                    if (!hit.missed)
+                    {
+                        if (sfxPlayer != null) sfxPlayer.PlayImpact(skill);
+                        GameSettings.TryVibrate();
+                        yield return HitStop(skill.hitStopDuration / Mathf.Sqrt(speed));
+                    }
+                }
                 if (t >= half && !hit.missed && defender != null)
                 {
                     defender.MotionRoot.localPosition += (Vector3)Random.insideUnitCircle * (shakePower * 4f);
                     if (battleCamera != null)
                         battleCamera.transform.localPosition = cameraPosition + (Vector3)(Random.insideUnitCircle * shakePower * 0.035f);
-                    if (!impacted)
-                    {
-                        impacted = true;
-                        if (sfxPlayer != null) sfxPlayer.PlayImpact(skill);
-                        GameSettings.TryVibrate();
-                        yield return HitStop(skill.hitStopDuration / Mathf.Sqrt(speed));
-                    }
                 }
                 yield return null;
             }

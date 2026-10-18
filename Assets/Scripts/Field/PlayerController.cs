@@ -67,7 +67,7 @@ namespace ShadowTheater.Field
 
         // ────────────────────────────────────────────
 
-        public void Lock() => _lockCount++;
+        public void Lock() { _lockCount++; VirtualDPadButton.CancelInput(); }
         public void Unlock() => _lockCount = Mathf.Max(0, _lockCount - 1);
 
         public void SnapToCell(Vector2Int cell)

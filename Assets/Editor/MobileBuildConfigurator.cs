@@ -14,8 +14,8 @@ namespace ShadowTheater.EditorTools
     public static class MobileBuildConfigurator
     {
         public const string ApplicationId = "com.yooho.shadowtheater";
-        public const string Version = "0.1.6";
-        public const int AndroidVersionCode = 7;
+        public const string Version = "0.1.7";
+        public const int AndroidVersionCode = 8;
         public const string IosBuildNumber = "1";
         private const string BuildRoot = "Builds";
         private const string TitleScenePath = "Assets/Scenes/Prologue/Title.unity";

@@ -381,7 +381,10 @@ namespace ShadowTheater.UI
         {
             BattleUnitPanel attacker = a.Side == BattleSide.Player ? playerPanel : enemyPanel;
             BattleUnitPanel defender = d.Side == BattleSide.Player ? playerPanel : enemyPanel;
-            if (fxDirector != null) yield return fxDirector.Play(attacker, defender, s, hit, _speed);
+            bool presented = false;
+            System.Action impact = () => { presented = true; PresentHit(d, hit); };
+            if (fxDirector != null) yield return fxDirector.Play(attacker, defender, s, hit, _speed, impact);
+            if (!presented) impact();
             if (hit.missed)
             {
                 yield return Say(L10n.Format("battle.missed", "{0}의 {1}! 빗나갔다.", L10n.Text(a.Name), L10n.Text(s.displayName)));
@@ -398,16 +401,46 @@ namespace ShadowTheater.UI
         public IEnumerator PlayJointSkill(BattleUnit a, BattleUnit companion, BattleUnit d,
             CompanionJointProfile profile, HitResult hit)
         {
-            if (fxDirector != null) yield return fxDirector.PlayJointSkill(playerPanel, enemyPanel, companion, profile, hit, _speed);
+            bool presented = false;
+            System.Action impact = () => { presented = true; PresentHit(d, hit); };
+            if (fxDirector != null) yield return fxDirector.PlayJointSkill(playerPanel, enemyPanel, companion, profile, hit, _speed, impact);
+            if (!presented) impact();
             yield return Say($"{L10n.Text(a.Name)}과 {L10n.Text(companion.Name)}의 합동 연출!\n[{profile.displayName}]", .8f);
             string message = $"{L10n.Text(d.Name)}에게 {hit.damage} 피해";
             if (hit.critical) message += " · 치명타";
             if (hit.IsEffective) message += " · 효과가 굉장했다";
             yield return Say(message, .8f);
         }
-        public IEnumerator PlayHeal(BattleUnit unit, int amount) { GameFeedbackAudio.Play(FeedbackCue.Heal); yield return Say(L10n.Format("battle.heal", "{0}의 HP가 {1} 회복됐다.", L10n.Text(unit.Name), amount)); }
+        public IEnumerator PlayHeal(BattleUnit unit, int amount)
+        {
+            GameFeedbackAudio.Play(FeedbackCue.Heal);
+            var panel = unit.Side == BattleSide.Player ? playerPanel : enemyPanel;
+            if (panel.Represents(unit))
+            {
+                panel.Bind(unit, .28f / _speed);
+                if (amount > 0) Floating(panel, "+" + amount, new Color(.45f,1f,.7f));
+            }
+            yield return Say(L10n.Format("battle.heal", "{0}의 HP가 {1} 회복됐다.", L10n.Text(unit.Name), amount));
+        }
         public IEnumerator PlayStatusApplied(BattleUnit unit, StatusEffectType status) { yield return Say(L10n.Format("battle.status_applied", "{0}에게 {1} 상태가 걸렸다.", L10n.Text(unit.Name), StatusLabel(status))); }
-        public IEnumerator PlayStatusDamage(BattleUnit unit, StatusEffectType status, int damage) { yield return Say(L10n.Format("battle.status_damage", "{0}은(는) {1}로 {2} 피해!", L10n.Text(unit.Name), StatusLabel(status), damage)); }
+        public IEnumerator PlayStatusDamage(BattleUnit unit, StatusEffectType status, int damage)
+        {
+            PresentHit(unit, new HitResult { damage = damage, elementMultiplier = 1f });
+            yield return Say(L10n.Format("battle.status_damage", "{0}은(는) {1}로 {2} 피해!", L10n.Text(unit.Name), StatusLabel(status), damage));
+        }
+
+        private void PresentHit(BattleUnit unit, HitResult hit)
+        {
+            var panel = unit.Side == BattleSide.Player ? playerPanel : enemyPanel;
+            if (!panel.Represents(unit)) return;
+            if (!hit.missed) panel.Bind(unit, .28f / _speed);
+            if (!hit.missed && hit.damage <= 0) return;
+            Floating(panel, BattleFloatingFeedback.HitText(hit), hit.missed ? new Color(.8f,.83f,.9f) :
+                hit.critical ? new Color(1f,.76f,.24f) : hit.IsEffective ? new Color(1f,.5f,.3f) : Color.white);
+        }
+
+        private void Floating(BattleUnitPanel panel, string message, Color color) =>
+            BattleFloatingFeedback.Create(transform.Find("SafeArea") ?? transform, panel, messageText != null ? messageText.font : null, message, color, _speed);
         public IEnumerator PlayCantMove(BattleUnit unit) { yield return Say(L10n.Format("battle.cannot_move", "{0}은(는) 움직일 수 없다!", L10n.Text(unit.Name))); }
         public IEnumerator PlayFaint(BattleUnit unit) { GameFeedbackAudio.Play(FeedbackCue.Faint); yield return Say(L10n.Format("battle.faint", "{0}의 실루엣이 흩어졌다.", L10n.Text(unit.Name))); }
         public IEnumerator PlayRecordAttempt(BattleUnit target, bool success) { GameFeedbackAudio.Play(success ? FeedbackCue.Record : FeedbackCue.Denied); yield return Say(success ? L10n.Format("battle.recorded", "{0}의 기억을 기록했다!", L10n.Text(target.Name)) : L10n.Get("battle.record_failed", "기록에 실패했다!")); }

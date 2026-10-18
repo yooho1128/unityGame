@@ -45,10 +45,12 @@ namespace ShadowTheater.EditorTools
             {
                 GraphicsSettings.defaultRenderPipeline = null; QualitySettings.renderPipeline = null;
                 CheckArtAndBalance(notes);
+                CheckTouchInput(notes);
                 foreach (Vector2Int size in new[] { new Vector2Int(2184, 1968), new Vector2Int(2400, 1080), new Vector2Int(1920, 1080) })
                 {
                     CheckSwitches(size, notes);
                     CheckAttackPresentation(size, notes);
+                    CheckBattleFeedback(size, notes);
                     CheckBook(size, notes);
                     CaptureField(size, notes);
                 }
@@ -144,11 +146,13 @@ namespace ShadowTheater.EditorTools
                         preview.Layout(root);
                         RectTransform targetPortrait = (reverse ? player : enemy).Portrait.rectTransform;
                         Vector2 targetCenter = layer.InverseTransformPoint(targetPortrait.TransformPoint(targetPortrait.rect.center));
-                        using (var attack = new BattleAttackPresentation(layer, reverse ? enemy : player, reverse ? player : enemy, skill, miss))
+                        int impacts = 0;
+                        using (var attack = new BattleAttackPresentation(layer, reverse ? enemy : player, reverse ? player : enemy, skill, miss, () => impacts++))
                         {
                             foreach (float p in new[] { 0f, .15f, .35f, .53f, .65f, .85f, 1f })
                             {
                                 attack.Sample(p); preview.Layout(root);
+                                Require(impacts == (p < .52f ? 0 : 1), "Impact callback timing/duplicate");
                                 for (int i = 0; i < hud.Length; i++) Require(Vector3.Distance(hud[i].position, homes[i]) < .01f, "Attack moved panel");
                                 var now = root.GetComponentsInChildren<Text>().Select(t => t.transform.position).ToArray();
                                 for (int i = 0; i < health.Length; i++) Require(Vector3.Distance(now[i], health[i]) < .01f, "Attack moved HP/name label");
@@ -162,12 +166,99 @@ namespace ShadowTheater.EditorTools
                                     preview.Save((magical ? "Magic" : "Melee") + "Attack_" + (p < .52f ? "Travel" : "Impact"));
                             }
                             attack.Sample(.65f); // Interrupted mid-impact: Dispose must restore both actors.
+                            Require(impacts == 1, "Impact replayed during recovery");
                         }
                         Require(Vector3.Distance(player.MotionRoot.localPosition, actorHomes[0]) < .01f && Vector3.Distance(enemy.MotionRoot.localPosition, actorHomes[1]) < .01f, "Attack restoration failed");
                     }
                 }
                 finally { Object.DestroyImmediate(skill); }
                 notes.Add($"{size.x}x{size.y}: melee/magic, both sides, miss, stationary HP/name HUD, interruption recovery PASS");
+            }
+        }
+
+        private static void CheckTouchInput(List<string> notes)
+        {
+            using (var preview = new Preview(new Vector2Int(1920,1080)))
+            {
+                var player = new GameObject("TouchPlayer").AddComponent<PlayerController>(); Invoke(player, "Awake");
+                var up = new GameObject("Up").AddComponent<VirtualDPadButton>();
+                var left = new GameObject("Left").AddComponent<VirtualDPadButton>();
+                typeof(VirtualDPadButton).GetField("direction", Private).SetValue(left, Vector2.left);
+                var owner = new PointerEventData(EventSystem.current) { pointerId = 11, button = PointerEventData.InputButton.Left, pointerPress = up.gameObject };
+                var other = new PointerEventData(EventSystem.current) { pointerId = 12, button = PointerEventData.InputButton.Left };
+                VirtualDPadButton.CancelInput();
+                up.OnPointerDown(owner); Require(player.MoveInput == Vector2.up, "DPad press");
+                left.OnPointerDown(other); left.OnPointerUp(other);
+                Require(player.MoveInput == Vector2.up, "Second finger stole/released DPad");
+                up.OnPointerExit(owner); Require(player.MoveInput == Vector2.zero, "DPad exit did not stop");
+                left.OnPointerEnter(owner); Require(player.MoveInput == Vector2.left, "Finger slide lost direction");
+                up.OnPointerUp(owner); Require(player.MoveInput == Vector2.zero, "Original pointer-up did not release slid button");
+                left.OnPointerEnter(other); Require(player.MoveInput == Vector2.zero, "Unrelated menu drag started movement");
+                up.OnPointerDown(owner); player.Lock(); Require(player.MoveInput == Vector2.zero, "Menu lock retained movement");
+                left.OnPointerDown(other); Require(player.MoveInput == Vector2.zero, "Locked player accepted touch"); player.Unlock();
+                up.OnPointerDown(owner);
+                typeof(VirtualDPadButton).GetMethod("OnApplicationPause", Private).Invoke(up, new object[] { true });
+                Require(player.MoveInput == Vector2.zero, "Pause retained touch");
+                up.OnPointerDown(owner);
+                typeof(VirtualDPadButton).GetMethod("OnApplicationFocus", Private).Invoke(up, new object[] { false });
+                Require(player.MoveInput == Vector2.zero, "Focus loss retained touch");
+                up.OnPointerDown(owner); Invoke(up, "OnDisable"); Require(player.MoveInput == Vector2.zero, "Disabled control retained touch");
+                owner.button = PointerEventData.InputButton.Right; up.OnPointerDown(owner);
+                Require(player.MoveInput == Vector2.zero, "Right click started movement");
+                VirtualDPadButton.CancelInput();
+                notes.Add("DPad: pointer ownership, second finger, sliding release, unrelated drag, menu lock, pause/focus loss, disable PASS");
+            }
+        }
+
+        private static void CheckBattleFeedback(Vector2Int size, List<string> notes)
+        {
+            using (var preview = new Preview(size))
+            {
+                var root = preview.Prefab("BattleCanvas");
+                var manager = root.GetComponent<BattleManager>(); var ui = root.GetComponent<BattleUIController>();
+                var active = new BattleUnit(new ShadowInstance(Load("knight"),5), BattleSide.Player);
+                var enemy = new BattleUnit(new ShadowInstance(Load("mage"),5), BattleSide.Enemy);
+                ((List<BattleUnit>)typeof(BattleManager).GetField("_playerUnits", Private).GetValue(manager)).Add(active);
+                ((List<BattleUnit>)typeof(BattleManager).GetField("_enemyUnits", Private).GetValue(manager)).Add(enemy);
+                SetProperty(manager, "Context", new BattleContext { mode = BattleMode.Wild });
+                SetProperty(manager, "State", BattleState.WaitingForInput);
+                Invoke(ui, "Awake"); Invoke(ui, "RefreshAll"); preview.Layout(root);
+                var panel = (BattleUnitPanel)typeof(BattleUIController).GetField("playerPanel", Private).GetValue(ui);
+                var enemyPanel = (BattleUnitPanel)typeof(BattleUIController).GetField("enemyPanel", Private).GetValue(ui);
+                Invoke(panel, "Awake"); Invoke(enemyPanel, "Awake");
+                float full = panel.DisplayedHp;
+                int damage = active.TakeDamage(active.MaxHp / 3);
+                var hit = new HitResult { damage = damage, critical = true, elementMultiplier = 1.5f };
+                typeof(BattleUIController).GetMethod("PresentHit", Private).Invoke(ui, new object[] { active, hit });
+                Require(Mathf.Approximately(panel.DisplayedHp,full), "Health snapped before animation");
+                panel.AdvanceHealthPresentation(.14f);
+                Require(panel.DisplayedHp < full && panel.DisplayedHp > active.Hp, "Health did not interpolate");
+                panel.Bind(active); // repeated state events must not restart the drain.
+                panel.AdvanceHealthPresentation(.14f);
+                Require(Mathf.Approximately(panel.DisplayedHp,active.Hp), "Repeated bind restarted HP animation");
+                var popup = root.GetComponentsInChildren<BattleFloatingFeedback>().Single();
+                Require(!popup.GetComponent<Text>().raycastTarget && !popup.GetComponent<CanvasGroup>().blocksRaycasts, "Damage number blocks controls");
+                Require(popup.GetComponent<Text>().text.Contains(damage.ToString()), "Wrong actual damage number");
+                Vector3 start = popup.transform.localPosition; popup.Sample(.4f);
+                Require(popup.transform.localPosition.y > start.y, "Damage number did not float");
+                Require(popup.GetComponent<CanvasGroup>().alpha == 1f, "Damage number fades before reading interval");
+                preview.Save("DamageFeedback");
+                var hpLabel = (Text)typeof(BattleUnitPanel).GetField("hpText", Private).GetValue(panel);
+                Require(hpLabel.cachedTextGenerator.lineCount == 1, "HP number wrapped on mobile screen");
+                popup.Sample(1f);
+                Require(popup.GetComponent<CanvasGroup>().alpha == 0f, "Feedback did not fade"); Object.DestroyImmediate(popup.gameObject);
+                int healed = active.Heal(20); panel.Bind(active); panel.AdvanceHealthPresentation(.28f);
+                Require(Mathf.Approximately(panel.DisplayedHp,active.Hp) && healed > 0, "Healing HP animation");
+                var bench = new BattleUnit(new ShadowInstance(Load("beast"),5), BattleSide.Player);
+                var healing = ui.PlayHeal(bench,10); healing.MoveNext(); (healing as IDisposable)?.Dispose();
+                Require(panel.Represents(active), "Bench healing replaced active portrait");
+                active.TakeDamage(int.MaxValue); panel.Bind(active); panel.AdvanceHealthPresentation(1f);
+                Require(panel.DisplayedHp == 0f, "Fainted HP below/above zero");
+                enemyPanel.Bind(enemy);
+                panel.Bind(bench); Require(Mathf.Approximately(panel.DisplayedHp,bench.Hp), "Switch inherited previous HP animation");
+                Require(!string.IsNullOrWhiteSpace(BattleFloatingFeedback.HitText(new HitResult { missed = true })) &&
+                    !BattleFloatingFeedback.HitText(new HitResult { missed = true }).Contains("−"), "Miss feedback shows damage");
+                notes.Add($"{size.x}x{size.y}: damage/heal HP tween, repeated bind, actual numbers, no raycast, float/fade, bench heal, faint/switch PASS");
             }
         }
 

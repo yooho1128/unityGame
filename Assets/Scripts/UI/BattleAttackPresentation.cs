@@ -19,10 +19,13 @@ namespace ShadowTheater.UI
         private readonly Vector3 advance, recoil;
         private readonly bool magical, missed;
         private readonly float angle;
+        private readonly Action _onImpact;
+        private bool _impactPresented;
 
         public BattleAttackPresentation(RectTransform layer, BattleUnitPanel attacker, BattleUnitPanel defender,
-            SkillData skill, bool missed)
+            SkillData skill, bool missed, Action onImpact = null)
         {
+            _onImpact = onImpact;
             this.layer = layer; this.missed = missed;
             actor = attacker.MotionRoot; victim = defender != null ? defender.MotionRoot : null;
             actorHome = actor.localPosition; actorScale = actor.localScale; actorRotation = actor.localRotation;
@@ -63,6 +66,8 @@ namespace ShadowTheater.UI
         public void Sample(float progress)
         {
             float p = Mathf.Clamp01(progress);
+            if (!_impactPresented && p >= ImpactProgress)
+            { _impactPresented = true; _onImpact?.Invoke(); }
             float windup = Mathf.Sin(Mathf.Clamp01(p / .22f) * Mathf.PI * .5f);
             float travel = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(.22f, ImpactProgress, p));
             float recovery = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(ImpactProgress, 1f, p));

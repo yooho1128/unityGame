@@ -23,6 +23,11 @@ namespace ShadowTheater.UI
         private ShadowRole _motionRole;
         private float _motionAmount = 0.025f;
         private float _motionPhase;
+        private BattleUnit _boundUnit;
+        private float _displayedHp, _healthStart, _healthElapsed, _healthDuration;
+        private int _healthTarget, _healthMax = 1;
+        public float DisplayedHp => _displayedHp;
+        public bool Represents(BattleUnit unit) => _boundUnit == unit;
         private RectTransform _actorMotion;
         public RectTransform MotionRoot
         {
@@ -55,6 +60,18 @@ namespace ShadowTheater.UI
 
         private void Awake()
         {
+            if (hpText != null)
+            {
+                var rect = hpText.rectTransform;
+                rect.anchorMin = new Vector2(.03f,.18f); rect.anchorMax = new Vector2(.97f,.40f);
+                rect.offsetMin = rect.offsetMax = Vector2.zero;
+            }
+            if (statusText != null)
+            {
+                var rect = statusText.rectTransform;
+                rect.anchorMin = new Vector2(.03f,.02f); rect.anchorMax = new Vector2(.97f,.17f);
+                rect.offsetMin = rect.offsetMax = Vector2.zero;
+            }
             _restPosition = MotionRoot.localPosition;
             if (portrait != null)
             {
@@ -66,7 +83,7 @@ namespace ShadowTheater.UI
         }
         public void ResetMotion() => MotionRoot.localPosition = _restPosition;
 
-        public void Bind(BattleUnit unit)
+        public void Bind(BattleUnit unit, float healthDuration = .28f)
         {
             if (unit == null) return;
             _motionRole = unit.Data.role;
@@ -78,13 +95,15 @@ namespace ShadowTheater.UI
                 portrait.preserveAspect = true;
             }
             if (accent != null) accent.color = unit.Instance.AccentColor;
-            if (hpFill != null)
+            if (_boundUnit != unit)
+                _displayedHp = _healthStart = _healthTarget = unit.Hp;
+            if (_boundUnit != unit || _healthTarget != unit.Hp || _healthMax != unit.MaxHp)
             {
-                hpFill.fillAmount = unit.HpRatio;
-                hpFill.color = unit.HpRatio > 0.5f ? new Color(0.35f, 0.92f, 0.65f)
-                    : unit.HpRatio > 0.2f ? new Color(1f, 0.72f, 0.25f)
-                    : new Color(1f, 0.28f, 0.36f);
+                _healthStart = _displayedHp; _healthTarget = unit.Hp; _healthMax = Mathf.Max(1, unit.MaxHp);
+                _healthElapsed = 0f; _healthDuration = Mathf.Max(.01f, healthDuration);
             }
+            _boundUnit = unit;
+            AdvanceHealthPresentation(0f);
             if (nameText != null) nameText.text = L10n.Text(unit.Name);
             if (levelText != null) levelText.text = $"Lv.{unit.Level}";
             if (elementText != null)
@@ -92,12 +111,27 @@ namespace ShadowTheater.UI
                 elementText.text = L10n.Get("element." + unit.Data.element.ToString().ToLowerInvariant(), unit.Data.element.ToString());
                 elementText.color = ElementColor(unit.Data.element);
             }
-            if (hpText != null) hpText.text = $"{unit.Hp} / {unit.MaxHp}";
             if (statusText != null)
             {
                 statusText.text = BattleStatusFormatter.Summary(unit);
                 statusText.color = unit.HasAnyStatus ? new Color(1f,.66f,.30f) : new Color(.75f,.72f,.82f);
             }
+        }
+
+        public void AdvanceHealthPresentation(float deltaTime)
+        {
+            if (_boundUnit == null) return;
+            _healthElapsed += Mathf.Max(0f, deltaTime);
+            float p = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(_healthElapsed / _healthDuration));
+            _displayedHp = Mathf.Lerp(_healthStart, _healthTarget, p);
+            float ratio = Mathf.Clamp01(_displayedHp / _healthMax);
+            if (hpFill != null)
+            {
+                hpFill.fillAmount = ratio;
+                hpFill.color = ratio > .5f ? new Color(.35f,.92f,.65f) : ratio > .2f
+                    ? new Color(1f,.72f,.25f) : new Color(1f,.28f,.36f);
+            }
+            if (hpText != null) hpText.text = $"{Mathf.Clamp(Mathf.RoundToInt(_displayedHp), 0, _healthMax)} / {_healthMax}";
         }
 
         private static Color ElementColor(ShadowElement element)
@@ -113,6 +147,7 @@ namespace ShadowTheater.UI
 
         private void LateUpdate()
         {
+            AdvanceHealthPresentation(Time.unscaledDeltaTime);
             if (portrait == null || !portrait.enabled) return;
             float speed = _motionRole == ShadowRole.SpeedUtility ? 5.5f
                 : _motionRole == ShadowRole.MagicNuker || _motionRole == ShadowRole.Support ? 2.2f : 3.6f;
