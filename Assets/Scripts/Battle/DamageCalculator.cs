@@ -18,7 +18,7 @@ namespace ShadowTheater.Battle
             var r = new HitResult { elementMultiplier = 1f, status = skill.statusEffect };
 
             // 1) 명중 / 회피
-            float hitChance = skill.accuracy * (1f - defender.Evasion);
+            float hitChance = HitChance(defender, skill);
             if (Random.value > hitChance)
             {
                 r.missed = true;
@@ -48,6 +48,10 @@ namespace ShadowTheater.Battle
             r.statusApplied = skill.statusEffect != StatusEffectType.None && Random.value < skill.statusChance;
             return r;
         }
+
+        /// <summary>실제 명중 판정과 선택 화면이 공유하는 회피 반영 확률.</summary>
+        public static float HitChance(BattleUnit defender, SkillData skill) => defender == null || skill == null
+            ? 0f : Mathf.Clamp01(skill.accuracy * (1f - defender.Evasion));
 
         /// <summary>AI와 전투 정보 UI가 사용할 평균 기대 피해. 난수·실제 HP 변경은 발생시키지 않는다.</summary>
         public static int EstimateDamage(BattleUnit attacker, BattleUnit defender, SkillData skill)

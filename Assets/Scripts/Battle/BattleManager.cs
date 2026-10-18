@@ -151,20 +151,28 @@ namespace ShadowTheater.Battle
         }
 
         /// <summary>UI 버튼 → 플레이어 행동 제출. 유효하지 않으면 false</summary>
-        public bool SubmitAction(BattleAction action)
+        public bool SubmitAction(BattleAction action) => SubmitAction(action, out _);
+
+        public bool CanChooseAction => State == BattleState.WaitingForInput && !IsAuto && _pendingAction == null;
+
+        public bool SubmitAction(BattleAction action, out string reason)
         {
-            if (action == null || action.side != BattleSide.Player) return false;
+            reason = string.Empty;
+            if (action == null || action.side != BattleSide.Player)
+            { reason = L10n.Get("battle.invalid_action", "선택할 수 없는 행동입니다."); return false; }
 
             // 기절로 인한 강제 교체
             if (State == BattleState.ForcedSwitch)
             {
-                if (action.type != ActionType.Switch || !CanSwitchTo(action.switchIndex)) return false;
+                if (IsAuto || _pendingForcedSwitch >= 0 || action.type != ActionType.Switch || !CanSwitchTo(action.switchIndex))
+                { reason = L10n.Get("battle.switch_unavailable", "지금은 이 그림자로 교체할 수 없습니다."); return false; }
                 _pendingForcedSwitch = action.switchIndex;
                 return true;
             }
 
-            if (State != BattleState.WaitingForInput) return false;
-            if (!Validate(action, out string reason))
+            if (!CanChooseAction)
+            { reason = L10n.Get("battle.input_unavailable", "행동을 처리 중입니다. 다음 선택을 기다려 주세요."); return false; }
+            if (!Validate(action, out reason))
             {
                 Debug.Log($"[BattleManager] 행동 불가: {reason}");
                 return false;
@@ -214,17 +222,39 @@ namespace ShadowTheater.Battle
         public bool CanRecordCurrent => Context != null && Context.CanCapture && _enemyUnits.Count > 0 &&
                                         !EnemyActive.IsFainted && EnemyActive.Data.IsCapturable;
         public float CurrentCaptureChance => CanRecordCurrent
-            ? DamageCalculator.CaptureChance(EnemyActive, _captureBonus) : 0f;
+            ? DamageCalculator.CaptureChance(EnemyActive, _captureBonus * PlayerActive.CompanionPassive.captureMultiplier) : 0f;
 
-        public bool CanUseSkill(SkillData skill) =>
-            skill != null && GetFp(BattleSide.Player) >= skill.fpCost;
+        public bool CanUseSkill(SkillData skill) => CanUseSkill(skill, out _);
+
+        public bool CanUseSkill(SkillData skill, out string reason)
+        {
+            reason = string.Empty;
+            if (Context == null || _playerIdx < 0 || _playerIdx >= _playerUnits.Count || skill == null ||
+                PlayerActive.IsFainted || !PlayerActive.Skills.Contains(skill))
+            { reason = L10n.Get("battle.skill_unavailable", "현재 그림자가 사용할 수 없는 기술입니다."); return false; }
+            if (GetFp(BattleSide.Player) < skill.fpCost)
+            { reason = L10n.Format("battle.fp_shortage", "FP 부족 · 현재 {0} / 필요 {1}", GetFp(BattleSide.Player), skill.fpCost); return false; }
+            if (skill.target == SkillTarget.Self && skill.healRatio > 0f && PlayerActive.Hp >= PlayerActive.MaxHp)
+            { reason = L10n.Get("battle.hp_full", "HP가 이미 가득합니다."); return false; }
+            return true;
+        }
 
         public const int JointSkillFpCost = 5;
         public BattleUnit CompanionUnit => _companionUnit;
         public CompanionJointProfile JointProfile => CompanionBondService.JointProfile(_companionUnit?.Instance);
-        public bool CanUseJointSkill => !_jointSkillUsed && _companionUnit != null && !_companionUnit.IsFainted &&
-                                        CompanionBondService.CanUseJointSkill(_companionUnit.Instance) &&
-                                        GetFp(BattleSide.Player) >= JointSkillFpCost;
+        public bool CanUseJointSkill => CanUseJointSkillNow(out _);
+
+        public bool CanUseJointSkillNow(out string reason)
+        {
+            reason = string.Empty;
+            if (_jointSkillUsed)
+            { reason = L10n.Get("battle.joint_used", "이번 전투에서 합동기를 이미 사용했습니다."); return false; }
+            if (_companionUnit == null || _companionUnit.IsFainted || !CompanionBondService.CanUseJointSkill(_companionUnit.Instance))
+            { reason = L10n.Get("battle.joint_unavailable", "전투 가능한 동행과 충분한 유대가 필요합니다."); return false; }
+            if (GetFp(BattleSide.Player) < JointSkillFpCost)
+            { reason = L10n.Format("battle.fp_shortage", "FP 부족 · 현재 {0} / 필요 {1}", GetFp(BattleSide.Player), JointSkillFpCost); return false; }
+            return true;
+        }
 
         public bool CanSwitchTo(int index) =>
             index >= 0 && index < _playerUnits.Count && index != _playerIdx && !_playerUnits[index].IsFainted;
@@ -537,8 +567,7 @@ namespace ShadowTheater.Battle
                 yield break;
             }
 
-            float chance = DamageCalculator.CaptureChance(target,
-                _captureBonus * PlayerActive.CompanionPassive.captureMultiplier);
+            float chance = CurrentCaptureChance;
             _captureBonus = 1f; // 특수 잉크는 다음 한 번의 기록 시도에만 적용한다.
             bool success = UnityEngine.Random.value < chance;
             yield return _presenter.PlayRecordAttempt(target, success);
@@ -798,12 +827,9 @@ namespace ShadowTheater.Battle
                     if (!a.MatchesBasicAttack(PlayerActive)) { reason = "일반 공격 슬롯의 기술 불일치"; return false; }
                     return true;
                 case ActionType.Skill:
-                    if (a.skill == null || !PlayerActive.Skills.Contains(a.skill)) { reason = "보유하지 않은 스킬"; return false; }
-                    if (!CanUseSkill(a.skill)) { reason = "FP 부족"; return false; }
-                    return true;
+                    return CanUseSkill(a.skill, out reason);
                 case ActionType.JointSkill:
-                    if (!CanUseJointSkill) { reason = "합동기 조건 또는 FP 부족"; return false; }
-                    return true;
+                    return CanUseJointSkillNow(out reason);
                 case ActionType.Switch:
                     if (!CanSwitchTo(a.switchIndex)) { reason = "교체 불가"; return false; }
                     return true;

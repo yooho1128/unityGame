@@ -86,27 +86,36 @@ namespace ShadowTheater.UI
             manager.OnActiveChanged -= OnActiveChanged;
         }
 
-        public void Attack() => Submit(BattleAction.Attack(BattleSide.Player, manager.PlayerActive.BasicAttack));
+        public void Attack()
+        {
+            if (manager == null || !manager.CanChooseAction) return;
+            Submit(BattleAction.Attack(BattleSide.Player, manager.PlayerActive.BasicAttack));
+        }
         public void Record() => Submit(BattleAction.Record());
         public void Escape() => Submit(BattleAction.Escape());
 
         public void OpenSkills()
         {
+            if (manager == null || !manager.CanChooseAction) return;
             OpenOptions(L10n.Get("battle.choose_skill", "사용할 기술을 선택하세요"));
             if (manager.CompanionUnit != null && CompanionBondService.CanUseJointSkill(manager.CompanionUnit.Instance))
             {
                 CompanionJointProfile joint = manager.JointProfile;
                 int level = CompanionBondService.BondLevel(manager.CompanionUnit.Instance.instanceId);
-                AddOption(joint.displayName,
-                    $"유대 Lv.{level} · FP {BattleManager.JointSkillFpCost} · 전투당 1회",
-                    manager.CanUseJointSkill, () => Submit(BattleAction.UseJointSkill()));
+                bool usable = manager.CanUseJointSkillNow(out string reason);
+                string detail = L10n.Format("battle.joint_info", "유대 Lv.{0} · FP {1} · 전투당 1회", level, BattleManager.JointSkillFpCost);
+                if (!usable) detail += "\n" + reason;
+                AddOption(L10n.Text(joint.displayName), detail, usable, () => Submit(BattleAction.UseJointSkill()));
             }
             foreach (var skill in manager.PlayerActive.Skills)
             {
                 if (skill == null) continue;
                 var captured = skill;
-                AddOption(L10n.Text(skill.displayName), SkillDetail(skill),
-                    manager.CanUseSkill(skill), () => Submit(BattleAction.UseSkill(BattleSide.Player, captured)));
+                bool usable = manager.CanUseSkill(skill, out string reason);
+                string detail = SkillDetail(skill);
+                if (!usable) detail += "\n" + reason;
+                AddOption(L10n.Text(skill.displayName), detail,
+                    usable, () => Submit(BattleAction.UseSkill(BattleSide.Player, captured)));
             }
             if (_options.Count == 0)
                 AddOption(L10n.Get("battle.no_unlocked_skills", "아직 깨달은 기술이 없습니다"),
@@ -117,17 +126,27 @@ namespace ShadowTheater.UI
         private string SkillDetail(SkillData skill)
         {
             string detail = $"FP {skill.fpCost}";
+            if (skill.fpGain > 0) detail += L10n.Format("battle.skill_fp_gain", " · FP 획득 +{0}", skill.fpGain);
             if (skill.target == SkillTarget.Self && skill.healRatio > 0f)
-                detail += L10n.Format("battle.skill_heal_info", " · 회복 {0}%", Mathf.RoundToInt(skill.healRatio * 100f));
-            else if (skill.DealsDamage)
             {
-                ShadowElement element = skill.element != ShadowElement.None ? skill.element : manager.PlayerActive.Data.element;
-                float matchup = ElementChart.GetMultiplier(element, manager.EnemyActive.Data.element);
-                detail += L10n.Format("battle.skill_damage_info", " · 위력 {0:0.0} · 명중 {1}% · {2}",
-                    skill.damageMultiplier, Mathf.RoundToInt(skill.accuracy * 100f),
-                    L10n.Get("element." + element.ToString().ToLowerInvariant(), element.ToString()));
-                if (matchup > 1f) detail += L10n.Get("battle.matchup_strong", " · 효과적 ×1.5");
-                else if (matchup < 1f) detail += L10n.Get("battle.matchup_weak", " · 반감 ×0.75");
+                int restored = Mathf.Min(manager.PlayerActive.MaxHp - manager.PlayerActive.Hp,
+                    Mathf.Max(0, Mathf.RoundToInt(manager.PlayerActive.MaxHp * skill.healRatio)));
+                detail += L10n.Format("battle.skill_heal_preview", " · 예상 회복 +{0} HP", restored);
+            }
+            else if (skill.target == SkillTarget.Enemy)
+            {
+                detail += L10n.Format("battle.skill_hit_preview", " · 예상 명중 {0}%",
+                    Mathf.RoundToInt(DamageCalculator.HitChance(manager.EnemyActive, skill) * 100f));
+                if (skill.DealsDamage)
+                {
+                    ShadowElement element = skill.element != ShadowElement.None ? skill.element : manager.PlayerActive.Data.element;
+                    float matchup = ElementChart.GetMultiplier(element, manager.EnemyActive.Data.element);
+                    detail += " · " + L10n.Get("element." + element.ToString().ToLowerInvariant(), element.ToString());
+                    if (matchup > 1f) detail += L10n.Get("battle.matchup_strong", " · 효과적 ×1.5");
+                    else if (matchup < 1f) detail += L10n.Get("battle.matchup_weak", " · 반감 ×0.75");
+                    detail += L10n.Format("battle.skill_damage_preview", "\n명중 시 평균 피해 약 {0} HP",
+                        DamageCalculator.EstimateDamage(manager.PlayerActive, manager.EnemyActive, skill));
+                }
             }
             if (skill.statusEffect != StatusEffectType.None && skill.statusChance > 0f)
                 detail += L10n.Format("battle.skill_status_info", "\n{0} {1}% · {2}턴",
@@ -138,6 +157,7 @@ namespace ShadowTheater.UI
 
         public void OpenSwitches()
         {
+            if (manager == null || manager.IsAuto || (!manager.CanChooseAction && manager.State != BattleState.ForcedSwitch)) return;
             OpenOptions(manager.State == BattleState.ForcedSwitch
                 ? L10n.Get("battle.choose_next", "다음 그림자를 선택하세요")
                 : L10n.Get("battle.choose_switch", "교체할 그림자를 선택하세요"));
@@ -161,6 +181,7 @@ namespace ShadowTheater.UI
 
         public void OpenItems()
         {
+            if (manager == null || !manager.CanChooseAction) return;
             OpenOptions(L10n.Get("battle.choose_item", "사용할 도구를 선택하세요"));
             if (manager.Context?.inventory != null)
             {
@@ -170,7 +191,7 @@ namespace ShadowTheater.UI
                     int count = pair.Value;
                     bool usable = manager.CanUseItem(BattleSide.Player, item, out string reason);
                     string detail = L10n.Format("battle.item_info", "보유 {0} · {1}", count, L10n.Text(item.description));
-                    if (!usable && !string.IsNullOrEmpty(reason)) detail += "\n" + reason;
+                    if (!usable && !string.IsNullOrEmpty(reason)) detail += "\n" + L10n.Text(reason);
                     AddOption(L10n.Text(item.displayName), detail, usable,
                         () => Submit(BattleAction.UseItem(BattleSide.Player, item)));
                 }
@@ -182,6 +203,7 @@ namespace ShadowTheater.UI
 
         public void BackToActions()
         {
+            if (manager == null) return;
             if (manager.State == BattleState.ForcedSwitch)
             {
                 OpenSwitches();
@@ -190,12 +212,15 @@ namespace ShadowTheater.UI
             ClearOptions();
             if (optionRoot != null) optionRoot.SetActive(false);
             if (messageRoot != null) messageRoot.SetActive(true);
-            if (actionRoot != null) actionRoot.SetActive(manager.State == BattleState.WaitingForInput);
+            if (actionRoot != null) actionRoot.SetActive(manager.CanChooseAction);
         }
 
         public void ToggleAuto()
         {
             manager.SetAuto(!manager.IsAuto);
+            ClearOptions();
+            if (manager.State == BattleState.ForcedSwitch && !manager.IsAuto) OpenSwitches();
+            else ShowActions(manager.CanChooseAction);
             RefreshLabels();
         }
 
@@ -221,7 +246,15 @@ namespace ShadowTheater.UI
 
         private void Submit(BattleAction action)
         {
-            if (!manager.SubmitAction(action)) return;
+            if (manager == null) return;
+            if (!manager.SubmitAction(action, out string reason))
+            {
+                GameFeedbackAudio.Play(FeedbackCue.Denied);
+                if (optionRoot != null && optionRoot.activeSelf)
+                { if (optionPromptText != null) optionPromptText.text = L10n.Text(reason); }
+                else if (messageText != null) messageText.text = L10n.Text(reason);
+                return;
+            }
             ClearOptions();
             ShowActions(false);
         }
@@ -349,10 +382,9 @@ namespace ShadowTheater.UI
 
         private void RebuildOptionsLayout()
         {
-            if (!(optionContent is RectTransform content)) return;
             Canvas.ForceUpdateCanvases();
-            LayoutRebuilder.ForceRebuildLayoutImmediate(content);
-            content.anchoredPosition = new Vector2(content.anchoredPosition.x, 0f);
+            foreach (var row in _options) row.GetComponent<BattleOptionButton>()?.FitContent();
+            UiListLayout.Rebuild(optionContent, Vector2.zero);
         }
 
         private void ClearOptions()

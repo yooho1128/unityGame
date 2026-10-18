@@ -1,5 +1,18 @@
 {
   "strings": [
+    {"key":"battle.invalid_action","ko":"선택할 수 없는 행동입니다.","en":"This action is unavailable."},
+    {"key":"battle.switch_unavailable","ko":"지금은 이 그림자로 교체할 수 없습니다.","en":"You cannot switch to this shadow right now."},
+    {"key":"battle.input_unavailable","ko":"행동을 처리 중입니다. 다음 선택을 기다려 주세요.","en":"An action is being processed. Wait for the next choice."},
+    {"key":"battle.skill_unavailable","ko":"현재 그림자가 사용할 수 없는 기술입니다.","en":"The active shadow cannot use this skill."},
+    {"key":"battle.fp_shortage","ko":"FP 부족 · 현재 {0} / 필요 {1}","en":"Not enough FP · Have {0} / Need {1}"},
+    {"key":"battle.hp_full","ko":"HP가 이미 가득합니다.","en":"HP is already full."},
+    {"key":"battle.joint_used","ko":"이번 전투에서 합동기를 이미 사용했습니다.","en":"The joint skill has already been used in this battle."},
+    {"key":"battle.joint_unavailable","ko":"전투 가능한 동행과 충분한 유대가 필요합니다.","en":"A battle-ready companion and a strong enough bond are required."},
+    {"key":"battle.joint_info","ko":"유대 Lv.{0} · FP {1} · 전투당 1회","en":"Bond Lv.{0} · FP {1} · Once per battle"},
+    {"key":"battle.skill_fp_gain","ko":" · FP 획득 +{0}","en":" · Gain +{0} FP"},
+    {"key":"battle.skill_heal_preview","ko":" · 예상 회복 +{0} HP","en":" · Estimated healing +{0} HP"},
+    {"key":"battle.skill_hit_preview","ko":" · 예상 명중 {0}%","en":" · Estimated hit chance {0}%"},
+    {"key":"battle.skill_damage_preview","ko":"\n명중 시 평균 피해 약 {0} HP","en":"\nAverage damage on hit: about {0} HP"},
     {"key":"map.connections","ko":"연결된 길 · {0}","en":"Connected paths · {0}"},
     {"key":"map.walk_next","ko":"도보 경로 · 먼저 {0} 방면 출구로 이동 ({1}개 지역 이동)","en":"Walking route · Take the exit toward {0} first ({1} region transitions)"},
     {"key":"map.route_unavailable","ko":"현재 위치에서 이어지는 알려진 경로가 없습니다.","en":"No known route connects this destination to your current location."},
