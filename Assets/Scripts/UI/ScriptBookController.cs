@@ -109,8 +109,8 @@ namespace ShadowTheater.UI
                 PlayerController.Instance.Lock();
                 _lockedPlayer = true;
             }
-            if (root != null) root.SetActive(true);
-            if (contentRoot is RectTransform content) content.anchoredPosition = Vector2.zero;
+            FieldUiModalState.Show(root);
+            if (_selectedData == null && contentRoot is RectTransform content) content.anchoredPosition = Vector2.zero;
             RefreshList();
         }
 
@@ -173,7 +173,7 @@ namespace ShadowTheater.UI
             if (database == null) { ShowEmptyDetail(); return; }
             int recorded = 0, seen = 0, total = 0;
             var ids = new HashSet<string>();
-            ShadowData first = null, selected = null;
+            ShadowData first = null, firstRecorded = null, firstSeen = null, selected = null;
             for (int i = 0; i < database.shadows.Count; i++)
             {
                 var data = database.shadows[i];
@@ -188,11 +188,13 @@ namespace ShadowTheater.UI
                 view.Bind(data, total - 1, state, Select);
                 _spawned.Add(view.gameObject);
                 if (first == null) first = data;
+                if (firstRecorded == null && state == ScriptBookEntryState.Recorded) firstRecorded = data;
+                if (firstSeen == null && state == ScriptBookEntryState.Seen) firstSeen = data;
                 if (data.shadowId == selectedId) selected = data;
             }
 
             if (progressText != null) progressText.text = L10n.Format("book.collection_progress", "조우 {0}\n기록 {1} / {2}", seen, recorded, total);
-            if (first != null) Select(selected ?? first);
+            if (first != null) Select(selected ?? firstRecorded ?? firstSeen ?? first);
             else ShowEmptyDetail();
             UiListLayout.Rebuild(contentRoot, position);
         }

@@ -1,4 +1,6 @@
 using ShadowTheater.Field;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace ShadowTheater.UI
 {
@@ -22,6 +24,19 @@ namespace ShadowTheater.UI
 
     public static class FieldUiModalState
     {
+        // Field menus live on separate HUD canvases. Lift only the active panel above
+        // every dock, while leaving transitions (100) and system feedback visible.
+        public static void Show(GameObject root)
+        {
+            if (root == null) return;
+            root.SetActive(true);
+            var canvas = root.GetComponent<Canvas>();
+            if (canvas == null) canvas = root.AddComponent<Canvas>();
+            canvas.overrideSorting = true;
+            canvas.sortingOrder = 80;
+            if (root.GetComponent<GraphicRaycaster>() == null) root.AddComponent<GraphicRaycaster>();
+        }
+
         public static bool CanOpen(FieldUiModal requested)
         {
             if (MapLoader.Instance != null && MapLoader.Instance.IsTransitioning) return false;

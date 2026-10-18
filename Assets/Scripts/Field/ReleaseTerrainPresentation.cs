@@ -50,6 +50,7 @@ namespace ShadowTheater.Field
 
         public static string ArtFor(string name)
         {
+            if (string.IsNullOrEmpty(name)) return null;
             switch (name)
             {
                 case "MeadowPixel_Grass": return "Grass";
@@ -57,14 +58,44 @@ namespace ShadowTheater.Field
                 case "MeadowPixel_Water": return "Water";
                 case "MeadowPixel_Cliff": return "Cliff";
                 case "MeadowPixel_Bush": return "Bush";
-                case "Theater_Ground": return "Wood";
-                case "Village_Ground": case "Boss_Ground": return "Stone";
-                case "Theater_Wall": case "Village_Wall": case "Boss_Wall": return "Brick";
-                case "Theater_Accent": return "Tree";
-                case "Village_Accent": return "Flowers";
-                case "Boss_Accent": return "Cliff";
+            }
+            int separator = name.LastIndexOf('_');
+            if (separator < 0) return null;
+            string theme = name.Substring(0, separator);
+            string layer = name.Substring(separator + 1);
+            string ground, wall, accent;
+            switch (theme)
+            {
+                case "Theater": ground = "Wood"; wall = "Brick"; accent = "Tree"; break;
+                case "Village": case "HowlVillage": case "ThreadMarket": case "FrostPort":
+                    ground = "Stone"; wall = "Brick"; accent = "Flowers"; break;
+                case "Meadow": case "MoonfangForest":
+                    ground = "Grass"; wall = "Cliff"; accent = "Tree"; break;
+                case "VioletMarsh":
+                    ground = "Grass"; wall = "Cliff"; accent = "Bush"; break;
+                case "AshWastes": case "BloodmoonRidge": case "BeastDen":
+                    ground = "Path"; wall = "Cliff"; accent = "Cliff"; break;
+                case "MarionetteOpera": case "PuppeteerStage":
+                    ground = "Wood"; wall = "Brick"; accent = "Flowers"; break;
+                case "Archive": case "BlackArchive": case "ForbiddenStacks": case "MirrorVault":
+                case "Catacombs": case "ClockworkAlley": case "EmberCity": case "SeveredWorkshop":
+                case "Censor": case "BlueAbyss": case "MemorySea": case "MoonPalace": case "AshThrone": case "Boss":
+                    ground = "Stone"; wall = "Brick"; accent = "Cliff"; break;
                 default: return null;
             }
+            return layer == "Ground" ? ground : layer == "Wall" ? wall : layer == "Accent" ? accent : null;
+        }
+
+        public static Color TintFor(string name)
+        {
+            // Keep the chapter palette without recoloring or editing the source atlases.
+            if (string.IsNullOrEmpty(name)) return Color.white;
+            if (name.StartsWith("Ash") || name.StartsWith("Ember")) return new Color(1f, .66f, .48f);
+            if (name.StartsWith("Bloodmoon") || name.StartsWith("Marionette") || name.StartsWith("Puppeteer")) return new Color(1f, .60f, .77f);
+            if (name.StartsWith("Frost") || name.StartsWith("Archive") || name.StartsWith("BlueAbyss") || name.StartsWith("MemorySea")) return new Color(.63f, .85f, 1f);
+            if (name.StartsWith("Moon") || name.StartsWith("Violet") || name.StartsWith("BeastDen") || name.StartsWith("Forbidden") || name.StartsWith("Mirror")) return new Color(.79f, .70f, 1f);
+            if (name.StartsWith("BlackArchive") || name.StartsWith("Censor")) return new Color(.66f, .61f, .76f);
+            return Color.white;
         }
 
         public int Apply(Tilemap map)
@@ -87,6 +118,7 @@ namespace ShadowTheater.Field
                 var copy = Instantiate(tile);
                 copy.name = tile.name + "_Release";
                 copy.sprite = sprite;
+                copy.color = tile.color * TintFor(tile.name);
                 _copies.Add(copy);
                 map.SwapTile(tile, copy);
                 count++;

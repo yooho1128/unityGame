@@ -56,7 +56,7 @@ namespace ShadowTheater.UI
             if (IsOpen || SaveManager.Current == null) return;
             if (!FieldUiModalState.CanOpen(FieldUiModal.WorldMap)) return;
             IsOpen = true;
-            root?.SetActive(true);
+            FieldUiModalState.Show(root);
             _selected = null;
             if (contentRoot is RectTransform content) content.anchoredPosition = Vector2.zero;
             if (PlayerController.Instance != null)

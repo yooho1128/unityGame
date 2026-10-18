@@ -35,7 +35,7 @@ namespace ShadowTheater.UI
         private void OnDisable(){QuestManager.GlobalQuestChanged-=RefreshIfOpen;L10n.Changed-=RefreshIfOpen;SaveManager.CurrentChanged-=RefreshIfOpen;if(IsOpen)Close();}
         private void LateUpdate(){if(IsOpen&&_refreshPending)Refresh();}
         private void OnDestroy(){if(Instance==this)Instance=null;ReleasePlayer();}
-        public void Open(){if(IsOpen||SaveManager.Current==null||!CanOpen())return;IsOpen=true;root?.SetActive(true);if(PlayerController.Instance!=null){PlayerController.Instance.MoveInput=Vector2.zero;PlayerController.Instance.Lock();_lockedPlayer=true;}_showCompleted=false;ResetSelection();Refresh();}
+        public void Open(){if(IsOpen||SaveManager.Current==null||!CanOpen())return;IsOpen=true;FieldUiModalState.Show(root);if(PlayerController.Instance!=null){PlayerController.Instance.MoveInput=Vector2.zero;PlayerController.Instance.Lock();_lockedPlayer=true;}_showCompleted=false;ResetSelection();Refresh();}
         public void Close(){if(!IsOpen)return;IsOpen=false;root?.SetActive(false);ReleasePlayer();}
         public void ShowActive(){_showCompleted=false;ResetSelection();Refresh();}
         public void ShowCompleted(){_showCompleted=true;ResetSelection();Refresh();}

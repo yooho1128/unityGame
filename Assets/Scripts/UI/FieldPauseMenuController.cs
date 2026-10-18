@@ -99,7 +99,7 @@ namespace ShadowTheater.UI
         {
             if (IsOpen || SaveManager.Current == null || !CanOpen()) return;
             IsOpen = true;
-            root?.SetActive(true);
+            FieldUiModalState.Show(root);
             titleConfirmRoot?.SetActive(false);
             if (PlayerController.Instance != null)
             {

@@ -22,7 +22,7 @@ namespace ShadowTheater.UI
         private void Awake(){if(Instance!=null&&Instance!=this){Destroy(gameObject);return;}Instance=this;if(root!=null&&root.GetComponent<MobileSafeArea>()==null)root.AddComponent<MobileSafeArea>();root?.SetActive(false);entryTemplate?.SetActive(false);}
         private void OnDestroy(){if(Instance==this)Instance=null;ReleasePlayer();}
         private void OnDisable(){if(IsOpen)Close();}
-        public void Open(){if(IsOpen||!FieldUiModalState.CanOpen(FieldUiModal.BossJournal))return;IsOpen=true;root?.SetActive(true);if(PlayerController.Instance!=null){PlayerController.Instance.MoveInput=Vector2.zero;PlayerController.Instance.Lock();_lockedPlayer=true;}Refresh();}
+        public void Open(){if(IsOpen||!FieldUiModalState.CanOpen(FieldUiModal.BossJournal))return;IsOpen=true;FieldUiModalState.Show(root);if(PlayerController.Instance!=null){PlayerController.Instance.MoveInput=Vector2.zero;PlayerController.Instance.Lock();_lockedPlayer=true;}Refresh();}
         public void Close(){if(!IsOpen)return;IsOpen=false;root?.SetActive(false);ReleasePlayer();}
 
         private void Refresh()

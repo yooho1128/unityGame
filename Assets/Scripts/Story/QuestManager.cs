@@ -184,7 +184,8 @@ namespace ShadowTheater.Story
                 return;
             }
             Instance = this;
-            DontDestroyOnLoad(gameObject);
+            // This manager belongs to the field HUD. Quest progress persists in SaveData;
+            // retaining its child canvas across scenes would retain the entire old field.
             SaveManager.CurrentChanged += HandleCurrentSaveChanged;
         }
 

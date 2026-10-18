@@ -60,7 +60,7 @@ namespace ShadowTheater.UI
         public void Open()
         {
             if (IsOpen || SaveManager.Current == null || !CanOpen()) return;
-            IsOpen = true; root?.SetActive(true);
+            IsOpen = true; FieldUiModalState.Show(root);
             if (PlayerController.Instance != null)
             {
                 PlayerController.Instance.MoveInput = Vector2.zero;
