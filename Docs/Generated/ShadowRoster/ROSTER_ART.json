@@ -1,0 +1,1448 @@
+{
+    "total": 180,
+    "portraits": 180,
+    "fieldSpecies": 180,
+    "uniqueImages": 180,
+    "entries": [
+        {
+            "id": "knight",
+            "name": "잿빛 기사",
+            "path": "Assets/Art/Final/Portraits/knight.png",
+            "sprite": "knight",
+            "width": 512,
+            "height": 512
+        },
+        {
+            "id": "mage",
+            "name": "서리 사서",
+            "path": "Assets/Art/Final/Portraits/mage.png",
+            "sprite": "mage",
+            "width": 512,
+            "height": 512
+        },
+        {
+            "id": "beast",
+            "name": "밤의 방랑자",
+            "path": "Assets/Art/Final/Portraits/beast.png",
+            "sprite": "beast",
+            "width": 512,
+            "height": 512
+        },
+        {
+            "id": "puppet",
+            "name": "끊어진 인형",
+            "path": "Assets/Art/Final/Portraits/puppet.png",
+            "sprite": "puppet",
+            "width": 512,
+            "height": 512
+        },
+        {
+            "id": "crow",
+            "name": "재까마귀",
+            "path": "Assets/Art/Final/Portraits/crow.png",
+            "sprite": "crow",
+            "width": 512,
+            "height": 512
+        },
+        {
+            "id": "mask",
+            "name": "얼음 가면",
+            "path": "Assets/Art/Final/Portraits/mask.png",
+            "sprite": "mask",
+            "width": 512,
+            "height": 512
+        },
+        {
+            "id": "censor",
+            "name": "검열관 무명",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster01.png",
+            "sprite": "censor",
+            "width": 313,
+            "height": 314
+        },
+        {
+            "id": "ash_hound",
+            "name": "불씨 사냥개",
+            "path": "Assets/Art/Final/Portraits/ash_hound.png",
+            "sprite": "ash_hound",
+            "width": 512,
+            "height": 512
+        },
+        {
+            "id": "banner_spearman",
+            "name": "깃발 없는 창병",
+            "path": "Assets/Art/Final/Portraits/banner_spearman.png",
+            "sprite": "banner_spearman",
+            "width": 512,
+            "height": 512
+        },
+        {
+            "id": "furnace_keeper",
+            "name": "화로지기",
+            "path": "Assets/Art/Final/Portraits/furnace_keeper.png",
+            "sprite": "furnace_keeper",
+            "width": 512,
+            "height": 512
+        },
+        {
+            "id": "bell_knight",
+            "name": "종탑 기사",
+            "path": "Assets/Art/Final/Portraits/bell_knight.png",
+            "sprite": "bell_knight",
+            "width": 1024,
+            "height": 1024
+        },
+        {
+            "id": "soot_archer",
+            "name": "검댕 궁수",
+            "path": "Assets/Art/Final/Portraits/soot_archer.png",
+            "sprite": "soot_archer",
+            "width": 512,
+            "height": 512
+        },
+        {
+            "id": "kneeling_captain",
+            "name": "무릎 꿇지 않는 대장",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster08.png",
+            "sprite": "kneeling_captain",
+            "width": 313,
+            "height": 314
+        },
+        {
+            "id": "tomb_candle",
+            "name": "묘실 촛불",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster10.png",
+            "sprite": "tomb_candle",
+            "width": 313,
+            "height": 313
+        },
+        {
+            "id": "ash_priest",
+            "name": "잿빛 사제",
+            "path": "Assets/Art/Final/Portraits/ash_priest.png",
+            "sprite": "ash_priest",
+            "width": 1024,
+            "height": 1024
+        },
+        {
+            "id": "headless_guard",
+            "name": "목 없는 호위기사",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster08.png",
+            "sprite": "headless_guard",
+            "width": 313,
+            "height": 313
+        },
+        {
+            "id": "ash_king",
+            "name": "재의 왕",
+            "path": "Assets/Art/Final/Portraits/ash_king.png",
+            "sprite": "ash_king",
+            "width": 1024,
+            "height": 1024
+        },
+        {
+            "id": "boss_moonlit_widow",
+            "name": "달빛의 미망인",
+            "path": "Assets/Art/Final/Portraits/boss_moonlit_widow.png",
+            "sprite": "boss_moonlit_widow",
+            "width": 1024,
+            "height": 1024
+        },
+        {
+            "id": "legend_first_actor",
+            "name": "최초의 배우",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster08.png",
+            "sprite": "legend_first_actor",
+            "width": 313,
+            "height": 313
+        },
+        {
+            "id": "legend_last_audience",
+            "name": "마지막 관객",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster08.png",
+            "sprite": "legend_last_audience",
+            "width": 314,
+            "height": 313
+        },
+        {
+            "id": "frost_gull",
+            "name": "서리 갈매기",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster07.png",
+            "sprite": "frost_gull",
+            "width": 314,
+            "height": 313
+        },
+        {
+            "id": "glacier_ferryman",
+            "name": "빙하 뱃사공",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster08.png",
+            "sprite": "glacier_ferryman",
+            "width": 313,
+            "height": 314
+        },
+        {
+            "id": "ink_fox",
+            "name": "잉크 여우",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster08.png",
+            "sprite": "ink_fox",
+            "width": 313,
+            "height": 313
+        },
+        {
+            "id": "snow_scribe",
+            "name": "눈송이 서기",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster10.png",
+            "sprite": "snow_scribe",
+            "width": 313,
+            "height": 314
+        },
+        {
+            "id": "page_bat",
+            "name": "페이지 박쥐",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster09.png",
+            "sprite": "page_bat",
+            "width": 313,
+            "height": 314
+        },
+        {
+            "id": "book_drake",
+            "name": "책 먹는 용",
+            "path": "Assets/Art/Final/Portraits/book_drake.png",
+            "sprite": "book_drake",
+            "width": 1024,
+            "height": 1024
+        },
+        {
+            "id": "mirror_scribe",
+            "name": "거울 필경사",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster09.png",
+            "sprite": "mirror_scribe",
+            "width": 313,
+            "height": 314
+        },
+        {
+            "id": "glass_owl",
+            "name": "유리 올빼미",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster08.png",
+            "sprite": "glass_owl",
+            "width": 313,
+            "height": 314
+        },
+        {
+            "id": "inverted_librarian",
+            "name": "반전된 사서",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster08.png",
+            "sprite": "inverted_librarian",
+            "width": 314,
+            "height": 314
+        },
+        {
+            "id": "infinite_archive_dragon",
+            "name": "무한서고의 용",
+            "path": "Assets/Art/Final/Portraits/infinite_archive_dragon.png",
+            "sprite": "infinite_archive_dragon",
+            "width": 1024,
+            "height": 1024
+        },
+        {
+            "id": "marsh_serpent",
+            "name": "보랏빛 늪뱀",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster08.png",
+            "sprite": "marsh_serpent",
+            "width": 313,
+            "height": 313
+        },
+        {
+            "id": "lantern_toad",
+            "name": "등불 두꺼비",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster08.png",
+            "sprite": "lantern_toad",
+            "width": 314,
+            "height": 314
+        },
+        {
+            "id": "mask_hunter",
+            "name": "가면 사냥꾼",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster08.png",
+            "sprite": "mask_hunter",
+            "width": 314,
+            "height": 313
+        },
+        {
+            "id": "moon_shaman",
+            "name": "달술사",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster09.png",
+            "sprite": "moon_shaman",
+            "width": 314,
+            "height": 314
+        },
+        {
+            "id": "crescent_fox",
+            "name": "초승달 여우",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster01.png",
+            "sprite": "crescent_fox",
+            "width": 314,
+            "height": 314
+        },
+        {
+            "id": "shadow_stag",
+            "name": "그림자 사슴",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster09.png",
+            "sprite": "shadow_stag",
+            "width": 314,
+            "height": 313
+        },
+        {
+            "id": "cliff_bat",
+            "name": "절벽 박쥐",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster01.png",
+            "sprite": "cliff_bat",
+            "width": 313,
+            "height": 313
+        },
+        {
+            "id": "bloodmane_stalker",
+            "name": "붉은 뿔의 추격자",
+            "path": "Assets/Art/Final/Portraits/bloodmane_stalker.png",
+            "sprite": "bloodmane_stalker",
+            "width": 1024,
+            "height": 1024
+        },
+        {
+            "id": "moon_heart",
+            "name": "달의 심장",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster09.png",
+            "sprite": "moon_heart",
+            "width": 313,
+            "height": 314
+        },
+        {
+            "id": "night_devouring_beast",
+            "name": "밤을 삼킨 짐승",
+            "path": "Assets/Art/Final/Portraits/night_devouring_beast.png",
+            "sprite": "night_devouring_beast",
+            "width": 1024,
+            "height": 1024
+        },
+        {
+            "id": "thread_cat",
+            "name": "천 조각 고양이",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster10.png",
+            "sprite": "thread_cat",
+            "width": 313,
+            "height": 313
+        },
+        {
+            "id": "needle_thief",
+            "name": "바늘 도둑",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster09.png",
+            "sprite": "needle_thief",
+            "width": 313,
+            "height": 314
+        },
+        {
+            "id": "clockwork_mouse",
+            "name": "태엽쥐",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster01.png",
+            "sprite": "clockwork_mouse",
+            "width": 314,
+            "height": 313
+        },
+        {
+            "id": "second_dancer",
+            "name": "초침 무희",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster09.png",
+            "sprite": "second_dancer",
+            "width": 313,
+            "height": 313
+        },
+        {
+            "id": "brass_clown",
+            "name": "황동 광대",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster01.png",
+            "sprite": "brass_clown",
+            "width": 313,
+            "height": 314
+        },
+        {
+            "id": "choir_puppet",
+            "name": "합창 인형",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster01.png",
+            "sprite": "choir_puppet",
+            "width": 314,
+            "height": 313
+        },
+        {
+            "id": "scissor_conductor",
+            "name": "가위 지휘자",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster09.png",
+            "sprite": "scissor_conductor",
+            "width": 313,
+            "height": 313
+        },
+        {
+            "id": "wire_primadonna",
+            "name": "줄 위의 프리마돈나",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster10.png",
+            "sprite": "wire_primadonna",
+            "width": 313,
+            "height": 314
+        },
+        {
+            "id": "stitched_knight",
+            "name": "봉합 기사",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster10.png",
+            "sprite": "stitched_knight",
+            "width": 313,
+            "height": 314
+        },
+        {
+            "id": "last_puppeteer",
+            "name": "마지막 인형사",
+            "path": "Assets/Art/Final/Portraits/last_puppeteer.png",
+            "sprite": "last_puppeteer",
+            "width": 1024,
+            "height": 1024
+        },
+        {
+            "id": "ticketless_passenger",
+            "name": "표 없는 승객",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster10.png",
+            "sprite": "ticketless_passenger",
+            "width": 314,
+            "height": 313
+        },
+        {
+            "id": "ink_conductor",
+            "name": "먹칠 역무원",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster08.png",
+            "sprite": "ink_conductor",
+            "width": 314,
+            "height": 313
+        },
+        {
+            "id": "numbered_prisoner",
+            "name": "번호 죄수",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster09.png",
+            "sprite": "numbered_prisoner",
+            "width": 314,
+            "height": 314
+        },
+        {
+            "id": "seal_shackle",
+            "name": "봉인 족쇄",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster09.png",
+            "sprite": "seal_shackle",
+            "width": 314,
+            "height": 313
+        },
+        {
+            "id": "zero_warden",
+            "name": "제0호 간수",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster10.png",
+            "sprite": "zero_warden",
+            "width": 314,
+            "height": 314
+        },
+        {
+            "id": "black_vial",
+            "name": "검은 시험관",
+            "path": "Assets/Art/Final/Portraits/black_vial.png",
+            "sprite": "black_vial",
+            "width": 1024,
+            "height": 1024
+        },
+        {
+            "id": "censor_surgeon",
+            "name": "봉합 검열관",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster01.png",
+            "sprite": "censor_surgeon",
+            "width": 314,
+            "height": 314
+        },
+        {
+            "id": "extract_subject_m",
+            "name": "추출 실험체 M",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster07.png",
+            "sprite": "extract_subject_m",
+            "width": 314,
+            "height": 314
+        },
+        {
+            "id": "mute_judge",
+            "name": "무언의 재판장",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster09.png",
+            "sprite": "mute_judge",
+            "width": 314,
+            "height": 313
+        },
+        {
+            "id": "high_censor_nox",
+            "name": "대검열관 노크스",
+            "path": "Assets/Art/Final/Portraits/high_censor_nox.png",
+            "sprite": "high_censor_nox",
+            "width": 1024,
+            "height": 1024
+        },
+        {
+            "id": "glass_conch",
+            "name": "유리 소라",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster08.png",
+            "sprite": "glass_conch",
+            "width": 314,
+            "height": 314
+        },
+        {
+            "id": "star_sand_crab",
+            "name": "별모래 게",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster10.png",
+            "sprite": "star_sand_crab",
+            "width": 314,
+            "height": 314
+        },
+        {
+            "id": "wave_bard",
+            "name": "파도 악사",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster10.png",
+            "sprite": "wave_bard",
+            "width": 314,
+            "height": 313
+        },
+        {
+            "id": "frame_jellyfish",
+            "name": "액자 해파리",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster07.png",
+            "sprite": "frame_jellyfish",
+            "width": 313,
+            "height": 313
+        },
+        {
+            "id": "pigment_wraith",
+            "name": "물감 망령",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster09.png",
+            "sprite": "pigment_wraith",
+            "width": 314,
+            "height": 314
+        },
+        {
+            "id": "drowned_painter",
+            "name": "익사한 화가",
+            "path": "Assets/Art/Final/Portraits/drowned_painter.png",
+            "sprite": "drowned_painter",
+            "width": 1024,
+            "height": 1024
+        },
+        {
+            "id": "name_bird",
+            "name": "이름새",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster09.png",
+            "sprite": "name_bird",
+            "width": 313,
+            "height": 313
+        },
+        {
+            "id": "nameplate_turtle",
+            "name": "문패 거북",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster09.png",
+            "sprite": "nameplate_turtle",
+            "width": 314,
+            "height": 313
+        },
+        {
+            "id": "storm_swallow",
+            "name": "폭풍 제비",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster10.png",
+            "sprite": "storm_swallow",
+            "width": 314,
+            "height": 314
+        },
+        {
+            "id": "mourning_keeper",
+            "name": "등대를 지키는 상주",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster09.png",
+            "sprite": "mourning_keeper",
+            "width": 313,
+            "height": 313
+        },
+        {
+            "id": "inverted_guide",
+            "name": "거꾸로 안내원",
+            "path": "Assets/Art/Final/Portraits/inverted_guide.png",
+            "sprite": "inverted_guide",
+            "width": 512,
+            "height": 512
+        },
+        {
+            "id": "ceiling_audience",
+            "name": "천장 관객",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster01.png",
+            "sprite": "ceiling_audience",
+            "width": 314,
+            "height": 314
+        },
+        {
+            "id": "mirrored_understudy",
+            "name": "반전된 대역",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster09.png",
+            "sprite": "mirrored_understudy",
+            "width": 314,
+            "height": 314
+        },
+        {
+            "id": "forgotten_prop",
+            "name": "잊힌 소품",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster07.png",
+            "sprite": "forgotten_prop",
+            "width": 314,
+            "height": 313
+        },
+        {
+            "id": "interlude_actor",
+            "name": "막간 배우",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster08.png",
+            "sprite": "interlude_actor",
+            "width": 314,
+            "height": 313
+        },
+        {
+            "id": "interlude_manager",
+            "name": "막간의 관리자",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster08.png",
+            "sprite": "interlude_manager",
+            "width": 313,
+            "height": 314
+        },
+        {
+            "id": "first_line_echo",
+            "name": "첫 대사의 메아리",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster07.png",
+            "sprite": "first_line_echo",
+            "width": 313,
+            "height": 313
+        },
+        {
+            "id": "golden_mask",
+            "name": "황금 가면",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster08.png",
+            "sprite": "golden_mask",
+            "width": 314,
+            "height": 314
+        },
+        {
+            "id": "constellation_seat",
+            "name": "별자리 좌석",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster01.png",
+            "sprite": "constellation_seat",
+            "width": 313,
+            "height": 314
+        },
+        {
+            "id": "silent_applause",
+            "name": "침묵의 박수",
+            "path": "Assets/Art/Final/Portraits/silent_applause.png",
+            "sprite": "silent_applause",
+            "width": 512,
+            "height": 512
+        },
+        {
+            "id": "censored_protagonist",
+            "name": "검열된 주인공",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster01.png",
+            "sprite": "censored_protagonist",
+            "width": 313,
+            "height": 313
+        },
+        {
+            "id": "rival_director",
+            "name": "또 다른 연출가",
+            "path": "Assets/Art/Final/Portraits/rival_director.png",
+            "sprite": "rival_director",
+            "width": 1024,
+            "height": 1024
+        },
+        {
+            "id": "outside_script_shadow",
+            "name": "각본 밖의 그림자",
+            "path": "Assets/Art/Final/Portraits/outside_script_shadow.png",
+            "sprite": "outside_script_shadow",
+            "width": 512,
+            "height": 512
+        },
+        {
+            "id": "exp_echo_village_01",
+            "name": "등불 심부름꾼",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster03.png",
+            "sprite": "exp_echo_village_01",
+            "width": 313,
+            "height": 314
+        },
+        {
+            "id": "exp_echo_village_02",
+            "name": "종이 우산 소녀",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster03.png",
+            "sprite": "exp_echo_village_02",
+            "width": 314,
+            "height": 314
+        },
+        {
+            "id": "exp_echo_village_03",
+            "name": "골목의 검은 개",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster03.png",
+            "sprite": "exp_echo_village_03",
+            "width": 313,
+            "height": 313
+        },
+        {
+            "id": "exp_moonlit_boss_stage_01",
+            "name": "월식의 시녀",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster05.png",
+            "sprite": "exp_moonlit_boss_stage_01",
+            "width": 314,
+            "height": 314
+        },
+        {
+            "id": "exp_moonlit_boss_stage_02",
+            "name": "상복 나비",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster05.png",
+            "sprite": "exp_moonlit_boss_stage_02",
+            "width": 313,
+            "height": 314
+        },
+        {
+            "id": "exp_frost_port_01",
+            "name": "푸른 심연 서고의 서리올빼미",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster04.png",
+            "sprite": "exp_frost_port_01",
+            "width": 313,
+            "height": 314
+        },
+        {
+            "id": "exp_white_archive_01",
+            "name": "자줏빛 늪의 보랏빛망령",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster07.png",
+            "sprite": "exp_white_archive_01",
+            "width": 313,
+            "height": 313
+        },
+        {
+            "id": "exp_forbidden_stacks_01",
+            "name": "잉크 망령",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster03.png",
+            "sprite": "exp_forbidden_stacks_01",
+            "width": 314,
+            "height": 313
+        },
+        {
+            "id": "exp_blue_abyss_01",
+            "name": "빙결 문장",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster02.png",
+            "sprite": "exp_blue_abyss_01",
+            "width": 313,
+            "height": 313
+        },
+        {
+            "id": "exp_blue_abyss_02",
+            "name": "침묵의 마도사",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster02.png",
+            "sprite": "exp_blue_abyss_02",
+            "width": 314,
+            "height": 313
+        },
+        {
+            "id": "exp_violet_marsh_01",
+            "name": "수렁 사냥꾼",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster07.png",
+            "sprite": "exp_violet_marsh_01",
+            "width": 314,
+            "height": 314
+        },
+        {
+            "id": "exp_howl_village_01",
+            "name": "마리오네트 오페라의 태엽쥐",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster04.png",
+            "sprite": "exp_howl_village_01",
+            "width": 313,
+            "height": 313
+        },
+        {
+            "id": "exp_moonfang_forest_01",
+            "name": "검은 발톱",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster04.png",
+            "sprite": "exp_moonfang_forest_01",
+            "width": 313,
+            "height": 313
+        },
+        {
+            "id": "exp_bloodmoon_ridge_01",
+            "name": "핏빛 갈기",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster02.png",
+            "sprite": "exp_bloodmoon_ridge_01",
+            "width": 314,
+            "height": 314
+        },
+        {
+            "id": "exp_sleeping_beast_den_01",
+            "name": "자줏빛 포효",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster06.png",
+            "sprite": "exp_sleeping_beast_den_01",
+            "width": 314,
+            "height": 314
+        },
+        {
+            "id": "exp_thread_market_01",
+            "name": "먹칠 연구소의 잉크가면",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster06.png",
+            "sprite": "exp_thread_market_01",
+            "width": 313,
+            "height": 313
+        },
+        {
+            "id": "exp_severed_workshop_01",
+            "name": "톱니 심장",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster06.png",
+            "sprite": "exp_severed_workshop_01",
+            "width": 313,
+            "height": 313
+        },
+        {
+            "id": "exp_severed_workshop_02",
+            "name": "천 개 손의 장인",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster06.png",
+            "sprite": "exp_severed_workshop_02",
+            "width": 314,
+            "height": 313
+        },
+        {
+            "id": "exp_puppeteer_stage_01",
+            "name": "검은 실뭉치",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster05.png",
+            "sprite": "exp_puppeteer_stage_01",
+            "width": 314,
+            "height": 313
+        },
+        {
+            "id": "exp_puppeteer_stage_02",
+            "name": "왕관 인형",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster05.png",
+            "sprite": "exp_puppeteer_stage_02",
+            "width": 313,
+            "height": 313
+        },
+        {
+            "id": "exp_erased_station_01",
+            "name": "이름의 군도의 기억고래",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster03.png",
+            "sprite": "exp_erased_station_01",
+            "width": 313,
+            "height": 314
+        },
+        {
+            "id": "exp_silent_court_01",
+            "name": "먹지 배심원",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster06.png",
+            "sprite": "exp_silent_court_01",
+            "width": 313,
+            "height": 314
+        },
+        {
+            "id": "exp_silent_court_02",
+            "name": "가위 집행관",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster06.png",
+            "sprite": "exp_silent_court_02",
+            "width": 314,
+            "height": 314
+        },
+        {
+            "id": "exp_black_archive_01",
+            "name": "검열의 칼날",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster01.png",
+            "sprite": "exp_black_archive_01",
+            "width": 313,
+            "height": 313
+        },
+        {
+            "id": "exp_black_archive_02",
+            "name": "원한의 대역",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster01.png",
+            "sprite": "exp_black_archive_02",
+            "width": 314,
+            "height": 313
+        },
+        {
+            "id": "exp_name_islands_01",
+            "name": "호명하는 고래",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster05.png",
+            "sprite": "exp_name_islands_01",
+            "width": 314,
+            "height": 314
+        },
+        {
+            "id": "exp_mourning_lighthouse_01",
+            "name": "푸른 상복",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster05.png",
+            "sprite": "exp_mourning_lighthouse_01",
+            "width": 314,
+            "height": 313
+        },
+        {
+            "id": "exp_widow_moon_palace_01",
+            "name": "월해의 기사",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster07.png",
+            "sprite": "exp_widow_moon_palace_01",
+            "width": 314,
+            "height": 313
+        },
+        {
+            "id": "exp_widow_moon_palace_02",
+            "name": "은빛 상주",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster07.png",
+            "sprite": "exp_widow_moon_palace_02",
+            "width": 313,
+            "height": 314
+        },
+        {
+            "id": "exp_widow_moon_palace_03",
+            "name": "진명 · 셀레네",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster07.png",
+            "sprite": "exp_widow_moon_palace_03",
+            "width": 314,
+            "height": 314
+        },
+        {
+            "id": "exp_prologue_theater_01",
+            "name": "웃음막 뒤뜰의 종이배우",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster05.png",
+            "sprite": "exp_prologue_theater_01",
+            "width": 314,
+            "height": 314
+        },
+        {
+            "id": "exp_echo_village_04",
+            "name": "달빛 초원의 천막여우",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster03.png",
+            "sprite": "exp_echo_village_04",
+            "width": 314,
+            "height": 313
+        },
+        {
+            "id": "exp_moonlit_meadow_01",
+            "name": "지지 않는 달의 무대의 종소리망령",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster05.png",
+            "sprite": "exp_moonlit_meadow_01",
+            "width": 314,
+            "height": 313
+        },
+        {
+            "id": "exp_moonlit_boss_stage_03",
+            "name": "찢어진 장막길의 장막쥐",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster05.png",
+            "sprite": "exp_moonlit_boss_stage_03",
+            "width": 314,
+            "height": 314
+        },
+        {
+            "id": "exp_curtain_pass_01",
+            "name": "재의 국경의 그을음망령",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster02.png",
+            "sprite": "exp_curtain_pass_01",
+            "width": 314,
+            "height": 313
+        },
+        {
+            "id": "exp_ash_border_01",
+            "name": "무너진 병영의 재나비",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster01.png",
+            "sprite": "exp_ash_border_01",
+            "width": 313,
+            "height": 314
+        },
+        {
+            "id": "exp_cinder_city_01",
+            "name": "불씨 지하묘의 불씨까마귀",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster02.png",
+            "sprite": "exp_cinder_city_01",
+            "width": 313,
+            "height": 314
+        },
+        {
+            "id": "exp_ruined_barracks_01",
+            "name": "왕관 없는 옥좌의 왕관벌레",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster06.png",
+            "sprite": "exp_ruined_barracks_01",
+            "width": 313,
+            "height": 314
+        },
+        {
+            "id": "exp_ember_catacombs_01",
+            "name": "금단의 서가의 잉크여우",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster03.png",
+            "sprite": "exp_ember_catacombs_01",
+            "width": 314,
+            "height": 313
+        },
+        {
+            "id": "exp_crownless_throne_01",
+            "name": "거울 문고의 페이지나비",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster02.png",
+            "sprite": "exp_crownless_throne_01",
+            "width": 314,
+            "height": 313
+        },
+        {
+            "id": "exp_forbidden_stacks_02",
+            "name": "월아 숲의 안개늑대",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster04.png",
+            "sprite": "exp_forbidden_stacks_02",
+            "width": 313,
+            "height": 314
+        },
+        {
+            "id": "exp_mirror_vault_01",
+            "name": "핏빛 달고개의 달빛여우",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster04.png",
+            "sprite": "exp_mirror_vault_01",
+            "width": 313,
+            "height": 313
+        },
+        {
+            "id": "exp_blue_abyss_03",
+            "name": "잠든 야수의 굴의 절벽박쥐",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster02.png",
+            "sprite": "exp_blue_abyss_03",
+            "width": 313,
+            "height": 313
+        },
+        {
+            "id": "exp_violet_marsh_02",
+            "name": "태엽 골목의 톱니벌레",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster07.png",
+            "sprite": "exp_violet_marsh_02",
+            "width": 313,
+            "height": 314
+        },
+        {
+            "id": "exp_moonfang_forest_02",
+            "name": "끊어진 공방의 실타래고양이",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster04.png",
+            "sprite": "exp_moonfang_forest_02",
+            "width": 314,
+            "height": 313
+        },
+        {
+            "id": "exp_bloodmoon_ridge_02",
+            "name": "인형사의 대무대의 가위새",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster02.png",
+            "sprite": "exp_bloodmoon_ridge_02",
+            "width": 313,
+            "height": 314
+        },
+        {
+            "id": "exp_sleeping_beast_den_02",
+            "name": "백지 감옥의 백지나비",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster06.png",
+            "sprite": "exp_sleeping_beast_den_02",
+            "width": 313,
+            "height": 313
+        },
+        {
+            "id": "exp_clockwork_alley_01",
+            "name": "침묵 재판정의 먹칠까마귀",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster02.png",
+            "sprite": "exp_clockwork_alley_01",
+            "width": 313,
+            "height": 314
+        },
+        {
+            "id": "exp_marionette_opera_01",
+            "name": "검은 기록원의 봉인벌레",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster04.png",
+            "sprite": "exp_marionette_opera_01",
+            "width": 313,
+            "height": 314
+        },
+        {
+            "id": "exp_severed_workshop_03",
+            "name": "유리 해안의 별모래게",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster06.png",
+            "sprite": "exp_severed_workshop_03",
+            "width": 313,
+            "height": 313
+        },
+        {
+            "id": "exp_puppeteer_stage_03",
+            "name": "물에 잠긴 화랑의 액자해파리",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster05.png",
+            "sprite": "exp_puppeteer_stage_03",
+            "width": 314,
+            "height": 313
+        },
+        {
+            "id": "exp_blank_prison_01",
+            "name": "애도의 등대의 등대나비",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster01.png",
+            "sprite": "exp_blank_prison_01",
+            "width": 314,
+            "height": 313
+        },
+        {
+            "id": "exp_redaction_lab_01",
+            "name": "미망인의 월궁의 물결여우",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster06.png",
+            "sprite": "exp_redaction_lab_01",
+            "width": 314,
+            "height": 314
+        },
+        {
+            "id": "exp_silent_court_03",
+            "name": "뒤집힌 로비의 별빛가면",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster06.png",
+            "sprite": "exp_silent_court_03",
+            "width": 313,
+            "height": 314
+        },
+        {
+            "id": "exp_black_archive_03",
+            "name": "끝없는 무대 뒤의 침묵관객",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster01.png",
+            "sprite": "exp_black_archive_03",
+            "width": 313,
+            "height": 313
+        },
+        {
+            "id": "exp_glass_coast_01",
+            "name": "최초 배우의 분장실의 대사잃은새",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster04.png",
+            "sprite": "exp_glass_coast_01",
+            "width": 314,
+            "height": 313
+        },
+        {
+            "id": "exp_drowned_gallery_01",
+            "name": "우주의 객석의 장막여우",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster03.png",
+            "sprite": "exp_drowned_gallery_01",
+            "width": 314,
+            "height": 314
+        },
+        {
+            "id": "exp_name_islands_02",
+            "name": "채색 수레길의 장막쥐",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster05.png",
+            "sprite": "exp_name_islands_02",
+            "width": 313,
+            "height": 314
+        },
+        {
+            "id": "exp_mourning_lighthouse_02",
+            "name": "잊힌 천막촌의 수레까마귀",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster05.png",
+            "sprite": "exp_mourning_lighthouse_02",
+            "width": 313,
+            "height": 314
+        },
+        {
+            "id": "exp_widow_moon_palace_04",
+            "name": "붉은 포스터 골목의 재나비",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster07.png",
+            "sprite": "exp_widow_moon_palace_04",
+            "width": 313,
+            "height": 314
+        },
+        {
+            "id": "exp_inverted_lobby_01",
+            "name": "옥상 연습장의 불씨까마귀",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster04.png",
+            "sprite": "exp_inverted_lobby_01",
+            "width": 314,
+            "height": 314
+        },
+        {
+            "id": "exp_endless_backstage_01",
+            "name": "밀물 판자길의 등불새",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster03.png",
+            "sprite": "exp_endless_backstage_01",
+            "width": 314,
+            "height": 314
+        },
+        {
+            "id": "exp_first_actor_room_01",
+            "name": "숨 쉬는 거품 동굴의 문장벌레",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster03.png",
+            "sprite": "exp_first_actor_room_01",
+            "width": 313,
+            "height": 313
+        },
+        {
+            "id": "exp_cosmic_auditorium_01",
+            "name": "등불 갈대밭의 페이지나비",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster02.png",
+            "sprite": "exp_cosmic_auditorium_01",
+            "width": 313,
+            "height": 313
+        },
+        {
+            "id": "exp_final_curtain_01",
+            "name": "그림자를 삼킨 우물의 수렁뱀",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster03.png",
+            "sprite": "exp_final_curtain_01",
+            "width": 314,
+            "height": 313
+        },
+        {
+            "id": "exp_painted_wagon_road_01",
+            "name": "천막쥐",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster11.png",
+            "sprite": "exp_painted_wagon_road_01",
+            "width": 313,
+            "height": 314
+        },
+        {
+            "id": "exp_forgotten_tent_01",
+            "name": "버려진 광대",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster11.png",
+            "sprite": "exp_forgotten_tent_01",
+            "width": 314,
+            "height": 314
+        },
+        {
+            "id": "exp_silent_clown_stage_01",
+            "name": "침묵한 광대",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster11.png",
+            "sprite": "exp_silent_clown_stage_01",
+            "width": 313,
+            "height": 314
+        },
+        {
+            "id": "exp_poster_alley_01",
+            "name": "대역 배우",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster11.png",
+            "sprite": "exp_poster_alley_01",
+            "width": 314,
+            "height": 314
+        },
+        {
+            "id": "exp_poster_alley_02",
+            "name": "버려진 대본",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster11.png",
+            "sprite": "exp_poster_alley_02",
+            "width": 313,
+            "height": 313
+        },
+        {
+            "id": "exp_sealed_small_theater_01",
+            "name": "마지막 대역 배우",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster11.png",
+            "sprite": "exp_sealed_small_theater_01",
+            "width": 314,
+            "height": 313
+        },
+        {
+            "id": "exp_matte_projection_room_01",
+            "name": "빛 먹는 영사기사",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster11.png",
+            "sprite": "exp_matte_projection_room_01",
+            "width": 313,
+            "height": 313
+        },
+        {
+            "id": "exp_moon_eater_ritual_01",
+            "name": "달을 먹는 산신",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster11.png",
+            "sprite": "exp_moon_eater_ritual_01",
+            "width": 314,
+            "height": 313
+        },
+        {
+            "id": "exp_stitch_field_01",
+            "name": "실감개 상인",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster11.png",
+            "sprite": "exp_stitch_field_01",
+            "width": 313,
+            "height": 314
+        },
+        {
+            "id": "exp_clockwork_heart_stage_01",
+            "name": "태엽 심장의 장인",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster11.png",
+            "sprite": "exp_clockwork_heart_stage_01",
+            "width": 314,
+            "height": 314
+        },
+        {
+            "id": "exp_ghost_orchestra_pit_01",
+            "name": "박자 잃은 지휘자",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster11.png",
+            "sprite": "exp_ghost_orchestra_pit_01",
+            "width": 313,
+            "height": 314
+        },
+        {
+            "id": "exp_painted_wagon_road_02",
+            "name": "탈춤 고갯길의 가면사슴",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster11.png",
+            "sprite": "exp_painted_wagon_road_02",
+            "width": 314,
+            "height": 314
+        },
+        {
+            "id": "exp_forgotten_tent_02",
+            "name": "봉인된 탈방의 안개늑대",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster11.png",
+            "sprite": "exp_forgotten_tent_02",
+            "width": 313,
+            "height": 313
+        },
+        {
+            "id": "exp_silent_clown_stage_02",
+            "name": "실밥 벌판의 황동광대",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster11.png",
+            "sprite": "exp_silent_clown_stage_02",
+            "width": 314,
+            "height": 313
+        },
+        {
+            "id": "exp_poster_alley_03",
+            "name": "버려진 장난감 창고의 봉합망령",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster11.png",
+            "sprite": "exp_poster_alley_03",
+            "width": 313,
+            "height": 313
+        },
+        {
+            "id": "exp_rooftop_rehearsal_01",
+            "name": "노래 없는 회랑의 먹칠까마귀",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster11.png",
+            "sprite": "exp_rooftop_rehearsal_01",
+            "width": 314,
+            "height": 313
+        },
+        {
+            "id": "exp_sealed_small_theater_02",
+            "name": "재가 잠든 봉화탑의 웃음나비",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster12.png",
+            "sprite": "exp_sealed_small_theater_02",
+            "width": 313,
+            "height": 314
+        },
+        {
+            "id": "exp_tidal_boardwalk_01",
+            "name": "거꾸로 흐르는 달길의 절벽박쥐",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster12.png",
+            "sprite": "exp_tidal_boardwalk_01",
+            "width": 314,
+            "height": 314
+        },
+        {
+            "id": "exp_bubble_cave_01",
+            "name": "바람 없는 메아리굴의 수렁뱀",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster12.png",
+            "sprite": "exp_bubble_cave_01",
+            "width": 313,
+            "height": 314
+        },
+        {
+            "id": "exp_whale_back_stage_01",
+            "name": "웃음막 뒤뜰의 천막여우",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster12.png",
+            "sprite": "exp_whale_back_stage_01",
+            "width": 314,
+            "height": 314
+        },
+        {
+            "id": "exp_lantern_reed_field_01",
+            "name": "달빛 초원의 종소리망령",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster12.png",
+            "sprite": "exp_lantern_reed_field_01",
+            "width": 313,
+            "height": 313
+        },
+        {
+            "id": "exp_shadow_well_01",
+            "name": "지지 않는 달의 무대의 장막쥐",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster12.png",
+            "sprite": "exp_shadow_well_01",
+            "width": 314,
+            "height": 313
+        },
+        {
+            "id": "exp_matte_projection_room_02",
+            "name": "찢어진 장막길의 수레까마귀",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster12.png",
+            "sprite": "exp_matte_projection_room_02",
+            "width": 313,
+            "height": 313
+        },
+        {
+            "id": "exp_mask_dance_pass_01",
+            "name": "재의 국경의 부서진창병",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster12.png",
+            "sprite": "exp_mask_dance_pass_01",
+            "width": 314,
+            "height": 313
+        },
+        {
+            "id": "exp_sealed_mask_room_01",
+            "name": "무너진 병영의 불씨까마귀",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster12.png",
+            "sprite": "exp_sealed_mask_room_01",
+            "width": 313,
+            "height": 314
+        },
+        {
+            "id": "exp_moon_eater_ritual_02",
+            "name": "불씨 지하묘의 왕관벌레",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster12.png",
+            "sprite": "exp_moon_eater_ritual_02",
+            "width": 314,
+            "height": 314
+        },
+        {
+            "id": "exp_stitch_field_02",
+            "name": "왕관 없는 옥좌의 잿불사냥개",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster12.png",
+            "sprite": "exp_stitch_field_02",
+            "width": 313,
+            "height": 314
+        },
+        {
+            "id": "exp_abandoned_toy_store_01",
+            "name": "금단의 서가의 페이지나비",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster12.png",
+            "sprite": "exp_abandoned_toy_store_01",
+            "width": 314,
+            "height": 314
+        },
+        {
+            "id": "exp_clockwork_heart_stage_02",
+            "name": "거울 문고의 서리올빼미",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster12.png",
+            "sprite": "exp_clockwork_heart_stage_02",
+            "width": 313,
+            "height": 313
+        },
+        {
+            "id": "exp_silent_foyer_01",
+            "name": "푸른 심연 서고의 유리망령",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster12.png",
+            "sprite": "exp_silent_foyer_01",
+            "width": 314,
+            "height": 313
+        },
+        {
+            "id": "exp_ghost_orchestra_pit_02",
+            "name": "자줏빛 늪의 가면사슴",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster12.png",
+            "sprite": "exp_ghost_orchestra_pit_02",
+            "width": 313,
+            "height": 313
+        },
+        {
+            "id": "exp_ashes_bell_tower_01",
+            "name": "월아 숲의 달빛여우",
+            "path": "Assets/Art/Final/PortraitAtlases/Roster12.png",
+            "sprite": "exp_ashes_bell_tower_01",
+            "width": 314,
+            "height": 313
+        }
+    ]
+}

@@ -39,7 +39,7 @@ namespace ShadowTheater.EditorTools
         {
             EnsureFolders();
             var invalid = new List<string>();
-            ImportFolder(PortraitFolder, 256f, FilterMode.Point, Vector2.one * .5f,
+            ImportFolder(PortraitFolder, 256f, FilterMode.Point, new Vector2(.5f, 0),
                 (path, texture) =>
                 {
                     if (texture.width != texture.height || texture.width < 192)
@@ -67,6 +67,7 @@ namespace ShadowTheater.EditorTools
                         invalid.Add($"필드 타일은 32x32여야 함: {path} ({texture.width}x{texture.height})");
                 });
 
+            ShadowPortraitAtlasImporter.Import(invalid);
             ApplyPortraitOverrides();
             FinalArtCoverageReport report = BuildReport(invalid);
             File.WriteAllText(ReportPath, JsonUtility.ToJson(report, true));
@@ -87,13 +88,24 @@ namespace ShadowTheater.EditorTools
             foreach (ShadowData shadow in database.shadows)
             {
                 if (shadow == null || string.IsNullOrEmpty(shadow.shadowId)) continue;
-                string path = $"{PortraitFolder}/{shadow.shadowId}.png";
-                if (!File.Exists(path)) continue;
-                Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+                Sprite sprite = PortraitFor(shadow.shadowId);
                 if (sprite == null) continue;
                 shadow.silhouetteSprite = sprite;
+                shadow.fieldFrames = new[] { sprite };
                 EditorUtility.SetDirty(shadow);
             }
+        }
+
+        public static Sprite PortraitFor(string id) =>
+            AssetDatabase.LoadAssetAtPath<Sprite>($"{PortraitFolder}/{id}.png") ?? ShadowPortraitAtlasImporter.Portrait(id);
+
+        public static bool HasDedicatedPortrait(string id) => PortraitFor(id) != null;
+
+        public static bool HasDedicatedFieldArt(ShadowData shadow)
+        {
+            if (shadow == null) return false;
+            Sprite portrait = PortraitFor(shadow.shadowId);
+            return portrait != null && shadow.fieldFrames != null && shadow.fieldFrames.Contains(portrait);
         }
 
         private static FinalArtCoverageReport BuildReport(List<string> invalid)
@@ -116,9 +128,8 @@ namespace ShadowTheater.EditorTools
                 string id = stem.Substring(0, stem.Length - 3);
                 if (!knownIds.Contains(id)) invalid.Add("알 수 없는 그림자 필드 파일명: " + path.Replace('\\', '/'));
             }
-            int portraits = ids.Count(id => File.Exists($"{PortraitFolder}/{id}.png"));
-            int actors = ids.Count(id => File.Exists($"{FieldFolder}/{id}_01.png") &&
-                                         File.Exists($"{FieldFolder}/{id}_02.png"));
+            int portraits = ids.Count(HasDedicatedPortrait);
+            int actors = database != null ? database.shadows.Count(HasDedicatedFieldArt) : 0;
             string[] playerNames = { "down_01", "down_02", "up_01", "up_02", "side_01", "side_02" };
             var playerFiles = new HashSet<string>(playerNames.Select(x => "director_" + x), StringComparer.Ordinal);
             foreach (string path in Directory.GetFiles(PlayerFolder, "*.png"))
@@ -142,11 +153,10 @@ namespace ShadowTheater.EditorTools
                     invalid.Add("알 수 없는 타일 파일명: " + path.Replace('\\', '/'));
             int tileReady = tiles.Count(name => File.Exists($"{TileFolder}/{name}.png"));
             var missing = new List<string>();
-            missing.AddRange(ids.Where(id => !File.Exists($"{PortraitFolder}/{id}.png"))
+            missing.AddRange(ids.Where(id => !HasDedicatedPortrait(id))
                 .Take(12).Select(id => "Portraits/" + id + ".png"));
-            missing.AddRange(ids.Where(id => !File.Exists($"{FieldFolder}/{id}_01.png") ||
-                                             !File.Exists($"{FieldFolder}/{id}_02.png"))
-                .Take(12).Select(id => "Field/" + id + "_01,_02.png"));
+            if (database != null) missing.AddRange(database.shadows.Where(x => !HasDedicatedFieldArt(x))
+                .Take(12).Select(x => "Field binding/" + x.shadowId));
             missing.AddRange(playerNames.Where(name => !File.Exists($"{PlayerFolder}/director_{name}.png"))
                 .Select(name => "Player/director_" + name + ".png"));
             missing.AddRange(tiles.Where(name => !File.Exists($"{TileFolder}/{name}.png"))

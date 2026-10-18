@@ -2512,7 +2512,7 @@ namespace ShadowTheater.EditorTools
             if (shadow == null) return System.Array.Empty<Sprite>();
             Sprite[] finalFrames = LoadFinalFieldFrames(shadow.shadowId);
             if (finalFrames != null && finalFrames[0].rect.height >= 96) return finalFrames;
-            Sprite portrait = LoadFinalPixelSprite($"Assets/Art/Final/Portraits/{shadow.shadowId}.png", 256f, new Vector2(.5f, 0));
+            Sprite portrait = FinalPixelArtPipeline.PortraitFor(shadow.shadowId);
             if (portrait != null) return new[] { portrait };
             Sprite cast = FieldArtAtlasImporter.Monster(shadow);
             if (cast != null) return new[] { cast };

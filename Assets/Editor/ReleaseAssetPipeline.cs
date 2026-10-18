@@ -72,10 +72,8 @@ namespace ShadowTheater.EditorTools
             List<SkillData> skills = database.skills.Where(x => x != null).ToList();
             report.shadowCount = shadows.Count;
             report.shadowsWithPortrait = shadows.Count(x => x.silhouetteSprite != null);
-            report.finalPortraits = shadows.Count(x => File.Exists($"Assets/Art/Final/Portraits/{x.shadowId}.png"));
-            report.finalFieldActors = shadows.Count(x =>
-                File.Exists($"Assets/Art/Final/Field/{x.shadowId}_01.png") &&
-                File.Exists($"Assets/Art/Final/Field/{x.shadowId}_02.png"));
+            report.finalPortraits = shadows.Count(x => FinalPixelArtPipeline.HasDedicatedPortrait(x.shadowId));
+            report.finalFieldActors = shadows.Count(FinalPixelArtPipeline.HasDedicatedFieldArt);
             report.skillCount = skills.Count;
             report.skillsWithAudio = skills.Count(x => x.sfxClip != null && x.impactSfxClip != null);
             report.standardSkillCount = skills.Count(x => !x.isUltimate);

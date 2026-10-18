@@ -45,6 +45,7 @@ namespace ShadowTheater.Story
             // 렌더러가 비어 있는 경우에만 고해상도 전투 실루엣을 대체 이미지로 사용한다.
             if (silhouette != null && silhouette.sprite == null && enemyParty.Count > 0 && enemyParty[0] != null)
                 silhouette.sprite = enemyParty[0].silhouetteSprite;
+            if (enemyParty.Count > 0) ShadowArtRoster.ApplyFieldVisual(silhouette, enemyParty[0]);
 
             yield return new WaitUntil(() => SaveManager.Current != null);
             if (SaveManager.IsEncounterCleared(encounterId))

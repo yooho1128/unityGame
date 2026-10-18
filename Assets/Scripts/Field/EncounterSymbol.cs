@@ -78,6 +78,7 @@ namespace ShadowTheater.Field
             transform.position = FieldGrid.Current.CellToWorld(_cell);
             if (silhouette != null && silhouette.sprite == null && leadShadow != null && leadShadow.silhouetteSprite != null)
                 silhouette.sprite = leadShadow.silhouetteSprite;
+            ShadowArtRoster.ApplyFieldVisual(silhouette, leadShadow);
 
             _ai = StartCoroutine(AIRoutine());
             _started = true;

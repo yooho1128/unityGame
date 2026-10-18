@@ -1,0 +1,439 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f12f1fc724e621469765f9a867468b4, type: 3}
+  m_Name: ShadowArtRoster
+  m_EditorClassIdentifier:
+  entries:
+  - shadowId: knight
+    portrait: {fileID: 21300000, guid: 82902ab6d17ef9a46bec6e0fc69361bd, type: 3}
+  - shadowId: mage
+    portrait: {fileID: 21300000, guid: f40b6e5af0af399479db75dd8fa92e76, type: 3}
+  - shadowId: beast
+    portrait: {fileID: 21300000, guid: e5efa6dd36eff7b46a3d3d762a28c1ce, type: 3}
+  - shadowId: puppet
+    portrait: {fileID: 21300000, guid: 5ff151e14aee54e438746868093ffbba, type: 3}
+  - shadowId: crow
+    portrait: {fileID: 21300000, guid: 2caa598d1fb1b534b940667a097d9eeb, type: 3}
+  - shadowId: mask
+    portrait: {fileID: 21300000, guid: f9bd8f71fd17a7f4299322f7bd5667ee, type: 3}
+  - shadowId: censor
+    portrait: {fileID: -6448411356242621942, guid: 6f34e5e817ed0c34d92635a7261f9d9c, type: 3}
+  - shadowId: ash_hound
+    portrait: {fileID: 21300000, guid: 2c6a295443cf07840832e33bb251ad58, type: 3}
+  - shadowId: banner_spearman
+    portrait: {fileID: 21300000, guid: b0ef3fd9c96c7154a97150472b6d39ed, type: 3}
+  - shadowId: furnace_keeper
+    portrait: {fileID: 21300000, guid: ae3a6d7ea40500a4eb81b1404971265f, type: 3}
+  - shadowId: bell_knight
+    portrait: {fileID: 21300000, guid: d89caccfad6214845a50eb01ffc3ea16, type: 3}
+  - shadowId: soot_archer
+    portrait: {fileID: 21300000, guid: f8fc331724ddb8348bb097d404b8d09b, type: 3}
+  - shadowId: kneeling_captain
+    portrait: {fileID: 6801434156424980673, guid: b4b2ff16625e86c438f7760fee114d3a, type: 3}
+  - shadowId: tomb_candle
+    portrait: {fileID: -3091894388391945379, guid: ca7547f3755874747ba7707e2cce8725, type: 3}
+  - shadowId: ash_priest
+    portrait: {fileID: 21300000, guid: ba5a328dc101e7147bcaf8ab6e364769, type: 3}
+  - shadowId: headless_guard
+    portrait: {fileID: 8032931993905126386, guid: b4b2ff16625e86c438f7760fee114d3a, type: 3}
+  - shadowId: ash_king
+    portrait: {fileID: 21300000, guid: ad0f8b9de362acc489763d43c3f4e9c9, type: 3}
+  - shadowId: boss_moonlit_widow
+    portrait: {fileID: 21300000, guid: 5b2a67d80be594d458a113dd6d2434ef, type: 3}
+  - shadowId: legend_first_actor
+    portrait: {fileID: -7210069501468945216, guid: b4b2ff16625e86c438f7760fee114d3a, type: 3}
+  - shadowId: legend_last_audience
+    portrait: {fileID: 1256289657000711014, guid: b4b2ff16625e86c438f7760fee114d3a, type: 3}
+  - shadowId: frost_gull
+    portrait: {fileID: -6586674706268219879, guid: 67eb484292195184cb5e2731df055ecd, type: 3}
+  - shadowId: glacier_ferryman
+    portrait: {fileID: -6679298188627492928, guid: b4b2ff16625e86c438f7760fee114d3a, type: 3}
+  - shadowId: ink_fox
+    portrait: {fileID: -1751527087589674701, guid: b4b2ff16625e86c438f7760fee114d3a, type: 3}
+  - shadowId: snow_scribe
+    portrait: {fileID: 469162457047860410, guid: ca7547f3755874747ba7707e2cce8725, type: 3}
+  - shadowId: page_bat
+    portrait: {fileID: 5754574819951120323, guid: a61e786b97038f348926444cc10a9fac, type: 3}
+  - shadowId: book_drake
+    portrait: {fileID: 21300000, guid: 68c80776b22cbf94ea47a67e4f4eeec4, type: 3}
+  - shadowId: mirror_scribe
+    portrait: {fileID: -8784858073590115143, guid: a61e786b97038f348926444cc10a9fac, type: 3}
+  - shadowId: glass_owl
+    portrait: {fileID: -781396594923132839, guid: b4b2ff16625e86c438f7760fee114d3a, type: 3}
+  - shadowId: inverted_librarian
+    portrait: {fileID: -4627114934436071447, guid: b4b2ff16625e86c438f7760fee114d3a, type: 3}
+  - shadowId: infinite_archive_dragon
+    portrait: {fileID: 21300000, guid: 9fea2b9278de98240a2ebec89b1ab370, type: 3}
+  - shadowId: marsh_serpent
+    portrait: {fileID: -197286230340292750, guid: b4b2ff16625e86c438f7760fee114d3a, type: 3}
+  - shadowId: lantern_toad
+    portrait: {fileID: 7337657927822776347, guid: b4b2ff16625e86c438f7760fee114d3a, type: 3}
+  - shadowId: mask_hunter
+    portrait: {fileID: 6593364478996209292, guid: b4b2ff16625e86c438f7760fee114d3a, type: 3}
+  - shadowId: moon_shaman
+    portrait: {fileID: 4816858484869599329, guid: a61e786b97038f348926444cc10a9fac, type: 3}
+  - shadowId: crescent_fox
+    portrait: {fileID: 5617863463271532391, guid: 6f34e5e817ed0c34d92635a7261f9d9c, type: 3}
+  - shadowId: shadow_stag
+    portrait: {fileID: -4233362849053684491, guid: a61e786b97038f348926444cc10a9fac, type: 3}
+  - shadowId: cliff_bat
+    portrait: {fileID: 8646396774720307408, guid: 6f34e5e817ed0c34d92635a7261f9d9c, type: 3}
+  - shadowId: bloodmane_stalker
+    portrait: {fileID: 21300000, guid: 312f9d9385cb04149a59a836c605a6b7, type: 3}
+  - shadowId: moon_heart
+    portrait: {fileID: 3740878301423947903, guid: a61e786b97038f348926444cc10a9fac, type: 3}
+  - shadowId: night_devouring_beast
+    portrait: {fileID: 21300000, guid: e23edb0551dafa243bab450cb825a115, type: 3}
+  - shadowId: thread_cat
+    portrait: {fileID: -2558666965889165476, guid: ca7547f3755874747ba7707e2cce8725, type: 3}
+  - shadowId: needle_thief
+    portrait: {fileID: -6611063998795190480, guid: a61e786b97038f348926444cc10a9fac, type: 3}
+  - shadowId: clockwork_mouse
+    portrait: {fileID: -782701832165709976, guid: 6f34e5e817ed0c34d92635a7261f9d9c, type: 3}
+  - shadowId: second_dancer
+    portrait: {fileID: 101533837053235766, guid: a61e786b97038f348926444cc10a9fac, type: 3}
+  - shadowId: brass_clown
+    portrait: {fileID: -5793659448580810031, guid: 6f34e5e817ed0c34d92635a7261f9d9c, type: 3}
+  - shadowId: choir_puppet
+    portrait: {fileID: -7272474807432827800, guid: 6f34e5e817ed0c34d92635a7261f9d9c, type: 3}
+  - shadowId: scissor_conductor
+    portrait: {fileID: -4616985008979454159, guid: a61e786b97038f348926444cc10a9fac, type: 3}
+  - shadowId: wire_primadonna
+    portrait: {fileID: 2319299644810968997, guid: ca7547f3755874747ba7707e2cce8725, type: 3}
+  - shadowId: stitched_knight
+    portrait: {fileID: -4567135699760873876, guid: ca7547f3755874747ba7707e2cce8725, type: 3}
+  - shadowId: last_puppeteer
+    portrait: {fileID: 21300000, guid: a142ff0f3f85c344da95e70eabcec13e, type: 3}
+  - shadowId: ticketless_passenger
+    portrait: {fileID: -7245726785511385136, guid: ca7547f3755874747ba7707e2cce8725, type: 3}
+  - shadowId: ink_conductor
+    portrait: {fileID: 4315628058935442780, guid: b4b2ff16625e86c438f7760fee114d3a, type: 3}
+  - shadowId: numbered_prisoner
+    portrait: {fileID: -3221066627896674623, guid: a61e786b97038f348926444cc10a9fac, type: 3}
+  - shadowId: seal_shackle
+    portrait: {fileID: 2577304768566173507, guid: a61e786b97038f348926444cc10a9fac, type: 3}
+  - shadowId: zero_warden
+    portrait: {fileID: -9083252844126007353, guid: ca7547f3755874747ba7707e2cce8725, type: 3}
+  - shadowId: black_vial
+    portrait: {fileID: 21300000, guid: 9f9fbfe855ebfaf48b0f613af8b13d81, type: 3}
+  - shadowId: censor_surgeon
+    portrait: {fileID: -3692199366750842581, guid: 6f34e5e817ed0c34d92635a7261f9d9c, type: 3}
+  - shadowId: extract_subject_m
+    portrait: {fileID: -7463227112498857439, guid: 67eb484292195184cb5e2731df055ecd, type: 3}
+  - shadowId: mute_judge
+    portrait: {fileID: 7665189352100359792, guid: a61e786b97038f348926444cc10a9fac, type: 3}
+  - shadowId: high_censor_nox
+    portrait: {fileID: 21300000, guid: 09df7226060a9904da8e7c1864f29bf9, type: 3}
+  - shadowId: glass_conch
+    portrait: {fileID: 2443803427842912830, guid: b4b2ff16625e86c438f7760fee114d3a, type: 3}
+  - shadowId: star_sand_crab
+    portrait: {fileID: 5535950664579143779, guid: ca7547f3755874747ba7707e2cce8725, type: 3}
+  - shadowId: wave_bard
+    portrait: {fileID: 753084877548027012, guid: ca7547f3755874747ba7707e2cce8725, type: 3}
+  - shadowId: frame_jellyfish
+    portrait: {fileID: 6373200780684225801, guid: 67eb484292195184cb5e2731df055ecd, type: 3}
+  - shadowId: pigment_wraith
+    portrait: {fileID: 3846516972657672321, guid: a61e786b97038f348926444cc10a9fac, type: 3}
+  - shadowId: drowned_painter
+    portrait: {fileID: 21300000, guid: d4abde818fa852d4482ff2cd75893a28, type: 3}
+  - shadowId: name_bird
+    portrait: {fileID: -7360519648153419930, guid: a61e786b97038f348926444cc10a9fac, type: 3}
+  - shadowId: nameplate_turtle
+    portrait: {fileID: -8537301885079943975, guid: a61e786b97038f348926444cc10a9fac, type: 3}
+  - shadowId: storm_swallow
+    portrait: {fileID: 5587331037215735852, guid: ca7547f3755874747ba7707e2cce8725, type: 3}
+  - shadowId: mourning_keeper
+    portrait: {fileID: 3900692354942197191, guid: a61e786b97038f348926444cc10a9fac, type: 3}
+  - shadowId: inverted_guide
+    portrait: {fileID: 21300000, guid: 7c90d54958b8d044892c745e041b6444, type: 3}
+  - shadowId: ceiling_audience
+    portrait: {fileID: -5419445817378913830, guid: 6f34e5e817ed0c34d92635a7261f9d9c, type: 3}
+  - shadowId: mirrored_understudy
+    portrait: {fileID: -1444217075823979192, guid: a61e786b97038f348926444cc10a9fac, type: 3}
+  - shadowId: forgotten_prop
+    portrait: {fileID: -6181798458341673709, guid: 67eb484292195184cb5e2731df055ecd, type: 3}
+  - shadowId: interlude_actor
+    portrait: {fileID: 2415445347107027391, guid: b4b2ff16625e86c438f7760fee114d3a, type: 3}
+  - shadowId: interlude_manager
+    portrait: {fileID: 6406817115323215806, guid: b4b2ff16625e86c438f7760fee114d3a, type: 3}
+  - shadowId: first_line_echo
+    portrait: {fileID: 2142990534568129753, guid: 67eb484292195184cb5e2731df055ecd, type: 3}
+  - shadowId: golden_mask
+    portrait: {fileID: -7974180257410895232, guid: b4b2ff16625e86c438f7760fee114d3a, type: 3}
+  - shadowId: constellation_seat
+    portrait: {fileID: -1645822470624186185, guid: 6f34e5e817ed0c34d92635a7261f9d9c, type: 3}
+  - shadowId: silent_applause
+    portrait: {fileID: 21300000, guid: b4256f6dca6c1e340906d5f029fe0008, type: 3}
+  - shadowId: censored_protagonist
+    portrait: {fileID: 1480745340970968165, guid: 6f34e5e817ed0c34d92635a7261f9d9c, type: 3}
+  - shadowId: rival_director
+    portrait: {fileID: 21300000, guid: 862a49d8828f31e4d9707af55e98fcaa, type: 3}
+  - shadowId: outside_script_shadow
+    portrait: {fileID: 21300000, guid: 551ef8dda17bc3041915227ab71ef977, type: 3}
+  - shadowId: exp_echo_village_01
+    portrait: {fileID: 7411598132437331845, guid: ec04630aac855da44bbdb14ec7bcfcc5, type: 3}
+  - shadowId: exp_echo_village_02
+    portrait: {fileID: 6295282380412892447, guid: ec04630aac855da44bbdb14ec7bcfcc5, type: 3}
+  - shadowId: exp_echo_village_03
+    portrait: {fileID: 2970970916671970069, guid: ec04630aac855da44bbdb14ec7bcfcc5, type: 3}
+  - shadowId: exp_moonlit_boss_stage_01
+    portrait: {fileID: -1665829384029459404, guid: 681f393ddffd2c540ace4c77eac55875, type: 3}
+  - shadowId: exp_moonlit_boss_stage_02
+    portrait: {fileID: -7772234765892426308, guid: 681f393ddffd2c540ace4c77eac55875, type: 3}
+  - shadowId: exp_frost_port_01
+    portrait: {fileID: -5790852541633795978, guid: 9b9ef6681fe396b4093a87c1128c6e0f, type: 3}
+  - shadowId: exp_white_archive_01
+    portrait: {fileID: 8071982660024321303, guid: 67eb484292195184cb5e2731df055ecd, type: 3}
+  - shadowId: exp_forbidden_stacks_01
+    portrait: {fileID: 4540066177923012151, guid: ec04630aac855da44bbdb14ec7bcfcc5, type: 3}
+  - shadowId: exp_blue_abyss_01
+    portrait: {fileID: -6960642945683762389, guid: fa805ad36b94a7b45aa107ae05e02944, type: 3}
+  - shadowId: exp_blue_abyss_02
+    portrait: {fileID: -9223113063800542210, guid: fa805ad36b94a7b45aa107ae05e02944, type: 3}
+  - shadowId: exp_violet_marsh_01
+    portrait: {fileID: -6870068711305079124, guid: 67eb484292195184cb5e2731df055ecd, type: 3}
+  - shadowId: exp_howl_village_01
+    portrait: {fileID: 7340138360817599598, guid: 9b9ef6681fe396b4093a87c1128c6e0f, type: 3}
+  - shadowId: exp_moonfang_forest_01
+    portrait: {fileID: 6364397547869695675, guid: 9b9ef6681fe396b4093a87c1128c6e0f, type: 3}
+  - shadowId: exp_bloodmoon_ridge_01
+    portrait: {fileID: 4957663843112013289, guid: fa805ad36b94a7b45aa107ae05e02944, type: 3}
+  - shadowId: exp_sleeping_beast_den_01
+    portrait: {fileID: 8533718597033553433, guid: 4df7cc6c64110b84590c97e3f23bd319, type: 3}
+  - shadowId: exp_thread_market_01
+    portrait: {fileID: 138230709052331548, guid: 4df7cc6c64110b84590c97e3f23bd319, type: 3}
+  - shadowId: exp_severed_workshop_01
+    portrait: {fileID: 284234221168077470, guid: 4df7cc6c64110b84590c97e3f23bd319, type: 3}
+  - shadowId: exp_severed_workshop_02
+    portrait: {fileID: -6953264293405634696, guid: 4df7cc6c64110b84590c97e3f23bd319, type: 3}
+  - shadowId: exp_puppeteer_stage_01
+    portrait: {fileID: 934602750208504332, guid: 681f393ddffd2c540ace4c77eac55875, type: 3}
+  - shadowId: exp_puppeteer_stage_02
+    portrait: {fileID: 4816185159155123471, guid: 681f393ddffd2c540ace4c77eac55875, type: 3}
+  - shadowId: exp_erased_station_01
+    portrait: {fileID: -7909401177213780152, guid: ec04630aac855da44bbdb14ec7bcfcc5, type: 3}
+  - shadowId: exp_silent_court_01
+    portrait: {fileID: 1729409423758579149, guid: 4df7cc6c64110b84590c97e3f23bd319, type: 3}
+  - shadowId: exp_silent_court_02
+    portrait: {fileID: -1549219607580393277, guid: 4df7cc6c64110b84590c97e3f23bd319, type: 3}
+  - shadowId: exp_black_archive_01
+    portrait: {fileID: 7424443710392104076, guid: 6f34e5e817ed0c34d92635a7261f9d9c, type: 3}
+  - shadowId: exp_black_archive_02
+    portrait: {fileID: -2127999376299962405, guid: 6f34e5e817ed0c34d92635a7261f9d9c, type: 3}
+  - shadowId: exp_name_islands_01
+    portrait: {fileID: -9221999565540294903, guid: 681f393ddffd2c540ace4c77eac55875, type: 3}
+  - shadowId: exp_mourning_lighthouse_01
+    portrait: {fileID: 8006212575705095696, guid: 681f393ddffd2c540ace4c77eac55875, type: 3}
+  - shadowId: exp_widow_moon_palace_01
+    portrait: {fileID: 4908774240482777248, guid: 67eb484292195184cb5e2731df055ecd, type: 3}
+  - shadowId: exp_widow_moon_palace_02
+    portrait: {fileID: 5215556860435295209, guid: 67eb484292195184cb5e2731df055ecd, type: 3}
+  - shadowId: exp_widow_moon_palace_03
+    portrait: {fileID: -2199674688403688129, guid: 67eb484292195184cb5e2731df055ecd, type: 3}
+  - shadowId: exp_prologue_theater_01
+    portrait: {fileID: -6859304852590960811, guid: 681f393ddffd2c540ace4c77eac55875, type: 3}
+  - shadowId: exp_echo_village_04
+    portrait: {fileID: 2070389616938394608, guid: ec04630aac855da44bbdb14ec7bcfcc5, type: 3}
+  - shadowId: exp_moonlit_meadow_01
+    portrait: {fileID: 7380573674669282891, guid: 681f393ddffd2c540ace4c77eac55875, type: 3}
+  - shadowId: exp_moonlit_boss_stage_03
+    portrait: {fileID: 5351081515798706178, guid: 681f393ddffd2c540ace4c77eac55875, type: 3}
+  - shadowId: exp_curtain_pass_01
+    portrait: {fileID: -5006340317345856889, guid: fa805ad36b94a7b45aa107ae05e02944, type: 3}
+  - shadowId: exp_ash_border_01
+    portrait: {fileID: 5083917198816329197, guid: 6f34e5e817ed0c34d92635a7261f9d9c, type: 3}
+  - shadowId: exp_cinder_city_01
+    portrait: {fileID: -7956010826538773887, guid: fa805ad36b94a7b45aa107ae05e02944, type: 3}
+  - shadowId: exp_ruined_barracks_01
+    portrait: {fileID: 5121773644918504317, guid: 4df7cc6c64110b84590c97e3f23bd319, type: 3}
+  - shadowId: exp_ember_catacombs_01
+    portrait: {fileID: 1468243403233533569, guid: ec04630aac855da44bbdb14ec7bcfcc5, type: 3}
+  - shadowId: exp_crownless_throne_01
+    portrait: {fileID: 4435958318724398930, guid: fa805ad36b94a7b45aa107ae05e02944, type: 3}
+  - shadowId: exp_forbidden_stacks_02
+    portrait: {fileID: -4950968003170275757, guid: 9b9ef6681fe396b4093a87c1128c6e0f, type: 3}
+  - shadowId: exp_mirror_vault_01
+    portrait: {fileID: 2160907871516828820, guid: 9b9ef6681fe396b4093a87c1128c6e0f, type: 3}
+  - shadowId: exp_blue_abyss_03
+    portrait: {fileID: -6241146006669144979, guid: fa805ad36b94a7b45aa107ae05e02944, type: 3}
+  - shadowId: exp_violet_marsh_02
+    portrait: {fileID: -2421035298597915680, guid: 67eb484292195184cb5e2731df055ecd, type: 3}
+  - shadowId: exp_moonfang_forest_02
+    portrait: {fileID: -7697259414177099907, guid: 9b9ef6681fe396b4093a87c1128c6e0f, type: 3}
+  - shadowId: exp_bloodmoon_ridge_02
+    portrait: {fileID: -8808708926574471169, guid: fa805ad36b94a7b45aa107ae05e02944, type: 3}
+  - shadowId: exp_sleeping_beast_den_02
+    portrait: {fileID: -6884544842827128199, guid: 4df7cc6c64110b84590c97e3f23bd319, type: 3}
+  - shadowId: exp_clockwork_alley_01
+    portrait: {fileID: 2037263955694097734, guid: fa805ad36b94a7b45aa107ae05e02944, type: 3}
+  - shadowId: exp_marionette_opera_01
+    portrait: {fileID: -7307408751492532663, guid: 9b9ef6681fe396b4093a87c1128c6e0f, type: 3}
+  - shadowId: exp_severed_workshop_03
+    portrait: {fileID: -4604972529078565386, guid: 4df7cc6c64110b84590c97e3f23bd319, type: 3}
+  - shadowId: exp_puppeteer_stage_03
+    portrait: {fileID: -4682383310825376010, guid: 681f393ddffd2c540ace4c77eac55875, type: 3}
+  - shadowId: exp_blank_prison_01
+    portrait: {fileID: 4191378287990100430, guid: 6f34e5e817ed0c34d92635a7261f9d9c, type: 3}
+  - shadowId: exp_redaction_lab_01
+    portrait: {fileID: -4593930758208718916, guid: 4df7cc6c64110b84590c97e3f23bd319, type: 3}
+  - shadowId: exp_silent_court_03
+    portrait: {fileID: -3826631916864393275, guid: 4df7cc6c64110b84590c97e3f23bd319, type: 3}
+  - shadowId: exp_black_archive_03
+    portrait: {fileID: -230428423467738308, guid: 6f34e5e817ed0c34d92635a7261f9d9c, type: 3}
+  - shadowId: exp_glass_coast_01
+    portrait: {fileID: -3293369628523079631, guid: 9b9ef6681fe396b4093a87c1128c6e0f, type: 3}
+  - shadowId: exp_drowned_gallery_01
+    portrait: {fileID: -5316265014731940881, guid: ec04630aac855da44bbdb14ec7bcfcc5, type: 3}
+  - shadowId: exp_name_islands_02
+    portrait: {fileID: -465252489399948238, guid: 681f393ddffd2c540ace4c77eac55875, type: 3}
+  - shadowId: exp_mourning_lighthouse_02
+    portrait: {fileID: 3461561824707250640, guid: 681f393ddffd2c540ace4c77eac55875, type: 3}
+  - shadowId: exp_widow_moon_palace_04
+    portrait: {fileID: -7716870611667721865, guid: 67eb484292195184cb5e2731df055ecd, type: 3}
+  - shadowId: exp_inverted_lobby_01
+    portrait: {fileID: -3603997496359789315, guid: 9b9ef6681fe396b4093a87c1128c6e0f, type: 3}
+  - shadowId: exp_endless_backstage_01
+    portrait: {fileID: 5938598853408173243, guid: ec04630aac855da44bbdb14ec7bcfcc5, type: 3}
+  - shadowId: exp_first_actor_room_01
+    portrait: {fileID: -8432114968245786554, guid: ec04630aac855da44bbdb14ec7bcfcc5, type: 3}
+  - shadowId: exp_cosmic_auditorium_01
+    portrait: {fileID: 91360129202689071, guid: fa805ad36b94a7b45aa107ae05e02944, type: 3}
+  - shadowId: exp_final_curtain_01
+    portrait: {fileID: -3261789676699444573, guid: ec04630aac855da44bbdb14ec7bcfcc5, type: 3}
+  - shadowId: exp_painted_wagon_road_01
+    portrait: {fileID: -4273374976155920911, guid: d6fdf594a04aec94b88918b860fda8ac, type: 3}
+  - shadowId: exp_forgotten_tent_01
+    portrait: {fileID: -4273996359011482102, guid: d6fdf594a04aec94b88918b860fda8ac, type: 3}
+  - shadowId: exp_silent_clown_stage_01
+    portrait: {fileID: 1629514693335281722, guid: d6fdf594a04aec94b88918b860fda8ac, type: 3}
+  - shadowId: exp_poster_alley_01
+    portrait: {fileID: -6020184306229553209, guid: d6fdf594a04aec94b88918b860fda8ac, type: 3}
+  - shadowId: exp_poster_alley_02
+    portrait: {fileID: -3421124694863757903, guid: d6fdf594a04aec94b88918b860fda8ac, type: 3}
+  - shadowId: exp_sealed_small_theater_01
+    portrait: {fileID: 2002721212500121073, guid: d6fdf594a04aec94b88918b860fda8ac, type: 3}
+  - shadowId: exp_matte_projection_room_01
+    portrait: {fileID: 3392829637654902677, guid: d6fdf594a04aec94b88918b860fda8ac, type: 3}
+  - shadowId: exp_moon_eater_ritual_01
+    portrait: {fileID: 502937786137316373, guid: d6fdf594a04aec94b88918b860fda8ac, type: 3}
+  - shadowId: exp_stitch_field_01
+    portrait: {fileID: -7526865770875106482, guid: d6fdf594a04aec94b88918b860fda8ac, type: 3}
+  - shadowId: exp_clockwork_heart_stage_01
+    portrait: {fileID: 6761076031696877929, guid: d6fdf594a04aec94b88918b860fda8ac, type: 3}
+  - shadowId: exp_ghost_orchestra_pit_01
+    portrait: {fileID: -8060941245794083579, guid: d6fdf594a04aec94b88918b860fda8ac, type: 3}
+  - shadowId: exp_painted_wagon_road_02
+    portrait: {fileID: 7194426024812336887, guid: d6fdf594a04aec94b88918b860fda8ac, type: 3}
+  - shadowId: exp_forgotten_tent_02
+    portrait: {fileID: 8367740762257502391, guid: d6fdf594a04aec94b88918b860fda8ac, type: 3}
+  - shadowId: exp_silent_clown_stage_02
+    portrait: {fileID: 2630913314595565142, guid: d6fdf594a04aec94b88918b860fda8ac, type: 3}
+  - shadowId: exp_poster_alley_03
+    portrait: {fileID: 8816725289442747711, guid: d6fdf594a04aec94b88918b860fda8ac, type: 3}
+  - shadowId: exp_rooftop_rehearsal_01
+    portrait: {fileID: -7579123392519275318, guid: d6fdf594a04aec94b88918b860fda8ac, type: 3}
+  - shadowId: exp_sealed_small_theater_02
+    portrait: {fileID: 1323211521891805776, guid: 7c40e69bdf92ae049892830c01b2c231, type: 3}
+  - shadowId: exp_tidal_boardwalk_01
+    portrait: {fileID: 433329567914454201, guid: 7c40e69bdf92ae049892830c01b2c231, type: 3}
+  - shadowId: exp_bubble_cave_01
+    portrait: {fileID: 3526242488765675118, guid: 7c40e69bdf92ae049892830c01b2c231, type: 3}
+  - shadowId: exp_whale_back_stage_01
+    portrait: {fileID: -7636303964135461891, guid: 7c40e69bdf92ae049892830c01b2c231, type: 3}
+  - shadowId: exp_lantern_reed_field_01
+    portrait: {fileID: -3856508409596615269, guid: 7c40e69bdf92ae049892830c01b2c231, type: 3}
+  - shadowId: exp_shadow_well_01
+    portrait: {fileID: 842643387155255842, guid: 7c40e69bdf92ae049892830c01b2c231, type: 3}
+  - shadowId: exp_matte_projection_room_02
+    portrait: {fileID: -7378288816386921913, guid: 7c40e69bdf92ae049892830c01b2c231, type: 3}
+  - shadowId: exp_mask_dance_pass_01
+    portrait: {fileID: -894077297477602696, guid: 7c40e69bdf92ae049892830c01b2c231, type: 3}
+  - shadowId: exp_sealed_mask_room_01
+    portrait: {fileID: -5724448908258679489, guid: 7c40e69bdf92ae049892830c01b2c231, type: 3}
+  - shadowId: exp_moon_eater_ritual_02
+    portrait: {fileID: -4706222084545082529, guid: 7c40e69bdf92ae049892830c01b2c231, type: 3}
+  - shadowId: exp_stitch_field_02
+    portrait: {fileID: 4431519222483001430, guid: 7c40e69bdf92ae049892830c01b2c231, type: 3}
+  - shadowId: exp_abandoned_toy_store_01
+    portrait: {fileID: -6392649037654636748, guid: 7c40e69bdf92ae049892830c01b2c231, type: 3}
+  - shadowId: exp_clockwork_heart_stage_02
+    portrait: {fileID: 1433513482561283928, guid: 7c40e69bdf92ae049892830c01b2c231, type: 3}
+  - shadowId: exp_silent_foyer_01
+    portrait: {fileID: -3510972992210446825, guid: 7c40e69bdf92ae049892830c01b2c231, type: 3}
+  - shadowId: exp_ghost_orchestra_pit_02
+    portrait: {fileID: 4018679199392330690, guid: 7c40e69bdf92ae049892830c01b2c231, type: 3}
+  - shadowId: exp_ashes_bell_tower_01
+    portrait: {fileID: 5710501003221616939, guid: 7c40e69bdf92ae049892830c01b2c231, type: 3}
+  - shadowId: exp_ash_border_02
+    portrait: {fileID: -9084194596652673138, guid: 6f34e5e817ed0c34d92635a7261f9d9c, type: 3}
+  - shadowId: exp_blank_prison_02
+    portrait: {fileID: 1143816304328747059, guid: fa805ad36b94a7b45aa107ae05e02944, type: 3}
+  - shadowId: exp_bloodmoon_ridge_03
+    portrait: {fileID: -4580139011316993421, guid: fa805ad36b94a7b45aa107ae05e02944, type: 3}
+  - shadowId: exp_blue_abyss_04
+    portrait: {fileID: 5953376123653685245, guid: fa805ad36b94a7b45aa107ae05e02944, type: 3}
+  - shadowId: exp_cinder_city_02
+    portrait: {fileID: 4569327435140316993, guid: fa805ad36b94a7b45aa107ae05e02944, type: 3}
+  - shadowId: exp_clockwork_alley_02
+    portrait: {fileID: -5469756329796567206, guid: fa805ad36b94a7b45aa107ae05e02944, type: 3}
+  - shadowId: exp_crownless_throne_02
+    portrait: {fileID: 130729007935557087, guid: fa805ad36b94a7b45aa107ae05e02944, type: 3}
+  - shadowId: exp_curtain_pass_02
+    portrait: {fileID: -6879594882384824496, guid: ec04630aac855da44bbdb14ec7bcfcc5, type: 3}
+  - shadowId: exp_echo_village_05
+    portrait: {fileID: 627167151390294413, guid: ec04630aac855da44bbdb14ec7bcfcc5, type: 3}
+  - shadowId: exp_ember_catacombs_02
+    portrait: {fileID: 7749234980185943876, guid: ec04630aac855da44bbdb14ec7bcfcc5, type: 3}
+  - shadowId: exp_erased_station_02
+    portrait: {fileID: -8313273912890233896, guid: ec04630aac855da44bbdb14ec7bcfcc5, type: 3}
+  - shadowId: exp_erased_station_03
+    portrait: {fileID: 3367543927248730520, guid: ec04630aac855da44bbdb14ec7bcfcc5, type: 3}
+  - shadowId: exp_forbidden_stacks_03
+    portrait: {fileID: 2595783742136601593, guid: 9b9ef6681fe396b4093a87c1128c6e0f, type: 3}
+  - shadowId: exp_frost_port_02
+    portrait: {fileID: -1524472553284329002, guid: 9b9ef6681fe396b4093a87c1128c6e0f, type: 3}
+  - shadowId: exp_frost_port_03
+    portrait: {fileID: -1336142572268860906, guid: 9b9ef6681fe396b4093a87c1128c6e0f, type: 3}
+  - shadowId: exp_howl_village_02
+    portrait: {fileID: 1603735606386647560, guid: 9b9ef6681fe396b4093a87c1128c6e0f, type: 3}
+  - shadowId: exp_howl_village_03
+    portrait: {fileID: 4459343047897902666, guid: 9b9ef6681fe396b4093a87c1128c6e0f, type: 3}
+  - shadowId: exp_marionette_opera_02
+    portrait: {fileID: 8301016459740774142, guid: 9b9ef6681fe396b4093a87c1128c6e0f, type: 3}
+  - shadowId: exp_mirror_vault_02
+    portrait: {fileID: 7963726331180739799, guid: 9b9ef6681fe396b4093a87c1128c6e0f, type: 3}
+  - shadowId: exp_moonfang_forest_03
+    portrait: {fileID: 8747726622368438695, guid: 681f393ddffd2c540ace4c77eac55875, type: 3}
+  - shadowId: exp_moonlit_boss_stage_04
+    portrait: {fileID: 6894401235230095961, guid: 681f393ddffd2c540ace4c77eac55875, type: 3}
+  - shadowId: exp_moonlit_meadow_02
+    portrait: {fileID: 7713514772643298196, guid: 681f393ddffd2c540ace4c77eac55875, type: 3}
+  - shadowId: exp_prologue_theater_02
+    portrait: {fileID: 2316051987441407953, guid: 681f393ddffd2c540ace4c77eac55875, type: 3}
+  - shadowId: exp_puppeteer_stage_04
+    portrait: {fileID: 3419159698451039030, guid: 4df7cc6c64110b84590c97e3f23bd319, type: 3}
+  - shadowId: exp_ruined_barracks_02
+    portrait: {fileID: -2744339829977611616, guid: 4df7cc6c64110b84590c97e3f23bd319, type: 3}
+  - shadowId: exp_severed_workshop_04
+    portrait: {fileID: -1203948042755182651, guid: 4df7cc6c64110b84590c97e3f23bd319, type: 3}
+  - shadowId: exp_sleeping_beast_den_03
+    portrait: {fileID: -1996502128987862015, guid: 4df7cc6c64110b84590c97e3f23bd319, type: 3}
+  - shadowId: exp_thread_market_02
+    portrait: {fileID: -5603249458141311548, guid: 4df7cc6c64110b84590c97e3f23bd319, type: 3}
+  - shadowId: exp_thread_market_03
+    portrait: {fileID: -2703684873225459002, guid: 67eb484292195184cb5e2731df055ecd, type: 3}
+  - shadowId: exp_violet_marsh_03
+    portrait: {fileID: 3247580870902135430, guid: 67eb484292195184cb5e2731df055ecd, type: 3}
+  - shadowId: exp_white_archive_02
+    portrait: {fileID: 3467495243283049820, guid: 67eb484292195184cb5e2731df055ecd, type: 3}
+  - shadowId: exp_white_archive_03
+    portrait: {fileID: -435044393800865910, guid: 67eb484292195184cb5e2731df055ecd, type: 3}
