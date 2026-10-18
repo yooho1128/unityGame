@@ -19,6 +19,7 @@ namespace ShadowTheater.UI
         private ShadowData _data;
         private Action<ShadowData> _onSelected;
         private bool _bound;
+        private ScriptBookEntryState _state;
 
         private void Awake()
         {
@@ -32,6 +33,7 @@ namespace ShadowTheater.UI
         {
             EnsureBinding();
             _data = data;
+            _state = state;
             _onSelected = onSelected;
             if (numberText != null) numberText.text = $"No.{index + 1:000}";
             if (nameText != null) nameText.text = state == ScriptBookEntryState.Unknown
@@ -40,6 +42,7 @@ namespace ShadowTheater.UI
             if (silhouette != null)
             {
                 silhouette.sprite = state == ScriptBookEntryState.Unknown ? null : data.silhouetteSprite;
+                silhouette.enabled = silhouette.sprite != null;
                 silhouette.color = state == ScriptBookEntryState.Recorded
                     ? ShadowPortraitStyle.Tint(silhouette.sprite)
                     : Color.black;
@@ -50,6 +53,11 @@ namespace ShadowTheater.UI
                     ? data.accentColor
                     : new Color(0.20f, 0.18f, 0.27f, 1f);
             gameObject.SetActive(true);
+        }
+
+        public void SetSelected(string shadowId)
+        {
+            if (stateText != null) stateText.text = (_data?.shadowId == shadowId ? "▶ " : "") + StateLabel(_state);
         }
 
         private void Select() => _onSelected?.Invoke(_data);

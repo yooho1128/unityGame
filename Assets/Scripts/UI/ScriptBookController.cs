@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using ShadowTheater.Data;
 using ShadowTheater.Field;
 using ShadowTheater.Save;
@@ -41,6 +42,9 @@ namespace ShadowTheater.UI
         private bool _lockedPlayer;
         private ShadowData _selectedData;
         private ShadowInstance _selectedInstance;
+        private bool _refreshPending;
+        private ScrollRect _loreScroll;
+        private int _lastActionFrame = -1;
 
         private void Awake()
         {
@@ -48,10 +52,21 @@ namespace ShadowTheater.UI
             Instance = this;
             if (root != null) root.SetActive(false);
             if (entryTemplate != null) entryTemplate.gameObject.SetActive(false);
+            EnsureLoreScroll();
         }
 
-        private void OnEnable() => L10n.Changed += RefreshIfOpen;
-        private void RefreshIfOpen() { if (IsOpen) RefreshList(); }
+        private void OnEnable()
+        {
+            L10n.Changed += RefreshIfOpen;
+            SaveManager.CurrentChanged += OnCurrentChanged;
+            SaveManager.PartyChanged += RefreshIfOpen;
+            QuestManager.GlobalQuestChanged += RefreshIfOpen;
+            MemoryAwakeningService.StageChanged += OnStageChanged;
+        }
+        private void RefreshIfOpen() { if (IsOpen) _refreshPending = true; }
+        private void OnStageChanged(ShadowInstance instance) => RefreshIfOpen();
+        private void OnCurrentChanged() { if (IsOpen) Close(); _selectedData = null; _selectedInstance = null; }
+        private void LateUpdate() { if (IsOpen && _refreshPending) RefreshList(); }
 
         private void OnDestroy()
         {
@@ -62,6 +77,10 @@ namespace ShadowTheater.UI
         private void OnDisable()
         {
             L10n.Changed -= RefreshIfOpen;
+            SaveManager.CurrentChanged -= OnCurrentChanged;
+            SaveManager.PartyChanged -= RefreshIfOpen;
+            QuestManager.GlobalQuestChanged -= RefreshIfOpen;
+            MemoryAwakeningService.StageChanged -= OnStageChanged;
             if (IsOpen) Close();
         }
 
@@ -91,6 +110,7 @@ namespace ShadowTheater.UI
                 _lockedPlayer = true;
             }
             if (root != null) root.SetActive(true);
+            if (contentRoot is RectTransform content) content.anchoredPosition = Vector2.zero;
             RefreshList();
         }
 
@@ -102,12 +122,20 @@ namespace ShadowTheater.UI
             ReleasePlayer();
         }
 
-        public void ShowAll() { _filter = ScriptBookFilter.All; RefreshList(); }
-        public void ShowSeen() { _filter = ScriptBookFilter.Seen; RefreshList(); }
-        public void ShowRecorded() { _filter = ScriptBookFilter.Recorded; RefreshList(); }
+        public void ShowAll() => SetFilter(ScriptBookFilter.All);
+        public void ShowSeen() => SetFilter(ScriptBookFilter.Seen);
+        public void ShowRecorded() => SetFilter(ScriptBookFilter.Recorded);
+        private void SetFilter(ScriptBookFilter filter)
+        {
+            if (!IsOpen) return;
+            _filter = filter;
+            if (contentRoot is RectTransform content) content.anchoredPosition = Vector2.zero;
+            RefreshList();
+        }
 
         public void RestoreSelected()
         {
+            if (!BeginGrowthAction()) return;
             bool success = MemoryAwakeningService.TryRestore(_selectedInstance, out string message);
             if (!success && MemoryAwakeningService.TryStartMemoryQuest(_selectedInstance, out string questMessage))
             {
@@ -119,6 +147,7 @@ namespace ShadowTheater.UI
 
         public void AwakenSalvation()
         {
+            if (!BeginGrowthAction()) return;
             bool success = MemoryAwakeningService.TryAwaken(_selectedInstance, AwakeningPath.Salvation,
                 out string message);
             ShowAwakeningResult(message, success);
@@ -126,6 +155,7 @@ namespace ShadowTheater.UI
 
         public void AwakenGrudge()
         {
+            if (!BeginGrowthAction()) return;
             bool success = MemoryAwakeningService.TryAwaken(_selectedInstance, AwakeningPath.Grudge,
                 out string message);
             ShowAwakeningResult(message, success);
@@ -133,39 +163,47 @@ namespace ShadowTheater.UI
 
         private void RefreshList()
         {
-            foreach (var item in _spawned) { item.SetActive(false); Destroy(item); }
-            _spawned.Clear();
+            _refreshPending = false;
+            Vector2 position = UiListLayout.Position(contentRoot);
+            string selectedId = _selectedData?.shadowId;
+            UiListLayout.Clear(_spawned);
 
             var database = ShadowDatabase.Instance;
-            if (database == null || SaveManager.Current == null) return;
-            int recorded = 0;
+            if (SaveManager.Current == null) { Close(); return; }
+            if (database == null) { ShowEmptyDetail(); return; }
+            int recorded = 0, seen = 0, total = 0;
+            var ids = new HashSet<string>();
+            ShadowData first = null, selected = null;
             for (int i = 0; i < database.shadows.Count; i++)
             {
                 var data = database.shadows[i];
-                if (data == null) continue;
+                if (data == null || string.IsNullOrEmpty(data.shadowId) || !ids.Add(data.shadowId)) continue;
+                total++;
                 var state = GetState(data.shadowId);
+                if (state != ScriptBookEntryState.Unknown) seen++;
                 if (state == ScriptBookEntryState.Recorded) recorded++;
                 if (!PassesFilter(state)) continue;
 
                 var view = Instantiate(entryTemplate, contentRoot);
-                view.Bind(data, i, state, Select);
+                view.Bind(data, total - 1, state, Select);
                 _spawned.Add(view.gameObject);
+                if (first == null) first = data;
+                if (data.shadowId == selectedId) selected = data;
             }
 
-            if (progressText != null) progressText.text = L10n.Format("book.progress", "기록 {0} / {1}", recorded, database.shadows.Count);
-            if (_spawned.Count > 0)
-            {
-                // 목록의 첫 데이터를 다시 찾는 대신 필터 순서대로 선택한다.
-                foreach (var data in database.shadows)
-                    if (data != null && PassesFilter(GetState(data.shadowId))) { Select(data); break; }
-            }
+            if (progressText != null) progressText.text = L10n.Format("book.collection_progress", "조우 {0}\n기록 {1} / {2}", seen, recorded, total);
+            if (first != null) Select(selected ?? first);
             else ShowEmptyDetail();
+            UiListLayout.Rebuild(contentRoot, position);
         }
 
         private void Select(ShadowData data)
         {
             if (data == null) return;
+            bool changed = _selectedData?.shadowId != data.shadowId;
+            Vector2 lorePosition = !changed && loreText != null ? UiListLayout.Position(loreText.transform) : Vector2.zero;
             _selectedData = data;
+            foreach (var row in _spawned) row.GetComponent<ScriptBookEntryView>()?.SetSelected(data.shadowId);
             _selectedInstance = FindOwnedInstance(data.shadowId);
             var state = GetState(data.shadowId);
             bool seen = state != ScriptBookEntryState.Unknown;
@@ -174,6 +212,7 @@ namespace ShadowTheater.UI
             if (portrait != null)
             {
                 portrait.sprite = seen ? (_selectedInstance?.Silhouette ?? data.silhouetteSprite) : null;
+                portrait.enabled = portrait.sprite != null;
                 portrait.color = ShadowPortraitStyle.Tint(portrait.sprite);
                 portrait.preserveAspect = true;
             }
@@ -196,6 +235,7 @@ namespace ShadowTheater.UI
                 ? BuildLore(data, _selectedInstance)
                 : (seen ? data.loreLocked : "이 그림자와 아직 조우하지 않았습니다.");
             RefreshAwakeningActions(recorded);
+            if (_loreScroll != null && loreText != null) UiListLayout.Rebuild(loreText.transform, lorePosition);
         }
 
         private static ScriptBookEntryState GetState(string shadowId)
@@ -218,7 +258,7 @@ namespace ShadowTheater.UI
 
         private void ShowEmptyDetail()
         {
-            if (portrait != null) portrait.sprite = null;
+            if (portrait != null) { portrait.sprite = null; portrait.enabled = false; }
             if (nameText != null) nameText.text = L10n.Get("book.empty", "표시할 기록이 없습니다");
             if (titleText != null) titleText.text = string.Empty;
             if (typeText != null) typeText.text = string.Empty;
@@ -227,6 +267,8 @@ namespace ShadowTheater.UI
             _selectedData = null;
             _selectedInstance = null;
             RefreshAwakeningActions(false);
+            if (accentGlow != null) accentGlow.color = new Color(.18f, .16f, .24f, 1f);
+            if (_loreScroll != null && loreText != null) UiListLayout.Rebuild(loreText.transform, Vector2.zero);
         }
 
         private void ReleasePlayer()
@@ -238,7 +280,7 @@ namespace ShadowTheater.UI
 
         private void ShowAwakeningResult(string message, bool success)
         {
-            if (_selectedData != null) Select(_selectedData);
+            RefreshList();
             if (awakeningFeedbackText != null)
             {
                 awakeningFeedbackText.text = message;
@@ -305,9 +347,65 @@ namespace ShadowTheater.UI
 
         private static string BuildLore(ShadowData data, ShadowInstance instance)
         {
-            if (instance?.ActiveForm == null || string.IsNullOrWhiteSpace(instance.ActiveForm.loreAppend))
-                return L10n.Text(data.loreUnlocked);
-            return L10n.Text(data.loreUnlocked) + "\n\n" + L10n.Text(instance.ActiveForm.loreAppend);
+            string text = L10n.Text(data.loreUnlocked);
+            if (instance?.ActiveForm != null && !string.IsNullOrWhiteSpace(instance.ActiveForm.loreAppend))
+                text += "\n\n" + L10n.Text(instance.ActiveForm.loreAppend);
+            if (instance == null) return text;
+            var learned = instance.GetAvailableSkills();
+            if (data.basicAttack != null && !learned.Contains(data.basicAttack)) learned.Insert(0, data.basicAttack);
+            text += "\n\n" + L10n.Format("book.learned_skills", "현재 기술 · {0}",
+                learned.Count > 0 ? string.Join(" · ", learned.Select(x => L10n.Text(x.displayName)))
+                    : L10n.Get("book.no_skills", "없음"));
+            var future = instance.GetAvailableSkills(ShadowInstance.MaxLevel)
+                .Where(x => Mathf.Max(1, x.requiredLevel) > instance.level).OrderBy(x => x.requiredLevel).ToList();
+            text += "\n" + (future.Count > 0
+                ? L10n.Format("book.next_skill", "다음 기술 · Lv.{0} {1}", future[0].requiredLevel,
+                    string.Join(" · ", future.Where(x => x.requiredLevel == future[0].requiredLevel).Select(x => L10n.Text(x.displayName))))
+                : L10n.Get("book.skills_complete", "현재 형태의 레벨 기술을 모두 익혔습니다."));
+            return text;
+        }
+
+        private bool BeginGrowthAction()
+        {
+            if (!IsOpen || !FieldUiModalState.CanOpen(FieldUiModal.ScriptBook) || _lastActionFrame == Time.frameCount) return false;
+            _lastActionFrame = Time.frameCount;
+            return true;
+        }
+
+        private void EnsureLoreScroll()
+        {
+            if (loreText == null) return;
+            var textRect = loreText.rectTransform;
+            var existing = textRect.parent != null ? textRect.parent.GetComponent<ScrollRect>() : null;
+            if (existing != null && existing.content == textRect)
+            {
+                _loreScroll = existing;
+                return;
+            }
+            var viewportGo = new GameObject("LoreViewport", typeof(RectTransform), typeof(Image), typeof(RectMask2D), typeof(ScrollRect));
+            var viewport = (RectTransform)viewportGo.transform;
+            viewport.SetParent(textRect.parent, false);
+            viewport.SetSiblingIndex(textRect.GetSiblingIndex());
+            viewport.anchorMin = textRect.anchorMin; viewport.anchorMax = textRect.anchorMax;
+            viewport.pivot = textRect.pivot;
+            viewport.offsetMin = textRect.offsetMin; viewport.offsetMax = textRect.offsetMax;
+            viewportGo.GetComponent<Image>().color = Color.clear;
+            _loreScroll = viewportGo.GetComponent<ScrollRect>();
+            _loreScroll.horizontal = false;
+            _loreScroll.movementType = ScrollRect.MovementType.Clamped;
+            _loreScroll.scrollSensitivity = 30f;
+            _loreScroll.viewport = viewport;
+            textRect.SetParent(viewport, false);
+            textRect.anchorMin = new Vector2(0f, 1f); textRect.anchorMax = Vector2.one;
+            textRect.pivot = new Vector2(.5f, 1f);
+            textRect.offsetMin = textRect.offsetMax = Vector2.zero;
+            loreText.horizontalOverflow = HorizontalWrapMode.Wrap;
+            loreText.verticalOverflow = VerticalWrapMode.Overflow;
+            loreText.raycastTarget = false;
+            var fitter = loreText.GetComponent<ContentSizeFitter>();
+            if (fitter == null) fitter = loreText.gameObject.AddComponent<ContentSizeFitter>();
+            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            _loreScroll.content = textRect;
         }
 
         private static string ElementName(ShadowElement element)

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using ShadowTheater.Data;
 using ShadowTheater.Save;
+using ShadowTheater.UI;
 using UnityEngine;
 
 namespace ShadowTheater.Story
@@ -77,6 +78,7 @@ namespace ShadowTheater.Story
 
         public static bool TryRestore(ShadowInstance instance, out string message)
         {
+            if (!ValidateOwned(instance, out message)) return false;
             if (!CanRestore(instance, out message)) return false;
             MaterializeMilestone(instance.Data.restoredForm);
             ApplyStage(instance, MemoryStage.Restored, AwakeningPath.None);
@@ -99,7 +101,7 @@ namespace ShadowTheater.Story
         public static bool IsMemoryQuestActive(ShadowInstance instance, out string questId)
         {
             questId = null;
-            if (instance?.Data.restoredForm == null ||
+            if (instance?.Data.restoredForm == null || string.IsNullOrEmpty(instance.Data.restoredForm.requiredFlag) ||
                 !PersonalMemoryQuests.TryGetValue(instance.Data.restoredForm.requiredFlag, out questId)) return false;
             var progress = QuestManager.Instance?.GetProgress(questId);
             return progress != null && !progress.completed;
@@ -107,6 +109,7 @@ namespace ShadowTheater.Story
 
         public static bool TryStartMemoryQuest(ShadowInstance instance, out string message)
         {
+            if (!ValidateOwned(instance, out message)) return false;
             if (!CanStartMemoryQuest(instance, out string questId))
             {
                 message = "지금 시작할 수 있는 개인 기억 여정이 없습니다.";
@@ -124,6 +127,7 @@ namespace ShadowTheater.Story
 
         public static bool TryAwaken(ShadowInstance instance, AwakeningPath path, out string message)
         {
+            if (!ValidateOwned(instance, out message)) return false;
             if (!CanAwaken(instance, path, out message)) return false;
             MaterializeMilestone(path == AwakeningPath.Grudge ? instance.Data.grudgeForm : instance.Data.salvationForm);
             ApplyStage(instance, MemoryStage.TrueName, path);
@@ -139,6 +143,15 @@ namespace ShadowTheater.Story
             if (instance.memoryStage == MemoryStage.TrueName)
                 return instance.awakeningPath == AwakeningPath.Grudge ? "진명 각성 · 원한" : "진명 각성 · 구원";
             return instance.memoryStage == MemoryStage.Restored ? "기억 복원" : "잔영";
+        }
+
+        private static bool ValidateOwned(ShadowInstance instance, out string message)
+        {
+            message = string.Empty;
+            var save = SaveManager.Current;
+            if (instance != null && save != null && (save.party.Contains(instance) || save.storage.Contains(instance))) return true;
+            message = L10n.Get("memory.not_owned", "현재 보유한 그림자를 선택해 주세요.");
+            return false;
         }
 
         private static bool MeetsRequirements(ShadowInstance instance, MemoryFormData form,

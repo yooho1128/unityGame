@@ -1,5 +1,11 @@
 {
   "strings": [
+    {"key":"memory.not_owned","ko":"현재 보유한 그림자를 선택해 주세요.","en":"Choose a shadow you currently own."},
+    {"key":"book.collection_progress","ko":"조우 {0}\n기록 {1} / {2}","en":"Seen {0}\nRecorded {1} / {2}"},
+    {"key":"book.learned_skills","ko":"현재 기술 · {0}","en":"Current skills · {0}"},
+    {"key":"book.no_skills","ko":"없음","en":"None"},
+    {"key":"book.next_skill","ko":"다음 기술 · Lv.{0} {1}","en":"Next skill · Lv.{0} {1}"},
+    {"key":"book.skills_complete","ko":"현재 형태의 레벨 기술을 모두 익혔습니다.","en":"All level-based skills for the current form have been learned."},
     {"key":"shop.no_party","ko":"휴식할 파티가 없습니다.","en":"There is no party to rest."},
     {"key":"shop.party_full","ko":"파티의 HP가 이미 가득합니다.","en":"The party already has full HP."},
     {"key":"shop.rest_gold_short","ko":"휴식에 필요한 금화가 부족합니다.","en":"Not enough gold to rest."},
