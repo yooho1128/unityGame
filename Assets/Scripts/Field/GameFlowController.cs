@@ -304,13 +304,17 @@ namespace ShadowTheater.Field
         private void RespawnAtCheckpoint()
         {
             var save = SaveManager.Current;
-            var requested = new Vector2Int(save.checkpointX, save.checkpointY);
-            var region = RegionRepository.GetByScene(save.mapId);
+            string currentMap = FieldGrid.Current != null ? FieldGrid.Current.MapId : save.mapId;
+            var region = RegionRepository.GetByScene(currentMap);
             var fallback = region != null ? region.ArrivalCell : Vector2Int.zero;
+            // 다른 지역의 좌표를 현재 지역 좌표로 해석하지 않는다.
+            var requested = save.checkpointMapId == currentMap
+                ? new Vector2Int(save.checkpointX, save.checkpointY) : fallback;
             if (PlayerController.Instance.SnapToSafeCell(requested, fallback, out Vector2Int resolved))
             {
                 save.checkpointX = resolved.x;
                 save.checkpointY = resolved.y;
+                save.mapId = save.checkpointMapId = currentMap;
                 save.tileX = resolved.x;
                 save.tileY = resolved.y;
             }
@@ -337,8 +341,21 @@ namespace ShadowTheater.Field
                 save.checkpointMapId == FieldGrid.Current.MapId) return false;
 
             IsInBattle = false;
+            var player = PlayerController.Instance;
             bool started = MapLoader.Instance != null && MapLoader.Instance.TravelTo(save.checkpointMapId,
-                new Vector2Int(save.checkpointX, save.checkpointY), FacingDir.Down, true);
+                new Vector2Int(save.checkpointX, save.checkpointY), FacingDir.Down, true, () =>
+                {
+                    if (!ReferenceEquals(save, SaveManager.Current))
+                    {
+                        if (player != null) player.Unlock();
+                        return;
+                    }
+                    RespawnAtCheckpoint();
+                    if (player != null) player.Unlock(); // MapLoader의 잠금 외에 남은 전투 잠금 해제
+                    AllowTimeToLeave();
+                    SaveManager.Instance?.Save();
+                    SaveFeedbackController.Instance?.ShowMessage(L10n.Get("battle.checkpoint_fallback", "거점으로 이동하지 못해 현재 지역의 안전한 길에서 회복했습니다."));
+                });
             if (started)
             {
                 onFinished?.Invoke(outcome);

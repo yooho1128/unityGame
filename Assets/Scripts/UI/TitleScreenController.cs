@@ -92,6 +92,7 @@ namespace ShadowTheater.UI
 
         public void ContinueGame()
         {
+            if (SaveManager.Instance == null || MapLoader.Instance == null || MapLoader.Instance.IsTransitioning) return;
             if (!SaveManager.Instance.HasSave() || !SaveManager.Instance.Load())
             {
                 ShowLoadFailure();
@@ -101,11 +102,7 @@ namespace ShadowTheater.UI
 
             SetFeedback(string.Empty, false);
             if (titleRoot != null) titleRoot.SetActive(false);
-            if (!MapLoader.Instance.LoadSavedMap())
-            {
-                ShowTitle();
-                SetFeedback(L10n.Get("title.scene_load_failed", "저장된 지역을 열 수 없습니다. 전체 게임 생성을 다시 실행해 주세요."), true);
-            }
+            if (!MapLoader.Instance.LoadSavedMap(ShowTravelFailure)) ShowTravelFailure();
         }
 
         public void CancelStarterSelection()
@@ -132,7 +129,13 @@ namespace ShadowTheater.UI
                 SaveManager.AddItem(startingItem.itemId, startingItemCount);
             SaveManager.Instance.Save(false);
 
-            if (!MapLoader.Instance.TravelTo(firstScene, firstCell, firstFacing, true)) ShowTitle();
+            if (!MapLoader.Instance.TravelTo(firstScene, firstCell, firstFacing, true, ShowTravelFailure)) ShowTravelFailure();
+        }
+
+        private void ShowTravelFailure()
+        {
+            ShowTitle();
+            SetFeedback(L10n.Get("map.travel_failed", "지역을 열지 못했습니다. 잠시 후 다시 시도해 주세요."), true);
         }
 
         private void ShowTitle()
