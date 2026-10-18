@@ -1,5 +1,11 @@
 {
   "strings": [
+    {"key":"field.action_idle","ko":"대화 · 조사","en":"Talk / Inspect"},
+    {"key":"field.action_travel","ko":"이동","en":"Travel"},
+    {"key":"field.action_talk","ko":"대화","en":"Talk"},
+    {"key":"field.action_inspect","ko":"조사","en":"Inspect"},
+    {"key":"field.exit_destination","ko":"{0} 방면","en":"To {0}"},
+    {"key":"portal.unknown_destination","ko":"알 수 없는 길","en":"Unknown path"},
     {"key":"title.name","ko":"그림자 극장\n잔영","en":"SHADOW THEATER\nECHOES"},
     {"key":"title.subtitle","ko":"잊힌 비극의 마지막 장면을 기록하라","en":"Record the final scenes of forgotten tragedies"},
     {"key":"title.new","ko":"새로운 기억","en":"New Memory"},

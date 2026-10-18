@@ -38,6 +38,7 @@ namespace ShadowTheater.Field
 
         private int _lockCount;
         private Collider2D _collider;
+        private FieldGrid _fieldGrid;
         private static readonly int DirHash = Animator.StringToHash("Dir");
         private static readonly int MovingHash = Animator.StringToHash("Moving");
 
@@ -50,8 +51,22 @@ namespace ShadowTheater.Field
 
         private void Start()
         {
+            _fieldGrid = FieldGrid.Current;
             SnapToCell(FieldGrid.Current.WorldToCell(transform.position));
         }
+
+        private void OnDisable()
+        {
+            // A field toggle stops movement coroutines before their final cleanup runs.
+            StopAllCoroutines();
+            if (IsMoving && _fieldGrid != null) transform.position = _fieldGrid.CellToWorld(Cell);
+            IsMoving = false;
+            MoveInput = Vector2.zero;
+            if (Instance == this) VirtualDPadButton.CancelInput();
+            if (animator != null) animator.SetBool(MovingHash, false);
+        }
+
+        private void OnDestroy() { if (Instance == this) Instance = null; }
 
         private void Update()
         {

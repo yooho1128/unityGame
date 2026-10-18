@@ -36,9 +36,15 @@ namespace ShadowTheater.Field
         public event Action<ShadowInstance, bool> OnShadowRecorded; // (개체, 파티에 들어갔는지)
 
         public bool IsInBattle { get; private set; }
+        private float _encountersEnabledAt;
         public bool CanStartEncounter =>
             !IsInBattle && PlayerController.Instance != null && !PlayerController.Instance.IsLocked
+            && Time.unscaledTime >= _encountersEnabledAt
+            && (MapLoader.Instance == null || !MapLoader.Instance.IsTransitioning)
             && SaveManager.HasAliveShadow();
+
+        public void AllowTimeToLeave(float seconds = 1.5f) =>
+            _encountersEnabledAt = Mathf.Max(_encountersEnabledAt, Time.unscaledTime + Mathf.Max(0f, seconds));
 
         [Header("개발용: 세이브 없을 때 바로 시작")]
         [SerializeField] private ShadowData devStarter;
@@ -127,7 +133,7 @@ namespace ShadowTheater.Field
         /// <summary>지역 색상과 선두 적 실루엣을 사용해 랜덤 조우 전환을 재생한다.</summary>
         public void StartRandomBattle(List<ShadowInstance> enemies, RegionData region)
         {
-            if (IsInBattle || enemies == null || enemies.Count == 0) return;
+            if (!CanStartEncounter || enemies == null || enemies.Count == 0) return;
             var ctx = CreateContext(BattleMode.Wild, enemies, string.Empty, BattleGimmick.None);
             ShadowInstance lead = enemies[0];
             var cue = new EncounterEntranceCue
@@ -203,6 +209,7 @@ namespace ShadowTheater.Field
                 AdaptiveMusicDirector.Instance?.ReturnToField();
                 symbol?.Freeze(false);
                 player.Unlock();
+                AllowTimeToLeave();
                 IsInBattle = false;
                 yield return ScreenFader.Instance.FadeIn();
                 yield break;
@@ -232,6 +239,7 @@ namespace ShadowTheater.Field
             yield return ScreenFader.Instance.FadeIn();
 
             player.Unlock();
+            AllowTimeToLeave();
             IsInBattle = false;
 
             SaveManager.Instance.Save();

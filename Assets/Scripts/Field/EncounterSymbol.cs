@@ -55,6 +55,7 @@ namespace ShadowTheater.Field
         private bool _started;
         private bool _frozen;
         private float _cooldownUntil;
+        private float _respawnAt = -1f;
         private Coroutine _ai;
 
         // ────────────────────────────────────────────
@@ -91,7 +92,7 @@ namespace ShadowTheater.Field
             if (_ai == null) _ai = StartCoroutine(ResumeAfterFieldEnable());
         }
 
-        private void OnDisable() => _ai = null;
+        private void OnDisable() { StopAllCoroutines(); _ai = null; }
 
         private IEnumerator ResumeAfterFieldEnable()
         {
@@ -99,6 +100,7 @@ namespace ShadowTheater.Field
             // order. Wait until FieldGrid has restored its static reference before using it.
             while (FieldGrid.Current == null) yield return null;
             transform.position = FieldGrid.Current.CellToWorld(_cell);
+            if (silhouette != null) silhouette.enabled = IsActive;
             _ai = StartCoroutine(AIRoutine());
         }
 
@@ -146,7 +148,8 @@ namespace ShadowTheater.Field
                 case BattleResult.Victory:
                 case BattleResult.Captured:
                     if (IsFixed) { gameObject.SetActive(false); return; }
-                    StartCoroutine(RespawnRoutine());
+                    _respawnAt = Time.time + Mathf.Max(0f, respawnSeconds);
+                    SetVisible(false);
                     break;
 
                 case BattleResult.Escaped:
@@ -166,6 +169,13 @@ namespace ShadowTheater.Field
         {
             while (true)
             {
+                if (!IsActive && _respawnAt >= 0f && Time.time >= _respawnAt)
+                {
+                    _respawnAt = -1f;
+                    _cell = _home;
+                    transform.position = FieldGrid.Current.CellToWorld(_home);
+                    SetVisible(true);
+                }
                 if (_frozen || !IsActive || !wander)
                 {
                     yield return null;
@@ -232,15 +242,6 @@ namespace ShadowTheater.Field
         #endregion
 
         // ────────────────────────────────────────────
-
-        private IEnumerator RespawnRoutine()
-        {
-            SetVisible(false);
-            yield return new WaitForSeconds(respawnSeconds);
-            _cell = _home;
-            transform.position = FieldGrid.Current.CellToWorld(_home);
-            SetVisible(true);
-        }
 
         private IEnumerator BlinkRoutine(float duration)
         {

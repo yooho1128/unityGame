@@ -26,6 +26,8 @@ namespace ShadowTheater.Field
         private int _eligibleSteps;
         private bool _battlePending;
         private string _companionInstanceId;
+        private GameFlowController _flow;
+        private Coroutine _pendingEntrance;
 
         private IEnumerator Start()
         {
@@ -40,9 +42,10 @@ namespace ShadowTheater.Field
                 yield break;
             }
             _player = PlayerController.Instance;
-            if (_player == null) { enabled = false; yield break; }
+            _flow = GameFlowController.Instance;
+            if (_player == null || _flow == null) { enabled = false; yield break; }
             _player.OnStepFinished += OnStepFinished;
-            GameFlowController.Instance.OnBattleFlowFinished += OnBattleFinished;
+            _flow.OnBattleFlowFinished += OnBattleFinished;
             _companionInstanceId = SaveManager.Current?.companionInstanceId;
             SaveManager.PartyChanged += OnPartyChanged;
             ResetCounter();
@@ -51,9 +54,20 @@ namespace ShadowTheater.Field
         private void OnDestroy()
         {
             if (_player != null) _player.OnStepFinished -= OnStepFinished;
-            if (GameFlowController.Instance != null)
-                GameFlowController.Instance.OnBattleFlowFinished -= OnBattleFinished;
+            if (_flow != null) _flow.OnBattleFlowFinished -= OnBattleFinished;
             SaveManager.PartyChanged -= OnPartyChanged;
+        }
+
+        private void OnDisable()
+        {
+            if (_pendingEntrance != null) StopCoroutine(_pendingEntrance);
+            _pendingEntrance = null;
+            _battlePending = false;
+        }
+
+        private void OnEnable()
+        {
+            if (_flow != null) ResetCounter();
         }
 
         private void OnStepFinished(Vector2Int _)
@@ -77,26 +91,34 @@ namespace ShadowTheater.Field
             int level = UnityEngine.Random.Range(minLevel, maxLevel + 1);
             level = IntroEncounterPolicy.ClampLevel(region, level, SaveManager.Current?.party);
             _battlePending = true;
-            StartCoroutine(BeginEncounter(candidate, level, region, world));
+            _pendingEntrance = StartCoroutine(BeginEncounter(candidate, level, region, world));
         }
 
         private IEnumerator BeginEncounter(EncounterCandidate candidate, int level, RegionData region,
             FieldWorldSnapshot world)
         {
-            if (candidate.shadow.growthTier == GrowthTier.Rare)
+            try
             {
-                SaveFeedbackController.Instance?.ShowMessage(FieldWorldState.RareEncounterSignal(world));
-                yield return new WaitForSecondsRealtime(.8f);
+                // Defer one frame so a simultaneous symbol/portal transition can take priority.
+                yield return null;
+                if (candidate.shadow.growthTier == GrowthTier.Rare)
+                {
+                    SaveFeedbackController.Instance?.ShowMessage(FieldWorldState.RareEncounterSignal(world));
+                    yield return new WaitForSecondsRealtime(.8f);
+                }
+                if (_flow == null || !_flow.CanStartEncounter)
+                { ResetCounter(); yield break; }
+                _flow.StartRandomBattle(new List<ShadowInstance> { new ShadowInstance(candidate.shadow, level) }, region);
             }
-            if (GameFlowController.Instance == null || !GameFlowController.Instance.CanStartEncounter)
-            { _battlePending = false; yield break; }
-            GameFlowController.Instance.StartRandomBattle(
-                new List<ShadowInstance> { new ShadowInstance(candidate.shadow, level) }, region);
+            finally
+            {
+                _battlePending = false;
+                _pendingEntrance = null;
+            }
         }
 
         private void OnBattleFinished(BattleContext context, BattleOutcome outcome)
         {
-            if (!_battlePending || context?.mode != BattleMode.Wild) return;
             _battlePending = false;
             ResetCounter();
         }

@@ -14,7 +14,8 @@ namespace ShadowTheater.Field
 
         [SerializeField, Min(0f)] private float arrivalPortalCooldown = 0.65f;
         public bool IsTransitioning { get; private set; }
-        public bool CanTravel => !IsTransitioning && Time.unscaledTime >= _travelEnabledAt;
+        public bool CanTravel => !IsTransitioning && Time.unscaledTime >= _travelEnabledAt
+            && (GameFlowController.Instance == null || !GameFlowController.Instance.IsInBattle);
 
         private float _travelEnabledAt;
 
@@ -127,6 +128,7 @@ namespace ShadowTheater.Field
             }
 
             _travelEnabledAt = Time.unscaledTime + arrivalPortalCooldown;
+            GameFlowController.Instance?.AllowTimeToLeave();
             IsTransitioning = false;
             SaveFeedbackController.Instance?.ShowSaved();
         }

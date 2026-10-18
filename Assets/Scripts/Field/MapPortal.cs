@@ -21,6 +21,16 @@ namespace ShadowTheater.Field
         [SerializeField] private TraversalAbility requiredTraversalAbilities;
 
         private float _nextFeedbackAt;
+        public string DestinationName
+        {
+            get
+            {
+                var region = RegionRepository.GetByScene(targetScene);
+                if (region == null || RegionProgress.GetKnowledge(region) == RegionMapKnowledge.Hidden)
+                    return L10n.Get("portal.unknown_destination", "알 수 없는 길");
+                return L10n.Text(region.displayName);
+            }
+        }
 
         private void Reset()
         {
@@ -35,7 +45,7 @@ namespace ShadowTheater.Field
 
         public void Interact(PlayerController player)
         {
-            if (!activateOnTouch) TryTravel();
+            TryTravel();
         }
 
         private void TryTravel()
