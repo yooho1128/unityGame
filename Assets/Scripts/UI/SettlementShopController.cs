@@ -27,6 +27,7 @@ namespace ShadowTheater.UI
 
         private readonly List<GameObject> _spawned = new List<GameObject>();
         private bool _lockedPlayer;
+        private bool _refreshPending;
         public bool IsOpen { get; private set; }
 
         private void Awake()
@@ -80,6 +81,7 @@ namespace ShadowTheater.UI
                 _lockedPlayer = true;
             }
             if (feedbackText != null) feedbackText.text = string.Empty;
+            if (contentRoot is RectTransform content) content.anchoredPosition = Vector2.zero;
             Refresh();
         }
 
@@ -127,8 +129,9 @@ namespace ShadowTheater.UI
 
         private void Refresh(bool clearFeedback = false)
         {
-            foreach (GameObject entry in _spawned) Destroy(entry);
-            _spawned.Clear();
+            _refreshPending = false;
+            Vector2 position = UiListLayout.Position(contentRoot);
+            UiListLayout.Clear(_spawned);
             if (SaveManager.Current == null || ShadowDatabase.Instance == null) return;
             RegionData region = RegionRepository.GetByScene(SaveManager.Current.mapId);
             if (regionText != null)
@@ -157,12 +160,7 @@ namespace ShadowTheater.UI
                 view.Bind(item, SaveManager.GetItemCount(item.itemId), SaveManager.Current.gold, Buy, Sell);
                 _spawned.Add(view.gameObject);
             }
-            if (contentRoot is RectTransform content)
-            {
-                Canvas.ForceUpdateCanvases();
-                LayoutRebuilder.ForceRebuildLayoutImmediate(content);
-                content.anchoredPosition = new Vector2(content.anchoredPosition.x, 0f);
-            }
+            UiListLayout.Rebuild(contentRoot, position);
         }
 
         private bool CanOpen()
@@ -181,7 +179,8 @@ namespace ShadowTheater.UI
             if (openButton != null) openButton.gameObject.SetActive(IsSettlement());
         }
 
-        private void RefreshIfOpen() { if (IsOpen) Refresh(); else RefreshAvailability(); }
+        private void RefreshIfOpen() { if (IsOpen) _refreshPending = true; else RefreshAvailability(); }
+        private void LateUpdate() { if (IsOpen && _refreshPending) Refresh(); }
         private void ReleasePlayer() { if (!_lockedPlayer) return; PlayerController.Instance?.Unlock(); _lockedPlayer = false; }
     }
 }

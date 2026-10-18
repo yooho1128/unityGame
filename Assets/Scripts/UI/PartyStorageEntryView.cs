@@ -30,7 +30,7 @@ namespace ShadowTheater.UI
             if (portrait != null) { portrait.sprite = instance.Silhouette; portrait.color = ShadowPortraitStyle.Tint(portrait.sprite); portrait.preserveAspect = true; }
             if (hpFill != null) hpFill.fillAmount = instance.MaxHp > 0 ? (float)instance.currentHp / instance.MaxHp : 0f;
             if (expFill != null) expFill.fillAmount = instance.ExpProgress;
-            if (nameText != null) nameText.text = instance.DisplayName;
+            if (nameText != null) nameText.text = L10n.Text(instance.DisplayName);
             if (infoText != null) infoText.text = $"Lv.{instance.level}  HP {instance.currentHp}/{instance.MaxHp}";
             if (stageText != null) stageText.text = MemoryAwakeningService.StageLabel(instance);
             if (expText != null) expText.text = instance.IsMaxLevel ? "EXP MAX" : $"EXP {instance.exp} / {instance.ExpToNext}";
@@ -43,10 +43,10 @@ namespace ShadowTheater.UI
             button.onClick.AddListener(Select); _bound = true;
         }
         private void Select() => _onSelected?.Invoke(_instance);
-        public void SetSelected(string instanceId)
+        public void SetSelected(string instanceId, string secondaryId = null)
         {
             if (button?.targetGraphic != null)
-                button.targetGraphic.color = _instance?.instanceId == instanceId
+                button.targetGraphic.color = _instance?.instanceId == instanceId || _instance?.instanceId == secondaryId
                     ? new Color(.24f, .15f, .38f) : new Color(.07f, .05f, .12f);
         }
     }

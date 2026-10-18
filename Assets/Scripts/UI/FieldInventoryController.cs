@@ -27,6 +27,7 @@ namespace ShadowTheater.UI
         private ItemData _selectedItem;
         private ShadowInstance _selectedTarget;
         private bool _lockedPlayer;
+        private bool _refreshPending;
         public bool IsOpen { get; private set; }
 
         private void Awake()
@@ -66,6 +67,8 @@ namespace ShadowTheater.UI
                 PlayerController.Instance.Lock(); _lockedPlayer = true;
             }
             _selectedItem = null; _selectedTarget = null;
+            if (itemContent is RectTransform itemRect) itemRect.anchoredPosition = Vector2.zero;
+            if (targetContent is RectTransform targetRect) targetRect.anchoredPosition = Vector2.zero;
             if (feedbackText != null) feedbackText.text = string.Empty;
             Refresh();
         }
@@ -84,13 +87,16 @@ namespace ShadowTheater.UI
                 feedbackText.text = message;
                 feedbackText.color = success ? new Color(.55f,1f,.72f) : new Color(1f,.58f,.67f);
             }
+            GameFeedbackAudio.Play(success ? FeedbackCue.Heal : FeedbackCue.Denied);
             if (success) SaveManager.Instance.Save();
             Refresh(false);
         }
 
         private void Refresh(bool clearFeedback = false)
         {
-            foreach (GameObject go in _spawned) Destroy(go); _spawned.Clear();
+            _refreshPending = false;
+            Vector2 itemPosition = UiListLayout.Position(itemContent), targetPosition = UiListLayout.Position(targetContent);
+            UiListLayout.Clear(_spawned);
             var save = SaveManager.Current; if (save == null || ShadowDatabase.Instance == null) return;
             if (goldText != null) goldText.text = L10n.Format("menu.gold_value", "보유 금화 · {0:N0}", save.gold);
             if (clearFeedback && feedbackText != null) feedbackText.text = string.Empty;
@@ -104,8 +110,9 @@ namespace ShadowTheater.UI
             {
                 var view = Instantiate(targetTemplate, targetContent); view.Bind(target, SelectTarget); _spawned.Add(view.gameObject);
             }
-            Rebuild(itemContent); Rebuild(targetContent);
+            UiListLayout.Rebuild(itemContent, itemPosition); UiListLayout.Rebuild(targetContent, targetPosition);
             if (_selectedItem != null && SaveManager.GetItemCount(_selectedItem.itemId) <= 0) _selectedItem = null;
+            if (_selectedTarget != null && !save.party.Contains(_selectedTarget)) _selectedTarget = null;
             RefreshSelection();
         }
 
@@ -114,15 +121,22 @@ namespace ShadowTheater.UI
 
         private void RefreshSelection()
         {
+            bool usable = SaveManager.TryPreviewFieldItem(_selectedItem, _selectedTarget, out _, out _, out string preview);
             if (selectedItemText != null) selectedItemText.text = _selectedItem != null
                 ? L10n.Text(_selectedItem.displayName) + $"  x{SaveManager.GetItemCount(_selectedItem.itemId)}"
                 : L10n.Get("inventory.select_item", "도구를 선택하세요");
             if (descriptionText != null) descriptionText.text = _selectedItem != null ? L10n.Text(_selectedItem.description) : string.Empty;
+            if (descriptionText != null && _selectedItem != null)
+                descriptionText.text += "\n" + preview;
             if (selectedTargetText != null) selectedTargetText.text = _selectedTarget != null
                 ? L10n.Text(_selectedTarget.DisplayName) + $" · HP {_selectedTarget.currentHp}/{_selectedTarget.MaxHp}"
                 : L10n.Get("inventory.select_target", "사용할 그림자를 선택하세요");
-            if (useButton != null) useButton.interactable = _selectedItem != null && _selectedTarget != null &&
-                _selectedItem.usableInField && !_selectedTarget.IsFainted && _selectedTarget.currentHp < _selectedTarget.MaxHp;
+            if (useButton != null) useButton.interactable = usable;
+            foreach (var row in _spawned)
+            {
+                row.GetComponent<InventoryItemEntryView>()?.SetSelected(_selectedItem?.itemId);
+                row.GetComponent<InventoryTargetEntryView>()?.SetSelected(_selectedTarget?.instanceId);
+            }
         }
 
         private bool CanOpen()
@@ -130,13 +144,8 @@ namespace ShadowTheater.UI
             return FieldUiModalState.CanOpen(FieldUiModal.Inventory);
         }
 
-        private static void Rebuild(Transform parent)
-        {
-            if (!(parent is RectTransform content)) return;
-            Canvas.ForceUpdateCanvases(); LayoutRebuilder.ForceRebuildLayoutImmediate(content);
-            content.anchoredPosition = new Vector2(content.anchoredPosition.x, 0f);
-        }
-        private void RefreshIfOpen() { if (IsOpen) Refresh(); }
+        private void RefreshIfOpen() { if (IsOpen) _refreshPending = true; }
+        private void LateUpdate() { if (IsOpen && _refreshPending) Refresh(); }
         private void ReleasePlayer() { if (!_lockedPlayer) return; PlayerController.Instance?.Unlock(); _lockedPlayer = false; }
     }
 }

@@ -14,12 +14,14 @@ namespace ShadowTheater.UI
         [SerializeField] private Text hpText;
         private ShadowInstance _target;
         private Action<ShadowInstance> _onSelect;
+        private bool _bound;
 
-        private void Awake() { if (button == null) button = GetComponent<Button>(); button?.onClick.AddListener(Select); }
+        private void Awake() => EnsureBinding();
         private void OnDestroy() => button?.onClick.RemoveListener(Select);
 
         public void Bind(ShadowInstance target, Action<ShadowInstance> onSelect)
         {
+            EnsureBinding();
             _target = target; _onSelect = onSelect;
             if (portrait != null) { portrait.sprite = target.Silhouette; portrait.color = ShadowPortraitStyle.Tint(portrait.sprite); portrait.preserveAspect = true; }
             if (hpFill != null) hpFill.fillAmount = target.MaxHp > 0 ? (float)target.currentHp / target.MaxHp : 0f;
@@ -30,5 +32,16 @@ namespace ShadowTheater.UI
         }
 
         private void Select() => _onSelect?.Invoke(_target);
+        private void EnsureBinding()
+        {
+            if (button == null) button = GetComponent<Button>();
+            if (_bound || button == null) return;
+            button.onClick.AddListener(Select); _bound = true;
+        }
+        public void SetSelected(string instanceId)
+        {
+            if (button?.targetGraphic != null) button.targetGraphic.color = _target != null && _target.instanceId == instanceId
+                ? new Color(.24f,.15f,.38f) : new Color(.08f,.055f,.14f);
+        }
     }
 }

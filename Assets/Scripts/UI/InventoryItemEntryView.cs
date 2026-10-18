@@ -14,12 +14,14 @@ namespace ShadowTheater.UI
         [SerializeField] private Text useText;
         private ItemData _item;
         private Action<ItemData> _onSelect;
+        private bool _bound;
 
-        private void Awake() { if (button == null) button = GetComponent<Button>(); button?.onClick.AddListener(Select); }
+        private void Awake() => EnsureBinding();
         private void OnDestroy() => button?.onClick.RemoveListener(Select);
 
         public void Bind(ItemData item, int count, Action<ItemData> onSelect)
         {
+            EnsureBinding();
             _item = item; _onSelect = onSelect;
             if (icon != null) { icon.sprite = item.icon; icon.enabled = item.icon != null; icon.preserveAspect = true; }
             if (nameText != null) nameText.text = L10n.Text(item.displayName);
@@ -32,5 +34,16 @@ namespace ShadowTheater.UI
         }
 
         private void Select() => _onSelect?.Invoke(_item);
+        private void EnsureBinding()
+        {
+            if (button == null) button = GetComponent<Button>();
+            if (_bound || button == null) return;
+            button.onClick.AddListener(Select); _bound = true;
+        }
+        public void SetSelected(string itemId)
+        {
+            if (button?.targetGraphic != null) button.targetGraphic.color = _item != null && _item.itemId == itemId
+                ? new Color(.24f,.15f,.38f) : new Color(.08f,.055f,.14f);
+        }
     }
 }

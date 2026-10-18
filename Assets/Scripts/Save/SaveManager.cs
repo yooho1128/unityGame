@@ -6,6 +6,7 @@ using ShadowTheater.Battle;
 using ShadowTheater.Data;
 using ShadowTheater.Field;
 using ShadowTheater.Story;
+using ShadowTheater.UI;
 using UnityEngine;
 
 namespace ShadowTheater.Save
@@ -696,7 +697,7 @@ namespace ShadowTheater.Save
             Current.party.RemoveAt(index);
             Current.storage.Add(target);
             if (Current.companionInstanceId == target.instanceId)
-                Current.companionInstanceId = Current.party[0].instanceId;
+                Current.companionInstanceId = (Current.party.Find(x => !x.IsFainted) ?? Current.party[0]).instanceId;
             PartyChanged?.Invoke();
             return true;
         }
@@ -710,6 +711,31 @@ namespace ShadowTheater.Save
             Current.storage.RemoveAt(index);
             Current.party.Add(target);
             PartyChanged?.Invoke();
+            return true;
+        }
+
+        public static bool CanSwapPartyStorage(string partyId, string storageId)
+        {
+            if (Current == null || string.IsNullOrEmpty(partyId) || string.IsNullOrEmpty(storageId)) return false;
+            var outgoing = Current.party.Find(x => x.instanceId == partyId);
+            var incoming = Current.storage.Find(x => x.instanceId == storageId);
+            return outgoing != null && incoming != null && (!incoming.IsFainted ||
+                Current.party.Exists(x => x != outgoing && !x.IsFainted));
+        }
+
+        /// <summary>Swap two slots atomically, preserving at least one living party member.</summary>
+        public static bool TrySwapPartyStorage(string partyId, string storageId, out string message)
+        {
+            if (!CanSwapPartyStorage(partyId, storageId))
+            { message = L10n.Get("party.swap_invalid", "교체할 두 그림자를 선택하세요. 파티에는 전투 가능한 그림자가 한 명 이상 필요합니다."); return false; }
+            int partyIndex = Current.party.FindIndex(x => x.instanceId == partyId);
+            int storageIndex = Current.storage.FindIndex(x => x.instanceId == storageId);
+            var outgoing = Current.party[partyIndex]; var incoming = Current.storage[storageIndex];
+            Current.party[partyIndex] = incoming; Current.storage[storageIndex] = outgoing;
+            if (Current.companionInstanceId == outgoing.instanceId)
+                Current.companionInstanceId = !incoming.IsFainted ? incoming.instanceId : Current.party.Find(x => !x.IsFainted).instanceId;
+            PartyChanged?.Invoke();
+            message = L10n.Format("party.swap_done", "{0}을(를) 파티에 넣고 {1}을(를) 서고로 옮겼습니다.", L10n.Text(incoming.DisplayName), L10n.Text(outgoing.DisplayName));
             return true;
         }
 
@@ -805,36 +831,31 @@ namespace ShadowTheater.Save
             if (missing <= 0) { message = "이미 HP가 가득합니다."; return false; }
 
             ItemData best = null;
-            int bestWaste = int.MaxValue;
+            long bestWaste = long.MaxValue;
             foreach (var stack in Current.inventory)
             {
                 if (stack.count <= 0) continue;
                 ItemData item = ShadowDatabase.Instance != null ? ShadowDatabase.Instance.GetItem(stack.itemId) : null;
                 if (item == null || !item.usableInField ||
                     (item.effectType != ItemEffectType.HealFlat && item.effectType != ItemEffectType.HealRatio)) continue;
-                int amount = item.effectType == ItemEffectType.HealRatio
-                    ? Mathf.Max(1, Mathf.RoundToInt(target.MaxHp * Mathf.Clamp01(item.value)))
-                    : Mathf.Max(1, Mathf.RoundToInt(item.value));
-                amount = Mathf.CeilToInt(amount * CompanionBondService.CurrentPassive().fieldHealingMultiplier);
-                RegionData region = RegionRepository.GetByScene(Current.mapId);
-                amount = Mathf.Max(1, Mathf.RoundToInt(amount *
-                    FieldWorldState.FieldHealingMultiplier(FieldWorldState.Current(region))));
-                amount = CompanionBondService.ModifyFieldHealing(
-                    CompanionBondService.CurrentCompanionShadowId(), amount);
-                int waste = Mathf.Abs(amount - missing) + (amount < missing ? missing : 0);
+                int amount = FieldHealingAmount(item, target);
+                long waste = Math.Abs((long)amount - missing) + (amount < missing ? missing : 0);
                 if (waste < bestWaste) { best = item; bestWaste = waste; }
             }
             if (best == null) { message = "사용할 수 있는 회복 도구가 없습니다."; return false; }
             return TryUseFieldItem(best, target, out message);
         }
 
-        public static bool TryUseFieldItem(ItemData item, ShadowInstance target, out string message)
+        public static bool TryPreviewFieldItem(ItemData item, ShadowInstance target, out int restored, out int excess, out string message)
         {
+            restored = excess = 0;
             message = string.Empty;
             if (Current == null || item == null || GetItemCount(item.itemId) <= 0)
             { message = "보유하지 않은 도구입니다."; return false; }
+            if (item.effectType == ItemEffectType.TraversalTool)
+            { message = L10n.Get("inventory.traversal_hint", "이동 경로에서 자동으로 사용하는 도구입니다."); return false; }
             if (!item.usableInField)
-            { message = "이 도구는 전투 중에만 사용할 수 있습니다."; return false; }
+            { message = item.usableInBattle ? "이 도구는 전투 중에만 사용할 수 있습니다." : L10n.Get("inventory.passive_hint", "가방에서 직접 사용하는 도구가 아닙니다."); return false; }
             if (target == null || (!Current.party.Contains(target) && !Current.storage.Contains(target)))
             { message = "사용할 그림자를 선택하세요."; return false; }
             if (target.IsFainted)
@@ -843,6 +864,16 @@ namespace ShadowTheater.Save
             { message = "필드에서 사용할 수 없는 효과입니다."; return false; }
             if (target.currentHp >= target.MaxHp)
             { message = "이미 HP가 가득합니다."; return false; }
+            int amount = FieldHealingAmount(item, target);
+            restored = Mathf.Min(target.MaxHp - target.currentHp, amount);
+            excess = amount - restored;
+            message = excess > 0 ? L10n.Format("inventory.heal_preview_excess", "예상 회복 +{0} HP · 초과 {1}", restored, excess)
+                : L10n.Format("inventory.heal_preview", "예상 회복 +{0} HP", restored);
+            return restored > 0;
+        }
+
+        private static int FieldHealingAmount(ItemData item, ShadowInstance target)
+        {
             int healed = item.effectType == ItemEffectType.HealRatio
                 ? Mathf.Max(1, Mathf.RoundToInt(target.MaxHp * Mathf.Clamp01(item.value)))
                 : Mathf.Max(1, Mathf.RoundToInt(item.value));
@@ -852,11 +883,16 @@ namespace ShadowTheater.Save
                 FieldWorldState.FieldHealingMultiplier(FieldWorldState.Current(region))));
             healed = CompanionBondService.ModifyFieldHealing(
                 CompanionBondService.CurrentCompanionShadowId(), healed);
-            int before = target.currentHp;
-            target.currentHp = Mathf.Min(target.MaxHp, target.currentHp + healed);
+            return Mathf.Max(1, healed);
+        }
+
+        public static bool TryUseFieldItem(ItemData item, ShadowInstance target, out string message)
+        {
+            if (!TryPreviewFieldItem(item, target, out int restored, out _, out message)) return false;
+            target.currentHp += restored;
             AddItem(item.itemId, -1);
             PartyChanged?.Invoke();
-            message = $"{item.displayName} 사용 · HP {target.currentHp - before} 회복";
+            message = L10n.Format("inventory.heal_used", "{0} 사용 · HP {1} 회복", L10n.Text(item.displayName), restored);
             return true;
         }
 
