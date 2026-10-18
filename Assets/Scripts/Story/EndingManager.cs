@@ -39,7 +39,7 @@ namespace ShadowTheater.Story
             return best;
         }
 
-        public bool PlayResolvedEnding(Action<EndingDefinition> onComplete = null)
+        public bool PlayResolvedEnding(Action<EndingDefinition> onComplete = null, Action onCancelled = null)
         {
             var ending = ResolveEnding();
             if (ending == null)
@@ -50,12 +50,13 @@ namespace ShadowTheater.Story
 
             var dialogue = DialogueController.Instance;
             if (dialogue == null || dialogue.IsPlaying) return false;
-            AdaptiveMusicDirector.Instance?.PlayEnding();
-            return dialogue.Play(ending.dialogueId, endingAccent, () =>
+            bool started = dialogue.Play(ending.dialogueId, endingAccent, () =>
             {
                 Unlock(ending);
                 onComplete?.Invoke(ending);
-            });
+            }, onCancelled);
+            if (started) AdaptiveMusicDirector.Instance?.PlayEnding();
+            return started;
         }
 
         private static bool Matches(EndingDefinition ending)

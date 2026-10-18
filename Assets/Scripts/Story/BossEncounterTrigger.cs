@@ -69,7 +69,9 @@ namespace ShadowTheater.Story
             _busy = true;
 
             if (dialogue != null && !string.IsNullOrEmpty(preBattleDialogueId))
-                dialogue.Play(preBattleDialogueId, accent, StartBattle);
+            {
+                if (!dialogue.Play(preBattleDialogueId, accent, StartBattle, () => _busy = false)) _busy = false;
+            }
             else
                 StartBattle();
         }
@@ -105,7 +107,10 @@ namespace ShadowTheater.Story
 
             var dialogue = DialogueController.Instance;
             if (dialogue != null && !string.IsNullOrEmpty(victoryDialogueId))
-                dialogue.Play(victoryDialogueId, accent, FinishStory);
+            {
+                // 전투 승리 정산은 이미 끝났으므로 대사 누락이 다음 지역 진행을 막지 않게 한다.
+                if (!dialogue.Play(victoryDialogueId, accent, FinishStory, () => _busy = false)) FinishStory();
+            }
             else
                 FinishStory();
         }

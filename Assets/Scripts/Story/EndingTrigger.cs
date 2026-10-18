@@ -28,10 +28,10 @@ namespace ShadowTheater.Story
                 EndingManager.Instance == null) return;
 
             _busy = true;
-            DialogueController.Instance.Play(decisionDialogueId, decisionAccent, () =>
+            if (!DialogueController.Instance.Play(decisionDialogueId, decisionAccent, () =>
             {
-                if (!EndingManager.Instance.PlayResolvedEnding(_ => OnEndingComplete())) _busy = false;
-            });
+                if (!EndingManager.Instance.PlayResolvedEnding(_ => OnEndingComplete(), () => _busy = false)) _busy = false;
+            }, () => _busy = false)) _busy = false;
         }
 
         private void OnEndingComplete()

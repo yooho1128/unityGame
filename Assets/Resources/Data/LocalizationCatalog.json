@@ -1,5 +1,6 @@
 {
   "strings": [
+    {"key":"dialogue.unavailable","ko":"대화를 시작할 수 없습니다. 잠시 후 다시 시도해 주세요.","en":"The conversation is unavailable. Please try again shortly."},
     {"key":"save.failed","ko":"저장하지 못했습니다. 현재 게임을 유지하고 다시 저장해 주세요.","en":"Could not save. Keep this game open and try saving again."},
     {"key":"menu.title_unavailable","ko":"타이틀 화면을 열 수 없습니다. 현재 게임을 계속할 수 있습니다.","en":"The title screen is unavailable. You can continue the current game."},
     {"key":"battle.invalid_action","ko":"선택할 수 없는 행동입니다.","en":"This action is unavailable."},

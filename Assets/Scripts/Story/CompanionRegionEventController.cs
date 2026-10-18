@@ -103,7 +103,9 @@ namespace ShadowTheater.Story
         {
             Color accent = new Color(.75f, .65f, 1f);
             ColorUtility.TryParseHtmlString("#" + definition.accentHex.TrimStart('#'), out accent);
-            _playing = DialogueController.Instance.Play(definition.dialogueId, accent, () => Complete(definition));
+            var dialogue = DialogueController.Instance;
+            _playing = dialogue.Play(definition.dialogueId, accent, () => Complete(definition), () => _playing = false)
+                && dialogue.IsPlaying;
             return _playing;
         }
 

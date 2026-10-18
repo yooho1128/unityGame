@@ -35,15 +35,18 @@ namespace ShadowTheater.UI
         private int _lineIndex;
         private Coroutine _typingRoutine;
         private bool _isTyping;
-        private bool _lockedPlayer;
+        private PlayerController _lockedPlayer;
         private string _fullLine;
         private Action _onComplete;
+        private Action _onCancelled;
         private Action<int> _onChoice;
         private readonly List<DialogueChoice> _visibleChoices = new List<DialogueChoice>();
         private bool _awaitingChoice;
         private Coroutine _emotionRoutine;
         private Vector2 _dialogueBoxHome;
         private Color _baseAccent = new Color(.71f, .38f, 1f, 1f);
+        private int _lastInputFrame = -1;
+        private int _session;
 
         private void Awake()
         {
@@ -65,8 +68,12 @@ namespace ShadowTheater.UI
 
         private void OnDisable()
         {
+            SaveManager.CurrentChanged -= CancelForSaveChange;
             if (IsPlaying) Cancel(false);
         }
+
+        private void OnEnable() => SaveManager.CurrentChanged += CancelForSaveChange;
+        private void CancelForSaveChange() => Cancel(false);
 
         private void Update()
         {
@@ -80,29 +87,32 @@ namespace ShadowTheater.UI
 #endif
         }
 
-        public bool Play(string dialogueId, Color accent, Action onComplete = null)
+        public bool Play(string dialogueId, Color accent, Action onComplete = null, Action onCancelled = null)
         {
-            if (IsPlaying) return false;
+            if (!isActiveAndEnabled || IsPlaying) return false;
             if (!FieldUiModalState.CanOpen(FieldUiModal.Dialogue)) return false;
             if (!DialogueRepository.TryGet(dialogueId, out var sequence) || !HasContent(sequence))
             {
                 Debug.LogWarning($"[Dialogue] 비어 있거나 존재하지 않는 대화: {dialogueId}");
-                onComplete?.Invoke();
+                SaveFeedbackController.Instance?.ShowMessage(L10n.Get("dialogue.unavailable", "대화를 시작할 수 없습니다. 잠시 후 다시 시도해 주세요."));
                 return false;
             }
 
             _sequence = sequence;
             _lineIndex = 0;
             _onComplete = onComplete;
+            _onCancelled = onCancelled;
             IsPlaying = true;
+            _session++;
+            _lastInputFrame = Time.frameCount;
 
             _baseAccent = accent;
             if (accentBar != null) accentBar.color = accent;
             if (PlayerController.Instance != null)
             {
-                PlayerController.Instance.MoveInput = Vector2.zero;
-                PlayerController.Instance.Lock();
-                _lockedPlayer = true;
+                _lockedPlayer = PlayerController.Instance;
+                _lockedPlayer.MoveInput = Vector2.zero;
+                _lockedPlayer.Lock();
             }
 
             SetVisible(true);
@@ -111,19 +121,21 @@ namespace ShadowTheater.UI
             return true;
         }
 
-        public bool PlayDynamic(DialogueSequence sequence, Color accent, Action<int> onChoice = null, Action onComplete = null)
+        public bool PlayDynamic(DialogueSequence sequence, Color accent, Action<int> onChoice = null, Action onComplete = null, Action onCancelled = null)
         {
-            if(IsPlaying||sequence==null||!HasContent(sequence)||!FieldUiModalState.CanOpen(FieldUiModal.Dialogue))return false;
-            _sequence=sequence;_lineIndex=0;_onComplete=onComplete;_onChoice=onChoice;IsPlaying=true;_baseAccent=accent;
-            if(accentBar!=null)accentBar.color=accent;if(PlayerController.Instance!=null){PlayerController.Instance.MoveInput=Vector2.zero;PlayerController.Instance.Lock();_lockedPlayer=true;}
+            if(!isActiveAndEnabled||IsPlaying||sequence==null||!HasContent(sequence)||!FieldUiModalState.CanOpen(FieldUiModal.Dialogue))return false;
+            _sequence=sequence;_lineIndex=0;_onComplete=onComplete;_onCancelled=onCancelled;_onChoice=onChoice;IsPlaying=true;_baseAccent=accent;
+            _session++;_lastInputFrame=Time.frameCount;
+            if(accentBar!=null)accentBar.color=accent;if(PlayerController.Instance!=null){_lockedPlayer=PlayerController.Instance;_lockedPlayer.MoveInput=Vector2.zero;_lockedPlayer.Lock();}
             SetVisible(true);HideChoices();ShowNextAvailableLine();return true;
         }
 
         /// <summary>UI의 전체 화면 투명 버튼 또는 '다음' 버튼에 연결.</summary>
         public void Advance()
         {
-            if (!IsPlaying) return;
+            if (!IsPlaying || _lastInputFrame == Time.frameCount) return;
             if (_awaitingChoice) return;
+            _lastInputFrame = Time.frameCount;
             if (_isTyping)
             {
                 FinishTypingImmediately();
@@ -136,24 +148,45 @@ namespace ShadowTheater.UI
 
         public void SelectChoice(int visibleIndex)
         {
-            if (!_awaitingChoice || visibleIndex < 0 || visibleIndex >= _visibleChoices.Count) return;
+            if (!IsPlaying || !_awaitingChoice || _lastInputFrame == Time.frameCount ||
+                visibleIndex < 0 || visibleIndex >= _visibleChoices.Count) return;
+            _lastInputFrame = Time.frameCount;
             var choice = _visibleChoices[visibleIndex];
-            _onChoice?.Invoke(visibleIndex);
-
-            if (!string.IsNullOrEmpty(choice.setFlag))
-                SaveManager.SetFlag(choice.setFlag, choice.setFlagValue);
-            if (choice.flagChanges != null)
-            {
-                foreach (var change in choice.flagChanges)
-                    if (change != null && !string.IsNullOrEmpty(change.flag) && change.delta != 0)
-                        SaveManager.SetFlag(change.flag, SaveManager.GetFlag(change.flag) + change.delta);
-            }
-            if (!string.IsNullOrEmpty(choice.startQuestId))
-                QuestManager.Instance?.TryStartQuest(choice.startQuestId, false);
-
+            int session = _session;
+            var onChoice = _onChoice;
             HideChoices();
+            DialogueSequence next = null;
             if (!string.IsNullOrEmpty(choice.nextDialogueId) &&
-                DialogueRepository.TryGet(choice.nextDialogueId, out var next) && HasContent(next))
+                (!DialogueRepository.TryGet(choice.nextDialogueId, out next) || !HasContent(next)))
+            {
+                Debug.LogWarning($"[Dialogue] 다음 대화를 찾을 수 없습니다: {choice.nextDialogueId}");
+                Cancel(false);
+                SaveFeedbackController.Instance?.ShowMessage(L10n.Get("dialogue.unavailable", "대화를 시작할 수 없습니다. 잠시 후 다시 시도해 주세요."));
+                return;
+            }
+
+            try
+            {
+                if (!string.IsNullOrEmpty(choice.setFlag))
+                    SaveManager.SetFlag(choice.setFlag, choice.setFlagValue);
+                if (choice.flagChanges != null)
+                {
+                    foreach (var change in choice.flagChanges)
+                        if (change != null && !string.IsNullOrEmpty(change.flag) && change.delta != 0)
+                            SaveManager.SetFlag(change.flag, SaveManager.GetFlag(change.flag) + change.delta);
+                }
+                if (!string.IsNullOrEmpty(choice.startQuestId))
+                    QuestManager.Instance?.TryStartQuest(choice.startQuestId, false);
+                onChoice?.Invoke(visibleIndex);
+            }
+            catch
+            {
+                // 콜백이 다른 대화를 시작했다면 새 대화의 잠금과 상태를 건드리지 않는다.
+                if (_session == session) Cancel(false);
+                throw;
+            }
+            if (!IsPlaying || _session != session) return;
+            if (next != null)
             {
                 _sequence = next;
                 _lineIndex = 0;
@@ -166,7 +199,7 @@ namespace ShadowTheater.UI
         public void Cancel(bool invokeCompletion = false)
         {
             if (!IsPlaying) return;
-            var callback = invokeCompletion ? _onComplete : null;
+            var callback = invokeCompletion ? _onComplete : _onCancelled;
             Cleanup();
             callback?.Invoke();
         }
@@ -174,9 +207,9 @@ namespace ShadowTheater.UI
         private void ShowNextAvailableLine()
         {
             var lines = _sequence.lines;
-            while (lines != null && _lineIndex < lines.Count && !ConditionsPass(
+            while (lines != null && _lineIndex < lines.Count && (lines[_lineIndex] == null || !ConditionsPass(
                        lines[_lineIndex].requiredFlag, lines[_lineIndex].requiredFlagValue,
-                       lines[_lineIndex].blockedFlag))
+                       lines[_lineIndex].blockedFlag)))
                 _lineIndex++;
 
             if (lines == null || _lineIndex >= lines.Count)
@@ -280,7 +313,8 @@ namespace ShadowTheater.UI
             _isTyping = false;
             IsPlaying = false;
             _sequence = null;
-            _onComplete = null;_onChoice=null;
+            _onComplete = null;_onCancelled=null;_onChoice=null;
+            _session++;
             StopEmotionMotion();
             HideChoices();
             SetVisible(false);
@@ -304,14 +338,13 @@ namespace ShadowTheater.UI
         }
 
         private static bool HasContent(DialogueSequence sequence) =>
-            sequence != null && ((sequence.lines != null && sequence.lines.Count > 0) ||
-                                 (sequence.choices != null && sequence.choices.Count > 0));
+            sequence != null && ((sequence.lines != null && sequence.lines.Exists(line => line != null)) ||
+                                 (sequence.choices != null && sequence.choices.Exists(choice => choice != null)));
 
         private void ReleasePlayerLock()
         {
-            if (!_lockedPlayer) return;
-            if (PlayerController.Instance != null) PlayerController.Instance.Unlock();
-            _lockedPlayer = false;
+            if (_lockedPlayer != null) _lockedPlayer.Unlock();
+            _lockedPlayer = null;
         }
 
         private void SetVisible(bool visible)
