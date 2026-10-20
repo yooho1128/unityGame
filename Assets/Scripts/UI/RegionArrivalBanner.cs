@@ -1,5 +1,7 @@
 using System.Collections;
+using System.Collections.Generic;
 using ShadowTheater.Field;
+using ShadowTheater.Save;
 using ShadowTheater.Story;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -19,6 +21,7 @@ namespace ShadowTheater.UI
         [SerializeField] private Text actText;
         [SerializeField] private Text regionText;
         [SerializeField] private Text environmentText;
+        [SerializeField] private Text discoveryText;
         [SerializeField, Min(0f)] private float delay = .18f;
         [SerializeField, Min(.1f)] private float fadeIn = .32f;
         [SerializeField, Min(0f)] private float hold = 1.45f;
@@ -34,6 +37,13 @@ namespace ShadowTheater.UI
 
             RegionData region = RegionRepository.GetByScene(SceneManager.GetActiveScene().name);
             if (region == null) yield break;
+            bool hasReward = ExplorationRewardService.TryClaimArrival(region, out ExplorationReward reward);
+            if (discoveryText != null)
+            {
+                discoveryText.gameObject.SetActive(hasReward);
+                discoveryText.text = hasReward ? RewardText(reward) : string.Empty;
+            }
+            if (hasReward) SaveManager.Instance?.TrySave(false);
             if (actText != null) actText.text = L10n.Get($"region.{region.regionId}.act", L10n.Text(region.actTitle));
             if (regionText != null) regionText.text = L10n.Get($"region.{region.regionId}.name", L10n.Text(region.displayName));
             if (environmentText != null)
@@ -51,6 +61,20 @@ namespace ShadowTheater.UI
             yield return Fade(0f, 1f, fadeIn, 28f, 0f);
             if (hold > 0f) yield return new WaitForSecondsRealtime(hold);
             yield return Fade(1f, 0f, fadeOut, 0f, -18f);
+        }
+
+        private static string RewardText(ExplorationReward reward)
+        {
+            var parts = new List<string>();
+            if (reward.regionDiscovered) parts.Add(L10n.Get("exploration.new_region", "새 지역 기록"));
+            if (reward.gold > 0) parts.Add(L10n.Format("exploration.gold", "금화 +{0}", reward.gold));
+            if (reward.bondExperience > 0) parts.Add(L10n.Format("exploration.bond", "동행 유대 +{0}", reward.bondExperience));
+            if (reward.potionCount > 0) parts.Add(L10n.Format("exploration.potion", "작은 회복 시약 x{0}", reward.potionCount));
+            string text = string.Join(" · ", parts);
+            if (reward.milestone > 0)
+                text += "\n" + L10n.Format("exploration.milestone", "탐험 이정표 {0}/{1} 달성",
+                    reward.milestone, reward.totalRegions);
+            return text;
         }
 
         private void ConfigureRegionalArt(RegionData region)

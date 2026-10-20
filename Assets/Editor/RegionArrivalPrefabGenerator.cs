@@ -34,13 +34,15 @@ namespace ShadowTheater.EditorTools
             var act = Text("Act", card, new Vector2(.055f,.67f), new Vector2(.95f,.91f), 24, FontStyle.Bold, TextAnchor.MiddleCenter);
             act.color = new Color(.72f,.64f,.88f,1f);
             var region = Text("Region", card, new Vector2(.045f,.30f), new Vector2(.955f,.70f), 48, FontStyle.Bold, TextAnchor.MiddleCenter);
-            var environment = Text("Environment", card, new Vector2(.055f,.08f), new Vector2(.945f,.34f), 24, FontStyle.Normal, TextAnchor.MiddleCenter);
+            var environment = Text("Environment", card, new Vector2(.055f,.16f), new Vector2(.945f,.35f), 24, FontStyle.Normal, TextAnchor.MiddleCenter);
             environment.color = new Color(.72f,.70f,.80f,1f);
+            var discovery = Text("Discovery", card, new Vector2(.055f,.015f), new Vector2(.945f,.18f), 20, FontStyle.Bold, TextAnchor.MiddleCenter);
+            discovery.color = new Color(1f,.78f,.32f,1f); discovery.gameObject.SetActive(false);
 
             var banner = canvasGo.GetComponent<RegionArrivalBanner>(); var so = new SerializedObject(banner);
             Set(so,"root",group); Set(so,"card",card); Set(so,"accent",accent);
             Set(so,"atmosphereGlow",glow); Set(so,"motifLeft",motifLeft); Set(so,"motifRight",motifRight); Set(so,"actText",act);
-            Set(so,"regionText",region); Set(so,"environmentText",environment); so.ApplyModifiedPropertiesWithoutUndo();
+            Set(so,"regionText",region); Set(so,"environmentText",environment); Set(so,"discoveryText",discovery); so.ApplyModifiedPropertiesWithoutUndo();
             PrefabUtility.SaveAsPrefabAsset(canvasGo,PrefabPath); Object.DestroyImmediate(canvasGo);
             AssetDatabase.SaveAssets(); AssetDatabase.Refresh();
             Debug.Log("[Shadow Theater] 지역 진입 타이틀 UI 생성 완료");

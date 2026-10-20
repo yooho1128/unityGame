@@ -67,6 +67,6 @@ namespace ShadowTheater.Battle
         public IEnumerator ShowMessage(string m) => Log(m);
 
         public IEnumerator PlayResult(BattleOutcome o) =>
-            Log($"=== 결과: {o.result} / EXP {o.expGained} / Gold {o.goldGained} ===", 2f);
+            Log($"=== 결과: {o.result} / EXP {o.expGained} / Gold {o.goldGained} / Rank {o.performanceRank} ({o.performanceScore}) ===", 2f);
     }
 }

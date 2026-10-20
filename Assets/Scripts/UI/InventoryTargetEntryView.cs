@@ -41,7 +41,7 @@ namespace ShadowTheater.UI
         public void SetSelected(string instanceId)
         {
             if (button?.targetGraphic != null) button.targetGraphic.color = _target != null && _target.instanceId == instanceId
-                ? new Color(.24f,.15f,.38f) : new Color(.08f,.055f,.14f);
+                ? new Color(.25f,.76f,.51f) : new Color(1f,.995f,.96f);
         }
     }
 }

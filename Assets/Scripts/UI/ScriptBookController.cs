@@ -193,7 +193,20 @@ namespace ShadowTheater.UI
                 if (data.shadowId == selectedId) selected = data;
             }
 
-            if (progressText != null) progressText.text = L10n.Format("book.collection_progress", "조우 {0}\n기록 {1} / {2}", seen, recorded, total);
+            bool claimedReward = CollectionRewardService.TryClaim(recorded, total, out CollectionReward reward);
+            if (claimedReward) SaveManager.Instance?.TrySave(false);
+            if (progressText != null)
+            {
+                int nextMilestone = CollectionRewardService.NextMilestone(recorded, total);
+                progressText.text = claimedReward
+                    ? L10n.Format("book.collection_reward", "조우 {0} · 기록 {1}/{2}\n이정표 {3} · 금화 +{4} · 잉크 x{5}",
+                        seen, recorded, total, reward.milestone, reward.gold, reward.inkCount)
+                    : nextMilestone > 0
+                        ? L10n.Format("book.collection_progress", "조우 {0} · 기록 {1}/{2}\n다음 수집 보상 {3}",
+                            seen, recorded, total, nextMilestone)
+                        : L10n.Format("book.collection_complete", "조우 {0} · 기록 {1}/{2}\n수집 이정표 완료",
+                            seen, recorded, total);
+            }
             if (first != null) Select(selected ?? firstRecorded ?? firstSeen ?? first);
             else ShowEmptyDetail();
             UiListLayout.Rebuild(contentRoot, position);

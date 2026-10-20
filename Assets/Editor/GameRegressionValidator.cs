@@ -120,14 +120,20 @@ namespace ShadowTheater.EditorTools
             ShadowRosterArtBatch.Validate(result.errors);
             ValidateBattleAi(result);
             ValidateBattleActions(result);
+            ValidateBattleMomentum(result);
+            ValidateBattlePerformance(result);
             ValidateBattleRewards(result);
             ValidateBattleStatusDisplay(result);
             ValidateHiddenBattleGimmicks(result);
             ValidateRegionalEncounterPolicy(result);
             ValidateCompanionPassives(result);
             ValidateCompanionBondsAndWorldProgress(result);
+            ValidateExplorationRewards(result);
+            ValidateCollectionRewards(result);
+            ValidateJourneyOverviewPolicy(result);
             ValidateBossPhases(result);
             ValidateFieldWorldEffects(result);
+            ValidateFieldTraversalEffects(result);
             if (!File.Exists(RegionPath))
             {
                 result.errors.Add("RegionCatalog.json 누락");
@@ -612,6 +618,110 @@ namespace ShadowTheater.EditorTools
                 !BattleGimmickRules.IsEchoBreak(BattleGimmick.EchoSeal, "slash", "guard") ||
                 BattleGimmickRules.IsEchoRepeat(BattleGimmick.None, "slash", "slash"))
                 result.errors.Add("숨은 보스 메아리 기술 반복 판정 회귀 실패");
+        }
+
+        private static void ValidateBattleMomentum(ValidationReport result)
+        {
+            var momentum = new BattleMomentum();
+            var normal = new HitResult { damage = 40, elementMultiplier = 1f };
+            if (momentum.Apply(ref normal) || momentum.Value != 1 || normal.damage != 40)
+                result.errors.Add("열연 일반 명중 누적 회귀 실패");
+
+            var effective = new HitResult { damage = 40, elementMultiplier = 1.5f };
+            if (!momentum.Apply(ref effective) || momentum.Value != 0 || effective.damage != 50)
+                result.errors.Add("열연 앙코르 피해·초기화 회귀 실패");
+
+            var miss = new HitResult { missed = true, damage = 40, elementMultiplier = 1f };
+            normal.damage = 40;
+            momentum.Apply(ref normal);
+            if (momentum.Value != 1 || momentum.Apply(ref miss) || momentum.Value != 0)
+                result.errors.Add("열연 빗나감 초기화 회귀 실패");
+
+            var support = new HitResult { damage = 0, elementMultiplier = 1f };
+            momentum.Apply(ref normal);
+            if (momentum.Apply(ref support, false) || momentum.Value != 1)
+                result.errors.Add("열연 비공격 기술 유지 회귀 실패");
+        }
+
+        private static void ValidateBattlePerformance(ValidationReport result)
+        {
+            BattlePerformanceResult s = BattlePerformance.Evaluate(2, 1, 3, 1, 0, 100);
+            BattlePerformanceResult a = BattlePerformance.Evaluate(4, 1, 1, 1, 0, 100);
+            BattlePerformanceResult b = BattlePerformance.Evaluate(2, 1, 0, 0, 0, 100);
+            BattlePerformanceResult c = BattlePerformance.Evaluate(8, 1, 0, 0, 0, 100);
+            BattlePerformanceResult capped = BattlePerformance.Evaluate(1, 1, 99, 99, 0, int.MaxValue);
+            if (s.rank != "S" || s.score != 150 || s.bonusGold != 25 ||
+                a.rank != "A" || a.score != 110 || a.bonusGold != 15 ||
+                b.rank != "B" || b.score != 80 || b.bonusGold != 5 ||
+                c.rank != "C" || c.score != 70 || c.bonusGold != 0 ||
+                capped.bonusGold != 0)
+                result.errors.Add("전투 공연 등급·보너스 회귀 실패");
+        }
+
+        private static void ValidateExplorationRewards(ValidationReport result)
+        {
+            var opening = new RegionData { act = 1 };
+            var dungeon = new RegionData { act = 3, isDungeon = true };
+            var legendaryHidden = new RegionData { act = 8, isHidden = true, isLegendary = true };
+            if (ExplorationRewardService.RegionGold(opening) != 15 ||
+                ExplorationRewardService.RegionGold(dungeon) != 30 ||
+                ExplorationRewardService.RegionGold(legendaryHidden) != 85 ||
+                ExplorationRewardService.NextMilestone(0) != 5 ||
+                ExplorationRewardService.NextMilestone(5) != 10 ||
+                ExplorationRewardService.NextMilestone(62) != 63 ||
+                ExplorationRewardService.NextMilestone(63) != 0 ||
+                ExplorationRewardService.MilestoneGoldFor(5) != 50 ||
+                ExplorationRewardService.MilestoneGoldFor(63) != 1000 ||
+                ExplorationRewardService.MilestoneGoldFor(7) != 0)
+                result.errors.Add("지역 발견·누적 탐험 보상 회귀 실패");
+        }
+
+        private static void ValidateCollectionRewards(ValidationReport result)
+        {
+            if (CollectionRewardService.NextMilestone(0, 180) != 5 ||
+                CollectionRewardService.NextMilestone(5, 180) != 15 ||
+                CollectionRewardService.NextMilestone(150, 180) != 180 ||
+                CollectionRewardService.NextMilestone(180, 180) != 0 ||
+                CollectionRewardService.NextMilestone(150, 177) != 177 ||
+                CollectionRewardService.NextMilestone(177, 177) != 0 ||
+                CollectionRewardService.GoldFor(5) != 50 ||
+                CollectionRewardService.GoldFor(180) != 1800 ||
+                CollectionRewardService.GoldFor(7) != 0)
+                result.errors.Add("각본집 수집 이정표·보상 회귀 실패");
+        }
+
+        private static void ValidateJourneyOverviewPolicy(ValidationReport result)
+        {
+            if (JourneyOverviewService.Weighted(1, 2, 35) != 18 ||
+                JourneyOverviewService.Weighted(99, 10, 35) != 35 ||
+                JourneyOverviewService.Weighted(-1, 10, 35) != 0 ||
+                JourneyOverviewService.Weighted(1, 0, 35) != 0 ||
+                JourneyOverviewService.RankIndex(0) != 0 ||
+                JourneyOverviewService.RankIndex(20) != 1 ||
+                JourneyOverviewService.RankIndex(40) != 2 ||
+                JourneyOverviewService.RankIndex(60) != 3 ||
+                JourneyOverviewService.RankIndex(80) != 4 ||
+                JourneyOverviewService.RankIndex(100) != 5)
+                result.errors.Add("전체 여정 진행률·등급 정책 회귀 실패");
+        }
+
+        private static void ValidateFieldTraversalEffects(ValidationReport result)
+        {
+            if (FieldTraversalEffects.ResolveSurface("MeadowPixel_Grass", FootstepSurface.Stone) != FootstepSurface.Grass ||
+                FieldTraversalEffects.ResolveSurface("MeadowPixel_Path", FootstepSurface.Grass) != FootstepSurface.Stone ||
+                FieldTraversalEffects.ResolveSurface("MemorySea_Ground", FootstepSurface.Stone) != FootstepSurface.Water ||
+                FieldTraversalEffects.ResolveSurface("FrostPort_Ground", FootstepSurface.Stone) != FootstepSurface.Snow ||
+                FieldTraversalEffects.ResolveSurface("AshWastes_Ground", FootstepSurface.Stone) != FootstepSurface.Ash ||
+                FieldTraversalEffects.ResolveSurface("Unknown", FootstepSurface.Metal) != FootstepSurface.Metal)
+                result.errors.Add("풀·길·물·눈·재 지형 반응 판정 회귀 실패");
+            TraversalMotionProfile mud = FieldTraversalMotion.Profile("Marsh_Mud", Vector2Int.right, 0);
+            TraversalMotionProfile ice = FieldTraversalMotion.Profile("Frost_Ice", Vector2Int.up, 0);
+            TraversalMotionProfile ladderSide = FieldTraversalMotion.Profile("Tower_Ladder", Vector2Int.left, 0);
+            TraversalMotionProfile ledgeUp = FieldTraversalMotion.Profile("Cliff_Ledge", Vector2Int.up, 0);
+            TraversalMotionProfile dash = FieldTraversalMotion.Profile("Meadow_Path", Vector2Int.right, 4);
+            if (mud.durationMultiplier <= 1f || ice.durationMultiplier >= 1f || ice.overshoot <= 0f ||
+                ladderSide.allowed || ledgeUp.allowed || dash.durationMultiplier >= 1f)
+                result.errors.Add("달리기·진흙·얼음·사다리·턱 이동 프로필 회귀 실패");
         }
 
         private static void ValidateRegionalEncounterPolicy(ValidationReport result)
@@ -1427,7 +1537,27 @@ namespace ShadowTheater.EditorTools
                             walkableArrival != region.ArrivalCell)
                             result.errors.Add($"{region.sceneName}: 월드맵 도착 좌표가 막힘 {region.ArrivalCell}");
                     }
-                    if (!roots.Any(x => x.GetComponentInChildren<PlayerController>(true) != null)) result.errors.Add($"{region.sceneName}: Player 누락");
+                    PlayerController fieldPlayer = roots.SelectMany(x => x.GetComponentsInChildren<PlayerController>(true)).FirstOrDefault();
+                    if (fieldPlayer == null) result.errors.Add($"{region.sceneName}: Player 누락");
+                    else if (fieldPlayer.GetComponent<PixelFieldAnimator>() == null)
+                        result.errors.Add($"{region.sceneName}: 보폭 연동 플레이어 애니메이터 누락");
+                    else
+                    {
+                        PixelCharacterMotion bodyMotion = fieldPlayer.GetComponentInChildren<PixelCharacterMotion>(true);
+                        if (bodyMotion == null || bodyMotion.transform == fieldPlayer.transform)
+                            result.errors.Add($"{region.sceneName}: 플레이어 시각 몸체·충돌 좌표 분리 모션 누락");
+                        if (fieldPlayer.GetComponent<FieldTraversalEffects>() == null)
+                            result.errors.Add($"{region.sceneName}: 풀·물 지형 반응 효과 누락");
+                        if (fieldPlayer.GetComponent<FieldEnvironmentReactor>() == null)
+                            result.errors.Add($"{region.sceneName}: 환경 연쇄 반응 컨트롤러 누락");
+                        if (fieldPlayer.GetComponent<FieldInteractionFeedback>() == null)
+                            result.errors.Add($"{region.sceneName}: 상호작용 대상 피드백 누락");
+                    }
+                    if (!roots.SelectMany(x => x.GetComponentsInChildren<FieldCameraFollow>(true)).Any())
+                        result.errors.Add($"{region.sceneName}: 이동 방향 카메라 추적 누락");
+                    foreach (StoryNpc npc in roots.SelectMany(x => x.GetComponentsInChildren<StoryNpc>(true)))
+                        if (npc.GetComponent<FieldNpcPresence>() == null)
+                            result.errors.Add($"{region.sceneName}: NPC 시선·발견 반응 누락 ({npc.name})");
                     if (!roots.Any(x => x.GetComponentInChildren<GroundContactShadow>(true) != null))
                         result.errors.Add($"{region.sceneName}: 필드 접지 그림자 누락");
                     if (!roots.Any(x => x.GetComponentInChildren<BattleStageBackdrop>(true) != null))
@@ -1515,7 +1645,7 @@ namespace ShadowTheater.EditorTools
                     else
                     {
                         var arrivalSo = new SerializedObject(arrival);
-                        foreach (string property in new[] { "root", "card", "accent", "actText", "regionText", "environmentText" })
+                        foreach (string property in new[] { "root", "card", "accent", "actText", "regionText", "environmentText", "discoveryText" })
                             if (arrivalSo.FindProperty(property)?.objectReferenceValue == null)
                                 result.errors.Add($"{region.sceneName}: 지역 진입 타이틀 {property} 참조 누락");
                     }
@@ -1561,6 +1691,9 @@ namespace ShadowTheater.EditorTools
                         foreach (string property in new[] { "root", "itemContent", "targetContent", "itemTemplate", "targetTemplate", "useButton" })
                             if (inventorySo.FindProperty(property)?.objectReferenceValue == null)
                                 result.errors.Add($"{region.sceneName}: 도구 가방 {property} 참조 누락");
+                        if (inventory.GetComponentsInChildren<Button>(true).Any(button =>
+                                button.GetComponent<HandheldButtonFeedback>() == null))
+                            result.errors.Add($"{region.sceneName}: 도구 가방 버튼 촉각 피드백 누락");
                     }
                     QuestLogController questLog = roots.SelectMany(x => x.GetComponentsInChildren<QuestLogController>(true)).FirstOrDefault();
                     if (questLog == null) result.errors.Add($"{region.sceneName}: 퀘스트 기록장 UI 누락");
@@ -1578,9 +1711,13 @@ namespace ShadowTheater.EditorTools
                         var pauseSo = new SerializedObject(pauseMenu);
                         if (pauseSo.FindProperty("root")?.objectReferenceValue == null ||
                             pauseSo.FindProperty("masterSlider")?.objectReferenceValue == null ||
+                            pauseSo.FindProperty("journeyText")?.objectReferenceValue == null ||
                             pauseSo.FindProperty("recoverPositionButton")?.objectReferenceValue == null ||
                             pauseSo.FindProperty("titleConfirmRoot")?.objectReferenceValue == null)
                             result.errors.Add($"{region.sceneName}: 필드 메뉴 참조 누락");
+                        if (pauseMenu.GetComponentsInChildren<Button>(true).Any(button =>
+                                button.GetComponent<HandheldButtonFeedback>() == null))
+                            result.errors.Add($"{region.sceneName}: 필드 메뉴 버튼 촉각 피드백 누락");
                     }
                     SaveFeedbackController saveFeedback = roots.SelectMany(x => x.GetComponentsInChildren<SaveFeedbackController>(true)).FirstOrDefault();
                     if (saveFeedback == null) result.errors.Add($"{region.sceneName}: 저장 완료 HUD 누락");
@@ -1622,8 +1759,9 @@ namespace ShadowTheater.EditorTools
                             .Any(i => clips.GetArrayElementAtIndex(i).objectReferenceValue == null))
                             result.errors.Add($"{region.sceneName}: 발걸음 클립 누락");
                     }
-                    if (!roots.SelectMany(x => x.GetComponentsInChildren<ShadowCompanionFollower>(true)).Any())
-                        result.errors.Add($"{region.sceneName}: 동행 그림자 추적기 누락");
+                    var companionFollowers = roots.SelectMany(x => x.GetComponentsInChildren<ShadowCompanionFollower>(true)).ToArray();
+                    if (companionFollowers.Length != 1)
+                        result.errors.Add($"{region.sceneName}: 동행 그림자 발자국 추적기 수 불일치 ({companionFollowers.Length}/1)");
                     if (!roots.SelectMany(x => x.GetComponentsInChildren<CompanionRegionEventController>(true)).Any())
                         result.errors.Add($"{region.sceneName}: 동행 지역 이벤트 컨트롤러 누락");
                     foreach (GameObject root in roots)

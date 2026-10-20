@@ -36,7 +36,6 @@ namespace ShadowTheater.Data
                 var shadow = ShadowDatabase.Instance.GetShadow(entry.shadowId);
                 if (shadow == null || entry.portrait == null) continue;
                 shadow.silhouetteSprite = entry.portrait;
-                shadow.fieldFrames = new[] { entry.portrait };
             }
         }
 
@@ -44,12 +43,13 @@ namespace ShadowTheater.Data
         {
             if (renderer == null || shadow == null) return;
             if (_current == null) _current = Resources.Load<ShadowArtRoster>("ShadowArtRoster");
-            Sprite image = _current != null ? _current.Portrait(shadow.shadowId) : null;
+            Sprite image = shadow.fieldFrames != null && shadow.fieldFrames.Length > 0
+                ? shadow.fieldFrames[0] : null;
             if (image == null) return;
             renderer.sprite = image;
             FieldSpriteSizing.Fit(renderer, .95f);
             var motion = renderer.GetComponent<ShadowFieldMotion>();
-            if (motion != null) motion.Configure(shadow, new[] { image });
+            if (motion != null) motion.Configure(shadow, shadow.fieldFrames);
         }
     }
 }

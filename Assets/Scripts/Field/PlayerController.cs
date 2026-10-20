@@ -23,7 +23,7 @@ namespace ShadowTheater.Field
         [SerializeField] private float turnOnlyDelay = 0.06f; // 방향만 바꿀 때 짧은 대기 (제자리 회전)
         [SerializeField] private SpriteRenderer silhouette;
         [SerializeField] private Animator animator;          // 선택: 파라미터 "Dir"(int), "Moving"(bool)
-        [SerializeField] private float bobHeight = 0.04f;    // 프레임 애니 없이 걷는 느낌 주는 상하 흔들림
+        [SerializeField] private float bobHeight = 0.025f;   // 격자 판정을 흐리지 않는 작은 체중 이동
 
         /// <summary>가상 패드가 매 프레임 써 넣는 입력값</summary>
         [NonSerialized] public Vector2 MoveInput;
@@ -31,14 +31,21 @@ namespace ShadowTheater.Field
         public Vector2Int Cell { get; private set; }
         public FacingDir Facing { get; private set; } = FacingDir.Down;
         public bool IsMoving { get; private set; }
+        public float StepProgress { get; private set; }
+        public int CompletedSteps { get; private set; }
         public bool IsLocked => _lockCount > 0;
 
         /// <summary>한 칸 이동 완료 (발소리, 랜덤 인카운터, 이벤트 타일 체크용)</summary>
         public event Action<Vector2Int> OnStepFinished;
+        /// <summary>이동이 시작될 때 출발 칸과 도착 칸을 전달한다. 동행자는 이 발자국을 따라간다.</summary>
+        public event Action<Vector2Int, Vector2Int> OnStepStarted;
 
         private int _lockCount;
         private Collider2D _collider;
         private FieldGrid _fieldGrid;
+        private Vector2Int _lastStepDirection;
+        private int _heldDirectionSteps;
+        private float _lastStepCompletedAt = -10f;
         private static readonly int DirHash = Animator.StringToHash("Dir");
         private static readonly int MovingHash = Animator.StringToHash("Moving");
 
@@ -61,6 +68,8 @@ namespace ShadowTheater.Field
             StopAllCoroutines();
             if (IsMoving && _fieldGrid != null) transform.position = _fieldGrid.CellToWorld(Cell);
             IsMoving = false;
+            StepProgress = 0f;
+            _heldDirectionSteps = 0;
             MoveInput = Vector2.zero;
             if (Instance == this) VirtualDPadButton.CancelInput();
             if (animator != null) animator.SetBool(MovingHash, false);
@@ -118,7 +127,13 @@ namespace ShadowTheater.Field
         public void TryInteract()
         {
             if (IsLocked || IsMoving) return;
-            if (TryGetInteraction(out var interaction)) interaction.Interact(this);
+            if (TryGetInteraction(out var interaction))
+            {
+                var component = interaction as Component;
+                if (component != null) FieldCameraFollow.Instance?.FocusOn(component.transform.position, .48f);
+                GetComponent<FieldInteractionFeedback>()?.PlayConfirm();
+                interaction.Interact(this);
+            }
         }
 
         public bool TryGetInteraction(out IInteractable interaction)
@@ -162,9 +177,22 @@ namespace ShadowTheater.Field
             SetFacing(newFacing);
 
             Vector2Int target = Cell + dir;
+            string tileName = FieldGrid.Current.GroundTileName(target);
+            int heldSteps = dir == _lastStepDirection && Time.time-_lastStepCompletedAt < .34f
+                ? _heldDirectionSteps + 1 : 0;
+            TraversalMotionProfile motion = FieldTraversalMotion.Profile(tileName, dir, heldSteps);
+            if (!motion.allowed)
+            {
+                FieldCameraFollow.Instance?.Nudge(-(Vector2)dir * .045f);
+                if (turned) yield return new WaitForSeconds(turnOnlyDelay);
+                IsMoving = false;
+                yield break;
+            }
             if (FieldGrid.Current.IsBlocked(target, _collider))
             {
                 // 막혀 있으면 방향만 전환
+                _heldDirectionSteps = 0;
+                FieldCameraFollow.Instance?.Nudge(-(Vector2)dir * .045f);
                 if (turned) yield return new WaitForSeconds(turnOnlyDelay);
                 IsMoving = false;
                 yield break;
@@ -174,22 +202,33 @@ namespace ShadowTheater.Field
 
             Vector3 from = transform.position;
             Vector3 to = FieldGrid.Current.CellToWorld(target);
+            OnStepStarted?.Invoke(Cell, target);
             Cell = target; // 출발 시점에 칸 예약 (심볼과 겹침 방지)
+            _lastStepDirection = dir;
+            _heldDirectionSteps = heldSteps;
 
             RegionData region = RegionRepository.GetByScene(SaveManager.Current?.mapId);
-            float duration = stepDuration * FieldWorldState.MovementDurationMultiplier(FieldWorldState.Current(region));
+            float duration = stepDuration * motion.durationMultiplier *
+                FieldWorldState.MovementDurationMultiplier(FieldWorldState.Current(region));
             float t = 0f;
             while (t < 1f)
             {
                 t += Time.deltaTime / Mathf.Max(.01f, duration);
-                Vector3 p = Vector3.Lerp(from, to, Mathf.Clamp01(t));
-                p.y += Mathf.Sin(Mathf.Clamp01(t) * Mathf.PI) * bobHeight;
+                StepProgress = Mathf.Clamp01(t);
+                // 칸 경계에서 완전히 멈추지 않으면서 출발과 착지에 미세한 무게를 준다.
+                float weighted = StepProgress - Mathf.Sin(StepProgress * Mathf.PI * 2f) * .035f;
+                if (motion.overshoot > 0f) weighted += Mathf.Sin(StepProgress * Mathf.PI) * motion.overshoot;
+                Vector3 p = Vector3.LerpUnclamped(from, to, weighted);
+                p.y += Mathf.Sin(StepProgress * Mathf.PI) * bobHeight * motion.arcMultiplier;
                 transform.position = p;
                 yield return null;
             }
             transform.position = to;
 
             IsMoving = false;
+            StepProgress = 0f;
+            CompletedSteps++;
+            _lastStepCompletedAt = Time.time;
             if (animator != null && ReadDirection() == Vector2Int.zero) animator.SetBool(MovingHash, false);
             OnStepFinished?.Invoke(Cell);
         }

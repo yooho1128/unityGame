@@ -89,9 +89,12 @@ namespace ShadowTheater.EditorTools
             {
                 if (shadow == null || string.IsNullOrEmpty(shadow.shadowId)) continue;
                 Sprite sprite = PortraitFor(shadow.shadowId);
-                if (sprite == null) continue;
-                shadow.silhouetteSprite = sprite;
-                shadow.fieldFrames = new[] { sprite };
+                if (sprite != null) shadow.silhouetteSprite = sprite;
+                Sprite[] fieldFrames = FieldFramesFor(shadow.shadowId);
+                if (fieldFrames != null) shadow.fieldFrames = fieldFrames;
+                else if (shadow.fieldFrames != null && shadow.fieldFrames.Any(frame =>
+                             frame == null || frame.rect.width != 24 || frame.rect.height != 32))
+                    shadow.fieldFrames = Array.Empty<Sprite>();
                 EditorUtility.SetDirty(shadow);
             }
         }
@@ -101,11 +104,18 @@ namespace ShadowTheater.EditorTools
 
         public static bool HasDedicatedPortrait(string id) => PortraitFor(id) != null;
 
+        public static Sprite[] FieldFramesFor(string id)
+        {
+            var first = AssetDatabase.LoadAssetAtPath<Sprite>($"{FieldFolder}/{id}_01.png");
+            var second = AssetDatabase.LoadAssetAtPath<Sprite>($"{FieldFolder}/{id}_02.png");
+            return first != null && second != null ? new[] { first, second } : null;
+        }
+
         public static bool HasDedicatedFieldArt(ShadowData shadow)
         {
             if (shadow == null) return false;
-            Sprite portrait = PortraitFor(shadow.shadowId);
-            return portrait != null && shadow.fieldFrames != null && shadow.fieldFrames.Contains(portrait);
+            Sprite[] frames = FieldFramesFor(shadow.shadowId);
+            return frames != null && shadow.fieldFrames != null && frames.All(frame => shadow.fieldFrames.Contains(frame));
         }
 
         private static FinalArtCoverageReport BuildReport(List<string> invalid)

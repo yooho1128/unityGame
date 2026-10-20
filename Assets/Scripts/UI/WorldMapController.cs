@@ -113,7 +113,13 @@ namespace ShadowTheater.UI
             }
             int visited = ordered.Count(x => RegionProgress.GetState(x) == RegionMapState.Visited ||
                 RegionProgress.GetState(x) == RegionMapState.Current);
-            if (progressText != null) progressText.text = L10n.Format("map.progress", "방문 {0} / {1}", visited, ordered.Count);
+            if (progressText != null)
+            {
+                int nextMilestone = ExplorationRewardService.NextMilestone(visited);
+                progressText.text = nextMilestone > 0
+                    ? L10n.Format("map.progress", "탐험 {0}/{1} · 다음 {2}", visited, ordered.Count, nextMilestone)
+                    : L10n.Format("map.progress_complete", "탐험 {0}/{1} · 완료", visited, ordered.Count);
+            }
             var current = RegionRepository.GetByScene(SaveManager.Current?.mapId);
             var selected = ordered.FirstOrDefault(x => x.regionId == selectedId &&
                 RegionProgress.GetKnowledge(x) != RegionMapKnowledge.Hidden &&

@@ -54,7 +54,7 @@ namespace ShadowTheater.EditorTools
             foreach (string field in new[] { "optionRoot", "resultRoot", "tutorialRoot" })
                 (controller.FindProperty(field)?.objectReferenceValue as GameObject)?.SetActive(false);
             (controller.FindProperty("actionRoot")?.objectReferenceValue as GameObject)?.SetActive(true);
-            SetText(controller, "turnText", "TURN 01"); SetText(controller, "fpText", "FP 5 / 10");
+            SetText(controller, "turnText", "TURN 01"); SetText(controller, "fpText", "FP 5 / 5\n열연 2 / 3");
             SetText(controller, "messageText", "기억을 되찾기 위한 무대가 열립니다.");
             foreach (BattleUnitPanel panel in root.GetComponentsInChildren<BattleUnitPanel>(true))
             {

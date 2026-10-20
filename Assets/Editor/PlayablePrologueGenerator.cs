@@ -901,20 +901,6 @@ namespace ShadowTheater.EditorTools
 
         private static void FinishFieldScene(FieldSceneContext context, string sceneName)
         {
-            foreach (MonoBehaviour npc in context.fieldRoot.GetComponentsInChildren<MonoBehaviour>(true))
-            {
-                bool friendly = npc is StoryNpc || npc is TownHealerNpc || npc is TownRumorNpc ||
-                    npc is TownRecoveryNpc || npc is BossInvestigatorNpc;
-                if (!friendly) continue;
-                SpriteRenderer renderer = npc.GetComponentsInChildren<SpriteRenderer>(true).FirstOrDefault(x => x.name == "Visual");
-                if (renderer == null) continue;
-                string cast = npc.name == "Aria" ? "Guide" : npc is TownHealerNpc ? "Healer"
-                    : npc is TownRumorNpc ? "Scholar" : npc is BossInvestigatorNpc ? "Guard"
-                    : npc is TownRecoveryNpc ? "Merchant" : "Messenger";
-                renderer.sprite = FieldArtAtlasImporter.Actor(cast); renderer.color = Color.white;
-                FieldSpriteSizing.Fit(renderer);
-                renderer.GetComponent<ShadowFieldMotion>()?.Configure(null, new[] { renderer.sprite });
-            }
             foreach (EncounterSymbol symbol in context.fieldRoot.GetComponentsInChildren<EncounterSymbol>(true))
                 if (!symbol.IsFixed) Object.DestroyImmediate(symbol.gameObject);
             Save(context.scene, sceneName);
@@ -922,12 +908,14 @@ namespace ShadowTheater.EditorTools
 
         private static PlayerController CreatePlayer(Transform parent, Vector2Int cell, Theme theme)
         {
-            var go = new GameObject("Player", typeof(SpriteRenderer), typeof(Rigidbody2D),
+            var go = new GameObject("Player", typeof(Rigidbody2D),
                 typeof(CapsuleCollider2D), typeof(PlayerController));
             go.transform.SetParent(parent);
             go.transform.position = Cell(cell);
             go.tag = "Player";
-            var renderer = go.GetComponent<SpriteRenderer>();
+            var visual = new GameObject("Visual", typeof(SpriteRenderer), typeof(PixelCharacterMotion));
+            visual.transform.SetParent(go.transform, false);
+            var renderer = visual.GetComponent<SpriteRenderer>();
             var sprites = LoadPixelPlayerSprites();
             renderer.sprite = sprites != null && sprites.down != null && sprites.down.Length > 0
                 ? sprites.down[0]
@@ -941,6 +929,7 @@ namespace ShadowTheater.EditorTools
             var so = new SerializedObject(go.GetComponent<PlayerController>());
             Set(so, "silhouette", renderer);
             so.ApplyModifiedPropertiesWithoutUndo();
+            visual.GetComponent<PixelCharacterMotion>().Configure(go.GetComponent<PlayerController>(), renderer);
             if (sprites != null)
             {
                 var pixelAnimator = go.AddComponent<PixelFieldAnimator>();
@@ -952,10 +941,17 @@ namespace ShadowTheater.EditorTools
                 SetSpriteArray(animatorSo.FindProperty("sideFrames"), sprites.side);
                 animatorSo.ApplyModifiedPropertiesWithoutUndo();
             }
+            FootstepSurface surface = SurfaceFor(theme);
+            var traversal = go.AddComponent<FieldTraversalEffects>();
+            var traversalSo = new SerializedObject(traversal);
+            Set(traversalSo, "controller", go.GetComponent<PlayerController>());
+            Set(traversalSo, "defaultSurface", (int)surface);
+            traversalSo.ApplyModifiedPropertiesWithoutUndo();
+            go.AddComponent<FieldEnvironmentReactor>().Configure(go.GetComponent<PlayerController>());
+            go.AddComponent<FieldInteractionFeedback>().Configure(go.GetComponent<PlayerController>());
             var footstep = go.AddComponent<FieldFootstepAudio>();
             var footstepSo = new SerializedObject(footstep);
             Set(footstepSo, "controller", go.GetComponent<PlayerController>());
-            FootstepSurface surface = SurfaceFor(theme);
             Set(footstepSo, "surface", (int)surface);
             AudioClip[] clips = FieldAudioAssetGenerator.LoadFootsteps(surface);
             SerializedProperty clipProperty = footstepSo.FindProperty("clips");
@@ -1217,6 +1213,7 @@ namespace ShadowTheater.EditorTools
         {
             var go = CreateFieldActor(parent, name, cell, visual, false);
             var npc = go.AddComponent<StoryNpc>();
+            go.AddComponent<FieldNpcPresence>();
             var so = new SerializedObject(npc);
             Set(so, "npcId", npcId); Set(so, "firstDialogueId", first); Set(so, "repeatDialogueId", repeat);
             Set(so, "completionFlag", flag); Set(so, "dialogueAccent", accent);
@@ -1241,6 +1238,7 @@ namespace ShadowTheater.EditorTools
             var restorationSo=new SerializedObject(restoration);Set(restorationSo,"regionId",region.regionId);Set(restorationSo,"restoredLightColor",Color.Lerp(region.AccentColor,new Color(1f,.78f,.48f),.55f));SetObjectArray(restorationSo.FindProperty("stageOneObjects"),stageOne);SetObjectArray(restorationSo.FindProperty("stageTwoObjects"),stageTwo);SetObjectArray(restorationSo.FindProperty("stageThreeObjects"),stageThree);restorationSo.ApplyModifiedPropertiesWithoutUndo();
             var healer = CreateFieldActor(parent, "TownHealer", TownServiceCell(parent, new Vector2Int(-4, 4)),
                 LoadShadow("mage"), false).AddComponent<TownHealerNpc>();
+            healer.gameObject.AddComponent<FieldNpcPresence>();
             var healerSo = new SerializedObject(healer);
             Set(healerSo, "regionId", region.regionId);
             Set(healerSo, "restCost", 30);
@@ -1248,6 +1246,7 @@ namespace ShadowTheater.EditorTools
 
             var rumor = CreateFieldActor(parent, "TownRumorKeeper", TownServiceCell(parent, new Vector2Int(4, 4)),
                 LoadShadow("crow"), false).AddComponent<TownRumorNpc>();
+            rumor.gameObject.AddComponent<FieldNpcPresence>();
             var rumorSo = new SerializedObject(rumor);
             Set(rumorSo, "regionId", region.regionId);
             Set(rumorSo, "dialogueId", TownServicePolicy.RumorDialogueId(region));
@@ -1256,6 +1255,7 @@ namespace ShadowTheater.EditorTools
 
             var investigator = CreateFieldActor(parent, "BossInvestigator", TownServiceCell(parent, new Vector2Int(0, 5)),
                 LoadShadow("mask"), false).AddComponent<BossInvestigatorNpc>();
+            investigator.gameObject.AddComponent<FieldNpcPresence>();
             var investigatorSo = new SerializedObject(investigator);
             Set(investigatorSo, "act", region.act);
             investigatorSo.ApplyModifiedPropertiesWithoutUndo();
@@ -1268,6 +1268,7 @@ namespace ShadowTheater.EditorTools
             Vector2Int cell, int stage, string shadowId)
         {
             var actor=CreateFieldActor(parent, name, TownServiceCell(parent, cell), LoadShadow(shadowId), false);var npc = actor.AddComponent<TownRecoveryNpc>();
+            actor.AddComponent<FieldNpcPresence>();
             var so = new SerializedObject(npc);
             Set(so, "regionId", region.regionId); Set(so, "requiredStage", stage);
             so.ApplyModifiedPropertiesWithoutUndo();
@@ -2511,11 +2512,7 @@ namespace ShadowTheater.EditorTools
         {
             if (shadow == null) return System.Array.Empty<Sprite>();
             Sprite[] finalFrames = LoadFinalFieldFrames(shadow.shadowId);
-            if (finalFrames != null && finalFrames[0].rect.height >= 96) return finalFrames;
-            Sprite portrait = FinalPixelArtPipeline.PortraitFor(shadow.shadowId);
-            if (portrait != null) return new[] { portrait };
-            Sprite cast = FieldArtAtlasImporter.Monster(shadow);
-            if (cast != null) return new[] { cast };
+            if (finalFrames != null) return finalFrames;
             return new[] { CreatePixelFieldActorSprite(shadow, 0), CreatePixelFieldActorSprite(shadow, 1) };
         }
 

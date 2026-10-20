@@ -69,6 +69,7 @@ namespace ShadowTheater.UI
             if (manager == null) return;
             manager.OnStateChanged += OnStateChanged;
             manager.OnFpChanged += OnFpChanged;
+            manager.OnMomentumChanged += OnMomentumChanged;
             manager.OnUnitChanged += OnUnitChanged;
             manager.OnActiveChanged += OnActiveChanged;
         }
@@ -82,6 +83,7 @@ namespace ShadowTheater.UI
             if (manager == null) return;
             manager.OnStateChanged -= OnStateChanged;
             manager.OnFpChanged -= OnFpChanged;
+            manager.OnMomentumChanged -= OnMomentumChanged;
             manager.OnUnitChanged -= OnUnitChanged;
             manager.OnActiveChanged -= OnActiveChanged;
         }
@@ -146,6 +148,11 @@ namespace ShadowTheater.UI
                     else if (matchup < 1f) detail += L10n.Get("battle.matchup_weak", " · 반감 ×0.75");
                     detail += L10n.Format("battle.skill_damage_preview", "\n명중 시 평균 피해 약 {0} HP",
                         DamageCalculator.EstimateDamage(manager.PlayerActive, manager.EnemyActive, skill));
+                    int expectedMomentum = manager.Momentum + 1 + (matchup > 1f ? 1 : 0);
+                    detail += expectedMomentum >= manager.MaxMomentum
+                        ? L10n.Get("battle.skill_encore_ready", "\n명중 시 앙코르 발동 가능")
+                        : L10n.Format("battle.skill_momentum_preview", "\n명중 시 열연 {0}/{1}",
+                            expectedMomentum, manager.MaxMomentum);
                 }
             }
             if (skill.statusEffect != StatusEffectType.None && skill.statusChance > 0f)
@@ -286,6 +293,7 @@ namespace ShadowTheater.UI
             if (tutorialBodyText != null) tutorialBodyText.text = L10n.Get("battle.tutorial_body_" + _tutorialStep,
                 _tutorialStep == 0
                     ? "기본 공격은 피해를 주고 FP를 1 생성합니다. 턴이 시작될 때도 FP를 1 얻습니다."
+                    + " 공격을 연속으로 맞히면 열연이 쌓이고, 3칸에서 강화 공격과 FP 보너스가 발동합니다."
                     : _tutorialStep == 1
                         ? "FP를 소비해 고유 기술을 사용합니다. 불리하거나 HP가 낮다면 교체와 도구를 활용하세요."
                         : "야생 그림자의 HP를 낮추면 기록 성공률이 올라갑니다. 각본 기록으로 동료를 수집하세요.");
@@ -304,6 +312,7 @@ namespace ShadowTheater.UI
         }
 
         private void OnFpChanged(BattleSide side, int value) { if (side == BattleSide.Player) RefreshLabels(); }
+        private void OnMomentumChanged(int value) => RefreshLabels();
         private void OnUnitChanged(BattleUnit unit)
         {
             if (unit.Side == BattleSide.Player)
@@ -342,7 +351,8 @@ namespace ShadowTheater.UI
         private void RefreshLabels()
         {
             if (fpText != null && manager.Context != null)
-                fpText.text = $"FP {manager.GetFp(BattleSide.Player)} / {manager.MaxFp}";
+                fpText.text = $"FP {manager.GetFp(BattleSide.Player)} / {manager.MaxFp}\n" +
+                    L10n.Format("battle.momentum_label", "열연 {0} / {1}", manager.Momentum, manager.MaxMomentum);
             if (autoText != null) autoText.text = manager.IsAuto ? "AUTO ON" : "AUTO OFF";
             if (speedText != null) speedText.text = $"×{_speed:0}";
             if (recordText != null && manager.Context != null)
@@ -515,6 +525,14 @@ namespace ShadowTheater.UI
         private string BuildResultDetails(BattleOutcome outcome)
         {
             var lines = new List<string>();
+            if (!string.IsNullOrEmpty(outcome.performanceRank))
+            {
+                lines.Add(L10n.Format("battle.performance", "공연 등급 {0} · {1}점 · 앙코르 {2} · 막내림 {3}",
+                    outcome.performanceRank, outcome.performanceScore, outcome.encoreCount, outcome.encoreFinishes));
+                if (outcome.performanceBonusGold > 0)
+                    lines.Add(L10n.Format("battle.performance_bonus", "관객 보너스 · 금화 +{0}",
+                        outcome.performanceBonusGold));
+            }
             if (outcome.capturedShadow != null)
                 lines.Add(L10n.Format("battle.result_recorded", "기억 기록 · {0}",
                     L10n.Text(outcome.capturedShadow.DisplayName)));

@@ -35,6 +35,7 @@ namespace ShadowTheater.EditorTools
             topBar.gameObject.AddComponent<Image>().color = new Color(0.045f, 0.03f, 0.09f, 0.94f);
             var turn = Text("Turn", topBar, new Vector2(0.025f, 0f), new Vector2(0.24f, 1f), 26, TextAnchor.MiddleLeft);
             var fp = Text("FP", topBar, new Vector2(0.32f, 0f), new Vector2(0.56f, 1f), 26, TextAnchor.MiddleCenter);
+            fp.text = "FP 0 / 5\n열연 0 / 3";
             var auto = Button("Auto", topBar, new Vector2(0.64f, 0.12f), new Vector2(0.82f, 0.88f), "AUTO OFF");
             var speed = Button("Speed", topBar, new Vector2(0.84f, 0.12f), new Vector2(0.975f, 0.88f), "×1");
 
@@ -184,7 +185,7 @@ namespace ShadowTheater.EditorTools
             Decor("TopCurtain",parent,new Vector2(0,.975f),Vector2.one,new Color(.12f,.025f,.075f,.94f));
         }
         private static void Decor(string n,Transform p,Vector2 min,Vector2 max,Color color){var image=Rect(n,p,min,max).gameObject.AddComponent<Image>();image.color=color;image.raycastTarget=false;}
-        private static Button Button(string n,Transform p,Vector2 min,Vector2 max,string label,Color? c=null){var r=Rect(n,p,min,max);var im=r.gameObject.AddComponent<Image>();im.color=c??new Color(.12f,.075f,.22f);var b=r.gameObject.AddComponent<Button>();b.targetGraphic=im;Text("Label",r,Vector2.zero,Vector2.one,24,TextAnchor.MiddleCenter).text=label;return b;}
+        private static Button Button(string n,Transform p,Vector2 min,Vector2 max,string label,Color? c=null){var color=c??new Color(.12f,.075f,.22f);var r=Rect(n,p,min,max);var im=r.gameObject.AddComponent<Image>();im.color=color;var b=r.gameObject.AddComponent<Button>();b.targetGraphic=im;HandheldUiKit.Button(b,color);Text("Label",r,Vector2.zero,Vector2.one,24,TextAnchor.MiddleCenter).text=label;return b;}
         private static RectTransform Rect(string n,Transform p,Vector2 min,Vector2 max){var g=new GameObject(n,typeof(RectTransform));g.transform.SetParent(p,false);var r=(RectTransform)g.transform;r.anchorMin=min;r.anchorMax=max;r.offsetMin=Vector2.zero;r.offsetMax=Vector2.zero;return r;}
         private static Text Text(string n,Transform p,Vector2 min,Vector2 max,int size,TextAnchor a){var r=Rect(n,p,min,max);var t=r.gameObject.AddComponent<Text>();t.font=Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");t.fontSize=size;t.alignment=a;t.color=new Color(.96f,.93f,1);t.raycastTarget=false;return t;}
         private static void Set(SerializedObject so,string n,Object v)=>so.FindProperty(n).objectReferenceValue=v;

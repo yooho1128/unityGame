@@ -37,10 +37,11 @@ namespace ShadowTheater.EditorTools
             backdrop.color = new Color(0.015f, 0.010f, 0.035f, 0.985f);
 
             var header = CreateText("Header", root, new Vector2(0.055f, 0.91f),
-                new Vector2(0.72f, 0.98f), 48, FontStyle.Bold, TextAnchor.MiddleLeft);
+                new Vector2(0.48f, 0.98f), 48, FontStyle.Bold, TextAnchor.MiddleLeft);
             header.text = "각본집 · 잊힌 배역";
-            var progress = CreateText("Progress", root, new Vector2(0.60f, 0.91f),
-                new Vector2(0.84f, 0.98f), 26, FontStyle.Bold, TextAnchor.MiddleRight);
+            var progress = CreateText("Progress", root, new Vector2(0.48f, 0.91f),
+                new Vector2(0.84f, 0.98f), 23, FontStyle.Bold, TextAnchor.MiddleRight);
+            progress.text = "조우 0 · 기록 0/180\n다음 수집 보상 5";
             progress.color = new Color(0.72f, 0.58f, 1f, 1f);
             var close = CreateButton("Close", root, new Vector2(0.86f, 0.92f),
                 new Vector2(0.96f, 0.975f), "×", new Color(0.17f, 0.10f, 0.27f, 1f));
@@ -55,7 +56,7 @@ namespace ShadowTheater.EditorTools
             var listPanel = CreateRect("ListPanel", root, new Vector2(0.055f, 0.58f),
                 new Vector2(0.945f, 0.83f));
             var listImage = listPanel.gameObject.AddComponent<Image>();
-            listImage.color = new Color(0.035f, 0.025f, 0.07f, 1f);
+            HandheldUiKit.Panel(listImage, new Color(0.035f, 0.025f, 0.07f, 1f));
             var scroll = listPanel.gameObject.AddComponent<ScrollRect>();
             scroll.horizontal = false;
             scroll.movementType = ScrollRect.MovementType.Clamped;
@@ -85,7 +86,7 @@ namespace ShadowTheater.EditorTools
             var detail = CreateRect("DetailPanel", root, new Vector2(0.055f, 0.04f),
                 new Vector2(0.945f, 0.55f));
             var detailImage = detail.gameObject.AddComponent<Image>();
-            detailImage.color = new Color(0.035f, 0.025f, 0.07f, 1f);
+            HandheldUiKit.Panel(detailImage, new Color(0.035f, 0.025f, 0.07f, 1f));
             var accent = CreateRect("AccentGlow", detail, new Vector2(0f, 0f), new Vector2(0.014f, 1f))
                 .gameObject.AddComponent<Image>();
             accent.raycastTarget = false;
@@ -166,6 +167,7 @@ namespace ShadowTheater.EditorTools
             image.color = new Color(0.065f, 0.047f, 0.115f, 1f);
             var button = rect.gameObject.AddComponent<Button>();
             button.targetGraphic = image;
+            HandheldUiKit.Button(button, new Color(0.065f, 0.047f, 0.115f, 1f), false);
             var accent = CreateRect("Accent", rect, Vector2.zero, new Vector2(0.014f, 1f))
                 .gameObject.AddComponent<Image>();
             var silhouette = CreateRect("Silhouette", rect, new Vector2(0.035f, 0.10f),
@@ -201,6 +203,7 @@ namespace ShadowTheater.EditorTools
             image.color = color;
             var button = rect.gameObject.AddComponent<Button>();
             button.targetGraphic = image;
+            HandheldUiKit.Button(button, color);
             var text = CreateText("Label", rect, Vector2.zero, Vector2.one, 25, FontStyle.Bold,
                 TextAnchor.MiddleCenter);
             text.text = label;

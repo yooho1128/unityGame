@@ -18,6 +18,7 @@ namespace ShadowTheater.UI
         [SerializeField] private Text regionText;
         [SerializeField] private Text playTimeText;
         [SerializeField] private Text goldText;
+        [SerializeField] private Text journeyText;
         [SerializeField] private Text feedbackText;
         [SerializeField] private Slider masterSlider;
         [SerializeField] private Slider musicSlider;
@@ -270,7 +271,43 @@ namespace ShadowTheater.UI
                 playTimeText.text = L10n.Format("menu.playtime_value", "플레이 시간 · {0}", time);
             }
             if (goldText != null) goldText.text = L10n.Format("menu.gold_value", "보유 금화 · {0:N0}", save.gold);
+            if (journeyText != null)
+            {
+                JourneyOverview journey = JourneyOverviewService.Build();
+                journeyText.text = L10n.Format("menu.journey_overview",
+                    "여정 {0}% · {1}\n탐험 {2}/{3} · 기록 {4}/{5} · 퀘스트 {6}/{7} · 엔딩 {8}/{9}\n다음 · {10}",
+                    journey.percent, JourneyRank(journey.rankIndex), journey.visitedRegions, journey.totalRegions,
+                    journey.recordedShadows, journey.totalShadows, journey.completedQuests, journey.totalQuests,
+                    journey.unlockedEndings, journey.totalEndings, JourneyGoal(journey));
+            }
             if (recoverPositionButton != null) recoverPositionButton.interactable = !_returning;
+        }
+
+        private static string JourneyRank(int index)
+        {
+            string[] fallback = { "막을 올리는 중", "기억의 탐색자", "숙련된 기록자", "극단의 연출가", "전설의 목격자", "모든 기억의 주인" };
+            int safe = Mathf.Clamp(index, 0, fallback.Length - 1);
+            return L10n.Get("journey.rank." + safe, fallback[safe]);
+        }
+
+        private static string JourneyGoal(JourneyOverview journey)
+        {
+            switch (journey.goalKind)
+            {
+                case JourneyGoalKind.Quest:
+                    return L10n.Format("journey.goal.quest", "{0}: {1} ({2}/{3})",
+                        L10n.Text(journey.goalTitle), L10n.Text(journey.goalDetail), journey.goalCurrent, journey.goalTarget);
+                case JourneyGoalKind.Region:
+                    return L10n.Format("journey.goal.region", "{0} 탐험 · {1}",
+                        L10n.Text(journey.goalTitle), L10n.Text(journey.goalDetail));
+                case JourneyGoalKind.Collection:
+                    return L10n.Format("journey.goal.collection", "그림자 기록 {0}/{1}",
+                        journey.goalCurrent, journey.goalTarget);
+                case JourneyGoalKind.Ending:
+                    return L10n.Get("journey.goal.ending", "새로운 엔딩 조건 탐색");
+                default:
+                    return L10n.Get("journey.goal.complete", "모든 여정을 완료했습니다");
+            }
         }
 
         private void RefreshAudio()

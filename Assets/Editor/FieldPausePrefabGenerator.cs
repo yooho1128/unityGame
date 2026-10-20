@@ -27,7 +27,7 @@ namespace ShadowTheater.EditorTools
             open.gameObject.AddComponent<VirtualPauseButton>();
 
             var saveToast = Rect("SaveToast", canvasRoot.transform, new Vector2(.60f,.835f), new Vector2(.97f,.89f));
-            saveToast.gameObject.AddComponent<Image>().color = new Color(.035f,.022f,.075f,.94f);
+            HandheldUiKit.Panel(saveToast.gameObject.AddComponent<Image>(), new Color(.035f,.022f,.075f,.94f));
             var saveToastGroup = saveToast.gameObject.AddComponent<CanvasGroup>();
             var saveToastLabel = Text("Label", saveToast, new Vector2(.06f,0), new Vector2(.96f,1), 21,
                 "기억을 기록했습니다", TextAnchor.MiddleCenter);
@@ -36,32 +36,35 @@ namespace ShadowTheater.EditorTools
             root.gameObject.AddComponent<MobileSafeArea>();
             root.gameObject.AddComponent<Image>().color = new Color(.006f,.004f,.018f,.94f);
             var card = Rect("Card", root, new Vector2(.055f,.075f), new Vector2(.945f,.925f));
-            card.gameObject.AddComponent<Image>().color = new Color(.035f,.022f,.075f,.99f);
+            HandheldUiKit.Panel(card.gameObject.AddComponent<Image>(), new Color(.035f,.022f,.075f,.99f));
             Text("Header", card, new Vector2(.07f,.91f), new Vector2(.78f,.98f), 44, "공연 기록", TextAnchor.MiddleLeft);
             var close = Button("Close", card, new Vector2(.86f,.92f), new Vector2(.96f,.975f), "×", Dark());
 
             var region = Text("Region", card, new Vector2(.07f,.835f), new Vector2(.93f,.89f), 25, "현재 지역", TextAnchor.MiddleLeft);
             var playTime = Text("PlayTime", card, new Vector2(.07f,.785f), new Vector2(.62f,.835f), 22, "플레이 시간", TextAnchor.MiddleLeft);
             var gold = Text("Gold", card, new Vector2(.62f,.785f), new Vector2(.93f,.835f), 22, "보유 금화", TextAnchor.MiddleRight);
+            var journey = Text("Journey", card, new Vector2(.07f,.69f), new Vector2(.93f,.785f), 20,
+                "여정 0% · 막을 올리는 중\n탐험 0/63 · 기록 0/180 · 퀘스트 0/0 · 엔딩 0/4\n다음 · 기억 여정 확인", TextAnchor.MiddleLeft);
+            journey.color = new Color(.70f,.82f,1f);
 
-            Text("AudioHeader", card, new Vector2(.07f,.71f), new Vector2(.93f,.76f), 27, "음향 설정", TextAnchor.MiddleLeft);
-            CreateSliderRow(card, .64f, "전체 음량", out var master, out var masterValue);
-            CreateSliderRow(card, .55f, "음악", out var music, out var musicValue);
-            CreateSliderRow(card, .46f, "환경음", out var ambience, out var ambienceValue);
-            CreateSliderRow(card, .37f, "효과음", out var sfx, out var sfxValue);
+            Text("AudioHeader", card, new Vector2(.07f,.625f), new Vector2(.93f,.67f), 27, "음향 설정", TextAnchor.MiddleLeft);
+            CreateSliderRow(card, .55f, "전체 음량", out var master, out var masterValue);
+            CreateSliderRow(card, .47f, "음악", out var music, out var musicValue);
+            CreateSliderRow(card, .39f, "환경음", out var ambience, out var ambienceValue);
+            CreateSliderRow(card, .31f, "효과음", out var sfx, out var sfxValue);
 
-            var feedback = Text("Feedback", card, new Vector2(.07f,.30f), new Vector2(.93f,.35f), 21, "", TextAnchor.MiddleCenter);
+            var feedback = Text("Feedback", card, new Vector2(.07f,.265f), new Vector2(.93f,.305f), 21, "", TextAnchor.MiddleCenter);
             feedback.color = new Color(.55f,1f,.84f);
-            var party = Button("Party", card, new Vector2(.07f,.21f), new Vector2(.275f,.285f), "파티 · 서고", new Color(.18f,.12f,.34f));
-            var inventory = Button("Inventory", card, new Vector2(.29f,.21f), new Vector2(.495f,.285f), "도구 가방", new Color(.16f,.18f,.31f));
-            var quests = Button("QuestLog", card, new Vector2(.51f,.21f), new Vector2(.715f,.285f), "기억 여정", new Color(.20f,.13f,.30f));
-            var journal = Button("BossJournal", card, new Vector2(.73f,.21f), new Vector2(.93f,.285f), "보스 수첩", new Color(.28f,.10f,.20f));
-            var save = Button("Save", card, new Vector2(.07f,.09f), new Vector2(.34f,.18f), "진행 저장", new Color(.13f,.30f,.29f));
-            var recover = Button("RecoverPosition", card, new Vector2(.365f,.09f), new Vector2(.635f,.18f), "안전 위치 복귀", new Color(.18f,.18f,.34f));
-            var title = Button("ReturnTitle", card, new Vector2(.66f,.09f), new Vector2(.93f,.18f), "타이틀로", new Color(.29f,.10f,.19f));
+            var party = Button("Party", card, new Vector2(.07f,.185f), new Vector2(.275f,.25f), "파티 · 서고", HandheldUiKit.Violet);
+            var inventory = Button("Inventory", card, new Vector2(.29f,.185f), new Vector2(.495f,.25f), "도구 가방", HandheldUiKit.Cyan);
+            var quests = Button("QuestLog", card, new Vector2(.51f,.185f), new Vector2(.715f,.25f), "기억 여정", HandheldUiKit.Mint);
+            var journal = Button("BossJournal", card, new Vector2(.73f,.185f), new Vector2(.93f,.25f), "보스 수첩", HandheldUiKit.Coral);
+            var save = Button("Save", card, new Vector2(.07f,.075f), new Vector2(.34f,.16f), "진행 저장", HandheldUiKit.Mint);
+            var recover = Button("RecoverPosition", card, new Vector2(.365f,.075f), new Vector2(.635f,.16f), "안전 위치 복귀", new Color(.18f,.18f,.34f));
+            var title = Button("ReturnTitle", card, new Vector2(.66f,.075f), new Vector2(.93f,.16f), "타이틀로", new Color(.29f,.10f,.19f));
 
             var confirm = Rect("TitleConfirm", root, new Vector2(.10f,.35f), new Vector2(.90f,.65f));
-            confirm.gameObject.AddComponent<Image>().color = new Color(.045f,.025f,.085f,1f);
+            HandheldUiKit.Panel(confirm.gameObject.AddComponent<Image>(), new Color(.045f,.025f,.085f,1f));
             Text("Message", confirm, new Vector2(.08f,.55f), new Vector2(.92f,.90f), 28,
                 "타이틀로 돌아가시겠습니까?\n현재 진행 상황은 저장됩니다.", TextAnchor.MiddleCenter);
             var cancel = Button("Cancel", confirm, new Vector2(.08f,.13f), new Vector2(.47f,.39f), "취소", Dark());
@@ -70,7 +73,7 @@ namespace ShadowTheater.EditorTools
             var controller = canvasRoot.GetComponent<FieldPauseMenuController>();
             var so = new SerializedObject(controller);
             Set(so,"root",root.gameObject); Set(so,"titleConfirmRoot",confirm.gameObject);
-            Set(so,"regionText",region); Set(so,"playTimeText",playTime); Set(so,"goldText",gold); Set(so,"feedbackText",feedback);
+            Set(so,"regionText",region); Set(so,"playTimeText",playTime); Set(so,"goldText",gold); Set(so,"journeyText",journey); Set(so,"feedbackText",feedback);
             Set(so,"masterSlider",master); Set(so,"musicSlider",music); Set(so,"ambienceSlider",ambience); Set(so,"sfxSlider",sfx);
             Set(so,"masterValue",masterValue); Set(so,"musicValue",musicValue); Set(so,"ambienceValue",ambienceValue); Set(so,"sfxValue",sfxValue);
             Set(so,"recoverPositionButton",recover);
@@ -113,7 +116,7 @@ namespace ShadowTheater.EditorTools
         private static Slider CreateSlider(string name, Transform parent, Vector2 min, Vector2 max)
         {
             var root = Rect(name, parent, min, max);
-            var background = root.gameObject.AddComponent<Image>(); background.color = new Color(.10f,.075f,.16f);
+            var background = root.gameObject.AddComponent<Image>(); HandheldUiKit.Panel(background, new Color(.10f,.075f,.16f), false, .2f);
             var fillArea = Rect("FillArea", root, new Vector2(.02f,.18f), new Vector2(.98f,.82f));
             var fill = Rect("Fill", fillArea, Vector2.zero, Vector2.one); fill.gameObject.AddComponent<Image>().color = new Color(.54f,.32f,.86f);
             var handleArea = Rect("HandleArea", root, new Vector2(.02f,0), new Vector2(.98f,1));
@@ -128,6 +131,7 @@ namespace ShadowTheater.EditorTools
         {
             var rect = Rect(name,parent,min,max); var image = rect.gameObject.AddComponent<Image>(); image.color = color;
             var button = rect.gameObject.AddComponent<Button>(); button.targetGraphic = image;
+            HandheldUiKit.Button(button, color);
             Text("Label",rect,Vector2.zero,Vector2.one,25,label,TextAnchor.MiddleCenter);
             return button;
         }

@@ -57,6 +57,7 @@ namespace ShadowTheater.Field
         private float _cooldownUntil;
         private float _respawnAt = -1f;
         private Coroutine _ai;
+        private Vector2Int _lastWanderDirection;
 
         // ────────────────────────────────────────────
 
@@ -190,7 +191,8 @@ namespace ShadowTheater.Field
                 Vector2Int dir = chasing ? DirTowards(player.Cell) : RandomWanderDir();
                 if (dir != Vector2Int.zero) yield return Step(dir);
 
-                float wait = chasing ? 0.05f : Random.Range(wanderInterval.x, wanderInterval.y);
+                float wait = chasing ? Random.Range(.06f, .13f) : Random.Range(wanderInterval.x, wanderInterval.y);
+                if (!chasing && dir == Vector2Int.zero) wait *= Random.Range(1.25f, 1.8f);
                 yield return new WaitForSeconds(wait);
             }
         }
@@ -198,8 +200,26 @@ namespace ShadowTheater.Field
         private Vector2Int RandomWanderDir()
         {
             Vector2Int[] dirs = { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
-            var d = dirs[Random.Range(0, dirs.Length)];
-            return Manhattan(_cell + d, _home) <= wanderRadius ? d : Vector2Int.zero;
+            // 계속 왕복하지 않고 때때로 멈춰 주변을 살피며, 직전 방향을 어느 정도 유지한다.
+            if (Random.value < .22f) return Vector2Int.zero;
+            if (_lastWanderDirection != Vector2Int.zero && Random.value < .52f &&
+                CanWander(_lastWanderDirection)) return _lastWanderDirection;
+            int start = Random.Range(0, dirs.Length);
+            for (int i = 0; i < dirs.Length; i++)
+            {
+                Vector2Int candidate = dirs[(start + i) % dirs.Length];
+                if (candidate == -_lastWanderDirection && i < dirs.Length - 1) continue;
+                if (!CanWander(candidate)) continue;
+                _lastWanderDirection = candidate;
+                return candidate;
+            }
+            return Vector2Int.zero;
+        }
+
+        private bool CanWander(Vector2Int direction)
+        {
+            Vector2Int cell = _cell + direction;
+            return Manhattan(cell, _home) <= wanderRadius && !FieldGrid.Current.IsBlocked(cell, _trigger, false);
         }
 
         private Vector2Int DirTowards(Vector2Int target)
@@ -231,10 +251,15 @@ namespace ShadowTheater.Field
             for (float t = 0f; t < 1f; t += Time.deltaTime / stepDuration)
             {
                 if (_frozen) break;
-                transform.position = Vector3.Lerp(from, to, t);
+                float weighted = t - Mathf.Sin(t * Mathf.PI * 2f) * .045f;
+                transform.position = Vector3.LerpUnclamped(from, to, weighted);
                 yield return null;
             }
-            if (!_frozen) transform.position = to;
+            if (!_frozen)
+            {
+                transform.position = to;
+                FieldTraversalEffects.Instance?.PlayWorldStep(target, .62f);
+            }
         }
 
         private static int Manhattan(Vector2Int a, Vector2Int b) => Mathf.Abs(a.x - b.x) + Mathf.Abs(a.y - b.y);

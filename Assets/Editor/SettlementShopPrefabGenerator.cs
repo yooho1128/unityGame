@@ -91,6 +91,7 @@ namespace ShadowTheater.EditorTools
         {
             var rect=Rect(name,parent,min,max); var image=rect.gameObject.AddComponent<Image>(); image.color=color;
             var button=rect.gameObject.AddComponent<Button>(); button.targetGraphic=image;
+            HandheldUiKit.Button(button, color);
             Text("Label",rect,Vector2.zero,Vector2.one,22,label,TextAnchor.MiddleCenter); return button;
         }
         private static Text Text(string name, Transform parent, Vector2 min, Vector2 max, int size, string value, TextAnchor align)

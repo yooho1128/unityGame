@@ -117,6 +117,11 @@ namespace ShadowTheater.Battle
         public ShadowInstance capturedShadow;
         public int expGained;
         public int goldGained;
+        public int encoreCount;
+        public int encoreFinishes;
+        public int performanceScore;
+        public int performanceBonusGold;
+        public string performanceRank;
         public List<BattleLoot> loot = new List<BattleLoot>();
         public List<string> leveledUpInstanceIds = new List<string>();
     }

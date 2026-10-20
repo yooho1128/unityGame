@@ -40,7 +40,26 @@ namespace ShadowTheater.Field
             player.MoveInput = Vector2.zero;
             player.Lock();
             var fader = ScreenFader.Instance;
-            if (fader != null) yield return fader.FadeOut();
+            Vector3 start = player.transform.position;
+            Vector3 end = FieldGrid.Current != null ? FieldGrid.Current.CellToWorld(destinationCell) : start;
+            bool presentJourney = Vector2.Distance(start,end) <= 8f;
+            if (!presentJourney && fader != null) yield return fader.FadeOut();
+
+            if (presentJourney)
+            {
+                FieldCameraFollow.Instance?.FocusOn((start+end)*.5f,.7f);
+                float duration = Mathf.Clamp(Vector2.Distance(start,end)*.12f,.38f,1.05f);
+                for (float elapsed=0f;elapsed<duration;elapsed+=Time.deltaTime)
+                {
+                    float t=Mathf.Clamp01(elapsed/duration), eased=t*t*(3f-2f*t);
+                    Vector3 position=Vector3.Lerp(start,end,eased);
+                    float arc = ability == TraversalAbility.Glide ? .48f : ability == TraversalAbility.AquaticMount ||
+                        ability == TraversalAbility.PortableBoat ? .08f : .22f;
+                    position.y += Mathf.Sin(t*Mathf.PI)*arc;
+                    player.transform.position=position;
+                    yield return null;
+                }
+            }
 
             bool moved = player.SnapToSafeCell(destinationCell, destinationCell, out _);
             if (moved)
@@ -49,7 +68,7 @@ namespace ShadowTheater.Field
                 SaveManager.Instance?.Save();
             }
 
-            if (fader != null) yield return fader.FadeIn();
+            if (!presentJourney && fader != null) yield return fader.FadeIn();
             player.Unlock();
             _busy = false;
             ShowFeedback(moved ? message : "안전하게 도착할 수 있는 지점을 찾지 못했습니다.");

@@ -10,12 +10,10 @@ namespace ShadowTheater.Field
         [SerializeField] private Sprite[] downFrames;
         [SerializeField] private Sprite[] upFrames;
         [SerializeField] private Sprite[] sideFrames;
-        [SerializeField, Min(1f)] private float framesPerSecond = 6f;
-
         private void Awake()
         {
             if (controller == null) controller = GetComponent<PlayerController>();
-            if (target == null) target = GetComponent<SpriteRenderer>();
+            if (target == null) target = GetComponentInChildren<SpriteRenderer>();
         }
 
         private void LateUpdate()
@@ -23,9 +21,14 @@ namespace ShadowTheater.Field
             if (controller == null || target == null) return;
             Sprite[] frames = FramesFor(controller.Facing);
             if (frames == null || frames.Length == 0) return;
-            int index = controller.IsMoving && frames.Length > 1
-                ? Mathf.FloorToInt(Time.time * framesPerSecond) % frames.Length
-                : 0;
+            int index = 0;
+            if (controller.IsMoving && frames.Length > 1)
+            {
+                // 월드 시간 대신 실제 보폭에 묶어 저속 이동에서도 발이 미끄러지지 않게 한다.
+                int phase = Mathf.Min(frames.Length - 1,
+                    Mathf.FloorToInt(controller.StepProgress * frames.Length));
+                index = (controller.CompletedSteps + phase) % frames.Length;
+            }
             target.sprite = frames[index];
             FieldSpriteSizing.Fit(target);
             target.flipX = controller.Facing == FacingDir.Left;

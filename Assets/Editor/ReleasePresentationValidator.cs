@@ -21,9 +21,9 @@ namespace ShadowTheater.EditorTools
         {
             var database = AssetDatabase.LoadAssetAtPath<ShadowDatabase>("Assets/Resources/ShadowDatabase.asset");
             if (database != null) foreach (ShadowData shadow in database.shadows.Where(x => x != null))
-                if (shadow.fieldFrames == null || shadow.fieldFrames.Length == 0 || shadow.fieldFrames.Any(x =>
-                    x == null || !AssetDatabase.Contains(x) || x.rect.height < 96))
-                    errors.Add("필드 전용 고해상도 아트 연결 누락: " + shadow.shadowId);
+                if (shadow.fieldFrames == null || shadow.fieldFrames.Length < 2 || shadow.fieldFrames.Any(x =>
+                    x == null || !AssetDatabase.Contains(x) || x.rect.width != 24 || x.rect.height != 32))
+                    errors.Add("24x32 필드 전용 2프레임 아트 연결 누락: " + shadow.shadowId);
             foreach (string guid in AssetDatabase.FindAssets("t:Prefab", new[] { "Assets/Prefabs/UI" }))
             {
                 var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(guid));

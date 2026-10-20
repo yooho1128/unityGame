@@ -154,7 +154,8 @@ namespace ShadowTheater.EditorTools
             var serialized = new SerializedObject(banner);
             return serialized.FindProperty("atmosphereGlow")?.objectReferenceValue != null &&
                    serialized.FindProperty("motifLeft")?.objectReferenceValue != null &&
-                   serialized.FindProperty("motifRight")?.objectReferenceValue != null;
+                   serialized.FindProperty("motifRight")?.objectReferenceValue != null &&
+                   serialized.FindProperty("discoveryText")?.objectReferenceValue != null;
         }
 
         private static ReleaseAssetCoverageReport Finish(ReleaseAssetCoverageReport report, bool writeReport)

@@ -57,6 +57,13 @@ namespace ShadowTheater.Field
             return _grid.GetCellCenterWorld(new Vector3Int(cell.x, cell.y, 0));
         }
 
+        public string GroundTileName(Vector2Int cell)
+        {
+            if (groundTilemap == null) return string.Empty;
+            var tile = groundTilemap.GetTile(new Vector3Int(cell.x, cell.y, 0));
+            return tile != null ? tile.name : string.Empty;
+        }
+
         /// <param name="self">판정에서 제외할 자기 자신 콜라이더</param>
         public bool IsBlocked(Vector2Int cell, Collider2D self = null, bool checkUnits = true)
         {

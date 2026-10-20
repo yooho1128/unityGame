@@ -33,6 +33,7 @@ namespace ShadowTheater.Battle
         // ── 이벤트 (UI 바인딩용) ──
         public event Action<BattleState> OnStateChanged;
         public event Action<BattleSide, int> OnFpChanged;          // side, 현재 FP
+        public event Action<int> OnMomentumChanged;                // 플레이어 열연 게이지 (0~3)
         public event Action<BattleUnit> OnUnitChanged;             // HP/상태 갱신 필요
         public event Action<BattleSide, BattleUnit> OnActiveChanged; // 교체/등장
         public event Action<BattleOutcome> OnBattleEnded;
@@ -68,6 +69,8 @@ namespace ShadowTheater.Battle
         private int _escapeAttempts;
         private string _lastPlayerSkillId;
         private Coroutine _routine;
+        private readonly BattleMomentum _momentum = new BattleMomentum();
+        private int _playerFaints;
 
         // ────────────────────────────────────────────
         #region Lifecycle
@@ -140,6 +143,9 @@ namespace ShadowTheater.Battle
                 _playerUnits.Find(x => x.Instance.instanceId == companion.instanceId);
             _escapeAttempts = 0;
             _lastPlayerSkillId = null;
+            _momentum.Reset();
+            OnMomentumChanged?.Invoke(_momentum.Value);
+            _playerFaints = 0;
             _pendingAction = null;
             _pendingForcedSwitch = -1;
             _outcome = new BattleOutcome { encounterId = context.encounterId };
@@ -191,6 +197,8 @@ namespace ShadowTheater.Battle
 
         public int GetFp(BattleSide side) => _fp[(int)side];
         public int MaxFp => maxFp;
+        public int Momentum => _momentum.Value;
+        public int MaxMomentum => BattleMomentum.Max;
 
         public bool CanUseItem(BattleSide side, ItemData item, out string reason)
         {
@@ -482,10 +490,19 @@ namespace ShadowTheater.Battle
 
             // 적 대상
             var hit = DamageCalculator.Calculate(user, opponent, skill);
+            bool encore = ApplyMomentum(a.side, skill.DealsDamage, ref hit);
             if (!hit.missed && hit.damage > 0)
                 hit.damage = opponent.TakeDamage(hit.damage);
+            bool encoreFinish = encore && opponent.IsFainted;
+            if (encore) RecordEncore(encoreFinish);
 
             yield return _presenter.PlaySkill(user, opponent, skill, hit);
+            if (encore)
+                yield return _presenter.ShowMessage(L10n.Get("battle.encore",
+                    "앙코르! 관객의 열광으로 피해가 25% 강해지고 FP를 1 되찾았다!"));
+            if (encoreFinish)
+                yield return _presenter.ShowMessage(L10n.Get("battle.encore_finish",
+                    "완벽한 막내림! 앙코르로 마지막 장면을 장식했다."));
             OnUnitChanged?.Invoke(opponent);
 
             if (!hit.missed && hit.statusApplied && !opponent.IsFainted &&
@@ -510,9 +527,18 @@ namespace ShadowTheater.Battle
             AddFp(BattleSide.Player, -JointSkillFpCost);
             _jointSkillUsed = true;
             HitResult hit = DamageCalculator.CalculateJoint(user, _companionUnit, EnemyActive, profile);
+            bool encore = ApplyMomentum(BattleSide.Player, true, ref hit);
             hit.damage = EnemyActive.TakeDamage(hit.damage);
+            bool encoreFinish = encore && EnemyActive.IsFainted;
+            if (encore) RecordEncore(encoreFinish);
             CompanionBondService.RecordJointSkillUse(_companionUnit.Instance.instanceId);
             yield return _presenter.PlayJointSkill(user, _companionUnit, EnemyActive, profile, hit);
+            if (encore)
+                yield return _presenter.ShowMessage(L10n.Get("battle.encore",
+                    "앙코르! 관객의 열광으로 피해가 25% 강해지고 FP를 1 되찾았다!"));
+            if (encoreFinish)
+                yield return _presenter.ShowMessage(L10n.Get("battle.encore_finish",
+                    "완벽한 막내림! 앙코르로 마지막 장면을 장식했다."));
             if (hit.statusApplied && !EnemyActive.IsFainted && EnemyActive.ApplyStatus(profile.status, 2))
                 yield return _presenter.PlayStatusApplied(EnemyActive, profile.status);
             OnUnitChanged?.Invoke(EnemyActive);
@@ -685,7 +711,15 @@ namespace ShadowTheater.Battle
                 int next = FindNextAlive(_enemyUnits, _enemyIdx);
                 if (next < 0)
                 {
-                    foreach (var e in _enemyUnits) _outcome.goldGained += e.Data.goldReward;
+                    long baseGold = 0;
+                    foreach (var e in _enemyUnits) baseGold += Mathf.Max(0, e.Data.goldReward);
+                    _outcome.goldGained = (int)Math.Min(baseGold, int.MaxValue);
+                    BattlePerformanceResult performance = BattlePerformance.Evaluate(Turn, _enemyUnits.Count,
+                        _outcome.encoreCount, _outcome.encoreFinishes, _playerFaints, _outcome.goldGained);
+                    _outcome.performanceRank = performance.rank;
+                    _outcome.performanceScore = performance.score;
+                    _outcome.performanceBonusGold = performance.bonusGold;
+                    _outcome.goldGained = (int)Math.Min((long)_outcome.goldGained + performance.bonusGold, int.MaxValue);
                     RollLoot();
                     Finish(BattleResult.Victory, BattleState.Victory);
                     yield break;
@@ -698,6 +732,7 @@ namespace ShadowTheater.Battle
             // ── 아군 기절 ──
             if (PlayerActive.IsFainted)
             {
+                _playerFaints++;
                 yield return _presenter.PlayFaint(PlayerActive);
 
                 int next = FindNextAlive(_playerUnits, -1);
@@ -814,6 +849,22 @@ namespace ShadowTheater.Battle
             int prev = _fp[i];
             _fp[i] = Mathf.Clamp(_fp[i] + delta, 0, maxFp);
             if (_fp[i] != prev) OnFpChanged?.Invoke(side, _fp[i]);
+        }
+
+        private bool ApplyMomentum(BattleSide side, bool dealsDamage, ref HitResult hit)
+        {
+            if (side != BattleSide.Player) return false;
+            int previous = _momentum.Value;
+            bool encore = _momentum.Apply(ref hit, dealsDamage);
+            if (encore) AddFp(BattleSide.Player, 1);
+            if (_momentum.Value != previous || encore) OnMomentumChanged?.Invoke(_momentum.Value);
+            return encore;
+        }
+
+        private void RecordEncore(bool finishedEnemy)
+        {
+            if (_outcome.encoreCount < int.MaxValue) _outcome.encoreCount++;
+            if (finishedEnemy && _outcome.encoreFinishes < int.MaxValue) _outcome.encoreFinishes++;
         }
 
         private bool Validate(BattleAction a, out string reason)

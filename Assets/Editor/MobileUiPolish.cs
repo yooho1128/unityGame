@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using System.Linq;
 using System.IO;
+using ShadowTheater.Field;
 using ShadowTheater.UI;
 using UnityEditor;
 using UnityEngine;
@@ -26,6 +27,12 @@ namespace ShadowTheater.EditorTools
                     layout.childControlHeight = true; layout.childForceExpandHeight = false;
                 }
                 foreach (Text text in root.GetComponentsInChildren<Text>(true)) text.raycastTarget = false;
+                foreach (Button button in root.GetComponentsInChildren<Button>(true))
+                {
+                    if (button.GetComponent<HandheldButtonFeedback>() != null || button.GetComponent<VirtualDPadButton>() != null) continue;
+                    var image = button.targetGraphic as Image;
+                    HandheldUiKit.Button(button, image != null ? image.color : HandheldUiKit.Violet, false);
+                }
                 var dockButtons = root.GetComponentsInChildren<Transform>(true).Where(x =>
                     x.name == "OpenScriptBook" || x.name == "OpenParty" || x.name == "OpenWorldMap" || x.name == "OpenShop" || x.name == "OpenMenu").ToArray();
                 RectTransform dock = null;

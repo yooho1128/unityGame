@@ -340,9 +340,9 @@ namespace ShadowTheater.EditorTools
             var database = AssetDatabase.LoadAssetAtPath<ShadowDatabase>("Assets/Resources/ShadowDatabase.asset");
             foreach (ShadowData data in database.shadows)
             {
-                Require(data.fieldFrames != null && data.fieldFrames.Length > 0, "No field art: " + data.shadowId);
-                foreach (Sprite sprite in data.fieldFrames) Require(sprite != null && EditorUtility.IsPersistent(sprite) && sprite.rect.height >= 96,
-                    "Low-resolution/missing field sprite: " + data.shadowId);
+                Require(data.fieldFrames != null && data.fieldFrames.Length >= 2, "No two-frame field art: " + data.shadowId);
+                foreach (Sprite sprite in data.fieldFrames) Require(sprite != null && EditorUtility.IsPersistent(sprite) &&
+                    sprite.rect.width == 24 && sprite.rect.height == 32, "Invalid 24x32 field sprite: " + data.shadowId);
             }
             var region = RegionRepository.Get("moonlit_meadow");
             RegionalEncounterPolicy.GetCadence(region, out int min, out int max, out float chance, out int pity);
@@ -351,7 +351,7 @@ namespace ShadowTheater.EditorTools
             Require(IntroEncounterPolicy.ClampLevel(region, 10, new[] { new ShadowInstance(Load("mage"), 5), new ShadowInstance(Load("knight"), 5) }) == 6, "Two-member intro level cap failed");
             Require(!IntroEncounterPolicy.IsAvailable(region, Load("beast"), new[] { new ShadowInstance(Load("mage"), 5) }), "Rare encounter not gated for solo beginner");
             Require(IntroEncounterPolicy.ClampLevel(RegionRepository.Get("ash_border"), 18, null) == 18, "Later regions unexpectedly changed");
-            notes.Add($"{database.shadows.Count} field-art bindings >=96px PASS; solo intro Lv.4 / duo Lv.6 caps + rare gate + recovery cadence PASS");
+            notes.Add($"{database.shadows.Count} field-art bindings 24x32 two-frame PASS; solo intro Lv.4 / duo Lv.6 caps + rare gate + recovery cadence PASS");
             SimulateIntro(database, region, notes);
         }
 
