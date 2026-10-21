@@ -2,6 +2,9 @@
 
 1인 개발 2D 모바일 RPG — 스토리 중심 타일맵 필드 탐색 + 1대1 수집형 턴제 전투 (Unity 2D URP).
 
+세계관부터 탐험·마을·수집·전투·성장까지 한 번에 보는 소개서는
+[`Docs/GAME_OVERVIEW.md`](Docs/GAME_OVERVIEW.md)에서 확인할 수 있습니다.
+
 | 폴더 | 내용 |
 |---|---|
 | `Assets/Scripts/Data` | ShadowData / SkillData / ItemData (ScriptableObject), ShadowInstance, ShadowDatabase |
