@@ -17,8 +17,6 @@ namespace ShadowTheater.Field
             public Transform transform;
             public Vector3 scale;
             public Quaternion rotation;
-            public Color color;
-            public SpriteRenderer renderer;
             public float impulse;
             public float direction;
             public float phase;
@@ -56,13 +54,14 @@ namespace ShadowTheater.Field
             {
                 if (renderer == null || renderer.transform.IsChildOf(transform) ||
                     renderer.GetComponentInParent<PlayerController>() != null ||
+                    renderer.GetComponent<ShadowTheater.Story.TownLifeProp>()!=null ||
                     FullName(renderer.transform).Contains("CompanionShadow")) continue;
                 if (!TryKind(renderer.transform, out Kind kind)) continue;
                 _visuals.Add(new ReactiveVisual
                 {
-                    transform = renderer.transform, renderer = renderer, kind = kind,
+                    transform = renderer.transform, kind = kind,
                     scale = renderer.transform.localScale, rotation = renderer.transform.localRotation,
-                    color = renderer.color, phase = (renderer.GetInstanceID() & 31) * .37f
+                    phase = (renderer.GetInstanceID() & 31) * .37f
                 });
             }
         }
@@ -92,7 +91,6 @@ namespace ShadowTheater.Field
                 float kick = Mathf.Sin(visual.impulse * Mathf.PI) * visual.direction;
                 float angle = 0f;
                 Vector3 scale = visual.scale;
-                Color color = visual.color;
                 switch (visual.kind)
                 {
                     case Kind.Foliage:
@@ -101,7 +99,6 @@ namespace ShadowTheater.Field
                         break;
                     case Kind.Lantern:
                         angle = wave * 1.4f + kick * 5f;
-                        color = Color.Lerp(color, new Color(1f,.82f,.45f,color.a), .10f + visual.impulse * .28f);
                         break;
                     case Kind.Cloth: angle = wave * 1.2f + kick * 6f; break;
                     case Kind.Door:
@@ -111,7 +108,6 @@ namespace ShadowTheater.Field
                 }
                 visual.transform.localRotation = visual.rotation * Quaternion.Euler(0f,0f,angle);
                 visual.transform.localScale = scale;
-                if (visual.renderer != null) visual.renderer.color = color;
             }
         }
 
@@ -122,7 +118,6 @@ namespace ShadowTheater.Field
                 if (visual.transform == null) continue;
                 visual.transform.localScale = visual.scale;
                 visual.transform.localRotation = visual.rotation;
-                if (visual.renderer != null) visual.renderer.color = visual.color;
             }
         }
 

@@ -21,7 +21,7 @@ namespace ShadowTheater.Field
             icon.transform.SetParent(transform.parent, false);
             _prompt = icon.GetComponent<SpriteRenderer>();
             _prompt.sprite = BattleFxSpriteLibrary.Get(BattleFxGlyph.Rune);
-            _prompt.color = new Color(1f,.88f,.35f,0f); _prompt.sortingOrder = 90;
+            _prompt.color = new Color(1f,.88f,.35f,0f); _prompt.sortingOrder = 312;
         }
 
         public void Configure(PlayerController owner) => controller = owner;
@@ -31,6 +31,7 @@ namespace ShadowTheater.Field
             _confirmUntil = Time.unscaledTime + .28f;
             if (_prompt != null) _prompt.sprite = BattleFxSpriteLibrary.Get(BattleFxGlyph.Star);
             FieldCameraFollow.Instance?.Nudge(Vector2.up*.025f);
+            GameSettings.TryVibrate();
         }
 
         private void LateUpdate()

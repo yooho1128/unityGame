@@ -19,6 +19,15 @@ namespace ShadowTheater.Field
 
         private Vector3 _restPosition;
         private Quaternion _restRotation;
+        private float _gestureStarted;
+        private float _gestureUntil;
+        private int _gestureKind;
+
+        public void PlayIdleGesture(int kind)
+        {
+            if(controller==null||controller.IsMoving)return;
+            _gestureKind=Mathf.Abs(kind)%2;_gestureStarted=Time.time;_gestureUntil=Time.time+1.05f;
+        }
 
         public void Configure(PlayerController owner, SpriteRenderer renderer)
         {
@@ -46,6 +55,23 @@ namespace ShadowTheater.Field
             Vector3 fittedScale = transform.localScale; // PixelFieldAnimator가 먼저 맞춘 크기
             if (!controller.IsMoving)
             {
+                if(Time.time<_gestureUntil)
+                {
+                    float t=Mathf.Clamp01((Time.time-_gestureStarted)/1.05f),wave=Mathf.Sin(t*Mathf.PI);
+                    if(_gestureKind==0)
+                    {
+                        transform.localPosition=_restPosition+Vector3.right*Mathf.Sin(t*Mathf.PI*2f)*.018f;
+                        transform.localRotation=_restRotation*Quaternion.Euler(0f,0f,Mathf.Sin(t*Mathf.PI*2f)*2.6f);
+                        transform.localScale=Vector3.Scale(fittedScale,new Vector3(1f-wave*.025f,1f+wave*.035f,1f));
+                    }
+                    else
+                    {
+                        transform.localPosition=_restPosition+Vector3.up*(wave*.025f);
+                        transform.localRotation=_restRotation*Quaternion.Euler(0f,0f,-wave*1.4f);
+                        transform.localScale=Vector3.Scale(fittedScale,new Vector3(1f-wave*.035f,1f+wave*.065f,1f));
+                    }
+                    return;
+                }
                 float breath = Mathf.Sin(Time.time * 2.1f) * .004f;
                 transform.localPosition = _restPosition;
                 transform.localRotation = Quaternion.Slerp(transform.localRotation, _restRotation, .28f);
@@ -73,6 +99,7 @@ namespace ShadowTheater.Field
         {
             transform.localPosition = _restPosition;
             transform.localRotation = _restRotation;
+            _gestureUntil=0f;
         }
     }
 }

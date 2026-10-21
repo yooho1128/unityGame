@@ -72,7 +72,7 @@ namespace ShadowTheater.Field
 
         private void OnStepFinished(Vector2Int _)
         {
-            if (_battlePending || GameFlowController.Instance == null ||
+            if (TownInteriorController.Instance?.IsInside==true || _battlePending || GameFlowController.Instance == null ||
                 !GameFlowController.Instance.CanStartEncounter) return;
             if (_safeSteps-- > 0) return;
             _eligibleSteps++;

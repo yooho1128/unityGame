@@ -173,6 +173,16 @@ namespace ShadowTheater.UI
                 }
                 if (connections.Count > 0) summaryText.text += "\n" +
                     L10n.Format("map.connections", "연결된 길 · {0}", string.Join(" · ", connections));
+                if(detailed)
+                {
+                    var records=new List<string>();
+                    if(SaveManager.HasFlag("landmark_discovered_"+region.regionId))records.Add("명소 기록");
+                    if(SaveManager.HasFlag("ecology_recorded_"+region.regionId))records.Add("생태 기록");
+                    if(SaveManager.HasFlag("field_lever_"+region.regionId+"_complete"))records.Add("길 복구");
+                    if(SaveManager.HasFlag("secret_passage_"+region.regionId))records.Add("비밀 통로");
+                    if(SaveManager.HasFlag("interior_visited_"+region.regionId))records.Add("실내 방문");
+                    if(records.Count>0)summaryText.text+="\n탐험 기록 · "+string.Join(" · ",records);
+                }
             }
             if (shadowsText != null) shadowsText.text = detailed
                 ? L10n.Get("map.shadows", "출현 그림자 · ") + Join(region.featuredShadows) : L10n.Get("map.shadows_unknown", "출현 그림자 · ???");

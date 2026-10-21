@@ -835,6 +835,8 @@ namespace ShadowTheater.EditorTools
                 var worldStateSo = new SerializedObject(worldState);
                 Set(worldStateSo, "regionId", region.regionId);
                 worldStateSo.ApplyModifiedPropertiesWithoutUndo();
+                var ambientLife=fieldRoot.AddComponent<FieldAmbientLife>();ambientLife.Configure(region.regionId);
+                fieldRoot.AddComponent<FieldProximityAmbience>();
                 var weatherEffects = fieldRoot.AddComponent<FieldWeatherEffects>();
                 var weatherEffectsSo = new SerializedObject(weatherEffects);
                 Set(weatherEffectsSo, "regionId", region.regionId);
@@ -901,6 +903,8 @@ namespace ShadowTheater.EditorTools
 
         private static void FinishFieldScene(FieldSceneContext context, string sceneName)
         {
+            RegionData region=LoadRegionCatalog().regions.Find(x=>x.sceneName==sceneName);
+            if(region!=null)CreateRegionalDiscoveryContent(context.fieldRoot,region);
             foreach (EncounterSymbol symbol in context.fieldRoot.GetComponentsInChildren<EncounterSymbol>(true))
                 if (!symbol.IsFixed) Object.DestroyImmediate(symbol.gameObject);
             Save(context.scene, sceneName);
@@ -923,6 +927,7 @@ namespace ShadowTheater.EditorTools
             renderer.color = Color.white;
             renderer.sortingOrder = 10;
             FieldSpriteSizing.Fit(renderer);
+            go.AddComponent<FieldDepthSorter>().Configure(renderer);
             go.AddComponent<GroundContactShadow>().Configure(renderer);
             go.GetComponent<Rigidbody2D>().gravityScale = 0f;
             go.GetComponent<CapsuleCollider2D>().size = new Vector2(0.55f, 0.75f);
@@ -949,6 +954,12 @@ namespace ShadowTheater.EditorTools
             traversalSo.ApplyModifiedPropertiesWithoutUndo();
             go.AddComponent<FieldEnvironmentReactor>().Configure(go.GetComponent<PlayerController>());
             go.AddComponent<FieldInteractionFeedback>().Configure(go.GetComponent<PlayerController>());
+            go.AddComponent<FieldBoundaryGuard>();
+            go.AddComponent<FieldArrivalPresentation>();
+            go.AddComponent<FieldItemAcquisitionFeedback>();
+            go.AddComponent<FieldExplorationMoments>();
+            go.AddComponent<FieldTrailGuide>();
+            go.AddComponent<FieldPlayerIdleLife>();
             var footstep = go.AddComponent<FieldFootstepAudio>();
             var footstepSo = new SerializedObject(footstep);
             Set(footstepSo, "controller", go.GetComponent<PlayerController>());
@@ -1231,22 +1242,28 @@ namespace ShadowTheater.EditorTools
 
         private static void CreateTownServices(Transform parent, RegionData region)
         {
+            CreateTownScenery(parent,region);
+            var interior=parent.gameObject.AddComponent<TownInteriorController>();interior.Configure(region.regionId,
+                _groundTile!=null?_groundTile.sprite:null,_wallTile!=null?_wallTile.sprite:null,region.AccentColor);
+            var life=parent.gameObject.AddComponent<TownLifeController>();life.Configure(region.regionId);
             var restoration=parent.gameObject.AddComponent<TownRestorationVisualController>();
             var stageOne=new List<GameObject>{CreateRestorationProp(parent,"RelitFootlights",new Vector2Int(-6,2),region.AccentColor,1.0f)};
             var stageTwo=new List<GameObject>{CreateRestorationProp(parent,"RepairedFacade",new Vector2Int(6,2),Color.Lerp(region.AccentColor,Color.white,.25f),1.45f),CreateRestorationProp(parent,"FestivalBanner",new Vector2Int(-7,5),region.AccentColor,.75f)};
             var stageThree=new List<GameObject>{CreateRestorationProp(parent,"RestoredGrandStage",new Vector2Int(0,6),Color.Lerp(region.AccentColor,Color.white,.45f),2.1f),CreateRestorationProp(parent,"MarketLantern",new Vector2Int(7,5),new Color(1f,.72f,.3f),.8f)};
             var restorationSo=new SerializedObject(restoration);Set(restorationSo,"regionId",region.regionId);Set(restorationSo,"restoredLightColor",Color.Lerp(region.AccentColor,new Color(1f,.78f,.48f),.55f));SetObjectArray(restorationSo.FindProperty("stageOneObjects"),stageOne);SetObjectArray(restorationSo.FindProperty("stageTwoObjects"),stageTwo);SetObjectArray(restorationSo.FindProperty("stageThreeObjects"),stageThree);restorationSo.ApplyModifiedPropertiesWithoutUndo();
-            var healer = CreateFieldActor(parent, "TownHealer", TownServiceCell(parent, new Vector2Int(-4, 4)),
+            var healer = CreateFieldActor(parent, "TownHealer", TownServiceCell(parent, new Vector2Int(-8, 4)),
                 LoadShadow("mage"), false).AddComponent<TownHealerNpc>();
             healer.gameObject.AddComponent<FieldNpcPresence>();
+            ConfigureTownPatrol(healer.gameObject,0,new Vector2(1.3f,0f),.48f);
             var healerSo = new SerializedObject(healer);
             Set(healerSo, "regionId", region.regionId);
             Set(healerSo, "restCost", 30);
             healerSo.ApplyModifiedPropertiesWithoutUndo();
 
-            var rumor = CreateFieldActor(parent, "TownRumorKeeper", TownServiceCell(parent, new Vector2Int(4, 4)),
+            var rumor = CreateFieldActor(parent, "TownRumorKeeper", TownServiceCell(parent, new Vector2Int(8, 4)),
                 LoadShadow("crow"), false).AddComponent<TownRumorNpc>();
             rumor.gameObject.AddComponent<FieldNpcPresence>();
+            ConfigureTownPatrol(rumor.gameObject,0,new Vector2(-1.3f,0f),.46f);
             var rumorSo = new SerializedObject(rumor);
             Set(rumorSo, "regionId", region.regionId);
             Set(rumorSo, "dialogueId", TownServicePolicy.RumorDialogueId(region));
@@ -1256,12 +1273,90 @@ namespace ShadowTheater.EditorTools
             var investigator = CreateFieldActor(parent, "BossInvestigator", TownServiceCell(parent, new Vector2Int(0, 5)),
                 LoadShadow("mask"), false).AddComponent<BossInvestigatorNpc>();
             investigator.gameObject.AddComponent<FieldNpcPresence>();
+            ConfigureTownPatrol(investigator.gameObject,0,new Vector2(0f,-1.4f),.42f);
             var investigatorSo = new SerializedObject(investigator);
             Set(investigatorSo, "act", region.act);
             investigatorSo.ApplyModifiedPropertiesWithoutUndo();
 
             CreateRecoveryNpc(parent, region, "ReturningCraftsman", new Vector2Int(-2, 5), 2, "puppet");
             CreateRecoveryNpc(parent, region, "RestoredMerchant", new Vector2Int(2, 5), 3, "mage");
+            CreateResidentRequest(parent,region);
+            CreateJournalStand(parent,region);
+        }
+
+        private static void CreateResidentRequest(Transform parent,RegionData region)
+        {
+            var actor=CreateFieldActor(parent,"VillageRequester",TownServiceCell(parent,new Vector2Int(-8,-4)),LoadShadow("puppet"),false);
+            actor.AddComponent<FieldNpcPresence>();ConfigureTownPatrol(actor,0,new Vector2(1.1f,0f),.44f);
+            var request=actor.AddComponent<TownResidentRequest>();var so=new SerializedObject(request);
+            Set(so,"regionId",region.regionId);Set(so,"requestedItemId",region.act>=5?"ink":region.act>=3?"tonic":"salve");
+            Set(so,"rewardGold",35+region.act*15);so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static void CreateJournalStand(Transform parent,RegionData region)
+        {
+            Vector2Int cell=TownServiceCell(parent,new Vector2Int(8,-4));
+            var go=new GameObject("ExplorationJournalStand",typeof(SpriteRenderer),typeof(BoxCollider2D),typeof(FieldJournalStand));
+            go.transform.SetParent(parent);go.transform.position=Cell(cell);go.transform.localScale=new Vector3(.82f,1.05f,1f);
+            var renderer=go.GetComponent<SpriteRenderer>();renderer.sprite=_accentTile?.sprite;renderer.color=Color.Lerp(region.AccentColor,Color.white,.28f);
+            go.AddComponent<FieldDepthSorter>().Configure(renderer,-2);
+        }
+
+        private static void ConfigureTownPatrol(GameObject actor,int requiredStage,Vector2 route,float speed)
+        {
+            var patrol=actor.AddComponent<TownNpcPatrol>();var so=new SerializedObject(patrol);
+            Set(so,"requiredStage",requiredStage);Set(so,"localOffset",route);Set(so,"speed",speed);
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static void CreateTownScenery(Transform parent,RegionData region)
+        {
+            var root=new GameObject("TownScenery");root.transform.SetParent(parent,false);
+            Color accent=region.AccentColor;
+            CreateTownProp(root.transform,"WestHouse",new Vector2Int(-5,6),TownPropKind.House,
+                Color.Lerp(accent,new Color(.68f,.48f,.34f),.55f),new Vector2(2.7f,2.3f),true);
+            CreateTownProp(root.transform,"EastHouse",new Vector2Int(5,6),TownPropKind.House,
+                Color.Lerp(accent,new Color(.76f,.58f,.38f),.48f),new Vector2(2.7f,2.3f),true);
+            CreateTownProp(root.transform,"WestDoor",new Vector2Int(-5,4),TownPropKind.Door,
+                new Color(.48f,.28f,.18f),new Vector2(.7f,1.05f),true);
+            CreateTownProp(root.transform,"EastDoor",new Vector2Int(5,4),TownPropKind.Door,
+                new Color(.48f,.28f,.18f),new Vector2(.7f,1.05f),true);
+            CreateTownProp(root.transform,"VillageWell",new Vector2Int(0,2),TownPropKind.Well,
+                Color.Lerp(accent,Color.white,.28f),new Vector2(1.15f,.82f),true);
+            CreateTownProp(root.transform,"MarketStall",new Vector2Int(4,-2),TownPropKind.Stall,
+                Color.Lerp(accent,new Color(1f,.72f,.38f),.35f),new Vector2(1.65f,1.15f),true);
+            CreateTownProp(root.transform,"TownNoticeBoard",new Vector2Int(0,-2),TownPropKind.NoticeBoard,
+                new Color(.68f,.46f,.25f),new Vector2(1.05f,1.15f),true);
+            CreateTownProp(root.transform,"VillageBench",new Vector2Int(-3,-2),TownPropKind.Bench,
+                new Color(.58f,.38f,.22f),new Vector2(1.35f,.55f),true);
+            CreateTownProp(root.transform,"WestLantern",new Vector2Int(-7,1),TownPropKind.Lantern,
+                new Color(1f,.66f,.26f),new Vector2(.5f,1.35f),true);
+            CreateTownProp(root.transform,"EastLantern",new Vector2Int(7,1),TownPropKind.Lantern,
+                new Color(1f,.66f,.26f),new Vector2(.5f,1.35f),true);
+            CreateTownProp(root.transform,"WestPlanter",new Vector2Int(-2,1),TownPropKind.Planter,
+                new Color(.38f,.72f,.42f),new Vector2(.9f,.48f),true);
+            CreateTownProp(root.transform,"EastPlanter",new Vector2Int(2,1),TownPropKind.Planter,
+                new Color(.38f,.72f,.42f),new Vector2(.9f,.48f),true);
+            var crate=CreateTownProp(root.transform,"MarketCrate",new Vector2Int(-6,-2),TownPropKind.Stall,
+                new Color(.64f,.42f,.22f),new Vector2(.78f,.78f),true);
+            Object.DestroyImmediate(crate.GetComponent<TownLifeProp>());crate.AddComponent<FieldPushableCrate>();
+        }
+
+        private static GameObject CreateTownProp(Transform parent,string name,Vector2Int cell,TownPropKind kind,
+            Color color,Vector2 scale,bool blocks)
+        {
+            var go=new GameObject(name,typeof(SpriteRenderer));go.transform.SetParent(parent,false);
+            go.transform.position=Cell(cell);go.transform.localScale=new Vector3(scale.x,scale.y,1f);
+            var renderer=go.GetComponent<SpriteRenderer>();
+            renderer.sprite=(kind==TownPropKind.House?_wallTile:_accentTile)?.sprite;
+            renderer.color=color;renderer.sortingOrder=kind==TownPropKind.House?3:6;
+            go.AddComponent<FieldDepthSorter>().Configure(renderer,kind==TownPropKind.House?0:-3);
+            var prop=go.AddComponent<TownLifeProp>();prop.Configure(kind,renderer);
+            if(blocks)
+            {
+                var box=go.AddComponent<BoxCollider2D>();box.size=new Vector2(.68f,.68f);box.isTrigger=false;
+            }
+            return go;
         }
 
         private static void CreateRecoveryNpc(Transform parent, RegionData region, string name,
@@ -1272,7 +1367,7 @@ namespace ShadowTheater.EditorTools
             var so = new SerializedObject(npc);
             Set(so, "regionId", region.regionId); Set(so, "requiredStage", stage);
             so.ApplyModifiedPropertiesWithoutUndo();
-            var patrol=actor.AddComponent<TownNpcPatrol>();var patrolSo=new SerializedObject(patrol);Set(patrolSo,"requiredStage",stage);Set(patrolSo,"localOffset",stage>=3?new Vector2(-2f,0):new Vector2(2f,0));Set(patrolSo,"speed",stage>=3?.52f:.68f);patrolSo.ApplyModifiedPropertiesWithoutUndo();
+            var patrol=actor.AddComponent<TownNpcPatrol>();var patrolSo=new SerializedObject(patrol);Set(patrolSo,"requiredStage",stage);Set(patrolSo,"localOffset",stage>=3?new Vector2(1.5f,0):new Vector2(-1.5f,0));Set(patrolSo,"speed",stage>=3?.52f:.68f);patrolSo.ApplyModifiedPropertiesWithoutUndo();
         }
 
         private static GameObject CreateRestorationProp(Transform parent,string name,Vector2Int cell,Color color,float scale)
@@ -1430,6 +1525,7 @@ namespace ShadowTheater.EditorTools
             renderer.color = Color.white;
             renderer.sortingOrder = 8;
             FieldSpriteSizing.Fit(renderer);
+            go.AddComponent<FieldDepthSorter>().Configure(renderer);
             go.AddComponent<GroundContactShadow>().Configure(renderer);
             var box = go.GetComponent<BoxCollider2D>(); box.size = new Vector2(0.72f, 0.82f); box.isTrigger = trigger;
             visualObject.GetComponent<ShadowFieldMotion>().Configure(visual, frames);
@@ -1450,6 +1546,7 @@ namespace ShadowTheater.EditorTools
             renderer.color = Color.white;
             renderer.sortingOrder = 7;
             FieldSpriteSizing.Fit(renderer);
+            go.AddComponent<FieldDepthSorter>().Configure(renderer,-1);
             go.AddComponent<GroundContactShadow>().Configure(renderer);
             go.GetComponent<CircleCollider2D>().radius = 0.38f;
             var so = new SerializedObject(go.GetComponent<EncounterSymbol>());
@@ -1508,6 +1605,154 @@ namespace ShadowTheater.EditorTools
             if (candidates.Count == 0) return Vector2Int.zero;
             int index = (seed & int.MaxValue) % candidates.Count;
             return candidates[index];
+        }
+
+        private static void CreateRegionalDiscoveryContent(Transform parent,RegionData region)
+        {
+            if(region==null||region.isBossStage)return;
+            FieldGrid grid=parent.GetComponentInChildren<FieldGrid>();if(grid==null)return;
+            Tilemap collision=parent.GetComponentsInChildren<Tilemap>(true).FirstOrDefault(x=>x.name=="Collision");
+            PlayerController player=parent.GetComponentInChildren<PlayerController>(true);
+            Vector2Int start=player!=null?grid.WorldToCell(player.transform.position):region.ArrivalCell;
+            var occupied=new HashSet<Vector2Int>();
+            foreach(Collider2D item in parent.GetComponentsInChildren<Collider2D>(true))
+                occupied.Add(grid.WorldToCell(item.transform.position));
+
+            Vector2Int landmarkCell=FindRegionalEncounterCell(collision,start,occupied,
+                StableHash("landmark_"+region.regionId));
+            occupied.Add(landmarkCell);CreateScenicLandmark(parent,region,landmarkCell);
+
+            if(region.AllowsRandomEncounters)
+            {
+                Vector2Int forageCell=FindRegionalEncounterCell(collision,start,occupied,
+                    StableHash("forage_"+region.regionId));
+                occupied.Add(forageCell);CreateForageNode(parent,region,forageCell);
+
+                Vector2Int ecologyCell=FindRegionalEncounterCell(collision,start,occupied,
+                    StableHash("ecology_"+region.regionId));
+                occupied.Add(ecologyCell);CreateEcologySpot(parent,region,ecologyCell);
+
+                Vector2Int campCell=FindRegionalEncounterCell(collision,start,occupied,
+                    StableHash("camp_"+region.regionId));
+                occupied.Add(campCell);CreateCampfire(parent,region,campCell);
+            }
+
+            if(region.AllowsRandomEncounters&&TryFindPuzzlePair(collision,start,occupied,
+                StableHash("lever_"+region.regionId),out Vector2Int leverCell,out Vector2Int barrierCell))
+            {occupied.Add(leverCell);occupied.Add(barrierCell);CreateLeverPuzzle(parent,region,leverCell,barrierCell);}
+
+            if(region.isDungeon||region.isHidden)
+            {
+                Vector2Int secretA=FindRegionalEncounterCell(collision,start,occupied,StableHash("secret_a_"+region.regionId));
+                occupied.Add(secretA);Vector2Int secretB=FindDistantRegionalCell(collision,secretA,occupied,StableHash("secret_b_"+region.regionId));
+                if(secretA!=secretB)CreateSecretPassages(parent,region,secretA,secretB);
+            }
+        }
+
+        private static Vector2Int FindDistantRegionalCell(Tilemap collision,Vector2Int from,HashSet<Vector2Int> occupied,int seed)
+        {
+            var candidates=new List<Vector2Int>();
+            for(int y=-7;y<=7;y++)for(int x=-9;x<=9;x++)
+            {
+                var cell=new Vector2Int(x,y);if((cell-from).sqrMagnitude<64||occupied.Contains(cell))continue;
+                if(collision!=null&&collision.HasTile(new Vector3Int(x,y,0)))continue;candidates.Add(cell);
+            }
+            return candidates.Count==0?from:candidates[(seed&int.MaxValue)%candidates.Count];
+        }
+
+        private static bool TryFindPuzzlePair(Tilemap collision,Vector2Int start,HashSet<Vector2Int> occupied,
+            int seed,out Vector2Int lever,out Vector2Int barrier)
+        {
+            var pairs=new List<Vector2Int[]>();Vector2Int[] directions={Vector2Int.left,Vector2Int.right,Vector2Int.up,Vector2Int.down};
+            for(int y=-6;y<=6;y++)for(int x=-8;x<=8;x++)
+            {
+                var gate=new Vector2Int(x,y);if((gate-start).sqrMagnitude<16||occupied.Contains(gate)||
+                    collision!=null&&collision.HasTile(new Vector3Int(x,y,0)))continue;
+                foreach(Vector2Int direction in directions)
+                {
+                    Vector2Int control=gate+direction;if(occupied.Contains(control)||
+                        collision!=null&&collision.HasTile(new Vector3Int(control.x,control.y,0)))continue;
+                    pairs.Add(new[]{control,gate});
+                }
+            }
+            if(pairs.Count==0){lever=barrier=Vector2Int.zero;return false;}
+            Vector2Int[] pair=pairs[(seed&int.MaxValue)%pairs.Count];lever=pair[0];barrier=pair[1];return true;
+        }
+
+        private static void CreateScenicLandmark(Transform parent,RegionData region,Vector2Int cell)
+        {
+            var go=new GameObject("ScenicLandmark",typeof(SpriteRenderer),typeof(BoxCollider2D),typeof(FieldScenicLandmark));
+            go.transform.SetParent(parent);go.transform.position=Cell(cell);go.transform.localScale=Vector3.one*.72f;
+            var renderer=go.GetComponent<SpriteRenderer>();renderer.sprite=_accentTile?.sprite;renderer.color=region.AccentColor;
+            go.GetComponent<BoxCollider2D>().size=new Vector2(.82f,.82f);
+            go.AddComponent<FieldDepthSorter>().Configure(renderer,-2);ApplyLit(renderer);
+            var so=new SerializedObject(go.GetComponent<FieldScenicLandmark>());Set(so,"regionId",region.regionId);
+            Set(so,"landmarkName",region.isSettlement?region.displayName+" 전망대":region.isDungeon?region.displayName+"의 잊힌 흔적":region.displayName+" 풍경점");
+            Set(so,"target",renderer);Set(so,"accent",region.AccentColor);so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static void CreateLeverPuzzle(Transform parent,RegionData region,Vector2Int leverCell,Vector2Int barrierCell)
+        {
+            var barrier=new GameObject("RestorablePath",typeof(SpriteRenderer),typeof(BoxCollider2D));
+            barrier.transform.SetParent(parent);barrier.transform.position=Cell(barrierCell);barrier.transform.localScale=new Vector3(.86f,.86f,1f);
+            var barrierRenderer=barrier.GetComponent<SpriteRenderer>();barrierRenderer.sprite=_wallTile?.sprite;
+            barrierRenderer.color=Color.Lerp(region.AccentColor,new Color(.28f,.22f,.18f),.64f);
+            barrier.AddComponent<FieldDepthSorter>().Configure(barrierRenderer,-2);
+
+            var lever=new GameObject("PathRestorationLever",typeof(SpriteRenderer),typeof(BoxCollider2D),typeof(FieldLeverBridgePuzzle));
+            lever.transform.SetParent(parent);lever.transform.position=Cell(leverCell);lever.transform.localScale=new Vector3(.48f,.78f,1f);
+            var leverRenderer=lever.GetComponent<SpriteRenderer>();leverRenderer.sprite=_accentTile?.sprite;
+            leverRenderer.color=Color.Lerp(region.AccentColor,new Color(1f,.72f,.3f),.42f);
+            lever.AddComponent<FieldDepthSorter>().Configure(leverRenderer,-1);ApplyLit(leverRenderer);
+            var so=new SerializedObject(lever.GetComponent<FieldLeverBridgePuzzle>());Set(so,"puzzleId",region.regionId);
+            Set(so,"leverRenderer",leverRenderer);Set(so,"barrier",barrier.transform);
+            Set(so,"barrierRenderer",barrierRenderer);Set(so,"barrierCollider",barrier.GetComponent<Collider2D>());
+            Set(so,"accent",region.AccentColor);so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static void CreateForageNode(Transform parent,RegionData region,Vector2Int cell)
+        {
+            var go=new GameObject("DailyForage",typeof(SpriteRenderer),typeof(BoxCollider2D),typeof(FieldForageNode));
+            go.transform.SetParent(parent);go.transform.position=Cell(cell);go.transform.localScale=new Vector3(.64f,.48f,1f);
+            var renderer=go.GetComponent<SpriteRenderer>();renderer.sprite=_accentTile?.sprite;
+            Color color=Color.Lerp(region.AccentColor,new Color(.4f,.82f,.42f),.58f);renderer.color=color;
+            go.GetComponent<BoxCollider2D>().size=new Vector2(.82f,.82f);
+            go.AddComponent<FieldDepthSorter>().Configure(renderer,-3);
+            string itemId=region.act>=5?"ink":region.act>=3?"tonic":"salve";
+            var so=new SerializedObject(go.GetComponent<FieldForageNode>());Set(so,"regionId",region.regionId);
+            Set(so,"itemId",itemId);Set(so,"target",renderer);Set(so,"readyColor",color);so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static void CreateEcologySpot(Transform parent,RegionData region,Vector2Int cell)
+        {
+            var go=new GameObject("EcologyObservation",typeof(SpriteRenderer),typeof(BoxCollider2D),typeof(FieldEcologySpot));
+            go.transform.SetParent(parent);go.transform.position=Cell(cell);go.transform.localScale=Vector3.one*.6f;
+            var renderer=go.GetComponent<SpriteRenderer>();renderer.sprite=_accentTile?.sprite;renderer.color=Color.Lerp(region.AccentColor,new Color(.55f,.9f,1f),.55f);
+            go.AddComponent<FieldDepthSorter>().Configure(renderer,-2);
+            string env=((region.regionId??string.Empty)+" "+(region.environment??string.Empty)).ToLowerInvariant();EcologyKind kind=env.Contains("sea")||env.Contains("coast")||env.Contains("marsh")||env.Contains("port")||env.Contains("island")?EcologyKind.Fishing:
+                region.act%3==0?EcologyKind.Bird:region.act%2==0?EcologyKind.Insect:EcologyKind.Plant;
+            var so=new SerializedObject(go.GetComponent<FieldEcologySpot>());Set(so,"regionId",region.regionId);Set(so,"kind",(int)kind);Set(so,"target",renderer);so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static void CreateCampfire(Transform parent,RegionData region,Vector2Int cell)
+        {
+            var go=new GameObject("FieldCampfire",typeof(SpriteRenderer),typeof(BoxCollider2D),typeof(FieldCampfire));
+            go.transform.SetParent(parent);go.transform.position=Cell(cell);go.transform.localScale=new Vector3(.72f,.58f,1f);
+            var renderer=go.GetComponent<SpriteRenderer>();renderer.sprite=_accentTile?.sprite;renderer.color=new Color(1f,.58f,.2f);
+            go.AddComponent<FieldDepthSorter>().Configure(renderer,-2);var so=new SerializedObject(go.GetComponent<FieldCampfire>());
+            Set(so,"regionId",region.regionId);Set(so,"target",renderer);so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static void CreateSecretPassages(Transform parent,RegionData region,Vector2Int first,Vector2Int second)
+        {
+            CreateSecretPassage(parent,region,first,second,"SecretPassageA");CreateSecretPassage(parent,region,second,first,"SecretPassageB");
+        }
+        private static void CreateSecretPassage(Transform parent,RegionData region,Vector2Int cell,Vector2Int destination,string name)
+        {
+            var go=new GameObject(name,typeof(SpriteRenderer),typeof(BoxCollider2D),typeof(FieldSecretPassage));
+            go.transform.SetParent(parent);go.transform.position=Cell(cell);go.transform.localScale=new Vector3(.68f,.9f,1f);
+            var renderer=go.GetComponent<SpriteRenderer>();renderer.sprite=_wallTile?.sprite;go.AddComponent<FieldDepthSorter>().Configure(renderer,-2);
+            var so=new SerializedObject(go.GetComponent<FieldSecretPassage>());Set(so,"regionId",region.regionId);Set(so,"destination",destination);Set(so,"target",renderer);so.ApplyModifiedPropertiesWithoutUndo();
         }
 
         private static void CreateBoss(Transform parent, Vector2Int cell)

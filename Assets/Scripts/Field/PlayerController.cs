@@ -24,6 +24,10 @@ namespace ShadowTheater.Field
         [SerializeField] private SpriteRenderer silhouette;
         [SerializeField] private Animator animator;          // 선택: 파라미터 "Dir"(int), "Moving"(bool)
         [SerializeField] private float bobHeight = 0.025f;   // 격자 판정을 흐리지 않는 작은 체중 이동
+        [Header("Natural Input")]
+        [SerializeField, Range(.08f, .35f)] private float inputBufferDuration = .22f;
+        [SerializeField, Range(0f, .4f)] private float axisSwitchThreshold = .14f;
+        [SerializeField, Range(.03f, .2f)] private float blockedRepeatDelay = .09f;
 
         /// <summary>가상 패드가 매 프레임 써 넣는 입력값</summary>
         [NonSerialized] public Vector2 MoveInput;
@@ -39,6 +43,8 @@ namespace ShadowTheater.Field
         public event Action<Vector2Int> OnStepFinished;
         /// <summary>이동이 시작될 때 출발 칸과 도착 칸을 전달한다. 동행자는 이 발자국을 따라간다.</summary>
         public event Action<Vector2Int, Vector2Int> OnStepStarted;
+        /// <summary>대화·조사를 시작할 때 대상 위치를 전달해 동행자와 카메라가 같은 장면에 반응한다.</summary>
+        public event Action<Transform> OnInteractionStarted;
 
         private int _lockCount;
         private Collider2D _collider;
@@ -46,6 +52,12 @@ namespace ShadowTheater.Field
         private Vector2Int _lastStepDirection;
         private int _heldDirectionSteps;
         private float _lastStepCompletedAt = -10f;
+        private Vector2Int _bufferedDirection;
+        private float _bufferedUntil;
+        private float _bufferedAt;
+        private float _stepStartedAt;
+        private bool _inputHeld;
+        private bool _dominantHorizontal;
         private static readonly int DirHash = Animator.StringToHash("Dir");
         private static readonly int MovingHash = Animator.StringToHash("Moving");
 
@@ -59,7 +71,8 @@ namespace ShadowTheater.Field
         private void Start()
         {
             _fieldGrid = FieldGrid.Current;
-            SnapToCell(FieldGrid.Current.WorldToCell(transform.position));
+            Vector2Int requested=FieldGrid.Current.WorldToCell(transform.position);
+            if (!SnapToSafeCell(requested,Vector2Int.zero,out _)) SnapToCell(requested);
         }
 
         private void OnDisable()
@@ -70,6 +83,9 @@ namespace ShadowTheater.Field
             IsMoving = false;
             StepProgress = 0f;
             _heldDirectionSteps = 0;
+            _bufferedDirection = Vector2Int.zero;
+            _bufferedUntil = 0f;
+            _inputHeld = false;
             MoveInput = Vector2.zero;
             if (Instance == this) VirtualDPadButton.CancelInput();
             if (animator != null) animator.SetBool(MovingHash, false);
@@ -79,9 +95,10 @@ namespace ShadowTheater.Field
 
         private void Update()
         {
+            SampleInput();
             if (IsLocked || IsMoving) return;
 
-            Vector2Int dir = ReadDirection();
+            Vector2Int dir = BufferedDirection();
             if (dir != Vector2Int.zero) StartCoroutine(StepRoutine(dir));
 
 #if ENABLE_LEGACY_INPUT_MANAGER && (UNITY_EDITOR || UNITY_STANDALONE)
@@ -132,8 +149,10 @@ namespace ShadowTheater.Field
                 var component = interaction as Component;
                 if (component != null) FieldCameraFollow.Instance?.FocusOn(component.transform.position, .48f);
                 GetComponent<FieldInteractionFeedback>()?.PlayConfirm();
+                if (component != null) OnInteractionStarted?.Invoke(component.transform);
                 interaction.Interact(this);
             }
+            else GetComponent<FieldTrailGuide>()?.ShowHint();
         }
 
         public bool TryGetInteraction(out IInteractable interaction)
@@ -141,7 +160,8 @@ namespace ShadowTheater.Field
             interaction = null;
             if (FieldGrid.Current == null) return false;
             var target = FieldGrid.Current.CellToWorld(Cell + FieldGrid.DirToVector(Facing));
-            var hits = Physics2D.OverlapPointAll(target);
+            // 생활 NPC는 일정에 따라 칸 중앙 사이에 멈출 수 있으므로 작은 조사 반경을 허용한다.
+            var hits = Physics2D.OverlapCircleAll(target,.42f);
             foreach (var h in hits)
             {
                 if (h.TryGetComponent<IInteractable>(out var it))
@@ -155,23 +175,42 @@ namespace ShadowTheater.Field
 
         // ────────────────────────────────────────────
 
-        private Vector2Int ReadDirection()
+        private void SampleInput()
         {
             Vector2 v = MoveInput;
 #if ENABLE_LEGACY_INPUT_MANAGER && (UNITY_EDITOR || UNITY_STANDALONE)
             if (v == Vector2.zero) v = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
 #endif
-            if (v.sqrMagnitude < 0.1f) return Vector2Int.zero;
+            _inputHeld = v.sqrMagnitude >= .1f;
+            if (!_inputHeld) return;
 
-            // 대각선 입력은 큰 축 하나만 (4방향 고정)
-            return Mathf.Abs(v.x) > Mathf.Abs(v.y)
-                ? new Vector2Int(v.x > 0 ? 1 : -1, 0)
-                : new Vector2Int(0, v.y > 0 ? 1 : -1);
+            bool previousAxis = _bufferedDirection == Vector2Int.zero
+                ? Mathf.Abs(v.x)>Mathf.Abs(v.y) : _dominantHorizontal;
+            _bufferedDirection = ResolveDirection(v,previousAxis,axisSwitchThreshold,out _dominantHorizontal);
+            _bufferedAt = Time.unscaledTime;
+            _bufferedUntil = Time.unscaledTime + inputBufferDuration;
         }
+
+        public static Vector2Int ResolveDirection(Vector2 input, bool previousHorizontal,
+            float switchThreshold, out bool horizontal)
+        {
+            float x=Mathf.Abs(input.x), y=Mathf.Abs(input.y);
+            horizontal = x>y+switchThreshold ? true : y>x+switchThreshold ? false : previousHorizontal;
+            return horizontal ? new Vector2Int(input.x>=0f?1:-1,0)
+                : new Vector2Int(0,input.y>=0f?1:-1);
+        }
+
+        private Vector2Int BufferedDirection() => _inputHeld || Time.unscaledTime <= _bufferedUntil
+            ? _bufferedDirection : Vector2Int.zero;
+
+        private Vector2Int BufferedFollowUpDirection() =>
+            (_inputHeld || (_bufferedAt > _stepStartedAt + .001f && Time.unscaledTime <= _bufferedUntil))
+                ? _bufferedDirection : Vector2Int.zero;
 
         private IEnumerator StepRoutine(Vector2Int dir)
         {
             IsMoving = true;
+            _stepStartedAt = Time.unscaledTime;
             var newFacing = FieldGrid.VectorToDir(dir);
             bool turned = newFacing != Facing;
             SetFacing(newFacing);
@@ -184,8 +223,10 @@ namespace ShadowTheater.Field
             if (!motion.allowed)
             {
                 FieldCameraFollow.Instance?.Nudge(-(Vector2)dir * .045f);
-                if (turned) yield return new WaitForSeconds(turnOnlyDelay);
+                if (!_inputHeld) _bufferedDirection = Vector2Int.zero;
+                yield return new WaitForSeconds(turned ? turnOnlyDelay : blockedRepeatDelay);
                 IsMoving = false;
+                if (animator != null) animator.SetBool(MovingHash,false);
                 yield break;
             }
             if (FieldGrid.Current.IsBlocked(target, _collider))
@@ -193,8 +234,10 @@ namespace ShadowTheater.Field
                 // 막혀 있으면 방향만 전환
                 _heldDirectionSteps = 0;
                 FieldCameraFollow.Instance?.Nudge(-(Vector2)dir * .045f);
-                if (turned) yield return new WaitForSeconds(turnOnlyDelay);
+                if (!_inputHeld) _bufferedDirection = Vector2Int.zero;
+                yield return new WaitForSeconds(turned ? turnOnlyDelay : blockedRepeatDelay);
                 IsMoving = false;
+                if (animator != null) animator.SetBool(MovingHash,false);
                 yield break;
             }
 
@@ -229,8 +272,16 @@ namespace ShadowTheater.Field
             StepProgress = 0f;
             CompletedSteps++;
             _lastStepCompletedAt = Time.time;
-            if (animator != null && ReadDirection() == Vector2Int.zero) animator.SetBool(MovingHash, false);
             OnStepFinished?.Invoke(Cell);
+
+            // 이동 중 들어온 방향 전환을 다음 프레임까지 버리지 않고 바로 이어 걷는다.
+            Vector2Int next = IsLocked ? Vector2Int.zero : BufferedFollowUpDirection();
+            if (next != Vector2Int.zero)
+            {
+                StartCoroutine(StepRoutine(next));
+                yield break;
+            }
+            if (animator != null) animator.SetBool(MovingHash, false);
         }
     }
 }

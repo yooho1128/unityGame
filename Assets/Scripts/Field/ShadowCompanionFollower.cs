@@ -38,6 +38,7 @@ namespace ShadowTheater.Field
             CreateActor();
             ResetTrail();
             _player.OnStepStarted += RememberFootstep;
+            _player.OnInteractionStarted += ReactToInteraction;
             SaveManager.PartyChanged += RefreshCompanion;
             RefreshCompanion();
             _lastActivityAt = Time.time;
@@ -70,7 +71,8 @@ namespace ShadowTheater.Field
                     _gestureUntil = Time.time + .55f;
                     _motion?.PlayGesture(.55f);
                 }
-                _nextCuriosityAt = Time.time + Mathf.Lerp(4.4f,2.7f,closeness);
+                float personality=PersonalityInterval();
+                _nextCuriosityAt = Time.time + personality*Mathf.Lerp(1.08f,.78f,closeness);
             }
             FadeEmote(Time.time < _gestureUntil ? .9f : 0f);
         }
@@ -118,6 +120,7 @@ namespace ShadowTheater.Field
         private void OnDestroy()
         {
             if (_player != null) _player.OnStepStarted -= RememberFootstep;
+            if (_player != null) _player.OnInteractionStarted -= ReactToInteraction;
             SaveManager.PartyChanged -= RefreshCompanion;
         }
 
@@ -131,11 +134,12 @@ namespace ShadowTheater.Field
             _renderer = visual.GetComponent<SpriteRenderer>();
             _renderer.sortingOrder = 9;
             _motion = visual.GetComponent<ShadowFieldMotion>();
+            actor.AddComponent<FieldDepthSorter>().Configure(_renderer, -2);
             actor.AddComponent<GroundContactShadow>().Configure(_renderer);
             var emote = new GameObject("CompanionEmote", typeof(SpriteRenderer));
             emote.transform.SetParent(_actor, false); emote.transform.localPosition = new Vector3(0f,1.03f,0f);
             _emote = emote.GetComponent<SpriteRenderer>(); _emote.sprite = BattleFxSpriteLibrary.Get(BattleFxGlyph.Star);
-            _emote.color = new Color(.68f,.92f,1f,0f); _emote.sortingOrder = 19;
+            _emote.color = new Color(.68f,.92f,1f,0f); _emote.sortingOrder = 311;
         }
 
         private void RefreshCompanion()
@@ -205,12 +209,42 @@ namespace ShadowTheater.Field
         private Transform FindNearbyInterest()
         {
             Collider2D[] hits = Physics2D.OverlapCircleAll(_actor.position, 2.4f);
+            Transform threat=null;
             foreach (Collider2D hit in hits)
             {
                 if (hit == null || hit.transform == _actor || hit.GetComponent<PlayerController>() != null) continue;
+                if(hit.GetComponent<EncounterSymbol>()!=null)threat=hit.transform;
                 if (hit.GetComponent<IInteractable>() != null) return hit.transform;
             }
+            if(threat!=null&&_companion?.Data!=null)
+            {
+                if(_companion.Data.role==ShadowRole.Support)return _player.transform;
+                if(_companion.Data.role==ShadowRole.Tank||_companion.Data.role==ShadowRole.SpeedUtility)return threat;
+            }
             return _player.transform;
+        }
+
+        private float PersonalityInterval()
+        {
+            if(_companion?.Data==null)return 3.8f;
+            switch(_companion.Data.role)
+            {
+                case ShadowRole.SpeedUtility:return 2.45f;
+                case ShadowRole.Support:return 3.05f;
+                case ShadowRole.MagicNuker:return 3.35f;
+                case ShadowRole.Tank:return 4.15f;
+                default:return 3.65f;
+            }
+        }
+
+        private void ReactToInteraction(Transform target)
+        {
+            if (_actor==null || target==null || _renderer==null) return;
+            float dx=target.position.x-_actor.position.x;
+            if (Mathf.Abs(dx)>.05f) _renderer.flipX=dx<0f;
+            _gestureUntil=Time.time+.68f;
+            _nextCuriosityAt=Time.time+2.4f;
+            _motion?.PlayGesture(.68f);
         }
 
         private void FadeEmote(float target)

@@ -175,7 +175,15 @@ namespace ShadowTheater.Field
             var player = PlayerController.Instance;
             player.Lock();
             player.MoveInput = Vector2.zero;
-            if (symbol != null) symbol.Freeze(true);
+            if (symbol != null)
+            {
+                symbol.Freeze(true);Vector2 delta=symbol.transform.position-player.transform.position;
+                Vector2Int direction=Mathf.Abs(delta.x)>Mathf.Abs(delta.y)?
+                    new Vector2Int(delta.x>=0f?1:-1,0):new Vector2Int(0,delta.y>=0f?1:-1);
+                player.SetFacing(FieldGrid.VectorToDir(direction));symbol.FaceToward(player.transform.position);
+                FieldCameraFollow.Instance?.FocusOn((player.transform.position+symbol.transform.position)*.5f,.35f);
+                GameSettings.TryVibrate();
+            }
 
             foreach (var e in ctx.enemyParty) SaveManager.MarkSeen(e.shadowId);
 
@@ -379,9 +387,13 @@ namespace ShadowTheater.Field
             var save = SaveManager.Current;
             if (p == null || save == null) return;
             save.mapId = FieldGrid.Current != null ? FieldGrid.Current.MapId : save.mapId;
-            save.tileX = p.Cell.x;
-            save.tileY = p.Cell.y;
-            save.facing = (int)p.Facing;
+            Vector2Int cell=p.Cell;FacingDir facing=p.Facing;
+            if(TownInteriorController.Instance!=null&&
+               TownInteriorController.Instance.TryGetOutdoorPosition(out Vector2Int outdoorCell,out FacingDir outdoorFacing))
+            {cell=outdoorCell;facing=outdoorFacing;}
+            save.tileX = cell.x;
+            save.tileY = cell.y;
+            save.facing = (int)facing;
         }
     }
 }

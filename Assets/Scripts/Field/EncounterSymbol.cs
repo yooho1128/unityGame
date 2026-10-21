@@ -139,6 +139,12 @@ namespace ShadowTheater.Field
             return list;
         }
 
+        public void FaceToward(Vector3 world)
+        {
+            if(silhouette!=null&&Mathf.Abs(world.x-transform.position.x)>.03f)
+                silhouette.flipX=world.x<transform.position.x;
+        }
+
         public void Freeze(bool on) => _frozen = on;
 
         public void OnBattleFinished(BattleResult result)

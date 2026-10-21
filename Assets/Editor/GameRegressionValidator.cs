@@ -722,6 +722,13 @@ namespace ShadowTheater.EditorTools
             if (mud.durationMultiplier <= 1f || ice.durationMultiplier >= 1f || ice.overshoot <= 0f ||
                 ladderSide.allowed || ledgeUp.allowed || dash.durationMultiplier >= 1f)
                 result.errors.Add("달리기·진흙·얼음·사다리·턱 이동 프로필 회귀 실패");
+            Vector2Int keepHorizontal=PlayerController.ResolveDirection(new Vector2(.51f,.5f),true,.14f,out bool horizontal);
+            Vector2Int switchVertical=PlayerController.ResolveDirection(new Vector2(.4f,.8f),true,.14f,out bool verticalResult);
+            if (keepHorizontal!=Vector2Int.right || !horizontal || switchVertical!=Vector2Int.up || verticalResult)
+                result.errors.Add("필드 대각선 입력 축 고정·전환 회귀 실패");
+            if(FieldDepthSorter.OrderAt(2f)>=FieldDepthSorter.OrderAt(1f) ||
+               FieldDepthSorter.OrderAt(1f,3)-FieldDepthSorter.OrderAt(1f)!=3)
+                result.errors.Add("필드 Y축 앞뒤 깊이 정렬 회귀 실패");
         }
 
         private static void ValidateRegionalEncounterPolicy(ValidationReport result)
@@ -1536,6 +1543,18 @@ namespace ShadowTheater.EditorTools
                                 null, 12, false) ||
                             walkableArrival != region.ArrivalCell)
                             result.errors.Add($"{region.sceneName}: 월드맵 도착 좌표가 막힘 {region.ArrivalCell}");
+                        var groundMap=gridSo.FindProperty("groundTilemap")?.objectReferenceValue as UnityEngine.Tilemaps.Tilemap;
+                        if(groundMap!=null)
+                        {
+                            BoundsInt bounds=groundMap.cellBounds;bool edgeLeak=false;
+                            for(int x=bounds.xMin;x<bounds.xMax&&!edgeLeak;x++)
+                                edgeLeak=!fieldGrid.IsBlocked(new Vector2Int(x,bounds.yMin),null,false)||
+                                    !fieldGrid.IsBlocked(new Vector2Int(x,bounds.yMax-1),null,false);
+                            for(int y=bounds.yMin;y<bounds.yMax&&!edgeLeak;y++)
+                                edgeLeak=!fieldGrid.IsBlocked(new Vector2Int(bounds.xMin,y),null,false)||
+                                    !fieldGrid.IsBlocked(new Vector2Int(bounds.xMax-1,y),null,false);
+                            if(edgeLeak)result.errors.Add($"{region.sceneName}: 필드 외곽 충돌 틈 발견");
+                        }
                     }
                     PlayerController fieldPlayer = roots.SelectMany(x => x.GetComponentsInChildren<PlayerController>(true)).FirstOrDefault();
                     if (fieldPlayer == null) result.errors.Add($"{region.sceneName}: Player 누락");
@@ -1552,12 +1571,65 @@ namespace ShadowTheater.EditorTools
                             result.errors.Add($"{region.sceneName}: 환경 연쇄 반응 컨트롤러 누락");
                         if (fieldPlayer.GetComponent<FieldInteractionFeedback>() == null)
                             result.errors.Add($"{region.sceneName}: 상호작용 대상 피드백 누락");
+                        if (fieldPlayer.GetComponent<FieldBoundaryGuard>() == null)
+                            result.errors.Add($"{region.sceneName}: 필드 경계 이탈 복구 누락");
+                        if (fieldPlayer.GetComponent<FieldArrivalPresentation>() == null)
+                            result.errors.Add($"{region.sceneName}: 지역 도착 정착 연출 누락");
+                        if(fieldPlayer.GetComponent<FieldItemAcquisitionFeedback>()==null)
+                            result.errors.Add($"{region.sceneName}: 도구 획득 머리 위 피드백 누락");
+                        if(fieldPlayer.GetComponent<FieldDepthSorter>()==null)
+                            result.errors.Add($"{region.sceneName}: 플레이어 Y축 깊이 정렬 누락");
+                        if(fieldPlayer.GetComponent<FieldExplorationMoments>()==null)
+                            result.errors.Add($"{region.sceneName}: 지역 풍경 탐험 기록 누락");
+                        if(fieldPlayer.GetComponent<FieldTrailGuide>()==null)
+                            result.errors.Add($"{region.sceneName}: 빈 조사 길찾기 안내 누락");
+                        if(fieldPlayer.GetComponent<FieldPlayerIdleLife>()==null)
+                            result.errors.Add($"{region.sceneName}: 플레이어 생활 대기 동작 누락");
                     }
+                    if(!roots.SelectMany(x=>x.GetComponentsInChildren<FieldAmbientLife>(true)).Any())
+                        result.errors.Add($"{region.sceneName}: 필드 미세 생활 연출 누락");
+                    if(!roots.SelectMany(x=>x.GetComponentsInChildren<FieldProximityAmbience>(true)).Any())
+                        result.errors.Add($"{region.sceneName}: 거리 기반 환경음 누락");
+                    if(region.isSettlement)
+                    {
+                        if(!roots.SelectMany(x=>x.GetComponentsInChildren<TownLifeController>(true)).Any())
+                            result.errors.Add($"{region.sceneName}: 마을 생활 스케줄 누락");
+                        int townProps=roots.SelectMany(x=>x.GetComponentsInChildren<TownLifeProp>(true)).Count();
+                        if(townProps<10)result.errors.Add($"{region.sceneName}: 마을 생활 오브젝트 부족 ({townProps}/10)");
+                        if(!roots.SelectMany(x=>x.GetComponentsInChildren<FieldPushableCrate>(true)).Any())
+                            result.errors.Add($"{region.sceneName}: 밀기 상자 환경 상호작용 누락");
+                        int scheduledResidents=roots.SelectMany(x=>x.GetComponentsInChildren<TownNpcPatrol>(true)).Count();
+                        if(scheduledResidents<5)
+                            result.errors.Add($"{region.sceneName}: 시간대별 생활 동선 주민 부족 ({scheduledResidents}/5)");
+                        if(!roots.SelectMany(x=>x.GetComponentsInChildren<TownInteriorController>(true)).Any())
+                            result.errors.Add($"{region.sceneName}: 이동 가능한 마을 실내 공간 누락");
+                        if(!roots.SelectMany(x=>x.GetComponentsInChildren<TownResidentRequest>(true)).Any())
+                            result.errors.Add($"{region.sceneName}: 주민 일일 부탁·호감도 누락");
+                        if(!roots.SelectMany(x=>x.GetComponentsInChildren<FieldJournalStand>(true)).Any())
+                            result.errors.Add($"{region.sceneName}: 탐험 수첩 열람대 누락");
+                    }
+                    if(!region.isBossStage&&!roots.SelectMany(x=>x.GetComponentsInChildren<FieldScenicLandmark>(true)).Any())
+                        result.errors.Add($"{region.sceneName}: 비전투 지역 명소 누락");
+                    if(region.AllowsRandomEncounters&&!roots.SelectMany(x=>x.GetComponentsInChildren<FieldLeverBridgePuzzle>(true)).Any())
+                        result.errors.Add($"{region.sceneName}: 길 복구 레버 퍼즐 누락");
+                    if(region.AllowsRandomEncounters&&!roots.SelectMany(x=>x.GetComponentsInChildren<FieldForageNode>(true)).Any())
+                        result.errors.Add($"{region.sceneName}: 일일 지역 채집 지점 누락");
+                    if(region.AllowsRandomEncounters&&!roots.SelectMany(x=>x.GetComponentsInChildren<FieldEcologySpot>(true)).Any())
+                        result.errors.Add($"{region.sceneName}: 낚시·곤충·생태 기록 지점 누락");
+                    if(region.AllowsRandomEncounters&&!roots.SelectMany(x=>x.GetComponentsInChildren<FieldCampfire>(true)).Any())
+                        result.errors.Add($"{region.sceneName}: 야영·시간 경과 지점 누락");
+                    if((region.isDungeon||region.isHidden)&&
+                       roots.SelectMany(x=>x.GetComponentsInChildren<FieldSecretPassage>(true)).Count()<2)
+                        result.errors.Add($"{region.sceneName}: 영구 양방향 비밀 통로 누락");
                     if (!roots.SelectMany(x => x.GetComponentsInChildren<FieldCameraFollow>(true)).Any())
                         result.errors.Add($"{region.sceneName}: 이동 방향 카메라 추적 누락");
                     foreach (StoryNpc npc in roots.SelectMany(x => x.GetComponentsInChildren<StoryNpc>(true)))
+                    {
                         if (npc.GetComponent<FieldNpcPresence>() == null)
                             result.errors.Add($"{region.sceneName}: NPC 시선·발견 반응 누락 ({npc.name})");
+                        if (npc.GetComponent<FieldDepthSorter>() == null)
+                            result.errors.Add($"{region.sceneName}: NPC Y축 깊이 정렬 누락 ({npc.name})");
+                    }
                     if (!roots.Any(x => x.GetComponentInChildren<GroundContactShadow>(true) != null))
                         result.errors.Add($"{region.sceneName}: 필드 접지 그림자 누락");
                     if (!roots.Any(x => x.GetComponentInChildren<BattleStageBackdrop>(true) != null))

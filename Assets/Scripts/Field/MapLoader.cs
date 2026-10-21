@@ -97,6 +97,9 @@ namespace ShadowTheater.Field
 
             var oldFader = ScreenFader.Instance;
             FieldAmbientAudio.Instance?.BeginFadeOut();
+            if(player!=null)FieldCameraFollow.Instance?.FocusOn(player.transform.position,.28f);
+            GameSettings.TryVibrate();
+            yield return new WaitForSecondsRealtime(.1f);
             if (oldFader != null) yield return oldFader.FadeOut();
 
             if (!ReferenceEquals(save, SaveManager.Current))

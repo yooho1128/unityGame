@@ -29,6 +29,8 @@ namespace ShadowTheater.Field
         {
             if (target == null || shadow == null) return;
             shadow.enabled = target.enabled;
+            shadow.sortingLayerID = target.sortingLayerID;
+            shadow.sortingOrder = target.sortingOrder - 1;
             float height = Mathf.Max(0, target.bounds.min.y - transform.position.y);
             float size = Mathf.Clamp(.64f - height * .18f, .4f, .68f);
             shadow.transform.localScale = new Vector3(size, size, 1);

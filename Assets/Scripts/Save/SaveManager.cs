@@ -793,6 +793,12 @@ namespace ShadowTheater.Save
         public static int GetItemCount(string itemId) =>
             Current?.inventory.Find(x => x.itemId == itemId)?.count ?? 0;
 
+        public static void AdvancePlayTime(float seconds)
+        {
+            if(Current==null||seconds<=0f)return;
+            Current.playTimeSeconds=Mathf.Max(0f,Current.playTimeSeconds+seconds);
+        }
+
         public static void AddGold(int amount)
         {
             if (Current == null || amount == 0) return;

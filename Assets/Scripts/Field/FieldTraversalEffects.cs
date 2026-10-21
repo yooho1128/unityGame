@@ -83,6 +83,9 @@ namespace ShadowTheater.Field
         public FootstepSurface SurfaceAt(Vector2Int cell)
         {
             string tileName = FieldGrid.Current != null ? FieldGrid.Current.GroundTileName(cell) : string.Empty;
+            string collisionName=FieldGrid.Current!=null?FieldGrid.Current.CollisionTileName(cell):string.Empty;
+            if(!string.IsNullOrEmpty(collisionName)&&ResolveSurface(collisionName,defaultSurface)==FootstepSurface.Water)
+                return FootstepSurface.Water;
             return ResolveSurface(tileName, defaultSurface);
         }
 
@@ -160,7 +163,8 @@ namespace ShadowTheater.Field
             if (_effectRoot == null) yield break;
             var go = new GameObject(name, typeof(SpriteRenderer)); go.transform.SetParent(_effectRoot, false);
             var renderer = go.GetComponent<SpriteRenderer>(); renderer.sprite = BattleFxSpriteLibrary.Get(glyph);
-            renderer.color = color; renderer.sortingOrder = sortingOrder;
+            renderer.color = color;
+            renderer.sortingOrder = FieldDepthSorter.OrderAt(from.y, sortingOrder - 9);
             for (float elapsed = 0f; elapsed < duration; elapsed += Time.deltaTime)
             {
                 float t = Mathf.Clamp01(elapsed / Mathf.Max(.01f, duration));
