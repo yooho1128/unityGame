@@ -126,6 +126,36 @@
 
 ---
 
+## 2-1. 수집
+
+### R-1. 획득 경로가 없는 그림자 4종 — `버그 의심` · S~M
+- **관찰:** 다음 4종이 획득 경로에 하나도 연결되어 있지 않음
+  - 확인한 경로: 랜덤 조우(지역 로스터, `featuredShadows`), 필드 심볼(`CreateEncounter`), 보스 정화 보상(`CreateBossEncounter`), 스타터
+  - 확인 위치: `RegionCatalog.json`, `PlayablePrologueGenerator.cs`, `CoreContentBatchGenerator`의 지역 확장 규칙
+
+  | shadowId | 이름 | 등급 | 현재 게임 안에서의 쓰임 |
+  |---|---|---|---|
+  | `censor` | 검열관 무명 | Rare | 없음. 기억 복원 형태까지 정의되어 있음 |
+  | `furnace_keeper` | 화로지기 | Standard | NPC 외형(`EmberArchivist`)으로만 사용. 전용 필드 걷기 2프레임도 있음 |
+  | `frost_gull` | 서리 갈매기 | Standard | 동행 이벤트 `gull_bubble_echo`(거품 동굴)의 필수 동행 |
+  | `ink_conductor` | 먹칠 역무원 | Standard | NPC 외형 + 동행 이벤트 `conductor_silent_score`의 필수 동행 |
+
+- **영향:**
+  - 도감 180종을 완성할 수 없음. 각본집 수집 이정표 180종 보상과 여정 완성도 100%에 도달하지 못함
+  - `frost_gull`, `ink_conductor`를 얻을 수 없어 해당 동행 이벤트(`CompanionEventCatalog.json`)를 볼 수 없음
+    - 서리 갈매기: 특별 도구 「귀항의 깃나침반」을 얻을 수 없음
+    - 먹칠 역무원: 진명 '오르도' 플래그(`truth_ink_conductor_revealed`)를 얻을 수 없어 진명 각성이 불가능함
+- **확인 방법:** 해당 ID가 `RegionalRosterManifest.json`(생성 후)과 생성된 씬의 `EncounterSymbol`/`BossEncounterTrigger`에 실제로 없는지 확인
+  - 정적 분석에서 놓친 획득 경로(예: 이벤트 보상)가 있으면 이 항목은 기각
+- **제안(택1 또는 조합):**
+  - 각 그림자의 막·속성에 맞는 지역의 `featuredShadows`에 추가해 랜덤 조우로 등장시키기
+    - 예: 화로지기 → 2막 불씨 지역, 서리 갈매기 → 3막 해안·거품 동굴, 먹칠 역무원·검열관 → 6막
+  - 필드 심볼(`CreateEncounter`)로 한 번 배치하기
+  - NPC 대화 후 합류하는 보상 형태로 지급하기. 먹칠 역무원처럼 이미 NPC로 등장하는 경우에 자연스러움
+- **회귀 검사 제안:** "180종 모두 최소 1개의 획득 경로가 있음"을 `GameRegressionValidator`에 추가
+
+---
+
 ## 3. 탐험
 
 ### E-1. 필드 레이아웃 다양성이 낮음 — `콘텐츠` · L
@@ -189,7 +219,7 @@
 
 ## 우선순위 제안 (참고용)
 
-1. **작업량이 작고 효과가 확실한 것:** C-1, C-2, E-3
+1. **작업량이 작고 효과가 확실한 것:** C-1, C-2, E-3, R-1
 2. **플레이 경험에 큰 영향:** E-2(후반 거점), C-7(레벨 곡선)
 3. **콘텐츠 보강(장기):** S-1~S-3, E-1, 그래픽 항목
 4. **선택 사항:** C-3~C-6, T-1
@@ -210,6 +240,7 @@
 | S-1 | | |
 | S-2 | | |
 | S-3 | | |
+| R-1 | | |
 | E-1 | | |
 | E-2 | | |
 | E-3 | | |
