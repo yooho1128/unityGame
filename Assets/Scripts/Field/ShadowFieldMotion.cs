@@ -28,6 +28,8 @@ namespace ShadowTheater.Field
         private float _movingBlend;
         private float _nextGestureAt;
         private float _gestureUntil;
+        private bool _pixelArt;
+        private const float PixelSize = 1f / 32f;
 
         private enum MotionStyle { Walk, Hover, Flutter, Phase }
 
@@ -45,6 +47,7 @@ namespace ShadowTheater.Field
             _baseLocalPosition = transform.localPosition;
             _baseRotation = transform.localRotation;
             _baseColor = target != null ? target.color : Color.white;
+            _pixelArt = IsPixelArt(target != null ? target.sprite : null);
             if (shadow == null) return;
             role = shadow.role;
             growthTier = shadow.growthTier;
@@ -61,6 +64,7 @@ namespace ShadowTheater.Field
             _baseLocalPosition = transform.localPosition;
             _baseRotation = transform.localRotation;
             _baseColor = target != null ? target.color : Color.white;
+            _pixelArt = IsPixelArt(target != null ? target.sprite : null);
             _lastAnchorPosition = transform.parent != null ? transform.parent.position : transform.position;
             _phase = (GetInstanceID() & 31) * 0.37f;
             _nextGestureAt = Time.time + 2.2f + (GetInstanceID() & 7) * .43f;
@@ -89,6 +93,12 @@ namespace ShadowTheater.Field
                 int frame = motionStyle == MotionStyle.Walk && !moving
                     ? 0 : Mathf.FloorToInt((Time.time + _phase) * speed) % frames.Length;
                 target.sprite = frames[Mathf.Abs(frame)];
+            }
+
+            if (_pixelArt)
+            {
+                ApplyPixelMotion(moving, wave, lift, gesture);
+                return;
             }
 
             switch (motionStyle)
@@ -126,6 +136,40 @@ namespace ShadowTheater.Field
                         wave * 1.15f * _movingBlend + gesture * 2.2f);
                     break;
             }
+        }
+
+        private void ApplyPixelMotion(bool moving, float wave, float lift, float gesture)
+        {
+            // Low-resolution field actors must never be stretched or rotated between pixels.
+            // Their two animation frames already carry the walk cycle; a one-pixel lift keeps
+            // the motion alive without making faces and outlines shimmer or tear.
+            float y = 0f;
+            switch (motionStyle)
+            {
+                case MotionStyle.Hover:
+                case MotionStyle.Flutter:
+                    if (moving && lift > .2f) y = PixelSize;
+                    break;
+                case MotionStyle.Phase:
+                    target.color = new Color(_baseColor.r, _baseColor.g, _baseColor.b,
+                        .88f + .12f * Mathf.Abs(lift));
+                    break;
+                default:
+                    if (moving && Mathf.Abs(wave) > .55f) y = PixelSize;
+                    if (!moving && gesture > .65f) y = PixelSize;
+                    break;
+            }
+            transform.localScale = _baseScale;
+            transform.localRotation = _baseRotation;
+            transform.localPosition = _baseLocalPosition + Vector3.up * y;
+            if (motionStyle != MotionStyle.Phase) target.color = _baseColor;
+        }
+
+        private static bool IsPixelArt(Sprite sprite)
+        {
+            if (sprite == null || sprite.texture == null) return false;
+            return sprite.texture.filterMode == FilterMode.Point &&
+                   sprite.rect.width <= 64f && sprite.rect.height <= 64f;
         }
 
         private static MotionStyle ResolveStyle(ShadowData shadow)

@@ -24,7 +24,9 @@ namespace ShadowTheater.Story
         private bool _nightRest;
         private Vector3 _scheduleAnchor;
         private Vector3 _schedulePatrolOffset;
+        private Vector3 _motionPosition;
         private FieldTimeOfDay _timeOfDay;
+        private const float PixelsPerUnit = 32f;
 
         private void Awake()
         {
@@ -33,6 +35,7 @@ namespace ShadowTheater.Story
             _scheduleAnchor = _origin;
             _schedulePatrolOffset = localOffset;
             _target = _origin;
+            _motionPosition = _origin;
             _renderer = GetComponentInChildren<SpriteRenderer>();
             _motion = GetComponentInChildren<ShadowFieldMotion>();
             _waitUntil = Time.time + StableDelay(.4f, 1.4f);
@@ -82,12 +85,13 @@ namespace ShadowTheater.Story
                 _watchingPlayer = false;
                 _waitUntil = Mathf.Max(_waitUntil,Time.time+.42f);
             }
-            if((_nightRest||_sheltering)&&(_scheduleAnchor-transform.localPosition).sqrMagnitude<.01f)
-            {transform.localPosition=_scheduleAnchor;_velocity=Vector3.zero;return;}
+            if((_nightRest||_sheltering)&&(_scheduleAnchor-_motionPosition).sqrMagnitude<.01f)
+            {_motionPosition=_scheduleAnchor;transform.localPosition=PixelSnap(_motionPosition);_velocity=Vector3.zero;return;}
             if (Time.time < _waitUntil) return;
-            if ((_target - transform.localPosition).sqrMagnitude < .0025f)
+            if ((_target - _motionPosition).sqrMagnitude < .0025f)
             {
-                transform.localPosition = _target;
+                _motionPosition = _target;
+                transform.localPosition = PixelSnap(_motionPosition);
                 _velocity = Vector3.zero;
                 _atFarEnd = !_atFarEnd;
                 _target = _atFarEnd ? _scheduleAnchor + _schedulePatrolOffset : _scheduleAnchor;
@@ -96,11 +100,17 @@ namespace ShadowTheater.Story
                 return;
             }
 
-            float dx = _target.x - transform.localPosition.x;
+            float dx = _target.x - _motionPosition.x;
             if (_renderer != null && Mathf.Abs(dx) > .01f) _renderer.flipX = dx < 0f;
-            transform.localPosition = Vector3.SmoothDamp(transform.localPosition, _target,
+            _motionPosition = Vector3.SmoothDamp(_motionPosition, _target,
                 ref _velocity, .16f, speed, Time.deltaTime);
+            transform.localPosition = PixelSnap(_motionPosition);
         }
+
+        private static Vector3 PixelSnap(Vector3 position) => new Vector3(
+            Mathf.Round(position.x*PixelsPerUnit)/PixelsPerUnit,
+            Mathf.Round(position.y*PixelsPerUnit)/PixelsPerUnit,
+            position.z);
 
         private float StableDelay(float min, float max)
         {

@@ -2774,11 +2774,24 @@ namespace ShadowTheater.EditorTools
                 importer.textureType = TextureImporterType.Sprite;
                 importer.spriteImportMode = SpriteImportMode.Single;
                 importer.spritePixelsPerUnit = 32f;
+                var settings = new TextureImporterSettings();
+                importer.ReadTextureSettings(settings);
+                settings.spriteAlignment = (int)SpriteAlignment.Custom;
+                settings.spritePivot = new Vector2(.5f, 0f);
+                settings.spriteMeshType = SpriteMeshType.FullRect;
+                importer.SetTextureSettings(settings);
                 importer.alphaIsTransparency = true;
                 importer.mipmapEnabled = false;
                 importer.filterMode = FilterMode.Point;
+                importer.wrapMode = TextureWrapMode.Clamp;
                 importer.textureCompression = TextureImporterCompression.Uncompressed;
                 importer.maxTextureSize = 32;
+                var android = importer.GetPlatformTextureSettings("Android");
+                android.name = "Android";
+                android.overridden = true;
+                android.maxTextureSize = 32;
+                android.format = TextureImporterFormat.RGBA32;
+                importer.SetPlatformTextureSettings(android);
                 importer.SaveAndReimport();
                 result[i] = AssetDatabase.LoadAssetAtPath<Sprite>(path);
             }

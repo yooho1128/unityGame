@@ -726,6 +726,10 @@ namespace ShadowTheater.EditorTools
             Vector2Int switchVertical=PlayerController.ResolveDirection(new Vector2(.4f,.8f),true,.14f,out bool verticalResult);
             if (keepHorizontal!=Vector2Int.right || !horizontal || switchVertical!=Vector2Int.up || verticalResult)
                 result.errors.Add("필드 대각선 입력 축 고정·전환 회귀 실패");
+            if(PlayerController.CanRepeatHeldStep(true,.18f,.34f)||
+               !PlayerController.CanRepeatHeldStep(true,.35f,.34f)||
+               !PlayerController.CanRepeatHeldStep(false,0f,.34f))
+                result.errors.Add("짧은 방향 입력의 한 칸 이동·길게 누르기 반복 지연 회귀 실패");
             if(FieldDepthSorter.OrderAt(2f)>=FieldDepthSorter.OrderAt(1f) ||
                FieldDepthSorter.OrderAt(1f,3)-FieldDepthSorter.OrderAt(1f)!=3)
                 result.errors.Add("필드 Y축 앞뒤 깊이 정렬 회귀 실패");

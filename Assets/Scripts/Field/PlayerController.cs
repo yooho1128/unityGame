@@ -28,6 +28,7 @@ namespace ShadowTheater.Field
         [SerializeField, Range(.08f, .35f)] private float inputBufferDuration = .22f;
         [SerializeField, Range(0f, .4f)] private float axisSwitchThreshold = .14f;
         [SerializeField, Range(.03f, .2f)] private float blockedRepeatDelay = .09f;
+        [SerializeField, Range(.22f, .55f)] private float holdRepeatDelay = .34f;
 
         /// <summary>가상 패드가 매 프레임 써 넣는 입력값</summary>
         [NonSerialized] public Vector2 MoveInput;
@@ -56,7 +57,9 @@ namespace ShadowTheater.Field
         private float _bufferedUntil;
         private float _bufferedAt;
         private float _stepStartedAt;
+        private float _inputPressedAt;
         private bool _inputHeld;
+        private bool _steppedForCurrentPress;
         private bool _dominantHorizontal;
         private static readonly int DirHash = Animator.StringToHash("Dir");
         private static readonly int MovingHash = Animator.StringToHash("Moving");
@@ -86,6 +89,7 @@ namespace ShadowTheater.Field
             _bufferedDirection = Vector2Int.zero;
             _bufferedUntil = 0f;
             _inputHeld = false;
+            _steppedForCurrentPress = false;
             MoveInput = Vector2.zero;
             if (Instance == this) VirtualDPadButton.CancelInput();
             if (animator != null) animator.SetBool(MovingHash, false);
@@ -181,7 +185,13 @@ namespace ShadowTheater.Field
 #if ENABLE_LEGACY_INPUT_MANAGER && (UNITY_EDITOR || UNITY_STANDALONE)
             if (v == Vector2.zero) v = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
 #endif
-            _inputHeld = v.sqrMagnitude >= .1f;
+            bool held = v.sqrMagnitude >= .1f;
+            if (held && !_inputHeld)
+            {
+                _inputPressedAt = Time.unscaledTime;
+                _steppedForCurrentPress = false;
+            }
+            _inputHeld = held;
             if (!_inputHeld) return;
 
             bool previousAxis = _bufferedDirection == Vector2Int.zero
@@ -200,12 +210,49 @@ namespace ShadowTheater.Field
                 : new Vector2Int(0,input.y>=0f?1:-1);
         }
 
-        private Vector2Int BufferedDirection() => _inputHeld || Time.unscaledTime <= _bufferedUntil
-            ? _bufferedDirection : Vector2Int.zero;
+        public static bool CanRepeatHeldStep(bool alreadyStepped, float heldDuration, float repeatDelay) =>
+            !alreadyStepped || heldDuration >= Mathf.Max(0f,repeatDelay);
 
-        private Vector2Int BufferedFollowUpDirection() =>
-            (_inputHeld || (_bufferedAt > _stepStartedAt + .001f && Time.unscaledTime <= _bufferedUntil))
+        private Vector2Int BufferedDirection()
+        {
+            if (_inputHeld)
+            {
+                if (!CanRepeatHeldStep(_steppedForCurrentPress,
+                    Time.unscaledTime-_inputPressedAt,holdRepeatDelay))
+                    return Vector2Int.zero;
+                return _bufferedDirection;
+            }
+            return Time.unscaledTime <= _bufferedUntil ? _bufferedDirection : Vector2Int.zero;
+        }
+
+        private Vector2Int BufferedFollowUpDirection(Vector2Int completedDirection)
+        {
+            if (_inputHeld)
+            {
+                bool changedDirection = _bufferedDirection != Vector2Int.zero &&
+                                        _bufferedDirection != completedDirection;
+                bool holdRepeatReady = CanRepeatHeldStep(_steppedForCurrentPress,
+                    Time.unscaledTime-_inputPressedAt,holdRepeatDelay);
+                return changedDirection || holdRepeatReady
+                    ? _bufferedDirection : Vector2Int.zero;
+            }
+
+            // A short tap is sampled for several frames while the current step is moving.
+            // Do not mistake those repeated samples for a request to walk a second tile.
+            // Only a genuinely different direction pressed during the step is buffered.
+            bool changedDirection = _bufferedDirection != Vector2Int.zero &&
+                                    _bufferedDirection != completedDirection;
+            return changedDirection && _bufferedAt > _stepStartedAt + .001f &&
+                   Time.unscaledTime <= _bufferedUntil
                 ? _bufferedDirection : Vector2Int.zero;
+        }
+
+        private void ClearBufferedInput()
+        {
+            _bufferedDirection = Vector2Int.zero;
+            _bufferedUntil = 0f;
+            _bufferedAt = 0f;
+        }
 
         private IEnumerator StepRoutine(Vector2Int dir)
         {
@@ -247,6 +294,7 @@ namespace ShadowTheater.Field
             Vector3 to = FieldGrid.Current.CellToWorld(target);
             OnStepStarted?.Invoke(Cell, target);
             Cell = target; // 출발 시점에 칸 예약 (심볼과 겹침 방지)
+            _steppedForCurrentPress = true;
             _lastStepDirection = dir;
             _heldDirectionSteps = heldSteps;
 
@@ -275,12 +323,13 @@ namespace ShadowTheater.Field
             OnStepFinished?.Invoke(Cell);
 
             // 이동 중 들어온 방향 전환을 다음 프레임까지 버리지 않고 바로 이어 걷는다.
-            Vector2Int next = IsLocked ? Vector2Int.zero : BufferedFollowUpDirection();
+            Vector2Int next = IsLocked ? Vector2Int.zero : BufferedFollowUpDirection(dir);
             if (next != Vector2Int.zero)
             {
                 StartCoroutine(StepRoutine(next));
                 yield break;
             }
+            if (!_inputHeld) ClearBufferedInput();
             if (animator != null) animator.SetBool(MovingHash, false);
         }
     }
