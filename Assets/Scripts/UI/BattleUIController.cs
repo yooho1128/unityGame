@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using ShadowTheater.Battle;
 using ShadowTheater.Data;
+using ShadowTheater.Field;
 using ShadowTheater.Save;
 using ShadowTheater.Story;
 using UnityEngine;
@@ -9,7 +10,7 @@ using UnityEngine.UI;
 
 namespace ShadowTheater.UI
 {
-    /// <summary>모바일 전투 입력 UI와 경량 연출 Presenter.</summary>
+    /// <summary>터치·마우스·게임패드를 함께 지원하는 전투 입력 UI와 경량 연출 Presenter.</summary>
     public class BattleUIController : MonoBehaviour, IBattlePresenter
     {
         [SerializeField] private BattleManager manager;
@@ -86,6 +87,14 @@ namespace ShadowTheater.UI
             manager.OnMomentumChanged -= OnMomentumChanged;
             manager.OnUnitChanged -= OnUnitChanged;
             manager.OnActiveChanged -= OnActiveChanged;
+        }
+
+        private void Update()
+        {
+#if ENABLE_LEGACY_INPUT_MANAGER && (UNITY_EDITOR || UNITY_STANDALONE)
+            if (optionRoot != null && optionRoot.activeSelf &&
+                (Input.GetKeyDown(KeyCode.Escape) || Input.GetButtonDown("Cancel"))) BackToActions();
+#endif
         }
 
         public void Attack()
@@ -283,6 +292,7 @@ namespace ShadowTheater.UI
             _tutorialStep = 0;
             tutorialRoot.SetActive(true);
             RefreshTutorial();
+            DesktopPlatformController.SelectFirstUsable(tutorialRoot);
         }
 
         private void RefreshTutorial()
@@ -369,6 +379,7 @@ namespace ShadowTheater.UI
             if (actionRoot != null) actionRoot.SetActive(show);
             if (!show && optionRoot != null) optionRoot.SetActive(false);
             if (messageRoot != null) messageRoot.SetActive(true);
+            if (show) DesktopPlatformController.SelectFirstUsable(actionRoot);
         }
 
         private void OpenOptions(string prompt)
@@ -395,6 +406,7 @@ namespace ShadowTheater.UI
             Canvas.ForceUpdateCanvases();
             foreach (var row in _options) row.GetComponent<BattleOptionButton>()?.FitContent();
             UiListLayout.Rebuild(optionContent, Vector2.zero);
+            DesktopPlatformController.SelectFirstUsable(optionRoot);
         }
 
         private void ClearOptions()
@@ -410,7 +422,13 @@ namespace ShadowTheater.UI
         public void SetSpeed(float timeScale) => _speed = Mathf.Max(0.1f, timeScale);
 
         public IEnumerator PlayIntro(BattleUnit player, BattleUnit enemy, BattleMode mode)
-        { RefreshAll(); yield return Say(L10n.Format("battle.intro", "{0}이(가) 무대에 올랐다!\n가라, {1}!", L10n.Text(enemy.Name), L10n.Text(player.Name))); }
+        {
+            RefreshAll();
+            Image backdrop = transform.Find("Backdrop")?.GetComponent<Image>();
+            if (backdrop != null && manager?.Context != null)
+                backdrop.color = Color.Lerp(backdrop.color, EnvironmentColor(manager.Context.weather), .34f);
+            yield return Say(L10n.Format("battle.intro", "{0}이(가) 무대에 올랐다!\n가라, {1}!", L10n.Text(enemy.Name), L10n.Text(player.Name)));
+        }
         public IEnumerator PlayBossPhase(BattleUnit boss, BossPhaseDefinition phase)
         {
             if (fxDirector != null) yield return fxDirector.PlayBossPhase(enemyPanel, boss, phase, _speed);
@@ -507,6 +525,7 @@ namespace ShadowTheater.UI
             if (resultDetailsText != null) resultDetailsText.text = BuildResultDetails(outcome);
             if (resultContinueText != null) resultContinueText.text = L10n.Get("battle.result_continue", "계속");
             if (resultAccent != null) resultAccent.color = ResultColor(outcome.result);
+            DesktopPlatformController.SelectFirstUsable(resultRoot);
 
             yield return AnimateResult(true);
             yield return new WaitUntil(() => _resultAcknowledged);
@@ -532,6 +551,12 @@ namespace ShadowTheater.UI
                 if (outcome.performanceBonusGold > 0)
                     lines.Add(L10n.Format("battle.performance_bonus", "관객 보너스 · 금화 +{0}",
                         outcome.performanceBonusGold));
+                if (!string.IsNullOrEmpty(outcome.standoutShadowName))
+                    lines.Add($"오늘의 배역 · {outcome.standoutShadowName}");
+                if (!string.IsNullOrEmpty(outcome.decisiveAction))
+                    lines.Add("결정적 장면 · " + outcome.decisiveAction);
+                if (!string.IsNullOrEmpty(outcome.environmentSummary))
+                    lines.Add("무대 환경 · " + outcome.environmentSummary);
             }
             if (outcome.capturedShadow != null)
                 lines.Add(L10n.Format("battle.result_recorded", "기억 기록 · {0}",
@@ -594,6 +619,21 @@ namespace ShadowTheater.UI
                 case BattleResult.Captured: return new Color(.48f,.86f,1f);
                 case BattleResult.Defeat: return new Color(.92f,.22f,.34f);
                 default: return new Color(.66f,.48f,.94f);
+            }
+        }
+
+        private static Color EnvironmentColor(FieldWeather weather)
+        {
+            switch (weather)
+            {
+                case FieldWeather.Rain: return new Color(.12f,.25f,.42f,1f);
+                case FieldWeather.Snow: return new Color(.28f,.42f,.55f,1f);
+                case FieldWeather.Ashfall: return new Color(.42f,.18f,.10f,1f);
+                case FieldWeather.MoonWind: return new Color(.25f,.12f,.42f,1f);
+                case FieldWeather.ThreadDust: return new Color(.42f,.18f,.30f,1f);
+                case FieldWeather.InkStorm: return new Color(.12f,.05f,.24f,1f);
+                case FieldWeather.Starfall: return new Color(.12f,.28f,.40f,1f);
+                default: return new Color(.025f,.018f,.06f,1f);
             }
         }
 

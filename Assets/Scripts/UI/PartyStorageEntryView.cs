@@ -32,7 +32,8 @@ namespace ShadowTheater.UI
             if (expFill != null) expFill.fillAmount = instance.ExpProgress;
             if (nameText != null) nameText.text = L10n.Text(instance.DisplayName);
             if (infoText != null) infoText.text = $"Lv.{instance.level}  HP {instance.currentHp}/{instance.MaxHp}";
-            if (stageText != null) stageText.text = MemoryAwakeningService.StageLabel(instance);
+            if (stageText != null) stageText.text = MemoryAwakeningService.StageLabel(instance) +
+                                                    $"\n숙련 {instance.masteryPoints} · {CollectionGrowthService.FocusLabel(instance.trainingFocus)}";
             if (expText != null) expText.text = instance.IsMaxLevel ? "EXP MAX" : $"EXP {instance.exp} / {instance.ExpToNext}";
             gameObject.SetActive(true);
         }

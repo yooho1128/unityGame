@@ -15,7 +15,7 @@ namespace ShadowTheater.Story
     public static class TownServicePolicy
     {
         private static readonly HashSet<string> CommonItems = new HashSet<string>(StringComparer.Ordinal)
-        { "minor_potion", "potion", "salve" };
+        { "minor_potion", "potion", "salve", "rehearsal_script" };
 
         private static readonly Dictionary<string, string[]> Specialties =
             new Dictionary<string, string[]>(StringComparer.Ordinal)

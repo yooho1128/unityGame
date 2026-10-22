@@ -35,12 +35,16 @@ namespace ShadowTheater.Field
         private Coroutine _fadeRoutine;
         private Coroutine _detailRoutine;
         private float _fadeTarget;
+        private AudioLowPassFilter _bedFilter;
+        private AudioLowPassFilter _detailFilter;
+        private bool _interior;
 
-        private float EffectiveAmbienceVolume => ambienceVolume * GameSettings.AmbienceVolume;
+        private float EffectiveAmbienceVolume => ambienceVolume * GameSettings.AmbienceVolume * (_interior ? .72f : 1f);
 
         private void Awake()
         {
             EnsureSources();
+            EnsureFilters();
             if (ambienceClip == null) _generatedBed = GenerateBed(style);
             if (detailClip == null) _generatedDetail = GenerateDetail(style);
             bedSource.clip = ambienceClip != null ? ambienceClip : _generatedBed;
@@ -86,6 +90,17 @@ namespace ShadowTheater.Field
         {
             if (!isActiveAndEnabled) return;
             StartFade(EffectiveAmbienceVolume);
+        }
+
+        /// <summary>실내에서는 밖의 소리가 벽 넘어로 들리도록 음색과 크기를 부드럽게 바꾼다.</summary>
+        public void SetInterior(bool interior)
+        {
+            _interior = interior;
+            EnsureFilters();
+            float cutoff = interior ? 1250f : 22000f;
+            if (_bedFilter != null) _bedFilter.cutoffFrequency = cutoff;
+            if (_detailFilter != null) _detailFilter.cutoffFrequency = interior ? 950f : 22000f;
+            if (isActiveAndEnabled && _fadeTarget > 0f) StartFade(EffectiveAmbienceVolume);
         }
 
         private void StartFade(float target)
@@ -138,6 +153,20 @@ namespace ShadowTheater.Field
         {
             if (bedSource == null) bedSource = CreateSource("AmbienceBed");
             if (detailSource == null) detailSource = CreateSource("AmbienceDetail");
+        }
+
+        private void EnsureFilters()
+        {
+            if (bedSource != null)
+            {
+                _bedFilter = bedSource.GetComponent<AudioLowPassFilter>();
+                if (_bedFilter == null) _bedFilter = bedSource.gameObject.AddComponent<AudioLowPassFilter>();
+            }
+            if (detailSource != null)
+            {
+                _detailFilter = detailSource.GetComponent<AudioLowPassFilter>();
+                if (_detailFilter == null) _detailFilter = detailSource.gameObject.AddComponent<AudioLowPassFilter>();
+            }
         }
 
         private AudioSource CreateSource(string sourceName)

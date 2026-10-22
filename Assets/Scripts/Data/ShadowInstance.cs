@@ -20,6 +20,9 @@ namespace ShadowTheater.Data
         public int currentHp = -1;  // -1 = 최대치로 초기화
         public MemoryStage memoryStage;
         public AwakeningPath awakeningPath;
+        public TrainingFocus trainingFocus;
+        public int masteryPoints;
+        public int victories;
 
         [NonSerialized] private ShadowData _data;
         public ShadowData Data => _data != null ? _data : (_data = ShadowDatabase.Instance.GetShadow(shadowId));
@@ -36,12 +39,14 @@ namespace ShadowTheater.Data
         }
 
         public MemoryFormData ActiveForm => Data.GetForm(memoryStage, awakeningPath);
-        public int MaxHp => ApplyMultiplier(Data.GetHp(level), ActiveForm?.hpMultiplier ?? 1f);
-        public int Atk => ApplyMultiplier(Data.GetAtk(level), ActiveForm?.atkMultiplier ?? 1f);
-        public int Def => ApplyMultiplier(Data.GetDef(level), ActiveForm?.defMultiplier ?? 1f);
-        public int Spd => ApplyMultiplier(Data.GetSpd(level), ActiveForm?.spdMultiplier ?? 1f);
-        public float CritRate => Mathf.Clamp01(Data.critRate + (ActiveForm?.bonusCritRate ?? 0f));
-        public float Evasion => Mathf.Clamp01(Data.evasion + (ActiveForm?.bonusEvasion ?? 0f));
+        public int MaxHp => ApplyMultiplier(Data.GetHp(level), (ActiveForm?.hpMultiplier ?? 1f) * FocusMultiplier(TrainingFocus.Guard, 1.04f));
+        public int Atk => ApplyMultiplier(Data.GetAtk(level), (ActiveForm?.atkMultiplier ?? 1f) * FocusMultiplier(TrainingFocus.Power, 1.06f));
+        public int Def => ApplyMultiplier(Data.GetDef(level), (ActiveForm?.defMultiplier ?? 1f) * FocusMultiplier(TrainingFocus.Guard, 1.06f));
+        public int Spd => ApplyMultiplier(Data.GetSpd(level), (ActiveForm?.spdMultiplier ?? 1f) * FocusMultiplier(TrainingFocus.Tempo, 1.06f));
+        public float CritRate => Mathf.Clamp01(Data.critRate + (ActiveForm?.bonusCritRate ?? 0f) +
+                                                (trainingFocus == TrainingFocus.Power && masteryPoints >= 20 ? .02f : 0f));
+        public float Evasion => Mathf.Clamp01(Data.evasion + (ActiveForm?.bonusEvasion ?? 0f) +
+                                               (trainingFocus == TrainingFocus.Tempo && masteryPoints >= 20 ? .02f : 0f));
         public Sprite Silhouette => ActiveForm != null && ActiveForm.silhouetteSprite != null
             ? ActiveForm.silhouetteSprite : Data.silhouetteSprite;
         public Color AccentColor => ActiveForm != null ? ActiveForm.accentColor : Data.accentColor;
@@ -78,6 +83,19 @@ namespace ShadowTheater.Data
             return ups;
         }
 
+        /// <summary>경험치 곡선을 지키면서 지정 레벨까지 올린다.</summary>
+        public int RaiseToLevel(int targetLevel)
+        {
+            int target = Mathf.Clamp(targetLevel,1,MaxLevel);
+            int ups = 0;
+            while (level < target)
+            {
+                int needed = Mathf.Max(1,ExpToNext-Mathf.Max(0,exp));
+                ups += AddExp(needed);
+            }
+            return ups;
+        }
+
         public void FullHeal() => currentHp = MaxHp;
 
         public void EnsureHp()
@@ -106,5 +124,8 @@ namespace ShadowTheater.Data
 
         private static int ApplyMultiplier(int value, float multiplier) =>
             Mathf.Max(1, Mathf.RoundToInt(value * multiplier));
+
+        private float FocusMultiplier(TrainingFocus focus, float value) =>
+            trainingFocus == focus && masteryPoints >= 20 ? value : 1f;
     }
 }

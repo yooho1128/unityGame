@@ -42,6 +42,14 @@ namespace ShadowTheater.Data
         Grudge = 2     // 원한
     }
 
+    public enum TrainingFocus
+    {
+        Balanced = 0,
+        Power = 1,
+        Guard = 2,
+        Tempo = 3
+    }
+
     public enum DamageType
     {
         None,       // 데미지 없음 (상태이상/회복 전용 스킬)

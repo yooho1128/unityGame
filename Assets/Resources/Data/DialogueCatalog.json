@@ -470,6 +470,8 @@
     {"dialogueId":"town_rumor_white_archive_resolved","lines":[{"speaker":"등불 기록상","text":"우물에서 건진 문장을 기록원들이 밤마다 읽고 있어. 갈대 등불도 이제 귀환하는 사람을 위해 켜진다네.","emotion":"calm"}]},
     {"dialogueId":"town_rumor_howl_resolved","lines":[{"speaker":"탈 깎는 노인","text":"봉인된 탈의 주인들을 기억하는 새 탈춤이 생겼네. 마을의 울음이 오랜만에 노랫가락으로 바뀌었어.","emotion":"hope"}]},
     {"dialogueId":"town_rumor_thread_resolved","lines":[{"speaker":"실감개 행상","text":"장난감 창고의 태엽을 고쳐 시장 시계와 맞췄어. 상인들이 길을 되찾아 준 답례로 휴식을 돕고 있지.","emotion":"hope"}]},
-    {"dialogueId":"town_rumor_station_resolved","lines":[{"speaker":"막차의 안내원","text":"노래 없는 회랑에 귀가 열차 안내가 다시 울려. 표 없는 승객도 이제 이름으로 불리고 있어.","emotion":"relief"}]}
+    {"dialogueId":"town_rumor_station_resolved","lines":[{"speaker":"막차의 안내원","text":"노래 없는 회랑에 귀가 열차 안내가 다시 울려. 표 없는 승객도 이제 이름으로 불리고 있어.","emotion":"relief"}]},
+    {"dialogueId":"ending_complete_repertory","lines":[{"speaker":"각본집","text":"서로 다른 회차의 결말들이 한 장도 지워지지 않은 채 스스로 페이지를 넘긴다.","emotion":"mystery"},{"speaker":"동행 그림자","text":"우리는 비극도, 구원도, 원한도 연기해 봤어. 이제 정해지지 않은 다음 장면을 우리 이름으로 고를게.","emotion":"hope"},{"speaker":"극단주","text":"막을 내리자. 끝내기 위해서가 아니라, 모두가 자기 발로 커튼콜에 오를 수 있도록.","emotion":"resolve"},{"speaker":"모든 배역","text":"우리의 이름은 결말 하나보다 크다.","emotion":"hope"}]},
+    {"dialogueId":"ending_solitary_curtain","lines":[{"speaker":"극단주","text":"다치지 않도록 내가 모두의 마지막 대사를 정하겠다.","emotion":"serious"},{"speaker":"동행 그림자","text":"우리를 지킨 건 알아. 하지만 내 대사를 내가 말할 기회도 함께 닫혔어.","emotion":"sad"},{"speaker":"각본집","text":"마을의 불은 남았으나 커튼콜에 오른 배역은 극단주 한 사람뿐이었다.","emotion":"mystery"}]}
   ]
 }

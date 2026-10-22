@@ -691,6 +691,18 @@
       "shopUnlockAct": 5
     },
     {
+      "itemId": "rehearsal_script",
+      "displayName": "기억의 연습 대본",
+      "description": "되찾은 장면을 반복 연습해 선택한 그림자에게 경험치 300을 전한다.",
+      "effectType": "GainExperience",
+      "value": 300,
+      "usableInBattle": false,
+      "usableInField": true,
+      "buyPrice": 80,
+      "sellPrice": 40,
+      "shopUnlockAct": 1
+    },
+    {
       "itemId": "rubber_boat",
       "displayName": "휴대용 고무보트",
       "description": "선착장이나 잔잔한 물가에서 펼쳐 안전하게 물길을 건너는 핵심 이동 도구.",

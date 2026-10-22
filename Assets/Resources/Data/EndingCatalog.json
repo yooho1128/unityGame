@@ -1,6 +1,20 @@
 {
   "endings": [
     {
+      "endingId": "complete_repertory",
+      "title": "모든 이름의 커튼콜",
+      "subtitle": "여러 회차의 가능성이 하나의 자유로운 무대로 이어진 진엔딩",
+      "archiveText": "서로 모순되던 결말들이 지워지지 않은 채 한 권의 각본에 나란히 놓였다. 그림자들은 정해진 역할을 벗어나 자신의 이름으로 커튼콜에 올랐다.",
+      "dialogueId": "ending_complete_repertory",
+      "priority": 200,
+      "requirements": [
+        { "flag": "story_finale_unlocked", "minValue": 1, "maxValue": 0 },
+        { "flag": "ending_archive_count", "minValue": 4, "maxValue": 0 },
+        { "flag": "choice_memory", "minValue": 1, "maxValue": 0 },
+        { "flag": "choice_compassion", "minValue": 1, "maxValue": 0 }
+      ]
+    },
+    {
       "endingId": "hollow_curtain",
       "title": "텅 빈 막",
       "subtitle": "고통과 함께 모든 이름이 지워진 세계",
@@ -48,6 +62,18 @@
         { "flag": "story_finale_unlocked", "minValue": 1, "maxValue": 0 },
         { "flag": "choice_memory", "minValue": -99, "maxValue": -1 },
         { "flag": "choice_compassion", "minValue": 1, "maxValue": 0 }
+      ]
+    },
+    {
+      "endingId": "solitary_curtain",
+      "title": "혼자 내린 막",
+      "subtitle": "누구도 완전히 잃지 않으려다 누구의 선택도 듣지 못한 결말",
+      "archiveText": "극단주는 모두를 지키기 위해 장면을 대신 선택했다. 마을은 살아남았지만 그림자들은 자신의 마지막 대사를 말하지 못한 채 객석을 떠났다.",
+      "dialogueId": "ending_solitary_curtain",
+      "priority": 95,
+      "requirements": [
+        { "flag": "story_finale_unlocked", "minValue": 1, "maxValue": 0 },
+        { "flag": "choice_control", "minValue": 1, "maxValue": 2 }
       ]
     }
   ]

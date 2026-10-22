@@ -23,7 +23,7 @@ namespace ShadowTheater.UI
         [SerializeField] private string firstScene = "Prologue";
         [SerializeField] private Vector2Int firstCell = new Vector2Int(0, -7);
         [SerializeField] private FacingDir firstFacing = FacingDir.Up;
-        [SerializeField, Min(1)] private int starterLevel = 5;
+        [SerializeField, Min(1)] private int starterLevel = 10;
         [SerializeField] private ItemData startingItem;
         [SerializeField, Min(0)] private int startingItemCount = 3;
         private bool _startingNewCycle;
@@ -112,6 +112,15 @@ namespace ShadowTheater.UI
             ShowTitle();
         }
 
+        public void QuitGame()
+        {
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#else
+            Application.Quit();
+#endif
+        }
+
         private void StartWithStarter(ShadowData starter)
         {
             if (starter == null) { ShowTitle(); return; }
@@ -146,6 +155,7 @@ namespace ShadowTheater.UI
             newGameConfirmRoot?.SetActive(false);
             if (titleRoot != null) titleRoot.SetActive(true);
             RefreshContinue();
+            DesktopPlatformController.SelectFirstUsable(titleRoot);
         }
 
         private void RefreshContinue()

@@ -23,6 +23,7 @@ namespace ShadowTheater.Field
         }
         private void Scan()
         {
+            if(TownInteriorController.Instance!=null&&TownInteriorController.Instance.IsInside){_targetVolume=0f;return;}
             if(PlayerController.Instance==null||FieldTraversalEffects.Instance==null){_targetVolume=0f;return;}
             Vector2Int origin=PlayerController.Instance.Cell;int nearest=99;
             for(int y=-5;y<=5;y++)for(int x=-5;x<=5;x++)

@@ -36,6 +36,7 @@ namespace ShadowTheater.Field
         {
             ScreenFader fader=ScreenFader.Instance;if(fader!=null)yield return fader.FadeOut();
             HideExterior();BuildRoom();_player.SnapToCell(new Vector2Int(0,-1));_player.SetFacing(FacingDir.Up);
+            FieldAmbientAudio.Instance?.SetInterior(true);
             FieldCameraFollow.Instance?.Snap();SaveManager.SetFlag("interior_visited_"+regionId);SaveManager.Instance?.TrySave(false);
             if(fader!=null)yield return fader.FadeIn();
             _player.Unlock();
@@ -49,6 +50,7 @@ namespace ShadowTheater.Field
         {
             ScreenFader fader=ScreenFader.Instance;if(fader!=null)yield return fader.FadeOut();
             _room.SetActive(false);Destroy(_room);_room=null;RestoreExterior();_player.SnapToCell(_returnCell);_player.SetFacing(_returnFacing);
+            FieldAmbientAudio.Instance?.SetInterior(false);
             if(_companionFollower!=null)_companionFollower.enabled=true;
             FieldCameraFollow.Instance?.Snap();if(fader!=null)yield return fader.FadeIn();_player.Unlock();
         }
@@ -62,6 +64,7 @@ namespace ShadowTheater.Field
         }
         private void RestoreExterior()
         {
+            FieldAmbientAudio.Instance?.SetInterior(false);
             foreach(Renderer renderer in _renderers)if(renderer!=null)renderer.enabled=true;
             foreach(Collider2D collider in _colliders)if(collider!=null)collider.enabled=true;
             _renderers.Clear();_colliders.Clear();

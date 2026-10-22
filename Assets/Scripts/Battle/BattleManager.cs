@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using ShadowTheater.Data;
+using ShadowTheater.Save;
 using ShadowTheater.Story;
 using ShadowTheater.UI;
 using UnityEngine;
@@ -58,6 +59,7 @@ namespace ShadowTheater.Battle
         private readonly int[] _fp = new int[2];
         private readonly int[] _lastVoluntarySwitchTurn = { -99, -99 };
         private readonly HashSet<BattleUnit> _playerParticipants = new HashSet<BattleUnit>();
+        private readonly HashSet<BattleUnit> _battleParticipants = new HashSet<BattleUnit>();
         private readonly HashSet<BattleUnit> _bossPhaseActivated = new HashSet<BattleUnit>();
 
         private BattleAction _pendingAction;
@@ -71,6 +73,16 @@ namespace ShadowTheater.Battle
         private Coroutine _routine;
         private readonly BattleMomentum _momentum = new BattleMomentum();
         private int _playerFaints;
+        private readonly Dictionary<string, BattleContribution> _contributions =
+            new Dictionary<string, BattleContribution>(StringComparer.Ordinal);
+        private string _lastDecisiveAction;
+
+        private sealed class BattleContribution
+        {
+            public BattleUnit unit;
+            public int damage, healing, actions, finishes;
+            public int Score => damage + Mathf.RoundToInt(healing * .7f) + actions * 8 + finishes * 120;
+        }
 
         // ────────────────────────────────────────────
         #region Lifecycle
@@ -129,8 +141,10 @@ namespace ShadowTheater.Battle
                 return false;
             }
             _playerParticipants.Clear();
+            _battleParticipants.Clear();
             _bossPhaseActivated.Clear();
             _playerParticipants.Add(PlayerActive);
+            _battleParticipants.Add(PlayerActive);
 
             _fp[0] = _fp[1] = startFp;
             _lastVoluntarySwitchTurn[0] = _lastVoluntarySwitchTurn[1] = -99;
@@ -146,6 +160,8 @@ namespace ShadowTheater.Battle
             _momentum.Reset();
             OnMomentumChanged?.Invoke(_momentum.Value);
             _playerFaints = 0;
+            _contributions.Clear();
+            _lastDecisiveAction = string.Empty;
             _pendingAction = null;
             _pendingForcedSwitch = -1;
             _outcome = new BattleOutcome { encounterId = context.encounterId };
@@ -398,7 +414,6 @@ namespace ShadowTheater.Battle
             if (BattleGimmickRules.IsBellWarningTurn(gimmick, Turn))
             {
                 yield return _presenter.ShowMessage("녹슨 종이 크게 흔들린다. 다음 턴에는 양쪽의 방어가 무너진다!");
-                yield break;
             }
             if (BattleGimmickRules.IsBellTollTurn(gimmick, Turn))
             {
@@ -414,6 +429,80 @@ namespace ShadowTheater.Battle
             {
                 yield return _presenter.ShowMessage("달빛이 거꾸로 흐른다. 같은 종류의 행동은 느린 그림자가 먼저 움직인다!");
             }
+            yield return ApplyEnvironmentTurnStart();
+        }
+
+        private IEnumerator ApplyEnvironmentTurnStart()
+        {
+            if (Context == null) yield break;
+            if (Turn == 1)
+            {
+                _outcome.environmentSummary = EnvironmentLabel(Context.weather, Context.timeOfDay);
+                yield return _presenter.ShowMessage("무대 환경 · " + _outcome.environmentSummary);
+            }
+            if (Turn <= 0 || Turn % 3 != 0) yield break;
+
+            var affected = new List<BattleUnit>();
+            StatusEffectType status = StatusEffectType.None;
+            string message = string.Empty;
+            switch (Context.weather)
+            {
+                case FieldWeather.Rain:
+                    status = StatusEffectType.AttackDown; message = "빗물이 불꽃의 기세를 누른다!";
+                    AddIfElement(affected, ShadowElement.Flame, true); break;
+                case FieldWeather.Snow:
+                    status = StatusEffectType.SpeedDown; message = "쌓인 눈이 서리 그림자 이외의 발을 붙잡는다!";
+                    AddIfElement(affected, ShadowElement.Frost, false); break;
+                case FieldWeather.Ashfall:
+                    status = StatusEffectType.Burn; message = "뜨거운 재가 불꽃에 익숙하지 않은 그림자에게 달라붙는다!";
+                    AddIfElement(affected, ShadowElement.Flame, false); break;
+                case FieldWeather.InkStorm:
+                    status = StatusEffectType.DefenseDown; message = "먹물 폭풍이 그림자 밖의 윤곽을 흐트러뜨린다!";
+                    AddIfElement(affected, ShadowElement.Shade, false); break;
+                case FieldWeather.Mist:
+                    status = StatusEffectType.SpeedDown; message = "짙은 안개가 양쪽의 빠른 발을 늦춘다!";
+                    affected.Add(PlayerActive); affected.Add(EnemyActive); break;
+                case FieldWeather.MoonWind:
+                    message = "달바람이 자줏빛 그림자의 공연 열기를 끌어올린다!";
+                    if (PlayerActive.Data.element == ShadowElement.Shade) AddFp(BattleSide.Player, 1);
+                    if (EnemyActive.Data.element == ShadowElement.Shade) AddFp(BattleSide.Enemy, 1);
+                    break;
+                case FieldWeather.ThreadDust:
+                    message = "실먼지가 무명의 배역에게 새로운 즉흥 연기를 건넨다!";
+                    if (PlayerActive.Data.element == ShadowElement.None) AddFp(BattleSide.Player, 1);
+                    if (EnemyActive.Data.element == ShadowElement.None) AddFp(BattleSide.Enemy, 1);
+                    break;
+                case FieldWeather.Starfall:
+                    message = "별빛이 희귀한 배역의 상처를 어루만진다!";
+                    foreach (BattleUnit unit in new[] { PlayerActive, EnemyActive })
+                        if (unit.Data.growthTier >= GrowthTier.Rare && !unit.IsFainted)
+                        {
+                            int healed = unit.Heal(Mathf.Max(1, unit.MaxHp / 16));
+                            if (healed > 0) yield return _presenter.PlayHeal(unit, healed);
+                            OnUnitChanged?.Invoke(unit);
+                        }
+                    break;
+            }
+            if (!string.IsNullOrEmpty(message)) yield return _presenter.ShowMessage(message);
+            foreach (BattleUnit unit in affected)
+            {
+                if (unit == null || unit.IsFainted || !unit.ApplyStatus(status, 1)) continue;
+                yield return _presenter.PlayStatusApplied(unit, status);
+                OnUnitChanged?.Invoke(unit);
+            }
+        }
+
+        private void AddIfElement(List<BattleUnit> target, ShadowElement element, bool matching)
+        {
+            foreach (BattleUnit unit in new[] { PlayerActive, EnemyActive })
+                if ((unit.Data.element == element) == matching) target.Add(unit);
+        }
+
+        public static string EnvironmentLabel(FieldWeather weather, FieldTimeOfDay time)
+        {
+            string timeName = FieldWorldState.TimeLabel(time);
+            string weatherName = FieldWorldState.WeatherLabel(weather);
+            return $"{timeName} · {weatherName}";
         }
 
         private IEnumerator ApplyEchoChoice(BattleAction action)
@@ -482,6 +571,8 @@ namespace ShadowTheater.Battle
             if (skill.target == SkillTarget.Self)
             {
                 int healed = user.Heal(Mathf.RoundToInt(user.MaxHp * skill.healRatio));
+                if (a.side == BattleSide.Player) RecordContribution(user, 0, healed, false,
+                    L10n.Text(skill.displayName));
                 yield return _presenter.PlaySkill(user, user, skill, new HitResult { elementMultiplier = 1f });
                 if (healed > 0) yield return _presenter.PlayHeal(user, healed);
                 OnUnitChanged?.Invoke(user);
@@ -493,6 +584,8 @@ namespace ShadowTheater.Battle
             bool encore = ApplyMomentum(a.side, skill.DealsDamage, ref hit);
             if (!hit.missed && hit.damage > 0)
                 hit.damage = opponent.TakeDamage(hit.damage);
+            if (a.side == BattleSide.Player) RecordContribution(user, hit.damage, 0,
+                !hit.missed && opponent.IsFainted, L10n.Text(skill.displayName));
             bool encoreFinish = encore && opponent.IsFainted;
             if (encore) RecordEncore(encoreFinish);
 
@@ -529,6 +622,7 @@ namespace ShadowTheater.Battle
             HitResult hit = DamageCalculator.CalculateJoint(user, _companionUnit, EnemyActive, profile);
             bool encore = ApplyMomentum(BattleSide.Player, true, ref hit);
             hit.damage = EnemyActive.TakeDamage(hit.damage);
+            RecordContribution(user, hit.damage, 0, EnemyActive.IsFainted, profile.displayName);
             bool encoreFinish = encore && EnemyActive.IsFainted;
             if (encore) RecordEncore(encoreFinish);
             CompanionBondService.RecordJointSkillUse(_companionUnit.Instance.instanceId);
@@ -571,6 +665,7 @@ namespace ShadowTheater.Battle
             {
                 _playerIdx = index;
                 _playerParticipants.Add(PlayerActive);
+                _battleParticipants.Add(PlayerActive);
             }
             else _enemyIdx = index;
 
@@ -630,12 +725,16 @@ namespace ShadowTheater.Battle
                 case ItemEffectType.HealFlat:
                 {
                     int healed = target.Heal(Mathf.RoundToInt(item.value));
+                    if (a.side == BattleSide.Player) RecordContribution(target, 0, healed, false,
+                        L10n.Text(item.displayName));
                     yield return _presenter.PlayHeal(target, healed);
                     break;
                 }
                 case ItemEffectType.HealRatio:
                 {
                     int healed = target.Heal(Mathf.RoundToInt(target.MaxHp * item.value));
+                    if (a.side == BattleSide.Player) RecordContribution(target, 0, healed, false,
+                        L10n.Text(item.displayName));
                     yield return _presenter.PlayHeal(target, healed);
                     break;
                 }
@@ -720,6 +819,7 @@ namespace ShadowTheater.Battle
                     _outcome.performanceScore = performance.score;
                     _outcome.performanceBonusGold = performance.bonusGold;
                     _outcome.goldGained = (int)Math.Min((long)_outcome.goldGained + performance.bonusGold, int.MaxValue);
+                    FinalizePerformanceSpotlight();
                     RollLoot();
                     Finish(BattleResult.Victory, BattleState.Victory);
                     yield break;
@@ -772,6 +872,45 @@ namespace ShadowTheater.Battle
                 if (existing != null) existing.count += count;
                 else _outcome.loot.Add(new BattleLoot { itemId = data.dropItemId, count = count });
             }
+        }
+
+        private void RecordContribution(BattleUnit unit, int damage, int healing, bool finish, string action)
+        {
+            if (unit?.Instance == null) return;
+            if (!_contributions.TryGetValue(unit.Instance.instanceId, out BattleContribution value))
+            {
+                value = new BattleContribution { unit = unit };
+                _contributions.Add(unit.Instance.instanceId, value);
+            }
+            value.damage = SaveValuePolicy.SaturatingAdd(value.damage, Mathf.Max(0, damage));
+            value.healing = SaveValuePolicy.SaturatingAdd(value.healing, Mathf.Max(0, healing));
+            value.actions++;
+            if (finish)
+            {
+                value.finishes++;
+                _lastDecisiveAction = $"{L10n.Text(unit.Name)}의 [{action}]이 마지막 장면을 완성했다";
+            }
+        }
+
+        private void FinalizePerformanceSpotlight()
+        {
+            BattleContribution best = null;
+            foreach (BattleContribution value in _contributions.Values)
+            {
+                if (value?.unit?.Instance == null) continue;
+                if (best == null || value.Score > best.Score) best = value;
+                if (!_outcome.participantInstanceIds.Contains(value.unit.Instance.instanceId))
+                    _outcome.participantInstanceIds.Add(value.unit.Instance.instanceId);
+            }
+            foreach (BattleUnit unit in _battleParticipants)
+                if (unit?.Instance != null && !_outcome.participantInstanceIds.Contains(unit.Instance.instanceId))
+                    _outcome.participantInstanceIds.Add(unit.Instance.instanceId);
+            if (best == null) best = new BattleContribution { unit = PlayerActive, actions = 1 };
+            _outcome.standoutInstanceId = best.unit.Instance.instanceId;
+            _outcome.standoutShadowName = L10n.Text(best.unit.Name);
+            _outcome.decisiveAction = string.IsNullOrEmpty(_lastDecisiveAction)
+                ? $"{_outcome.standoutShadowName}이 끝까지 무대를 지켰다"
+                : _lastDecisiveAction;
         }
 
         private IEnumerator GrantExp(BattleUnit defeated)

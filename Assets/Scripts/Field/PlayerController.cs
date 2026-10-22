@@ -8,7 +8,7 @@ namespace ShadowTheater.Field
 {
     /// <summary>
     /// 《바람의 나라》식 4방향 타일 단위 이동.
-    /// - 입력은 MoveInput(가상 패드) 또는 에디터 키보드(WASD/방향키)
+    /// - 입력은 MoveInput(가상 패드) 또는 PC 키보드·게임패드 축(WASD/방향키/스틱)
     /// - 한 칸 이동이 끝날 때까지 다음 입력을 받지 않고, 누르고 있으면 연속 이동
     /// - Lock()/Unlock()은 카운터 방식 → 대화 중 + 전투 전환 등이 겹쳐도 안전
     ///
@@ -106,7 +106,8 @@ namespace ShadowTheater.Field
             if (dir != Vector2Int.zero) StartCoroutine(StepRoutine(dir));
 
 #if ENABLE_LEGACY_INPUT_MANAGER && (UNITY_EDITOR || UNITY_STANDALONE)
-            if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Z)) TryInteract();
+            if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Z) ||
+                Input.GetKeyDown(KeyCode.Return) || Input.GetButtonDown("Submit")) TryInteract();
 #endif
         }
 

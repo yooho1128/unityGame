@@ -18,15 +18,26 @@ namespace ShadowTheater.UI
         [SerializeField] private Text vibrationValue;
         [SerializeField] private Text textSpeedValue;
         [SerializeField] private Text languageValue;
+        [SerializeField] private GameObject vibrationRow;
+        [SerializeField] private GameObject desktopDisplayRoot;
+        [SerializeField] private Text screenModeValue;
+        [SerializeField] private Text resolutionValue;
+        [SerializeField] private Text vSyncValue;
         private bool _refreshing;
 
-        private void Awake() { if (root != null) root.SetActive(false); }
+        private void Awake()
+        {
+            if (root != null) root.SetActive(false);
+            if (vibrationRow != null) vibrationRow.SetActive(Application.isMobilePlatform);
+            if (desktopDisplayRoot != null) desktopDisplayRoot.SetActive(!Application.isMobilePlatform);
+        }
 
         public void Open()
         {
             if (titleRoot != null) titleRoot.SetActive(false);
             if (root != null) root.SetActive(true);
             Refresh();
+            DesktopPlatformController.SelectFirstUsable(root);
         }
 
         public void Close()
@@ -88,6 +99,24 @@ namespace ShadowTheater.UI
             RefreshLabels();
         }
 
+        public void ToggleFullscreen()
+        {
+            GameSettings.Instance?.ToggleFullscreen();
+            RefreshLabels();
+        }
+
+        public void CycleResolution()
+        {
+            GameSettings.Instance?.CycleResolution();
+            RefreshLabels();
+        }
+
+        public void ToggleVSync()
+        {
+            GameSettings.Instance?.ToggleVSync();
+            RefreshLabels();
+        }
+
         private void Refresh()
         {
             _refreshing = true;
@@ -121,6 +150,11 @@ namespace ShadowTheater.UI
                     if (label != null) label.gameObject.SetActive(GameSettings.EnglishEnabled);
                 }
             }
+            if (screenModeValue != null) screenModeValue.text = GameSettings.Fullscreen
+                ? "전체 화면" : "창 모드";
+            if (resolutionValue != null) resolutionValue.text = GameSettings.ResolutionLabel;
+            if (vSyncValue != null) vSyncValue.text = GameSettings.VSync
+                ? L10n.Get("settings.on", "켜짐") : L10n.Get("settings.off", "꺼짐");
         }
 
         private static string Percent(float value) => $"{Mathf.RoundToInt(value * 100f)}%";

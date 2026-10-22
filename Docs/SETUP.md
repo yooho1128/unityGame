@@ -17,7 +17,8 @@ Assets/Scripts/
   UI/      DialogueController, DialogueChoiceView, QuestHudController,
            TitleScreenController, StarterSelectionController, StarterCardView,
            EndingGalleryController, EndingGalleryEntryView, GameSettings, SettingsPanelController,
-           LocalizationService, MobilePerformanceController, AdaptiveMusicDirector, FieldPauseMenuController,
+           LocalizationService, MobilePerformanceController, DesktopPlatformController, PlatformDisplayGroup,
+           AdaptiveMusicDirector, FieldPauseMenuController,
            SaveFeedbackController,
            WorldMapController, RegionMapNodeView,
            ScriptBookController, ScriptBookEntryView, BattleUIController, BattleFxDirector,
@@ -27,18 +28,28 @@ Assets/Scripts/
            ScriptBookPrefabGenerator, BattleUIPrefabGenerator, PartyStoragePrefabGenerator,
            WorldMapPrefabGenerator, FieldPausePrefabGenerator, CoreContentBatchGenerator, LegendaryGrowthBatchGenerator,
            UltimateFxAssetGenerator, FieldAudioAssetGenerator, MusicAssetGenerator, FinalPixelArtPipeline,
-           PlayablePrologueGenerator, GameRegressionValidator
+           PlayablePrologueGenerator, MobileBuildConfigurator, StandaloneBuildConfigurator, GameRegressionValidator
 ```
 
 ## 프로젝트 설정
 - 기준 에디터는 Unity **2022.3.52f3**, 템플릿 **2D (URP)**
-- Player Settings → Active Input Handling = **Both** (에디터 키보드 테스트용. 모바일은 가상 패드 사용)
+- Player Settings → Active Input Handling = **Both** (모바일 가상 패드와 PC 키보드·게임패드를 함께 사용)
 - Tag `Player` 추가, Layer `Obstacle`, `Unit` 추가
+
+### Windows 빌드
+
+- Unity Hub에서 해당 에디터의 **Windows Build Support (Mono)** 모듈을 설치한다.
+- `Tools > Shadow Theater > PC > Configure Windows`는 64-bit PC용 1920×1080 기본값, 크기 조절 가능한 창,
+  Alt+Enter 전체 화면 전환과 공통 앱 ID를 적용한다.
+- `Tools > Shadow Theater > PC > Build Windows 64-bit`는 등록된 64개 씬을 검사한 뒤
+  `Builds/Windows/ShadowTheater.exe`를 생성한다.
+- PC 저장도 `Application.persistentDataPath`의 안전 저장/백업 정책을 그대로 사용하며 모바일 저장 파일을
+  저장소에 포함하거나 덮어쓰지 않는다.
 
 ## 초반 데이터 생성
 1. 메뉴 `Tools > Shadow Theater > Generate Core Content Data` 실행
 2. `Assets/Data/Generated/Skills`의 핵심·지역 대표 고유 스킬 184개 확인
-3. `Assets/Data/Generated/Items`의 도구 12개 확인
+3. `Assets/Data/Generated/Items`의 도구 13개 확인
 4. `Assets/Data/Generated/Shadows`의 핵심·제2~8막 및 지역 확장 그림자 177종 확인
 5. `Tools > Shadow Theater > Generate Legendary Growth Batch` 실행 후 전설 성장 그림자 3종을 더해 총 180종 확인
 6. `Assets/Resources/ShadowDatabase.asset` 자동 등록 결과 확인
@@ -247,10 +258,7 @@ Point 필터의 선명한 가장자리를 유지한다. 렌더 파이프라인 �
 - `choice_compassion`: 당사자의 선택과 연민을 존중
 - `choice_control`: 검열과 강제 통제를 선택
 
-현재 샘플 엔딩은 `이름을 되찾은 극장`, `끝나지 않는 공연`, `다정한 망각의 새벽`, `텅 빈 막`의
-4종이다. 해금된 엔딩 ID, 현재 회차, 완주 횟수는 세이브 버전 5에 보존된다. 한 세이브에서 마지막
-선택을 되돌려 점수를 반복 누적하지 않도록 `EndingTrigger.allowReplay`의 기본값은 false다. 결말
-재생 후에는 기본적으로 `Title` 씬으로 돌아가며 `returnToTitleAfterEnding`으로 이 동작을 끌 수 있다.
+현재 엔딩은 기본 네 결말에 `혼자 내린 막`과 여러 회차의 엔딩 기록을 요구하는 `모든 이름의 커튼콜`을 포함한 6종이다. 해금된 엔딩, 회차별 동행·선택·후일담은 세이브 v12에 보존된다. 엔딩 트리거는 완주 후에도 필드에 남아 다른 동행·수집·마을 후일담을 확인할 수 있다.
 
 타이틀의 `엔딩 기록관`은 잠긴 결말의 제목·내용을 숨기고 해금된 결말만 상세 표시한다. 엔딩을 한 번
 이상 본 세이브에는 `다음 회차 시작` 버튼이 나타난다. 새 회차는 스타터를 다시 선택하며 엔딩 도감과
@@ -387,7 +395,7 @@ RegionalBoss/Legendary는 구원·원한 진명과 개별 ID 필살기까지 자
 `FinalArtCoverage.json`에 현재 교체율을 기록한다. 전체 파일 규칙은
 `Docs/FINAL_PIXEL_ART_PIPELINE.md`를 참고한다.
 
-모바일 성능 프로필, v11 세이브 마이그레이션과 63개 필드 자동 회귀 검증은 구현 완료했다. 실제 출시 전
+모바일 성능 프로필, v12 세이브 마이그레이션과 63개 필드 자동 회귀 검증은 구현 완료했다. 실제 출시 전
 기기별 발열·배터리·노치 영역 최종 확인은 `Docs/MOBILE_RELEASE_VALIDATION.md` 체크리스트를 따른다.
 
 현재 `Generate Playable Prologue`는 프롤로그부터 최종막까지 63개 필드를 모두 32px 픽셀 규칙으로 생성한다.

@@ -400,9 +400,9 @@ namespace ShadowTheater.EditorTools
                 error = "중복된 shadowId가 있습니다.";
                 return false;
             }
-            if (catalog.items.Length != 12)
+            if (catalog.items.Length != 13)
             {
-                error = $"도구 수가 올바르지 않습니다: {catalog.items.Length}/12";
+                error = $"도구 수가 올바르지 않습니다: {catalog.items.Length}/13";
                 return false;
             }
             var itemIds = new HashSet<string>(catalog.items.Select(x => x.itemId));
@@ -537,6 +537,7 @@ namespace ShadowTheater.EditorTools
             Color liquid = effect == ItemEffectType.HealFlat || effect == ItemEffectType.HealRatio ? new Color(.22f,.92f,.58f,1f)
                 : effect == ItemEffectType.GainFP ? new Color(.22f,.78f,1f,1f)
                 : effect == ItemEffectType.CaptureBoost ? new Color(.70f,.30f,1f,1f)
+                : effect == ItemEffectType.GainExperience ? new Color(1f,.70f,.24f,1f)
                 : new Color(1f,.76f,.30f,1f);
             if (effect == ItemEffectType.TraversalTool)
             {
@@ -566,6 +567,12 @@ namespace ShadowTheater.EditorTools
                     Rect(texture,19,35,45,40,outline); Rect(texture,22,36,42,39,new Color(1f,.9f,.5f,1f));
                     Line(texture,18,19,48,45,4,outline); Line(texture,19,20,49,46,2,Color.white);
                 }
+            }
+            else if(effect==ItemEffectType.GainExperience)
+            {
+                Rect(texture,13,10,51,55,outline);Rect(texture,17,14,47,51,liquid);
+                Line(texture,32,14,32,51,3,outline);Line(texture,21,42,28,42,2,Color.white);
+                Line(texture,36,42,43,42,2,Color.white);Circle(texture,32,29,6,Color.white);
             }
             else
             {

@@ -76,9 +76,14 @@ namespace ShadowTheater.UI
         {
             if (detailTitle != null) detailTitle.text = unlocked ? L10n.Get($"ending.{ending.endingId}.title", L10n.Text(ending.title)) : L10n.Get("ending.unrecorded", "기록되지 않은 결말");
             if (detailSubtitle != null) detailSubtitle.text = unlocked
-                ? L10n.Get($"ending.{ending.endingId}.archive", L10n.Text(!string.IsNullOrEmpty(ending.archiveText) ? ending.archiveText : ending.subtitle))
-                : L10n.Get("ending.reach_again", "다른 선택과 진명으로 마지막 무대에 도달하세요.");
-            if (detailState != null) detailState.text = unlocked ? L10n.Format("ending.id", "기록 ID · {0}", ending.endingId) : "???";
+                ? L10n.Get($"ending.{ending.endingId}.archive", L10n.Text(!string.IsNullOrEmpty(ending.archiveText) ? ending.archiveText : ending.subtitle)) +
+                  (EndingEpilogueService.Latest(ending.endingId) is EndingRecordData record && !string.IsNullOrEmpty(record.epilogue)
+                      ? "\n\n" + record.epilogue : string.Empty)
+                : EndingEpilogueService.Hint(ending);
+            if (detailState != null) detailState.text = unlocked
+                ? L10n.Format("ending.id", "기록 ID · {0}", ending.endingId) +
+                  (EndingEpilogueService.Latest(ending.endingId) is EndingRecordData latest ? $" · {latest.cycle}회차" : string.Empty)
+                : "조건의 흔적만 희미하게 남아 있습니다";
         }
 
         private static void EnsureSaveLoaded()

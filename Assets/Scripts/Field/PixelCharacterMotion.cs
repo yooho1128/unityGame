@@ -22,6 +22,8 @@ namespace ShadowTheater.Field
         private float _gestureStarted;
         private float _gestureUntil;
         private int _gestureKind;
+        private FacingDir _lastFacing;
+        private float _turnStarted = -10f;
 
         public void PlayIdleGesture(int kind)
         {
@@ -40,6 +42,7 @@ namespace ShadowTheater.Field
         {
             if (controller == null) controller = GetComponentInParent<PlayerController>();
             if (target == null) target = GetComponent<SpriteRenderer>();
+            if (controller != null) _lastFacing = controller.Facing;
             CacheRestPose();
         }
 
@@ -52,6 +55,11 @@ namespace ShadowTheater.Field
         private void LateUpdate()
         {
             if (controller == null || target == null) return;
+            if (controller.Facing != _lastFacing)
+            {
+                _lastFacing = controller.Facing;
+                _turnStarted = Time.time;
+            }
             Vector3 fittedScale = transform.localScale; // PixelFieldAnimator가 먼저 맞춘 크기
             if (!controller.IsMoving)
             {
@@ -70,6 +78,17 @@ namespace ShadowTheater.Field
                         transform.localRotation=_restRotation*Quaternion.Euler(0f,0f,-wave*1.4f);
                         transform.localScale=Vector3.Scale(fittedScale,new Vector3(1f-wave*.035f,1f+wave*.065f,1f));
                     }
+                    return;
+                }
+                float turnAge = Time.time - _turnStarted;
+                if (turnAge < .16f)
+                {
+                    float turn = Mathf.Sin(Mathf.Clamp01(turnAge / .16f) * Mathf.PI);
+                    float direction = _lastFacing == FacingDir.Left ? -1f : _lastFacing == FacingDir.Right ? 1f : 0f;
+                    transform.localPosition = _restPosition + Vector3.right * (direction * turn * .014f);
+                    transform.localRotation = _restRotation * Quaternion.Euler(0f, 0f, -direction * turn * 2.2f);
+                    transform.localScale = Vector3.Scale(fittedScale,
+                        new Vector3(1f + turn * .045f, 1f - turn * .035f, 1f));
                     return;
                 }
                 float breath = Mathf.Sin(Time.time * 2.1f) * .004f;

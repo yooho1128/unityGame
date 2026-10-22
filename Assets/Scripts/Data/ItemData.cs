@@ -9,7 +9,8 @@ namespace ShadowTheater.Data
         CureStatus,    // 상태 이상 해제
         GainFP,        // FP 충전
         CaptureBoost,  // 각본 기록 성공률 보정 (특수 잉크 등)
-        TraversalTool  // 소비하지 않고 필드 이동 경로를 해금하는 핵심 도구
+        TraversalTool, // 소비하지 않고 필드 이동 경로를 해금하는 핵심 도구
+        GainExperience // 선택한 그림자에게 경험치 지급
     }
 
     /// <summary>[도구] 행동용 아이템 정의. Create > ShadowTheater > Item Data</summary>
@@ -22,7 +23,7 @@ namespace ShadowTheater.Data
         public Sprite icon;
 
         public ItemEffectType effectType;
-        [Tooltip("HealFlat=회복량, HealRatio=0~1 비율, GainFP=FP량, CaptureBoost=배율")]
+        [Tooltip("HealFlat=회복량, HealRatio=0~1 비율, GainFP=FP량, CaptureBoost=배율, GainExperience=경험치")]
         public float value;
         public bool usableInBattle = true;
         [Tooltip("필드의 파티 화면에서 사용할 수 있는 도구인지 여부")]

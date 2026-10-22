@@ -112,6 +112,7 @@ namespace ShadowTheater.EditorTools
             RegionDifficultySimulator.ValidatePolicyRegression(result.errors);
             LocalizationTranslationImporter.ValidateRegression(result.errors);
             MobileBuildConfigurator.ValidateScenePolicyRegression(result.errors);
+            StandaloneBuildConfigurator.ValidateScenePolicyRegression(result.errors);
             MobileBuildConfigurator.ValidateSettings(result.errors);
             ValidateMigration(result);
             QuestRecordRegressionChecks.Validate(result.errors);
@@ -358,7 +359,7 @@ namespace ShadowTheater.EditorTools
             {
                 version = 1, mapId = "Prologue", checkpointMapId = "Prologue", gold = -10,
                 party = new List<ShadowInstance>(), storage = new List<ShadowInstance>(),
-                companionBonds = null, townRestorations = null, fieldIncidentRecords = null,
+                companionBonds = null, townRestorations = null, fieldIncidentRecords = null, endingHistory = null,
                 seenShadowIds = new List<string> { "knight", "knight", "" },
                 recordedShadowIds = new List<string> { "knight" }
             };
@@ -373,6 +374,7 @@ namespace ShadowTheater.EditorTools
                 old.party.Any(x => x.level < 1 || x.exp < 0) ||
                 string.IsNullOrEmpty(old.companionInstanceId) ||
                 old.companionBonds == null || old.townRestorations == null || old.fieldIncidentRecords == null ||
+                old.endingHistory == null || old.memoryFragments < 0 ||
                 !old.party.Any(x => x.instanceId == old.companionInstanceId) ||
                 old.party.Concat(old.storage).Select(x => x.instanceId).Distinct().Count() != 8)
                 result.errors.Add("v1 → 현재 세이브 마이그레이션 회귀 실패");
@@ -390,7 +392,7 @@ namespace ShadowTheater.EditorTools
             if(v10.version!=SaveData.CurrentVersion||v10.companionBonds.Count!=1||v10.companionBonds[0].experience!=260||
                v10.townRestorations.Count!=1||v10.townRestorations[0].points!=6||!v10.townRestorations[0].returnVisitClaimed||
                migratedIncident==null||migratedIncident.stage!=4||migratedIncident.activeDay!=7||migratedIncident.completionCount!=2)
-                result.errors.Add("v10 → v11 유대·마을·필드 사건 진행 복구 회귀 실패");
+                result.errors.Add("v10 → v12 유대·마을·필드 사건 진행 복구 회귀 실패");
 
             var temporary = new SaveData { savedAtUtcTicks = 20 };
             var backup = new SaveData { savedAtUtcTicks = 10 };
@@ -656,6 +658,17 @@ namespace ShadowTheater.EditorTools
                 c.rank != "C" || c.score != 70 || c.bonusGold != 0 ||
                 capped.bonusGold != 0)
                 result.errors.Add("전투 공연 등급·보너스 회귀 실패");
+            if (BattleManager.EnvironmentLabel(FieldWeather.Rain, FieldTimeOfDay.Evening) != "해질녘 · 잔향비")
+                result.errors.Add("전투 환경 요약 회귀 실패");
+            var growthData = ScriptableObject.CreateInstance<ShadowData>();
+            growthData.shadowId = "growth_regression"; growthData.baseHp = 100; growthData.baseAtk = 100;
+            growthData.baseDef = 100; growthData.baseSpd = 100; growthData.growthTier = GrowthTier.Legendary;
+            var focused = new ShadowInstance(growthData, 1)
+                { trainingFocus = TrainingFocus.Power, masteryPoints = CollectionGrowthService.FocusUnlockMastery };
+            if (focused.Atk != 106 || focused.CritRate < .019f ||
+                CollectionGrowthService.DuplicateFragments(growthData) != 12)
+                result.errors.Add("숙련 성장·중복 기억 조각 회귀 실패");
+            UnityEngine.Object.DestroyImmediate(growthData);
         }
 
         private static void ValidateExplorationRewards(ValidationReport result)
@@ -709,6 +722,8 @@ namespace ShadowTheater.EditorTools
         {
             if (FieldTraversalEffects.ResolveSurface("MeadowPixel_Grass", FootstepSurface.Stone) != FootstepSurface.Grass ||
                 FieldTraversalEffects.ResolveSurface("MeadowPixel_Path", FootstepSurface.Grass) != FootstepSurface.Stone ||
+                FieldTraversalEffects.ResolveSurface("Village_Ground", FootstepSurface.Stone) != FootstepSurface.Stone ||
+                FieldTraversalEffects.ResolveSurface("MoonfangForest_Ground", FootstepSurface.Stone) != FootstepSurface.Stone ||
                 FieldTraversalEffects.ResolveSurface("MemorySea_Ground", FootstepSurface.Stone) != FootstepSurface.Water ||
                 FieldTraversalEffects.ResolveSurface("FrostPort_Ground", FootstepSurface.Stone) != FootstepSurface.Snow ||
                 FieldTraversalEffects.ResolveSurface("AshWastes_Ground", FootstepSurface.Stone) != FootstepSurface.Ash ||
@@ -1134,8 +1149,8 @@ namespace ShadowTheater.EditorTools
         {
             var database = AssetDatabase.LoadAssetAtPath<ShadowDatabase>(DatabasePath);
             if (database == null) { result.errors.Add("ShadowDatabase.asset 누락"); return; }
-            if (database.items.Count(x => x != null) != 12)
-                result.errors.Add($"도구 데이터 수 불일치: {database.items.Count(x => x != null)}/12");
+            if (database.items.Count(x => x != null) != 13)
+                result.errors.Add($"도구 데이터 수 불일치: {database.items.Count(x => x != null)}/13");
             result.shadows = database.shadows.Count(x => x != null);
             if (result.shadows != 180) result.errors.Add($"그림자 데이터 수 불일치: {result.shadows}/180");
             var ids = database.shadows.Where(x => x != null).Select(x => x.shadowId).ToList();
@@ -1183,9 +1198,21 @@ namespace ShadowTheater.EditorTools
                 if (item.shopUnlockAct < 1 || item.shopUnlockAct > 8)
                     result.errors.Add($"{item.itemId}: 상점 해금 막 오류 ({item.shopUnlockAct})");
                 if (item.icon == null) result.errors.Add($"{item.itemId}: 도구 아이콘 누락");
-                if (item.usableInField && item.effectType != ItemEffectType.HealFlat && item.effectType != ItemEffectType.HealRatio)
+                if (item.usableInField && item.effectType != ItemEffectType.HealFlat &&
+                    item.effectType != ItemEffectType.HealRatio && item.effectType != ItemEffectType.GainExperience)
                     result.warnings.Add($"{item.itemId}: 필드 사용 효과가 아직 지원되지 않음 ({item.effectType})");
             }
+            ItemData rehearsalScript=database.items.FirstOrDefault(x=>x!=null&&x.itemId=="rehearsal_script");
+            if(rehearsalScript==null||rehearsalScript.effectType!=ItemEffectType.GainExperience||
+               !rehearsalScript.usableInField||rehearsalScript.usableInBattle||rehearsalScript.value<1f||
+               rehearsalScript.shopUnlockAct!=1)
+                result.errors.Add("기억의 연습 대본 경험치 도구 설정 오류");
+            ShadowData levelTestData=ScriptableObject.CreateInstance<ShadowData>();
+            levelTestData.shadowId="starter_level_test";levelTestData.baseHp=100;levelTestData.hpGrowth=10;
+            var levelTest=new ShadowInstance(levelTestData,5);levelTest.RaiseToLevel(10);
+            if(levelTest.level!=10||levelTest.currentHp!=levelTest.MaxHp)
+                result.errors.Add("스타터 최소 레벨 10 보정 회귀 실패");
+            UnityEngine.Object.DestroyImmediate(levelTestData);
             ItemData boat = database.items.FirstOrDefault(x => x != null &&
                 x.itemId == TraversalAbilityService.RubberBoatItemId);
             if (boat == null || boat.effectType != ItemEffectType.TraversalTool || !boat.isKeyItem ||
@@ -1298,6 +1325,7 @@ namespace ShadowTheater.EditorTools
 
         private static bool IsDeclaredStoryFlag(string flag)
         {
+            if (flag == "ending_archive_count") return true;
             if (string.IsNullOrEmpty(flag) || DeclaredStoryFlags.Contains(flag)) return true;
             const string companionPrefix = "companion_event_";
             if (flag.StartsWith(companionPrefix, StringComparison.Ordinal))
@@ -1405,7 +1433,7 @@ namespace ShadowTheater.EditorTools
             var endings=JsonUtility.FromJson<EndingCatalogData>(File.ReadAllText(EndingPath))?.endings??new List<EndingDefinition>();
             var dialogues=JsonUtility.FromJson<DialogueCatalogData>(File.ReadAllText(DialoguePath))?.dialogues??new List<DialogueSequence>();
             var dialogueIds=new HashSet<string>(dialogues.Where(x=>x!=null&&!string.IsNullOrWhiteSpace(x.dialogueId)).Select(x=>x.dialogueId),StringComparer.Ordinal);
-            if(endings.Count!=4)result.errors.Add($"본편 완주 검사: 엔딩 수 불일치 ({endings.Count}/4)");
+            if(endings.Count!=6)result.errors.Add($"본편 완주 검사: 엔딩 수 불일치 ({endings.Count}/6)");
             if(endings.Where(x=>x!=null).Select(x=>x.endingId).Distinct(StringComparer.Ordinal).Count()!=endings.Count)
                 result.errors.Add("본편 완주 검사: 엔딩 ID 누락 또는 중복");
             foreach(var ending in endings.Where(x=>x!=null))
@@ -1450,6 +1478,15 @@ namespace ShadowTheater.EditorTools
             foreach (string issue in report.invalid ?? new List<string>()) result.errors.Add("최종 아트 규격: " + issue);
             ValidatePixelArtImporters("Assets/Art/Final/Player", result);
             ValidatePixelArtImporters("Assets/Art/Final/Field", result);
+            var database = AssetDatabase.LoadAssetAtPath<ShadowDatabase>(DatabasePath);
+            foreach (ShadowData shadow in database?.shadows ?? new List<ShadowData>())
+            foreach (Sprite frame in shadow?.fieldFrames ?? Array.Empty<Sprite>())
+            {
+                string path = AssetDatabase.GetAssetPath(frame);
+                if (path.StartsWith("Assets/Art/Final/Field/", StringComparison.Ordinal) &&
+                    !FinalPixelArtPipeline.IsGameplayReadableFieldFrame(path, out string reason))
+                    result.errors.Add($"{shadow.shadowId}: 깨짐 위험 필드 프레임 연결 ({reason})");
+            }
             result.warnings.Add($"최종 아트 교체율 — 초상 {report.portraitsReady}/{report.shadowCount}, " +
                                 $"필드 그림자 {report.fieldActorsReady}/{report.shadowCount}, " +
                                 $"플레이어 {report.playerFramesReady}/6, 타일 {report.tilesReady}/{report.tileCount}");
@@ -1484,6 +1521,8 @@ namespace ShadowTheater.EditorTools
             if (director == null) { result.errors.Add("CoreSystems 적응형 음악 감독 누락"); return; }
             if (core.GetComponent<DeviceValidationRecorder>() == null)
                 result.errors.Add("CoreSystems 실기기 QA 기록기 누락");
+            if (core.GetComponent<DesktopPlatformController>() == null)
+                result.errors.Add("CoreSystems PC 플랫폼 컨트롤러 누락");
             SerializedProperty clips = new SerializedObject(director).FindProperty("clips");
             int expected = Enum.GetValues(typeof(MusicCue)).Length;
             if (clips == null || clips.arraySize != expected)
@@ -1505,6 +1544,8 @@ namespace ShadowTheater.EditorTools
             if(prefab.GetComponentsInChildren<MobileSafeArea>(true).Length<4)
                 result.errors.Add("타이틀·엔딩·설정·시작 선택 화면 안전영역 보정 누락");
             var so = new SerializedObject(title);
+            if(so.FindProperty("starterLevel")?.intValue!=10)
+                result.errors.Add("새 게임 스타터 레벨이 10이 아님");
             foreach (string property in new[]
                      {
                          "titleRoot", "continueButton", "newCycleButton", "newGameConfirmRoot",
@@ -1512,6 +1553,16 @@ namespace ShadowTheater.EditorTools
                      })
                 if (so.FindProperty(property)?.objectReferenceValue == null)
                     result.errors.Add($"타이틀 UI {property} 참조 누락");
+            SettingsPanelController settings = prefab.GetComponent<SettingsPanelController>();
+            if (settings == null) result.errors.Add("타이틀 PC 화면 설정 컨트롤러 누락");
+            else
+            {
+                var settingsSo = new SerializedObject(settings);
+                foreach (string property in new[]
+                         { "desktopDisplayRoot", "screenModeValue", "resolutionValue", "vSyncValue" })
+                    if (settingsSo.FindProperty(property)?.objectReferenceValue == null)
+                        result.errors.Add($"PC 화면 설정 {property} 참조 누락");
+            }
         }
 
         private static void ValidateScenes(List<RegionData> regions, ValidationReport result)
@@ -1707,6 +1758,11 @@ namespace ShadowTheater.EditorTools
                     int protectedFieldScreens=roots.SelectMany(x=>x.GetComponentsInChildren<MobileSafeArea>(true))
                         .Count(x=>x.GetComponentInParent<BattleUIController>()==null);
                     if(protectedFieldScreens<7)result.errors.Add($"{region.sceneName}: 모바일 안전영역 적용 화면 부족 ({protectedFieldScreens}/7)");
+                    PlatformDisplayGroup[] platformGroups = roots
+                        .SelectMany(x => x.GetComponentsInChildren<PlatformDisplayGroup>(true)).ToArray();
+                    if (!platformGroups.Any(x => x.name == "MobileControls") ||
+                        !platformGroups.Any(x => x.name == "DesktopControls"))
+                        result.errors.Add($"{region.sceneName}: 모바일/PC 필드 조작 표시 전환 누락");
                     ScreenFader fader = roots.SelectMany(x => x.GetComponentsInChildren<ScreenFader>(true)).FirstOrDefault();
                     if (fader == null) result.errors.Add($"{region.sceneName}: 화면 전환 페이더 누락");
                     else

@@ -129,7 +129,9 @@ namespace ShadowTheater.UI
             if (descriptionText != null && _selectedItem != null)
                 descriptionText.text += "\n" + preview;
             if (selectedTargetText != null) selectedTargetText.text = _selectedTarget != null
-                ? L10n.Text(_selectedTarget.DisplayName) + $" · HP {_selectedTarget.currentHp}/{_selectedTarget.MaxHp}"
+                ? L10n.Text(_selectedTarget.DisplayName) + (_selectedTarget.IsMaxLevel
+                    ? $" · Lv.{_selectedTarget.level} MAX · HP {_selectedTarget.currentHp}/{_selectedTarget.MaxHp}"
+                    : $" · Lv.{_selectedTarget.level} · EXP {_selectedTarget.exp}/{_selectedTarget.ExpToNext} · HP {_selectedTarget.currentHp}/{_selectedTarget.MaxHp}")
                 : L10n.Get("inventory.select_target", "사용할 그림자를 선택하세요");
             if (useButton != null) useButton.interactable = usable;
             foreach (var row in _spawned)

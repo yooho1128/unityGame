@@ -21,7 +21,7 @@ namespace ShadowTheater.EditorTools
             AppendGate(text,"1. 월드·빌드 구성",content.errors,"씬","Build Settings","포털","지역 수");
             AppendGate(text,"2. 모바일 UI·설정",content.errors,"안전영역","모바일","Android","iOS","화면 방향");
             AppendGate(text,"3. 스토리·퀘스트·엔딩",content.errors,"본편 완주","퀘스트","엔딩","대화","스토리");
-            AppendGate(text,"4. 저장·진행 복구",content.errors,"세이브","마이그레이션","복구","v10","v11");
+            AppendGate(text,"4. 저장·진행 복구",content.errors,"세이브","마이그레이션","복구","v11","v12");
             AppendGate(text,"5. 전투·콘텐츠·아트",content.errors,"전투","그림자","밸런스","아트","음악","조우","출시 자산");
             AppendList(text,"전체 차단 항목",content.errors,"없음 — 현재 본편 자동 검증 통과");
             AppendList(text,"검토 경고",content.warnings,"없음");

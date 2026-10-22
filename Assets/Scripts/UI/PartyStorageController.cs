@@ -27,6 +27,7 @@ namespace ShadowTheater.UI
         [SerializeField] private Button downButton;
         [SerializeField] private Button healButton;
         [SerializeField] private Button companionButton;
+        [SerializeField] private Button trainingButton;
 
         private readonly List<GameObject> _spawned = new List<GameObject>();
         private ShadowInstance _selected;
@@ -107,6 +108,12 @@ namespace ShadowTheater.UI
             L10n.Get("party.companion_set", "동행 그림자로 지정했습니다."),
             L10n.Get("party.companion_party_only", "파티에 있는 그림자만 동행할 수 있습니다."));
 
+        public void CycleSelectedTraining()
+        {
+            bool success = CollectionGrowthService.TryCycleFocus(_selected, out string message);
+            Apply(success, message, message);
+        }
+
         public void HealSelected()
         {
             bool success = SaveManager.TryUseBestHealingItem(_selected, out string message);
@@ -167,7 +174,8 @@ namespace ShadowTheater.UI
             bool isCompanion = _selected != null && save.companionInstanceId == _selected.instanceId;
             bool exchanging = _exchangeIncoming != null;
             if (selectedText != null) selectedText.text = _selected == null ? L10n.Get("party.select", "그림자를 선택하세요")
-                : $"{L10n.Text(_selected.DisplayName)} · Lv.{_selected.level}" +
+                : $"{L10n.Text(_selected.DisplayName)} · Lv.{_selected.level} · 숙련 {_selected.masteryPoints} · " +
+                  CollectionGrowthService.FocusLabel(_selected.trainingFocus) +
                   (isCompanion ? L10n.Get("party.companion_badge", " · 동행 중") : "");
             if (exchanging && selectedText != null)
                 selectedText.text = L10n.Format("party.swap_pair", "서고 {0} ↔ 파티 {1}", L10n.Text(_exchangeIncoming.DisplayName),
@@ -202,6 +210,12 @@ namespace ShadowTheater.UI
             if (downButton != null) downButton.interactable = !exchanging && index >= 0 && index < save.party.Count - 1;
             if (healButton != null) healButton.interactable = !exchanging && _selected != null && !_selected.IsFainted && _selected.currentHp < _selected.MaxHp;
             if (companionButton != null) companionButton.interactable = !exchanging && _selected != null && _selectedInParty && !isCompanion;
+            if (trainingButton != null)
+            {
+                trainingButton.interactable = !exchanging && _selected != null;
+                SetButtonLabel(trainingButton, _selected == null ? "성장 방향" :
+                    $"성장 방향\n조각 {save.memoryFragments}");
+            }
             foreach (var row in _spawned) row.GetComponent<PartyStorageEntryView>()?.SetSelected(_selected?.instanceId, _exchangeIncoming?.instanceId);
         }
 

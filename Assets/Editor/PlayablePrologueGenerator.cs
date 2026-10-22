@@ -226,6 +226,7 @@ namespace ShadowTheater.EditorTools
             Set(controllerSo, "firstScene", "PrologueTheater");
             Set(controllerSo, "firstCell", new Vector2Int(0, -5));
             Set(controllerSo, "firstFacing", (int)FacingDir.Up);
+            Set(controllerSo, "starterLevel", 10);
             Set(controllerSo, "startingItem", LoadItem("potion"));
             controllerSo.ApplyModifiedPropertiesWithoutUndo();
 
@@ -831,6 +832,10 @@ namespace ShadowTheater.EditorTools
                 var companionEventSo = new SerializedObject(companionEvents);
                 Set(companionEventSo, "regionId", region.regionId);
                 companionEventSo.ApplyModifiedPropertiesWithoutUndo();
+                var ambientCommentary = fieldRoot.AddComponent<CompanionAmbientCommentary>();
+                var ambientCommentarySo = new SerializedObject(ambientCommentary);
+                Set(ambientCommentarySo, "regionId", region.regionId);
+                ambientCommentarySo.ApplyModifiedPropertiesWithoutUndo();
                 var worldState = fieldRoot.AddComponent<FieldWorldStateController>();
                 var worldStateSo = new SerializedObject(worldState);
                 Set(worldStateSo, "regionId", region.regionId);
@@ -1793,7 +1798,10 @@ namespace ShadowTheater.EditorTools
         {
             var go = CreateFieldActor(parent, "FinalScriptBook", cell, LoadShadow("outside_script_shadow"), false);
             go.transform.localScale = Vector3.one * 1.2f;
-            go.AddComponent<EndingTrigger>();
+            var trigger = go.AddComponent<EndingTrigger>();
+            var so = new SerializedObject(trigger);
+            Set(so,"allowReplay",true); Set(so,"returnToTitleAfterEnding",false);
+            so.ApplyModifiedPropertiesWithoutUndo();
         }
 
         private static void CreateAreaTrigger(Transform parent, Vector2Int cell, string areaId)
@@ -1857,16 +1865,30 @@ namespace ShadowTheater.EditorTools
             scaler.referenceResolution = new Vector2(1600, 900); scaler.matchWidthOrHeight = 1f;
             var safe = UiRect("SafeArea", root.transform, Vector2.zero, Vector2.one);
             safe.gameObject.AddComponent<MobileSafeArea>();
-            var pad = UiRect("DirectionPad", safe, Vector2.zero, Vector2.zero);
+            var mobileControls = UiRect("MobileControls", safe, Vector2.zero, Vector2.one);
+            mobileControls.gameObject.AddComponent<PlatformDisplayGroup>();
+            var pad = UiRect("DirectionPad", mobileControls, Vector2.zero, Vector2.zero);
             MobileUiPolish.Fixed(pad, Vector2.zero, new Vector2(28, 28), new Vector2(264, 264));
             DirectionButton("Up", pad, new Vector2(.34f,.67f), new Vector2(.66f,1f), "▲", Vector2.up);
             DirectionButton("Left", pad, new Vector2(0,.34f), new Vector2(.33f,.66f), "◀", Vector2.left);
             DirectionButton("Right", pad, new Vector2(.67f,.34f), new Vector2(1f,.66f), "▶", Vector2.right);
             DirectionButton("Down", pad, new Vector2(.34f,0), new Vector2(.66f,.33f), "▼", Vector2.down);
-            var action = UiButton("Action", safe, Vector2.zero, Vector2.one, "대화 · 조사");
+            var action = UiButton("Action", mobileControls, Vector2.zero, Vector2.one, "대화 · 조사");
             MobileUiPolish.Fixed(action.transform as RectTransform, new Vector2(1, 0), new Vector2(-36, 48), new Vector2(164, 100));
             action.GetComponentInChildren<Text>().fontSize = 26;
             action.gameObject.AddComponent<VirtualActionButton>();
+
+            var desktopHint = UiRect("DesktopControls", safe, Vector2.zero, Vector2.zero);
+            MobileUiPolish.Fixed(desktopHint, Vector2.zero, new Vector2(28, 28), new Vector2(650, 98));
+            var hintImage = desktopHint.gameObject.AddComponent<Image>();
+            hintImage.sprite = Resources.Load<Sprite>("Art/UI/ControlPlate"); hintImage.type = Image.Type.Sliced;
+            hintImage.color = new Color(.09f,.06f,.17f,.88f); hintImage.raycastTarget = false;
+            var hint = UiText("Hint", desktopHint, new Vector2(.035f,.08f), new Vector2(.965f,.92f), 21, TextAnchor.MiddleLeft);
+            hint.text = "이동  WASD / 방향키   ·   조사  Z / Space / Enter   ·   메뉴  Esc\n가방 I  ·  파티 P  ·  각본집 Tab  ·  지도 M  ·  퀘스트 Q  ·  상점 S\n게임패드  스틱 / D-Pad 이동   ·   A 선택   ·   B 뒤로";
+            var desktopVisibility = desktopHint.gameObject.AddComponent<PlatformDisplayGroup>();
+            var desktopSo = new SerializedObject(desktopVisibility);
+            Set(desktopSo,"showOnMobile",false); Set(desktopSo,"showOnDesktop",true);
+            desktopSo.ApplyModifiedPropertiesWithoutUndo();
         }
 
         private static void DirectionButton(string name, Transform parent, Vector2 min, Vector2 max,
@@ -2767,7 +2789,7 @@ namespace ShadowTheater.EditorTools
             for (int i = 0; i < result.Length; i++)
             {
                 string path = $"{FinalFieldCharacterFolder}/{shadowId}_{i + 1:00}.png";
-                if (!File.Exists(path)) return null;
+                if (!FinalPixelArtPipeline.IsGameplayReadableFieldFrame(path, out _)) return null;
                 AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceSynchronousImport);
                 var importer = AssetImporter.GetAtPath(path) as TextureImporter;
                 if (importer == null) return null;

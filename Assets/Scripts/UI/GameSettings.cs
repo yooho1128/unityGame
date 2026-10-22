@@ -20,6 +20,15 @@ namespace ShadowTheater.UI
         private bool _vibration;
         private float _textSpeed;
         private GameLanguage _language;
+        private bool _fullscreen;
+        private bool _vSync;
+        private int _resolutionIndex;
+
+        private static readonly Vector2Int[] DesktopResolutions =
+        {
+            new Vector2Int(1280, 720), new Vector2Int(1600, 900),
+            new Vector2Int(1920, 1080), new Vector2Int(2560, 1440)
+        };
 
         public static float MasterVolume => Instance != null ? Instance._masterVolume : 0.9f;
         public static float AmbienceVolume => Instance != null ? Instance._ambienceVolume : 0.8f;
@@ -28,6 +37,17 @@ namespace ShadowTheater.UI
         public static bool Vibration => Instance == null || Instance._vibration;
         public static float TextSpeed => Instance != null ? Instance._textSpeed : 42f;
         public static GameLanguage Language => Instance != null ? Instance._language : GameLanguage.Korean;
+        public static bool Fullscreen => Instance == null || Instance._fullscreen;
+        public static bool VSync => Instance == null || Instance._vSync;
+        public static string ResolutionLabel
+        {
+            get
+            {
+                int index = Instance != null ? Instance._resolutionIndex : 2;
+                Vector2Int size = DesktopResolutions[Mathf.Clamp(index, 0, DesktopResolutions.Length - 1)];
+                return $"{size.x} × {size.y}";
+            }
+        }
 
         private void Awake()
         {
@@ -35,6 +55,7 @@ namespace ShadowTheater.UI
             Instance = this;
             Load();
             Apply();
+            ApplyDisplay();
         }
 
         private void OnDestroy()
@@ -52,6 +73,14 @@ namespace ShadowTheater.UI
         {
             _language = EnglishEnabled ? value : GameLanguage.Korean;
             ApplyAndSave();
+        }
+
+        public void ToggleFullscreen() { _fullscreen = !_fullscreen; ApplyDisplayAndSave(); }
+        public void ToggleVSync() { _vSync = !_vSync; ApplyDisplayAndSave(); }
+        public void CycleResolution()
+        {
+            _resolutionIndex = (_resolutionIndex + 1) % DesktopResolutions.Length;
+            ApplyDisplayAndSave();
         }
 
         public static void TryVibrate()
@@ -73,11 +102,27 @@ namespace ShadowTheater.UI
             _language = EnglishEnabled
                 ? (GameLanguage)Mathf.Clamp(PlayerPrefs.GetInt(Prefix + "language", 0), 0, 1)
                 : GameLanguage.Korean;
+            _fullscreen = PlayerPrefs.GetInt(Prefix + "fullscreen", 1) != 0;
+            _vSync = PlayerPrefs.GetInt(Prefix + "vsync", 1) != 0;
+            _resolutionIndex = Mathf.Clamp(PlayerPrefs.GetInt(Prefix + "resolution", 2), 0,
+                DesktopResolutions.Length - 1);
         }
 
         private void ApplyAndSave()
         {
             Apply();
+            SavePreferences();
+        }
+
+        private void ApplyDisplayAndSave()
+        {
+            ApplyDisplay();
+            Changed?.Invoke();
+            SavePreferences();
+        }
+
+        private void SavePreferences()
+        {
             PlayerPrefs.SetFloat(Prefix + "master", _masterVolume);
             PlayerPrefs.SetFloat(Prefix + "ambience", _ambienceVolume);
             PlayerPrefs.SetFloat(Prefix + "music", _musicVolume);
@@ -85,6 +130,9 @@ namespace ShadowTheater.UI
             PlayerPrefs.SetInt(Prefix + "vibration", _vibration ? 1 : 0);
             PlayerPrefs.SetFloat(Prefix + "text_speed", _textSpeed);
             PlayerPrefs.SetInt(Prefix + "language", (int)_language);
+            PlayerPrefs.SetInt(Prefix + "fullscreen", _fullscreen ? 1 : 0);
+            PlayerPrefs.SetInt(Prefix + "vsync", _vSync ? 1 : 0);
+            PlayerPrefs.SetInt(Prefix + "resolution", _resolutionIndex);
             PlayerPrefs.Save();
         }
 
@@ -92,6 +140,17 @@ namespace ShadowTheater.UI
         {
             AudioListener.volume = _masterVolume;
             Changed?.Invoke();
+        }
+
+        private void ApplyDisplay()
+        {
+#if UNITY_STANDALONE
+            QualitySettings.vSyncCount = _vSync ? 1 : 0;
+            Application.targetFrameRate = _vSync ? -1 : 120;
+            Vector2Int size = DesktopResolutions[_resolutionIndex];
+            Screen.SetResolution(size.x, size.y,
+                _fullscreen ? FullScreenMode.FullScreenWindow : FullScreenMode.Windowed);
+#endif
         }
     }
 }

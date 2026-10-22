@@ -84,9 +84,11 @@ namespace ShadowTheater.Field
         {
             string tileName = FieldGrid.Current != null ? FieldGrid.Current.GroundTileName(cell) : string.Empty;
             string collisionName=FieldGrid.Current!=null?FieldGrid.Current.CollisionTileName(cell):string.Empty;
-            if(!string.IsNullOrEmpty(collisionName)&&ResolveSurface(collisionName,defaultSurface)==FootstepSurface.Water)
+            if(!string.IsNullOrEmpty(collisionName)&&ResolveSurface(collisionName,FootstepSurface.Stone)==FootstepSurface.Water)
                 return FootstepSurface.Water;
-            return ResolveSurface(tileName, defaultSurface);
+            // A region-wide fallback is only safe when no tile exists. Generic village/marsh/forest
+            // ground must not emit grass blades merely because the surrounding theme contains foliage.
+            return string.IsNullOrEmpty(tileName) ? defaultSurface : ResolveSurface(tileName,FootstepSurface.Stone);
         }
 
         public static FootstepSurface ResolveSurface(string tileName, FootstepSurface fallback)
@@ -94,7 +96,7 @@ namespace ShadowTheater.Field
             string value = (tileName ?? string.Empty).ToLowerInvariant();
             if (value.Contains("water") || value.Contains("sea")) return FootstepSurface.Water;
             if (value.Contains("path") || value.Contains("stone")) return FootstepSurface.Stone;
-            if (value.Contains("grass") || value.Contains("meadow") || value.Contains("forest")) return FootstepSurface.Grass;
+            if (value.Contains("grass")) return FootstepSurface.Grass;
             if (value.Contains("snow") || value.Contains("frost") || value.Contains("ice")) return FootstepSurface.Snow;
             if (value.Contains("ash")) return FootstepSurface.Ash;
             if (value.Contains("metal") || value.Contains("clockwork")) return FootstepSurface.Metal;

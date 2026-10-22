@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using ShadowTheater.Data;
+using ShadowTheater.Field;
 
 namespace ShadowTheater.Battle
 {
@@ -101,6 +102,9 @@ namespace ShadowTheater.Battle
         public bool autoBattle;
         public float timeScale = 1f;               // 접근성/연출 배속 옵션
         public int bossInvestigationLevel;          // 0~3, 마을 사전 조사 단서 수
+        public string regionId;
+        public FieldTimeOfDay timeOfDay;
+        public FieldWeather weather;
 
         public bool CanCapture => mode == BattleMode.Wild;
         public bool CanEscape => mode == BattleMode.Wild;
@@ -122,6 +126,12 @@ namespace ShadowTheater.Battle
         public int performanceScore;
         public int performanceBonusGold;
         public string performanceRank;
+        public string standoutInstanceId;
+        public string standoutShadowName;
+        public string decisiveAction;
+        public string environmentSummary;
+        public int memoryFragmentsGained;
+        public List<string> participantInstanceIds = new List<string>();
         public List<BattleLoot> loot = new List<BattleLoot>();
         public List<string> leveledUpInstanceIds = new List<string>();
     }

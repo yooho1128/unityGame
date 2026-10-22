@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 namespace ShadowTheater.UI
 {
-    /// <summary>필드 탐색 중 저장, 음량 설정, 타이틀 복귀를 제공하는 모바일 메뉴.</summary>
+    /// <summary>필드 탐색 중 저장, 음량 설정, 타이틀 복귀를 제공하는 공통 메뉴.</summary>
     public class FieldPauseMenuController : MonoBehaviour
     {
         public static FieldPauseMenuController Instance { get; private set; }
@@ -65,7 +65,15 @@ namespace ShadowTheater.UI
         private void Update()
         {
 #if ENABLE_LEGACY_INPUT_MANAGER && (UNITY_EDITOR || UNITY_STANDALONE)
-            if (Input.GetKeyDown(KeyCode.Escape)) HandleBack();
+            if (Input.GetKeyDown(KeyCode.Escape) || Input.GetButtonDown("Cancel")) HandleBack();
+            if (!FieldUiModalState.AnyOpen)
+            {
+                if (Input.GetKeyDown(KeyCode.I)) FieldInventoryController.Instance?.Open();
+                else if (Input.GetKeyDown(KeyCode.P)) PartyStorageController.Instance?.Open();
+                else if (Input.GetKeyDown(KeyCode.M)) WorldMapController.Instance?.Open();
+                else if (Input.GetKeyDown(KeyCode.Q)) QuestLogController.Instance?.Open();
+                else if (Input.GetKeyDown(KeyCode.S)) SettlementShopController.Instance?.Open();
+            }
 #elif UNITY_ANDROID
             if (Input.GetKeyDown(KeyCode.Escape)) HandleBack();
 #endif
@@ -109,6 +117,7 @@ namespace ShadowTheater.UI
                 _lockedPlayer = true;
             }
             Refresh();
+            DesktopPlatformController.SelectFirstUsable(root);
         }
 
         public void Close()

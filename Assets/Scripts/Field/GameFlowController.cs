@@ -153,6 +153,8 @@ namespace ShadowTheater.Field
             BattleGimmick gimmick)
         {
             var save = SaveManager.Current;
+            RegionData region = RegionRepository.GetByScene(save.mapId);
+            FieldWorldSnapshot world = FieldWorldState.Current(region);
             return new BattleContext
             {
                 mode = mode,
@@ -161,6 +163,9 @@ namespace ShadowTheater.Field
                 inventory = SaveManager.BuildBattleInventory(),
                 encounterId = encounterId,
                 gimmick = gimmick,
+                regionId = region?.regionId,
+                timeOfDay = world.timeOfDay,
+                weather = world.weather,
                 bossInvestigationLevel = mode == BattleMode.Boss && enemies != null && enemies.Count > 0
                     ? BossInvestigationService.PreparationLevel(enemies[0].Data) : 0,
                 autoBattle = save.autoBattle,
@@ -279,12 +284,13 @@ namespace ShadowTheater.Field
                 {
                     var shadow = outcome.capturedShadow;
                     shadow.FullHeal(); // 기억이 정화되어 온전한 모습으로 합류
-                    bool toParty = SaveManager.AddCapturedShadow(shadow, out bool newlyRecorded);
+                    bool toParty = SaveManager.AddCapturedShadow(shadow, out bool newlyRecorded, out int fragments);
+                    outcome.memoryFragmentsGained = fragments;
                     if (newlyRecorded)
                         QuestManager.Instance?.Notify(QuestObjectiveType.Record, shadow.shadowId);
                     // 포획 개체와 퀘스트 진행을 같은 저장 스냅샷으로 확정한다.
                     SaveManager.Instance.Save();
-                    OnShadowRecorded?.Invoke(shadow, toParty);
+                    if (fragments <= 0) OnShadowRecorded?.Invoke(shadow, toParty);
                     break;
                 }
                 case BattleResult.Victory:
@@ -301,6 +307,8 @@ namespace ShadowTheater.Field
                             $"{L10n.Text(companion.DisplayName)}과의 유대가 Lv.{oldBond} → Lv.{newBond}(으)로 깊어졌습니다.\n" +
                             CompanionBondService.BondDialogue(companion,newBond));
                     }
+                    string growth = CollectionGrowthService.ApplyBattleGrowth(outcome, ctx.mode);
+                    if (!string.IsNullOrEmpty(growth)) SaveFeedbackController.Instance?.ShowMessage(growth);
                     break;
 
                 case BattleResult.Defeat:
@@ -333,6 +341,12 @@ namespace ShadowTheater.Field
         {
             var captured = outcome?.capturedShadow;
             if (captured == null || SaveManager.Current == null) return;
+            if (outcome.memoryFragmentsGained > 0)
+            {
+                SaveFeedbackController.Instance?.ShowMessage(
+                    $"이미 기록한 {L10n.Text(captured.DisplayName)}의 기억이 조각 {outcome.memoryFragmentsGained}개로 정리되었습니다.");
+                return;
+            }
             bool inParty = SaveManager.Current.party.Exists(x => x.instanceId == captured.instanceId);
             string name = L10n.Text(captured.DisplayName);
             SaveFeedbackController.Instance?.ShowMessage(inParty

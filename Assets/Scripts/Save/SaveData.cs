@@ -12,7 +12,7 @@ namespace ShadowTheater.Save
     [Serializable]
     public class SaveData
     {
-        public const int CurrentVersion = 11;
+        public const int CurrentVersion = 12;
         public const int MaxPartySize = 6;
 
         public int version = CurrentVersion;
@@ -52,12 +52,14 @@ namespace ShadowTheater.Save
         public List<FieldIncidentRecordData> fieldIncidentRecords = new List<FieldIncidentRecordData>();
         public string lastEndingId;
         public List<string> unlockedEndingIds = new List<string>();
+        public List<EndingRecordData> endingHistory = new List<EndingRecordData>();
         public int cycle = 1;
         public int completedCycles;
         public bool cycleCompleted;
 
         // ── 재화 / 도구 ──
         public int gold;
+        public int memoryFragments;
         public List<ItemStack> inventory = new List<ItemStack>();
 
         // ── 옵션 ──
@@ -92,6 +94,18 @@ namespace ShadowTheater.Save
         public string regionId;
         public string choiceId;
         public bool encounterCleared;
+    }
+
+    [Serializable]
+    public class EndingRecordData
+    {
+        public string endingId;
+        public int cycle;
+        public string companionShadowId;
+        public string epilogue;
+        public int memoryScore;
+        public int compassionScore;
+        public int controlScore;
     }
 
     /// <summary>퀘스트/이벤트 플래그. int 하나로 bool(0/1)과 단계값(0,1,2...)을 같이 표현</summary>

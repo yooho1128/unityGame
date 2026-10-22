@@ -33,7 +33,8 @@ namespace ShadowTheater.EditorTools
         {
             var systems = new GameObject("CoreSystems", typeof(SaveManager), typeof(MapLoader),
                 typeof(EndingManager), typeof(GameSettings), typeof(LocalizationRuntime),
-                typeof(MobilePerformanceController), typeof(DeviceValidationRecorder), typeof(AdaptiveMusicDirector));
+                typeof(MobilePerformanceController), typeof(DesktopPlatformController),
+                typeof(DeviceValidationRecorder), typeof(AdaptiveMusicDirector));
             var musicSo = new SerializedObject(systems.GetComponent<AdaptiveMusicDirector>());
             AudioClip[] music = MusicAssetGenerator.LoadAll();
             var musicClips = musicSo.FindProperty("clips");
@@ -91,6 +92,13 @@ namespace ShadowTheater.EditorTools
                 new Vector2(0.49f, 0.14f), "엔딩 기록관", new Color(0.10f, 0.08f, 0.18f, 1f));
             var settingsButton = CreateButton("SettingsButton", titleRoot, new Vector2(0.51f, 0.07f),
                 new Vector2(0.81f, 0.14f), "설정", new Color(0.10f, 0.08f, 0.18f, 1f));
+            var quitButton = CreateButton("QuitButton", titleRoot, new Vector2(.83f,.07f),
+                new Vector2(.96f,.14f), "종료", new Color(.18f,.07f,.12f,1f));
+            var quitVisibility = quitButton.gameObject.AddComponent<PlatformDisplayGroup>();
+            var quitVisibilitySo = new SerializedObject(quitVisibility);
+            quitVisibilitySo.FindProperty("showOnMobile").boolValue = false;
+            quitVisibilitySo.FindProperty("showOnDesktop").boolValue = true;
+            quitVisibilitySo.ApplyModifiedPropertiesWithoutUndo();
             var titleFeedback = CreateText("Feedback", titleRoot, new Vector2(.08f,.015f), new Vector2(.92f,.06f),
                 18, FontStyle.Bold, TextAnchor.MiddleCenter);
 
@@ -157,20 +165,26 @@ namespace ShadowTheater.EditorTools
                 new Vector2(.92f,.87f), 21, FontStyle.Normal, TextAnchor.MiddleCenter);
             settingsHint.text = "공연 환경은 모든 저장 데이터에 공통으로 적용됩니다";
             settingsHint.color = new Color(.68f,.64f,.76f,1f);
-            var settingsPanel = CreateRect("Panel", settingsRoot, new Vector2(.10f,.19f), new Vector2(.90f,.79f));
+            var settingsPanel = CreateRect("Panel", settingsRoot, new Vector2(.10f,.14f), new Vector2(.90f,.79f));
             settingsPanel.gameObject.AddComponent<Image>().color = new Color(.045f,.03f,.085f,.97f);
 
             Text masterValue, ambienceValue, musicValue, sfxValue;
-            var masterSlider = CreateSettingsSlider("Master", settingsPanel, .92f, "전체 음량", out masterValue);
-            var musicSlider = CreateSettingsSlider("Music", settingsPanel, .78f, "음악", out musicValue);
-            var ambienceSlider = CreateSettingsSlider("Ambience", settingsPanel, .64f, "환경음", out ambienceValue);
-            var sfxSlider = CreateSettingsSlider("Sfx", settingsPanel, .50f, "효과음", out sfxValue);
+            var masterSlider = CreateSettingsSlider("Master", settingsPanel, .97f, "전체 음량", out masterValue);
+            var musicSlider = CreateSettingsSlider("Music", settingsPanel, .86f, "음악", out musicValue);
+            var ambienceSlider = CreateSettingsSlider("Ambience", settingsPanel, .75f, "환경음", out ambienceValue);
+            var sfxSlider = CreateSettingsSlider("Sfx", settingsPanel, .64f, "효과음", out sfxValue);
             Text vibrationValue, textSpeedValue, languageValue;
-            var vibrationButton = CreateSettingsChoice("Vibration", settingsPanel, .34f, "진동", out vibrationValue);
-            var speedButton = CreateSettingsChoice("TextSpeed", settingsPanel, .20f, "대화 속도", out textSpeedValue);
-            var languageButton = CreateSettingsChoice("Language", settingsPanel, .06f, "언어", out languageValue);
-            var settingsBack = CreateButton("BackButton", settingsRoot, new Vector2(.30f,.07f),
-                new Vector2(.70f,.13f), "돌아가기", new Color(.08f,.065f,.14f,1f));
+            var speedButton = CreateSettingsChoice("TextSpeed", settingsPanel, .51f, "대화 속도", out textSpeedValue);
+            var vibrationRow = CreateRect("VibrationRow", settingsPanel, Vector2.zero, Vector2.one);
+            var vibrationButton = CreateSettingsChoice("Vibration", vibrationRow, .40f, "진동", out vibrationValue);
+            var languageButton = CreateSettingsChoice("Language", settingsPanel, .29f, "언어", out languageValue);
+
+            var desktopDisplay = CreateRect("DesktopDisplay", settingsPanel, Vector2.zero, Vector2.one);
+            var screenModeButton = CreateSettingsChoice("ScreenMode", desktopDisplay, .40f, "화면 모드", out Text screenModeValue);
+            var resolutionButton = CreateSettingsChoice("Resolution", desktopDisplay, .29f, "해상도", out Text resolutionValue);
+            var vSyncButton = CreateSettingsChoice("VSync", desktopDisplay, .18f, "수직 동기화", out Text vSyncValue);
+            var settingsBack = CreateButton("BackButton", settingsRoot, new Vector2(.30f,.035f),
+                new Vector2(.70f,.105f), "돌아가기", new Color(.08f,.065f,.14f,1f));
 
             var starterRoot = CreateRect("StarterRoot", root.transform, Vector2.zero, Vector2.one);
             starterRoot.gameObject.AddComponent<MobileSafeArea>();
@@ -213,6 +227,7 @@ namespace ShadowTheater.EditorTools
             controllerSo.FindProperty("starterSelection").objectReferenceValue = selection;
             controllerSo.FindProperty("endingGallery").objectReferenceValue = root.GetComponent<EndingGalleryController>();
             controllerSo.FindProperty("settingsPanel").objectReferenceValue = root.GetComponent<SettingsPanelController>();
+            controllerSo.FindProperty("starterLevel").intValue = 10;
             controllerSo.ApplyModifiedPropertiesWithoutUndo();
 
             var gallery = root.GetComponent<EndingGalleryController>();
@@ -243,6 +258,11 @@ namespace ShadowTheater.EditorTools
             settingsSo.FindProperty("vibrationValue").objectReferenceValue = vibrationValue;
             settingsSo.FindProperty("textSpeedValue").objectReferenceValue = textSpeedValue;
             settingsSo.FindProperty("languageValue").objectReferenceValue = languageValue;
+            settingsSo.FindProperty("vibrationRow").objectReferenceValue = vibrationRow.gameObject;
+            settingsSo.FindProperty("desktopDisplayRoot").objectReferenceValue = desktopDisplay.gameObject;
+            settingsSo.FindProperty("screenModeValue").objectReferenceValue = screenModeValue;
+            settingsSo.FindProperty("resolutionValue").objectReferenceValue = resolutionValue;
+            settingsSo.FindProperty("vSyncValue").objectReferenceValue = vSyncValue;
             settingsSo.ApplyModifiedPropertiesWithoutUndo();
 
             UnityEditor.Events.UnityEventTools.AddPersistentListener(newButton.onClick, controller.NewGame);
@@ -253,6 +273,7 @@ namespace ShadowTheater.EditorTools
             UnityEditor.Events.UnityEventTools.AddPersistentListener(galleryButton.onClick, gallery.Open);
             UnityEditor.Events.UnityEventTools.AddPersistentListener(galleryBack.onClick, gallery.Close);
             UnityEditor.Events.UnityEventTools.AddPersistentListener(settingsButton.onClick, settings.Open);
+            UnityEditor.Events.UnityEventTools.AddPersistentListener(quitButton.onClick, controller.QuitGame);
             UnityEditor.Events.UnityEventTools.AddPersistentListener(settingsBack.onClick, settings.Close);
             UnityEditor.Events.UnityEventTools.AddPersistentListener(masterSlider.onValueChanged, settings.SetMaster);
             UnityEditor.Events.UnityEventTools.AddPersistentListener(ambienceSlider.onValueChanged, settings.SetAmbience);
@@ -261,6 +282,9 @@ namespace ShadowTheater.EditorTools
             UnityEditor.Events.UnityEventTools.AddPersistentListener(vibrationButton.onClick, settings.ToggleVibration);
             UnityEditor.Events.UnityEventTools.AddPersistentListener(speedButton.onClick, settings.CycleTextSpeed);
             UnityEditor.Events.UnityEventTools.AddPersistentListener(languageButton.onClick, settings.ToggleLanguage);
+            UnityEditor.Events.UnityEventTools.AddPersistentListener(screenModeButton.onClick, settings.ToggleFullscreen);
+            UnityEditor.Events.UnityEventTools.AddPersistentListener(resolutionButton.onClick, settings.CycleResolution);
+            UnityEditor.Events.UnityEventTools.AddPersistentListener(vSyncButton.onClick, settings.ToggleVSync);
             UnityEditor.Events.UnityEventTools.AddPersistentListener(backButton.onClick,
                 controller.CancelStarterSelection);
             starterRoot.gameObject.SetActive(false);

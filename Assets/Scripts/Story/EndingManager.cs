@@ -84,8 +84,23 @@ namespace ShadowTheater.Story
             }
             if (!save.unlockedEndingIds.Contains(ending.endingId))
                 save.unlockedEndingIds.Add(ending.endingId);
+            SaveManager.SetFlag("ending_archive_count", save.unlockedEndingIds.Count);
             SaveManager.SetFlag($"ending_{ending.endingId}_seen");
+            save.endingHistory ??= new System.Collections.Generic.List<EndingRecordData>();
+            string epilogue = EndingEpilogueService.Build(ending);
+            EndingRecordData record = save.endingHistory.Find(x => x.endingId == ending.endingId && x.cycle == save.cycle);
+            if (record == null)
+            {
+                record = new EndingRecordData { endingId = ending.endingId, cycle = save.cycle };
+                save.endingHistory.Add(record);
+            }
+            record.companionShadowId = CompanionBondService.CurrentCompanionShadowId();
+            record.epilogue = epilogue;
+            record.memoryScore = SaveManager.GetFlag("choice_memory");
+            record.compassionScore = SaveManager.GetFlag("choice_compassion");
+            record.controlScore = SaveManager.GetFlag("choice_control");
             SaveManager.Instance.Save();
+            SaveFeedbackController.Instance?.ShowMessage(epilogue);
             EndingUnlocked?.Invoke(ending);
         }
     }

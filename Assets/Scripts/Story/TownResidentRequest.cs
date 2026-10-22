@@ -21,9 +21,17 @@ namespace ShadowTheater.Story
             if(SaveManager.GetItemCount(requestedItemId)<=0)
             {SaveFeedbackController.Instance?.ShowMessage($"주민 부탁 · {itemName} 1개를 구해 주세요.");return;}
             SaveManager.AddItem(requestedItemId,-1);SaveManager.AddGold(rewardGold);SaveManager.SetFlag(daily,day+1);
-            SaveManager.SetFlag(affinity,SaveValuePolicy.SaturatingAdd(SaveManager.GetFlag(affinity),1));
-            TownRestorationService.AddActivity(regionId,1);SaveManager.Instance?.TrySave(false);GameSettings.TryVibrate();
-            SaveFeedbackController.Instance?.ShowMessage($"부탁 완료 · 금화 +{rewardGold} · 주민 호감도 {SaveManager.GetFlag(affinity)}");
+            int oldAffinity=SaveManager.GetFlag(affinity);int newAffinity=SaveValuePolicy.SaturatingAdd(oldAffinity,1);
+            SaveManager.SetFlag(affinity,newAffinity);
+            TownRestorationService.AddActivity(regionId,1);
+            string milestone=string.Empty;
+            if((newAffinity==3||newAffinity==6)&&oldAffinity<newAffinity)
+            {
+                int bonus=newAffinity==3?60:120;SaveManager.AddGold(bonus);TownRestorationService.AddActivity(regionId,2);
+                milestone=$"\n마을 이정표 · 공동체 기금 +{bonus} · 복구 기여 +2";
+            }
+            SaveManager.Instance?.TrySave(false);GameSettings.TryVibrate();
+            SaveFeedbackController.Instance?.ShowMessage($"부탁 완료 · 금화 +{rewardGold} · 주민 호감도 {newAffinity}{milestone}");
         }
     }
 }

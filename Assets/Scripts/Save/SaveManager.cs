@@ -109,19 +109,26 @@ namespace ShadowTheater.Save
         public bool HasSave() => File.Exists(SavePath) || File.Exists(TempPath) || File.Exists(BackupPath);
 
         /// <summary>새 게임: 스타팅 그림자 1마리 + 기본 도구 지급</summary>
-        public SaveData NewGame(ShadowData starter, int starterLevel = 5)
+        public SaveData NewGame(ShadowData starter, int starterLevel = 10)
         {
             return CreateGame(starter, starterLevel, 1, 0, null);
         }
 
         /// <summary>엔딩 도감과 완료 횟수만 계승하고 진행/파티/선택 플래그는 초기화한다.</summary>
-        public SaveData NewCycle(ShadowData starter, int starterLevel = 5)
+        public SaveData NewCycle(ShadowData starter, int starterLevel = 10)
         {
             if (_current == null || !_current.cycleCompleted || starter == null) return null;
             int nextCycle = Mathf.Max(1, _current.cycle) + 1;
             int completed = Mathf.Max(1, _current.completedCycles);
             var endings = new List<string>(_current.unlockedEndingIds ?? new List<string>());
-            return CreateGame(starter, starterLevel, nextCycle, completed, endings);
+            var history = new List<EndingRecordData>(_current.endingHistory ?? new List<EndingRecordData>());
+            int fragments = Mathf.Max(0, _current.memoryFragments);
+            SaveData next = CreateGame(starter, starterLevel, nextCycle, completed, endings);
+            next.endingHistory = history;
+            next.memoryFragments = fragments;
+            SetFlag("ending_archive_count", endings.Count);
+            SetFlag("new_cycle_memory", nextCycle);
+            return next;
         }
 
         public bool CanStartNewCycle => _current != null && _current.cycleCompleted;
@@ -386,6 +393,7 @@ namespace ShadowTheater.Save
             data.recordedShadowIds ??= new List<string>();
             data.inventory ??= new List<ItemStack>();
             data.unlockedEndingIds ??= new List<string>();
+            data.endingHistory ??= new List<EndingRecordData>();
             data.unlockedRegionIds ??= new List<string>();
             data.visitedRegionIds ??= new List<string>();
             data.companionBonds ??= new List<CompanionBondProgressData>();
@@ -406,6 +414,7 @@ namespace ShadowTheater.Save
         {
             data.saveGuid = string.IsNullOrEmpty(data.saveGuid) ? Guid.NewGuid().ToString("N") : data.saveGuid;
             data.gold = Mathf.Max(0, data.gold);
+            data.memoryFragments = Mathf.Max(0, data.memoryFragments);
             data.wildVictoryCount = Mathf.Max(0, data.wildVictoryCount);
             data.playTimeSeconds = Mathf.Max(0f, data.playTimeSeconds);
             data.battleSpeed = Mathf.Clamp(data.battleSpeed <= 0f ? 1f : data.battleSpeed, 1f, 3f);
@@ -434,6 +443,13 @@ namespace ShadowTheater.Save
             }
             if (string.IsNullOrEmpty(data.starterShadowId) && data.party.Count > 0)
                 data.starterShadowId = data.party[0].shadowId;
+            ShadowInstance starter = data.party.Concat(data.storage)
+                .FirstOrDefault(x=>x.shadowId==data.starterShadowId);
+            if(starter!=null)
+            {
+                starter.EnsureHp();bool wasFainted=starter.IsFainted;starter.RaiseToLevel(10);
+                if(wasFainted)starter.currentHp=0;
+            }
             if (data.party.Count == 0) data.companionInstanceId = string.Empty;
             else if (string.IsNullOrEmpty(data.companionInstanceId) ||
                      !data.party.Exists(x => x.instanceId == data.companionInstanceId))
@@ -515,6 +531,9 @@ namespace ShadowTheater.Save
                 if (shadow.level >= ShadowInstance.MaxLevel) shadow.exp = 0;
                 if (!Enum.IsDefined(typeof(MemoryStage), shadow.memoryStage)) shadow.memoryStage = MemoryStage.Echo;
                 if (!Enum.IsDefined(typeof(AwakeningPath), shadow.awakeningPath)) shadow.awakeningPath = AwakeningPath.None;
+                if (!Enum.IsDefined(typeof(TrainingFocus), shadow.trainingFocus)) shadow.trainingFocus = TrainingFocus.Balanced;
+                shadow.masteryPoints = Mathf.Max(0, shadow.masteryPoints);
+                shadow.victories = Mathf.Max(0, shadow.victories);
                 if (string.IsNullOrEmpty(shadow.instanceId) || !instanceIds.Add(shadow.instanceId))
                 {
                     shadow.instanceId = Guid.NewGuid().ToString("N");
@@ -588,12 +607,26 @@ namespace ShadowTheater.Save
         /// <summary>포획한 그림자 추가. 파티가 가득 차면 서고(보관함)로. 파티에 들어갔으면 true</summary>
         public static bool AddCapturedShadow(ShadowInstance shadow, out bool newlyRecorded)
         {
+            return AddCapturedShadow(shadow, out newlyRecorded, out _);
+        }
+
+        public static bool AddCapturedShadow(ShadowInstance shadow, out bool newlyRecorded, out int duplicateFragments)
+        {
             newlyRecorded = false;
+            duplicateFragments = 0;
             if (Current == null || shadow == null || string.IsNullOrWhiteSpace(shadow.shadowId)) return false;
             if (string.IsNullOrEmpty(shadow.instanceId) || ContainsInstanceId(shadow.instanceId))
                 shadow.instanceId = Guid.NewGuid().ToString("N");
             shadow.EnsureHp();
             newlyRecorded = MarkRecorded(shadow.shadowId);
+
+            if (!newlyRecorded)
+            {
+                duplicateFragments = CollectionGrowthService.DuplicateFragments(shadow.Data);
+                Current.memoryFragments = SaveValuePolicy.SaturatingAdd(Current.memoryFragments, duplicateFragments);
+                InventoryChanged?.Invoke();
+                return false;
+            }
 
             if (Current.party.Count < SaveData.MaxPartySize)
             {
@@ -912,6 +945,18 @@ namespace ShadowTheater.Save
             { message = item.usableInBattle ? "이 도구는 전투 중에만 사용할 수 있습니다." : L10n.Get("inventory.passive_hint", "가방에서 직접 사용하는 도구가 아닙니다."); return false; }
             if (target == null || (!Current.party.Contains(target) && !Current.storage.Contains(target)))
             { message = "사용할 그림자를 선택하세요."; return false; }
+            if (item.effectType == ItemEffectType.GainExperience)
+            {
+                if (target.IsMaxLevel) { message = "이미 최고 레벨입니다."; return false; }
+                int amount = Mathf.Max(1,Mathf.RoundToInt(item.value));
+                int projectedLevel = ProjectLevelAfterExperience(target,amount);
+                restored = amount;
+                excess = projectedLevel-target.level;
+                message = projectedLevel>target.level
+                    ? $"예상 경험치 +{amount} · Lv.{target.level} → Lv.{projectedLevel}"
+                    : $"예상 경험치 +{amount} · 사용 후 다음 레벨까지 {Mathf.Max(0,target.ExpToNext-target.exp-amount)}";
+                return true;
+            }
             if (target.IsFainted)
             { message = "기절한 그림자는 막간 휴식으로 회복해야 합니다."; return false; }
             if (item.effectType != ItemEffectType.HealFlat && item.effectType != ItemEffectType.HealRatio)
@@ -940,9 +985,29 @@ namespace ShadowTheater.Save
             return Mathf.Max(1, healed);
         }
 
+        private static int ProjectLevelAfterExperience(ShadowInstance target,int amount)
+        {
+            int level=target.level;long experience=(long)Mathf.Max(0,target.exp)+Mathf.Max(0,amount);
+            while(level<ShadowInstance.MaxLevel)
+            {
+                int required=ShadowInstance.ExperienceToNext(level);
+                if(experience<required)break;
+                experience-=required;level++;
+            }
+            return level;
+        }
+
         public static bool TryUseFieldItem(ItemData item, ShadowInstance target, out string message)
         {
             if (!TryPreviewFieldItem(item, target, out int restored, out _, out message)) return false;
+            if(item.effectType==ItemEffectType.GainExperience)
+            {
+                int before=target.level;target.AddExp(restored);AddItem(item.itemId,-1);PartyChanged?.Invoke();
+                message=target.level>before
+                    ? $"{L10n.Text(item.displayName)} 사용 · 경험치 +{restored} · Lv.{before} → Lv.{target.level}"
+                    : $"{L10n.Text(item.displayName)} 사용 · 경험치 +{restored}";
+                return true;
+            }
             target.currentHp += restored;
             AddItem(item.itemId, -1);
             PartyChanged?.Invoke();

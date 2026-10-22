@@ -106,9 +106,73 @@ namespace ShadowTheater.EditorTools
 
         public static Sprite[] FieldFramesFor(string id)
         {
-            var first = AssetDatabase.LoadAssetAtPath<Sprite>($"{FieldFolder}/{id}_01.png");
-            var second = AssetDatabase.LoadAssetAtPath<Sprite>($"{FieldFolder}/{id}_02.png");
+            string firstPath = $"{FieldFolder}/{id}_01.png";
+            string secondPath = $"{FieldFolder}/{id}_02.png";
+            if (!IsGameplayReadableFieldFrame(firstPath, out _) ||
+                !IsGameplayReadableFieldFrame(secondPath, out _)) return null;
+            var first = AssetDatabase.LoadAssetAtPath<Sprite>(firstPath);
+            var second = AssetDatabase.LoadAssetAtPath<Sprite>(secondPath);
             return first != null && second != null ? new[] { first, second } : null;
+        }
+
+        /// <summary>
+        /// 24x32 필드에서 실루엣이 깨져 보이는 원인인 반투명 가장자리,
+        /// 떨어진 단독 픽셀, 과도한 색·면적을 차단한다.
+        /// 통과하지 못하면 전투 초상 대신 자동 생성된 단순한 2프레임을 사용한다.
+        /// </summary>
+        public static bool IsGameplayReadableFieldFrame(string path, out string reason)
+        {
+            reason = string.Empty;
+            if (string.IsNullOrEmpty(path) || !File.Exists(path)) { reason = "파일 누락"; return false; }
+            var texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+            try
+            {
+                if (!ImageConversion.LoadImage(texture, File.ReadAllBytes(path), false) ||
+                    texture.width != 24 || texture.height != 32)
+                { reason = "24x32 규격 불일치"; return false; }
+                Color32[] pixels = texture.GetPixels32();
+                var occupied = new HashSet<int>();
+                var colors = new HashSet<uint>();
+                bool softEdge = false;
+                for (int i = 0; i < pixels.Length; i++)
+                {
+                    Color32 color = pixels[i];
+                    if (color.a == 0) continue;
+                    if (color.a != 255) softEdge = true;
+                    if (color.a < 32) continue;
+                    occupied.Add(i);
+                    colors.Add((uint)(color.r << 24 | color.g << 16 | color.b << 8 | color.a));
+                }
+                if (softEdge) { reason = "반투명 가장자리"; return false; }
+                if (occupied.Count < 48 || occupied.Count > 240)
+                { reason = $"실루엣 면적 {occupied.Count}px"; return false; }
+                if (colors.Count > 16) { reason = $"팔레트 {colors.Count}색"; return false; }
+
+                int total = occupied.Count, largest = 0, components = 0;
+                var queue = new Queue<int>();
+                while (occupied.Count > 0)
+                {
+                    int start = occupied.First(); occupied.Remove(start); queue.Enqueue(start);
+                    int size = 0; components++;
+                    while (queue.Count > 0)
+                    {
+                        int index = queue.Dequeue(); size++;
+                        int x = index % 24, y = index / 24;
+                        TryVisit(index - 1, x > 0); TryVisit(index + 1, x < 23);
+                        TryVisit(index - 24, y > 0); TryVisit(index + 24, y < 31);
+                    }
+                    largest = Mathf.Max(largest, size);
+                }
+                if (components > 3 || largest < Mathf.CeilToInt(total * .96f))
+                { reason = $"분리 픽셀 덩어리 {components}개"; return false; }
+                return true;
+
+                void TryVisit(int index, bool valid)
+                {
+                    if (valid && occupied.Remove(index)) queue.Enqueue(index);
+                }
+            }
+            finally { UnityEngine.Object.DestroyImmediate(texture); }
         }
 
         public static bool HasDedicatedFieldArt(ShadowData shadow)
