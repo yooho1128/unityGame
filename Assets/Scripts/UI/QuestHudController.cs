@@ -19,6 +19,7 @@ namespace ShadowTheater.UI
         {
             QuestManager.GlobalQuestChanged += Refresh;
             L10n.Changed += Refresh;
+            ShadowTheater.Save.SaveManager.CurrentChanged += Refresh;
             Refresh();
         }
 
@@ -36,6 +37,7 @@ namespace ShadowTheater.UI
         {
             QuestManager.GlobalQuestChanged -= Refresh;
             L10n.Changed -= Refresh;
+            ShadowTheater.Save.SaveManager.CurrentChanged -= Refresh;
         }
 
         public void Refresh()
@@ -60,6 +62,22 @@ namespace ShadowTheater.UI
                 builder.Append(done ? "✓ " : "□ ");
                 builder.Append(L10n.Get($"quest.{quest.questId}.{objective.objectiveId}", L10n.Text(objective.description)));
                 if (required > 1) builder.Append($"  {current}/{required}");
+                if (!done && objective.TryGetType(out var type) && type == QuestObjectiveType.Reach)
+                {
+                    string id = objective.targetId ?? "";
+                    var destination = RegionRepository.Get(id.StartsWith("area_") ? id.Substring(5) : id)
+                        ?? RegionRepository.GetByScene(id);
+                    if (destination != null)
+                    {
+                        var route = RegionProgress.FindKnownRoute(destination);
+                        builder.AppendLine();
+                        builder.Append(route.Count > 1
+                            ? L10n.Format("quest.route_next", "↗ 다음 지역: {0} · 목적지까지 {1}구간",
+                                L10n.Text(route[1].displayName), route.Count - 1)
+                            : route.Count == 1 ? L10n.Get("quest.route_here", "◎ 목적지에 도착했습니다. 주변을 조사하세요.")
+                            : L10n.Get("quest.route_unknown", "◇ 아직 연결 경로를 발견하지 못했습니다. 월드맵의 인접 출구를 확인하세요."));
+                    }
+                }
             }
             if (objectiveText != null) objectiveText.text = builder.ToString();
             if (rewardText != null)

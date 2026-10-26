@@ -1,0 +1,400 @@
+{
+  "pages": [
+    {
+      "resource": "Art/WorldMap/Acts12",
+      "title": "유랑촌 · 재의 왕국"
+    },
+    {
+      "resource": "Art/WorldMap/Acts34",
+      "title": "수상극 항구 · 달가면 산촌"
+    },
+    {
+      "resource": "Art/WorldMap/Acts56",
+      "title": "실타래 공방 · 검은 검열단"
+    },
+    {
+      "resource": "Art/WorldMap/Acts78",
+      "title": "기억의 바다 · 마지막 장막"
+    }
+  ],
+  "locations": [
+    {
+      "regionId": "prologue_theater",
+      "page": 0,
+      "x": 0.12,
+      "y": 0.63
+    },
+    {
+      "regionId": "echo_village",
+      "page": 0,
+      "x": 0.11,
+      "y": 0.38
+    },
+    {
+      "regionId": "moonlit_meadow",
+      "page": 0,
+      "x": 0.29,
+      "y": 0.19
+    },
+    {
+      "regionId": "moonlit_boss_stage",
+      "page": 0,
+      "x": 0.46,
+      "y": 0.18
+    },
+    {
+      "regionId": "curtain_pass",
+      "page": 0,
+      "x": 0.48,
+      "y": 0.42
+    },
+    {
+      "regionId": "painted_wagon_road",
+      "page": 0,
+      "x": 0.28,
+      "y": 0.57
+    },
+    {
+      "regionId": "forgotten_tent",
+      "page": 0,
+      "x": 0.13,
+      "y": 0.83
+    },
+    {
+      "regionId": "silent_clown_stage",
+      "page": 0,
+      "x": 0.31,
+      "y": 0.86
+    },
+    {
+      "regionId": "ashes_bell_tower",
+      "page": 0,
+      "x": 0.43,
+      "y": 0.7
+    },
+    {
+      "regionId": "ash_border",
+      "page": 0,
+      "x": 0.64,
+      "y": 0.4
+    },
+    {
+      "regionId": "cinder_city",
+      "page": 0,
+      "x": 0.76,
+      "y": 0.63
+    },
+    {
+      "regionId": "ruined_barracks",
+      "page": 0,
+      "x": 0.9,
+      "y": 0.43
+    },
+    {
+      "regionId": "ember_catacombs",
+      "page": 0,
+      "x": 0.89,
+      "y": 0.2
+    },
+    {
+      "regionId": "crownless_throne",
+      "page": 0,
+      "x": 0.71,
+      "y": 0.15
+    },
+    {
+      "regionId": "poster_alley",
+      "page": 0,
+      "x": 0.6,
+      "y": 0.68
+    },
+    {
+      "regionId": "rooftop_rehearsal",
+      "page": 0,
+      "x": 0.6,
+      "y": 0.88
+    },
+    {
+      "regionId": "sealed_small_theater",
+      "page": 0,
+      "x": 0.82,
+      "y": 0.88
+    },
+    {
+      "regionId": "frost_port",
+      "page": 1,
+      "x": 0.1,
+      "y": 0.18
+    },
+    {
+      "regionId": "white_archive",
+      "page": 1,
+      "x": 0.27,
+      "y": 0.36
+    },
+    {
+      "regionId": "forbidden_stacks",
+      "page": 1,
+      "x": 0.28,
+      "y": 0.17
+    },
+    {
+      "regionId": "mirror_vault",
+      "page": 1,
+      "x": 0.45,
+      "y": 0.14
+    },
+    {
+      "regionId": "blue_abyss",
+      "page": 1,
+      "x": 0.46,
+      "y": 0.36
+    },
+    {
+      "regionId": "tidal_boardwalk",
+      "page": 1,
+      "x": 0.1,
+      "y": 0.43
+    },
+    {
+      "regionId": "bubble_cave",
+      "page": 1,
+      "x": 0.1,
+      "y": 0.67
+    },
+    {
+      "regionId": "whale_back_stage",
+      "page": 1,
+      "x": 0.26,
+      "y": 0.83
+    },
+    {
+      "regionId": "lantern_reed_field",
+      "page": 1,
+      "x": 0.42,
+      "y": 0.6
+    },
+    {
+      "regionId": "violet_marsh",
+      "page": 1,
+      "x": 0.59,
+      "y": 0.36
+    },
+    {
+      "regionId": "howl_village",
+      "page": 1,
+      "x": 0.76,
+      "y": 0.36
+    },
+    {
+      "regionId": "moonfang_forest",
+      "page": 1,
+      "x": 0.76,
+      "y": 0.16
+    },
+    {
+      "regionId": "bloodmoon_ridge",
+      "page": 1,
+      "x": 0.91,
+      "y": 0.16
+    },
+    {
+      "regionId": "sleeping_beast_den",
+      "page": 1,
+      "x": 0.91,
+      "y": 0.39
+    },
+    {
+      "regionId": "shadow_well",
+      "page": 1,
+      "x": 0.42,
+      "y": 0.82
+    },
+    {
+      "regionId": "matte_projection_room",
+      "page": 1,
+      "x": 0.59,
+      "y": 0.88
+    },
+    {
+      "regionId": "mask_dance_pass",
+      "page": 1,
+      "x": 0.76,
+      "y": 0.59
+    },
+    {
+      "regionId": "sealed_mask_room",
+      "page": 1,
+      "x": 0.9,
+      "y": 0.77
+    },
+    {
+      "regionId": "moon_eater_ritual",
+      "page": 1,
+      "x": 0.91,
+      "y": 0.93
+    },
+    {
+      "regionId": "inverted_moon_path",
+      "page": 1,
+      "x": 0.6,
+      "y": 0.62
+    },
+    {
+      "regionId": "windless_echo_cavern",
+      "page": 1,
+      "x": 0.74,
+      "y": 0.88
+    },
+    {
+      "regionId": "thread_market",
+      "page": 2,
+      "x": 0.12,
+      "y": 0.24
+    },
+    {
+      "regionId": "clockwork_alley",
+      "page": 2,
+      "x": 0.28,
+      "y": 0.4
+    },
+    {
+      "regionId": "marionette_opera",
+      "page": 2,
+      "x": 0.43,
+      "y": 0.22
+    },
+    {
+      "regionId": "severed_workshop",
+      "page": 2,
+      "x": 0.44,
+      "y": 0.49
+    },
+    {
+      "regionId": "puppeteer_stage",
+      "page": 2,
+      "x": 0.44,
+      "y": 0.77
+    },
+    {
+      "regionId": "stitch_field",
+      "page": 2,
+      "x": 0.12,
+      "y": 0.55
+    },
+    {
+      "regionId": "abandoned_toy_store",
+      "page": 2,
+      "x": 0.12,
+      "y": 0.81
+    },
+    {
+      "regionId": "clockwork_heart_stage",
+      "page": 2,
+      "x": 0.29,
+      "y": 0.86
+    },
+    {
+      "regionId": "erased_station",
+      "page": 2,
+      "x": 0.61,
+      "y": 0.75
+    },
+    {
+      "regionId": "blank_prison",
+      "page": 2,
+      "x": 0.78,
+      "y": 0.76
+    },
+    {
+      "regionId": "redaction_lab",
+      "page": 2,
+      "x": 0.91,
+      "y": 0.54
+    },
+    {
+      "regionId": "silent_court",
+      "page": 2,
+      "x": 0.77,
+      "y": 0.35
+    },
+    {
+      "regionId": "black_archive",
+      "page": 2,
+      "x": 0.89,
+      "y": 0.16
+    },
+    {
+      "regionId": "silent_foyer",
+      "page": 2,
+      "x": 0.6,
+      "y": 0.46
+    },
+    {
+      "regionId": "ghost_orchestra_pit",
+      "page": 2,
+      "x": 0.6,
+      "y": 0.18
+    },
+    {
+      "regionId": "glass_coast",
+      "page": 3,
+      "x": 0.12,
+      "y": 0.78
+    },
+    {
+      "regionId": "drowned_gallery",
+      "page": 3,
+      "x": 0.13,
+      "y": 0.49
+    },
+    {
+      "regionId": "name_islands",
+      "page": 3,
+      "x": 0.28,
+      "y": 0.25
+    },
+    {
+      "regionId": "mourning_lighthouse",
+      "page": 3,
+      "x": 0.45,
+      "y": 0.45
+    },
+    {
+      "regionId": "widow_moon_palace",
+      "page": 3,
+      "x": 0.46,
+      "y": 0.15
+    },
+    {
+      "regionId": "inverted_lobby",
+      "page": 3,
+      "x": 0.62,
+      "y": 0.22
+    },
+    {
+      "regionId": "endless_backstage",
+      "page": 3,
+      "x": 0.78,
+      "y": 0.4
+    },
+    {
+      "regionId": "first_actor_room",
+      "page": 3,
+      "x": 0.62,
+      "y": 0.68
+    },
+    {
+      "regionId": "cosmic_auditorium",
+      "page": 3,
+      "x": 0.84,
+      "y": 0.7
+    },
+    {
+      "regionId": "final_curtain",
+      "page": 3,
+      "x": 0.86,
+      "y": 0.17
+    }
+  ]
+}

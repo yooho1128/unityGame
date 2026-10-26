@@ -28,8 +28,8 @@ namespace ShadowTheater.UI
         [SerializeField] private Image detailAccent;
         [SerializeField] private Button travelButton;
 
-        private readonly List<GameObject> _spawned = new List<GameObject>();
         private RegionData _selected;
+        private WorldMapAtlasView _atlas;
         private bool _lockedPlayer;
         private bool _refreshPending;
         public bool IsOpen { get; private set; }
@@ -42,12 +42,12 @@ namespace ShadowTheater.UI
             nodeTemplate?.gameObject.SetActive(false);
         }
 
-        private void OnEnable() { L10n.Changed += RefreshIfOpen; SaveManager.CurrentChanged += RefreshIfOpen; }
+        private void OnEnable() { L10n.Changed += RefreshIfOpen; SaveManager.CurrentChanged += RefreshIfOpen; QuestManager.GlobalQuestChanged += RefreshIfOpen; }
 
         private void OnDestroy() { if (Instance == this) Instance = null; ReleasePlayer(); }
-        private void OnDisable() { L10n.Changed -= RefreshIfOpen; SaveManager.CurrentChanged -= RefreshIfOpen; if (IsOpen) Close(); }
+        private void OnDisable() { L10n.Changed -= RefreshIfOpen; SaveManager.CurrentChanged -= RefreshIfOpen; QuestManager.GlobalQuestChanged -= RefreshIfOpen; if (IsOpen) Close(); }
         private void RefreshIfOpen() { if (IsOpen) _refreshPending = true; }
-        private void LateUpdate() { if (IsOpen && _refreshPending) Refresh(); }
+        private void LateUpdate() { if (IsOpen && (_refreshPending || (_atlas != null && _atlas.NeedsLayout))) Refresh(); }
 
         public void Toggle() { if (IsOpen) Close(); else Open(); }
 
@@ -66,6 +66,7 @@ namespace ShadowTheater.UI
                 _lockedPlayer = true;
             }
             Refresh();
+            _atlas?.Open();
         }
 
         public void Close()
@@ -99,18 +100,12 @@ namespace ShadowTheater.UI
         {
             _refreshPending = false;
             if (SaveManager.Current == null) { Close(); return; }
-            Vector2 position = UiListLayout.Position(contentRoot);
             string selectedId = _selected?.regionId;
-            UiListLayout.Clear(_spawned);
             var ordered = RegionRepository.Ordered().ToList();
-            foreach (var region in ordered)
-            {
-                RegionMapKnowledge knowledge = RegionProgress.GetKnowledge(region);
-                if (knowledge == RegionMapKnowledge.Hidden) continue;
-                var view = Instantiate(nodeTemplate, contentRoot);
-                view.Bind(region, knowledge, Select);
-                _spawned.Add(view.gameObject);
-            }
+            if (_atlas == null)
+                _atlas = new WorldMapAtlasView((RectTransform)contentRoot,
+                    nameText != null ? nameText.font : Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf"), Select);
+            _atlas.Refresh();
             int visited = ordered.Count(x => RegionProgress.GetState(x) == RegionMapState.Visited ||
                 RegionProgress.GetState(x) == RegionMapState.Current);
             if (progressText != null)
@@ -125,13 +120,12 @@ namespace ShadowTheater.UI
                 RegionProgress.GetKnowledge(x) != RegionMapKnowledge.Hidden &&
                 RegionProgress.GetKnowledge(x) != RegionMapKnowledge.Locked);
             Select(selected ?? current ?? ordered.FirstOrDefault(x => RegionProgress.GetState(x) != RegionMapState.Locked));
-            UiListLayout.Rebuild(contentRoot, position);
         }
 
         private void Select(RegionData region)
         {
             _selected = region;
-            foreach (var row in _spawned) row.GetComponent<RegionMapNodeView>()?.SetSelected(region);
+            _atlas?.Select(region);
             if (region == null) { ShowEmpty(); return; }
             var state = RegionProgress.GetState(region);
             RegionMapKnowledge knowledge = RegionProgress.GetKnowledge(region);

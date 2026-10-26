@@ -132,11 +132,21 @@ namespace ShadowTheater.Field
         public List<ShadowInstance> BuildEnemyParty()
         {
             var list = new List<ShadowInstance>();
-            int lv = Random.Range(levelRange.x, levelRange.y + 1);
+            int lv = RollEnemyLevel();
             if (leadShadow != null) list.Add(new ShadowInstance(leadShadow, lv));
             foreach (var s in extraShadows)
-                if (s != null) list.Add(new ShadowInstance(s, Random.Range(levelRange.x, levelRange.y + 1)));
+                if (s != null) list.Add(new ShadowInstance(s, RollEnemyLevel()));
             return list;
+        }
+
+        private int RollEnemyLevel()
+        {
+            var region = ShadowTheater.Story.RegionRepository.GetByScene(gameObject.scene.name);
+            // Fixed regional curve: training and later acts retain their authored levels.
+            int relief = region != null && region.act == 1 ? 2 : region != null && region.act == 2 ? 1 : 0;
+            int minimum = Mathf.Max(1, levelRange.x - relief);
+            int maximum = Mathf.Max(minimum, levelRange.y - relief);
+            return Random.Range(minimum, maximum + 1);
         }
 
         public void FaceToward(Vector3 world)
