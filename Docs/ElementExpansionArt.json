@@ -1,0 +1,92 @@
+{
+  "species": [
+    {
+      "id": "ele_ember_lantern_fox",
+      "name": "불등 여우",
+      "motif": "a small charcoal fox carrying a brass ember lantern, orange scarf, fluffy flame-shaped tail",
+      "element": "Flame",
+      "restored": "불등 길잡이",
+      "slot": 0
+    },
+    {
+      "id": "ele_tide_bell_otter",
+      "name": "물종 수달",
+      "motif": "a navy-blue otter with a silver ship bell and water-ribbon tail, sailor cloak",
+      "element": "Water",
+      "restored": "밀물의 종지기",
+      "slot": 1
+    },
+    {
+      "id": "ele_seed_stage_deer",
+      "name": "씨앗 무대사슴",
+      "motif": "a moss-green deer with seedpod antlers, leaf cape, small wooden stage ornaments",
+      "element": "Grass",
+      "restored": "새싹의 무대지기",
+      "slot": 2
+    },
+    {
+      "id": "ele_snow_glass_lynx",
+      "name": "눈유리 스라소니",
+      "motif": "an icy pale-blue lynx with transparent crystal ear tufts and book-shaped collar",
+      "element": "Frost",
+      "restored": "빙화의 사서수",
+      "slot": 3
+    },
+    {
+      "id": "ele_dawn_paper_crane",
+      "name": "새벽 종이학",
+      "motif": "an ivory origami crane with golden paper wings, halo ribbon and lantern tassels",
+      "element": "Light",
+      "restored": "여명의 접지기",
+      "slot": 4
+    },
+    {
+      "id": "ele_eclipse_velvet_moth",
+      "name": "월식 벨벳나방",
+      "motif": "a dark violet velvet moth with crescent-patterned theatrical wings, silver mask",
+      "element": "Shade",
+      "restored": "장막의 월식나방",
+      "slot": 5
+    },
+    {
+      "id": "ele_patchwork_stage_dog",
+      "name": "헝겊 무대강아지",
+      "motif": "a beige patchwork puppy with stitched red scarf, tiny stage-ticket badge, floppy ear",
+      "element": "None",
+      "restored": "약속의 무대지킴이",
+      "slot": 6
+    },
+    {
+      "id": "ele_clay_bell_tortoise",
+      "name": "흙종 거북",
+      "motif": "a terracotta tortoise with miniature stone bell tower shell and earthen armor",
+      "element": "Earth",
+      "restored": "대지의 종루거북",
+      "slot": 7
+    },
+    {
+      "id": "ele_spark_spool_squirrel",
+      "name": "불꽃실 다람쥐",
+      "motif": "a golden squirrel with copper thread-spool tail, electric zigzag whiskers and cobalt vest",
+      "element": "Electric",
+      "restored": "뇌광의 실감개",
+      "slot": 8
+    },
+    {
+      "id": "ele_breeze_ribbon_swallow",
+      "name": "바람리본 제비",
+      "motif": "a teal swallow with long cream theater-ribbon tail and tiny wind chime necklace",
+      "element": "Wind",
+      "restored": "하늘막의 전령",
+      "slot": 9
+    },
+    {
+      "id": "ele_dream_marble_rabbit",
+      "name": "꿈구슬 토끼",
+      "motif": "a lilac rabbit levitating a pink glass dream orb, starry magician waistcoat, curled ear tips",
+      "element": "Psychic",
+      "restored": "몽환의 구슬술사",
+      "slot": 10
+    }
+  ]
+}

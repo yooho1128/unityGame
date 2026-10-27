@@ -134,16 +134,7 @@ namespace ShadowTheater.UI
             if (hpText != null) hpText.text = $"{Mathf.Clamp(Mathf.RoundToInt(_displayedHp), 0, _healthMax)} / {_healthMax}";
         }
 
-        private static Color ElementColor(ShadowElement element)
-        {
-            switch (element)
-            {
-                case ShadowElement.Flame: return new Color(1f,.42f,.28f);
-                case ShadowElement.Frost: return new Color(.35f,.82f,1f);
-                case ShadowElement.Shade: return new Color(.72f,.43f,1f);
-                default: return new Color(.76f,.73f,.82f);
-            }
-        }
+        private static Color ElementColor(ShadowElement element) => ElementChart.ColorFor(element);
 
         private void LateUpdate()
         {

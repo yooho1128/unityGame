@@ -1,12 +1,19 @@
 namespace ShadowTheater.Data
 {
-    /// <summary>그림자 속성 (스타팅 3종 기준)</summary>
+    /// <summary>11속성 (기존 저장 데이터의 숫자 값 보존)</summary>
     public enum ShadowElement
     {
         None = 0,   // 무속성
         Flame = 1,  // 붉은 불꽃
         Frost = 2,  // 푸른 서리
-        Shade = 3   // 자줏빛 그림자
+        Shade = 3,  // 어둠. 기존 저장된 0~3 값은 유지한다.
+        Water = 4,
+        Grass = 5,
+        Light = 6,
+        Earth = 7,
+        Electric = 8,
+        Wind = 9,
+        Psychic = 10
     }
 
     /// <summary>역할군 (UI 표기, AI 성향 참고용)</summary>
@@ -89,28 +96,4 @@ namespace ShadowTheater.Data
         SpeedDown    // 속도 x0.5
     }
 
-    /// <summary>
-    /// 속성 상성표. 기획 확정 전 임시값: Flame > Frost > Shade > Flame
-    /// </summary>
-    public static class ElementChart
-    {
-        public const float Strong = 1.5f;
-        public const float Weak = 0.75f;
-        public const float Neutral = 1f;
-
-        public static float GetMultiplier(ShadowElement attack, ShadowElement defend)
-        {
-            if (attack == ShadowElement.None || defend == ShadowElement.None) return Neutral;
-            if (Beats(attack, defend)) return Strong;
-            if (Beats(defend, attack)) return Weak;
-            return Neutral;
-        }
-
-        private static bool Beats(ShadowElement a, ShadowElement b)
-        {
-            return (a == ShadowElement.Flame && b == ShadowElement.Frost)
-                || (a == ShadowElement.Frost && b == ShadowElement.Shade)
-                || (a == ShadowElement.Shade && b == ShadowElement.Flame);
-        }
-    }
 }

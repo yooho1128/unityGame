@@ -11,7 +11,7 @@ using UnityEngine;
 
 namespace ShadowTheater.EditorTools
 {
-    /// <summary>180종을 같은 성장 등급끼리 AI 대전시켜 승률 편차를 찾고 소폭 보정한다.</summary>
+    /// <summary>191종을 같은 성장 등급끼리 AI 대전시켜 승률 편차를 찾고 소폭 보정한다.</summary>
     public static class ShadowBattleSimulator
     {
         private const string DatabasePath = "Assets/Resources/ShadowDatabase.asset";
@@ -21,7 +21,7 @@ namespace ShadowTheater.EditorTools
         private const int TrialsPerPair = 8;
         private const float MaxCorrection = .03f;
 
-        [MenuItem("Tools/Shadow Theater/Balance/Simulate 180 Shadow Win Rates")]
+        [MenuItem("Tools/Shadow Theater/Balance/Simulate 191 Shadow Win Rates")]
         public static void Analyze() => Run(false);
 
         [MenuItem("Tools/Shadow Theater/Balance/Simulate 3-6 Member Party Combinations")]
@@ -57,8 +57,8 @@ namespace ShadowTheater.EditorTools
             List<ShadowData> shadows = database?.shadows?.Where(x => x != null).ToList();
             if (shadows == null || shadows.Count == 0)
             { Debug.LogError("[AiSimulation] 먼저 Generate and Validate Full Game을 실행하세요."); return; }
-            if (shadows.Count != 180)
-                Debug.LogWarning($"[AiSimulation] 예상 로스터 180종과 다릅니다: {shadows.Count}종");
+            if (shadows.Count != 191)
+                Debug.LogWarning($"[AiSimulation] 예상 로스터 191종과 다릅니다: {shadows.Count}종");
 
             var results = shadows.ToDictionary(x => x.shadowId, x => new Result(x), StringComparer.Ordinal);
             foreach (IGrouping<GrowthTier, ShadowData> group in shadows.GroupBy(x => x.growthTier))
@@ -134,7 +134,7 @@ namespace ShadowTheater.EditorTools
         {
             if (CorrectionFor(.5f, 100) != 1f || CorrectionFor(.2f, 100) <= 1f || CorrectionFor(.8f, 100) >= 1f ||
                 CorrectionFor(.1f, 100) > 1f + MaxCorrection + .0001f)
-                errors.Add("180종 AI 시뮬레이션: 승률 보정 정책 오류");
+                errors.Add("191종 AI 시뮬레이션: 승률 보정 정책 오류");
             if(BuildBalancedParty(new ShadowData[0],3,new System.Random(1)).Length!=0)
                 errors.Add("파티 AI 시뮬레이션: 빈 로스터 처리 오류");
             var roles=(ShadowRole[])Enum.GetValues(typeof(ShadowRole));var samples=new List<ShadowData>();for(int i=0;i<6;i++){var sample=ScriptableObject.CreateInstance<ShadowData>();sample.shadowId="party_policy_"+i;sample.role=roles[i%roles.Length];samples.Add(sample);}
@@ -159,7 +159,7 @@ namespace ShadowTheater.EditorTools
             { actor.hp = Math.Min(actor.maxHp, actor.hp + Mathf.RoundToInt(actor.maxHp * skill.healRatio)); return; }
             if (!skill.DealsDamage || random.NextDouble() > skill.accuracy * (1f - target.evasion)) return;
             float defense = target.defense * (skill.damageType == DamageType.Magical ? .5f : 1f);
-            float element = ElementChart.GetMultiplier(skill.element == ShadowElement.None ? actor.data.element : skill.element,
+            float element = ElementChart.GetMultiplier(skill.ResolveElement(actor.data.element),
                 target.data.element);
             float raw = actor.attack * skill.damageMultiplier * (100f / (100f + defense)) * element;
             if (random.NextDouble() < Mathf.Clamp01(actor.crit + skill.bonusCritRate)) raw *= 1.5f;
@@ -185,14 +185,14 @@ namespace ShadowTheater.EditorTools
             if (skill == null) return 0f;
             if (skill.target == SkillTarget.Self) return actor.hp < actor.maxHp * .45f ? skill.healRatio * actor.maxHp * 1.25f : 0f;
             float defense = target.defense * (skill.damageType == DamageType.Magical ? .5f : 1f);
-            ShadowElement element = skill.element == ShadowElement.None ? actor.data.element : skill.element;
+            ShadowElement element = skill.ResolveElement(actor.data.element);
             return actor.attack * skill.damageMultiplier * 100f / (100f + defense) *
                    ElementChart.GetMultiplier(element, target.data.element) * skill.accuracy + skill.statusChance * 8f;
         }
 
         private static void Tune(ShadowData shadow, float factor)
         {
-            Undo.RecordObject(shadow, "180종 승률 기반 보정");
+            Undo.RecordObject(shadow, "191종 승률 기반 보정");
             shadow.baseHp = Math.Max(1, Mathf.RoundToInt(shadow.baseHp * factor));
             shadow.baseAtk = Math.Max(1, Mathf.RoundToInt(shadow.baseAtk * factor));
             shadow.baseDef = Math.Max(0, Mathf.RoundToInt(shadow.baseDef * factor));

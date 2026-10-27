@@ -156,6 +156,12 @@ namespace ShadowTheater.Field
                         entry.minLevel, entry.maxLevel);
                 }
             }
+            var expansionAsset = Resources.Load<TextAsset>("Data/ElementExpansionEncounters");
+            if (expansionAsset != null)
+                foreach (var entry in JsonUtility.FromJson<RegionalRosterManifest>(expansionAsset.text).entries)
+                    if (entry.regionId == region.regionId)
+                        AddCandidate(byId, region, database.GetShadow(entry.shadowId), 1f,
+                            region.recommendedLevelMin, region.recommendedLevelMax);
             string[] featured = region.featuredShadows ?? Array.Empty<string>();
             for (int rank = 0; rank < featured.Length; rank++)
             {

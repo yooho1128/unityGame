@@ -150,7 +150,7 @@ namespace ShadowTheater.UI
                     Mathf.RoundToInt(DamageCalculator.HitChance(manager.EnemyActive, skill) * 100f));
                 if (skill.DealsDamage)
                 {
-                    ShadowElement element = skill.element != ShadowElement.None ? skill.element : manager.PlayerActive.Data.element;
+                    ShadowElement element = skill.ResolveElement(manager.PlayerActive.Data.element);
                     float matchup = ElementChart.GetMultiplier(element, manager.EnemyActive.Data.element);
                     detail += " · " + L10n.Get("element." + element.ToString().ToLowerInvariant(), element.ToString());
                     if (matchup > 1f) detail += L10n.Get("battle.matchup_strong", " · 효과적 ×1.5");

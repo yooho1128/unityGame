@@ -33,7 +33,7 @@ namespace ShadowTheater.Battle
 
                 float raw = attacker.Atk * skill.damageMultiplier * defReduce;
 
-                ShadowElement atkElem = skill.element != ShadowElement.None ? skill.element : attacker.Data.element;
+                ShadowElement atkElem = skill.ResolveElement(attacker.Data.element);
                 r.elementMultiplier = ElementChart.GetMultiplier(atkElem, defender.Data.element);
                 raw *= r.elementMultiplier;
 
@@ -59,7 +59,7 @@ namespace ShadowTheater.Battle
             if (attacker == null || defender == null || skill == null || !skill.DealsDamage) return 0;
             float defense = defender.Def * (skill.damageType == DamageType.Magical ? MagicDefenseFactor : 1f);
             float reduced = DefenseConstant / (DefenseConstant + Mathf.Max(0f, defense));
-            ShadowElement element = skill.element != ShadowElement.None ? skill.element : attacker.Data.element;
+            ShadowElement element = skill.ResolveElement(attacker.Data.element);
             float criticalChance = Mathf.Clamp01(attacker.CritRate + skill.bonusCritRate);
             float expectedCritical = 1f + criticalChance * (CritMultiplier - 1f);
             float raw = attacker.Atk * skill.damageMultiplier * reduced *

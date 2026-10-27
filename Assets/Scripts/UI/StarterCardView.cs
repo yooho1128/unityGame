@@ -53,16 +53,8 @@ namespace ShadowTheater.UI
             if (_data != null) _onSelected?.Invoke(_data);
         }
 
-        private static string ElementName(ShadowElement element)
-        {
-            switch (element)
-            {
-                case ShadowElement.Flame: return L10n.Get("element.flame", "붉은 불꽃");
-                case ShadowElement.Frost: return L10n.Get("element.frost", "푸른 서리");
-                case ShadowElement.Shade: return L10n.Get("element.shade", "자줏빛 그림자");
-                default: return L10n.Get("element.none", "무속성");
-            }
-        }
+        private static string ElementName(ShadowElement element) =>
+            L10n.Get("element." + element.ToString().ToLowerInvariant(), ElementChart.Name(element));
 
         private static string RoleName(ShadowRole role)
         {

@@ -164,8 +164,7 @@ namespace ShadowTheater.UI
             CompanionJointProfile profile, HitResult hit, float playbackSpeed, System.Action onImpact = null)
         {
             float speed=Mathf.Max(.1f,playbackSpeed);Color accent=companion?.Data!=null?companion.Data.accentColor:Color.magenta;
-            Color element=profile.element==ShadowElement.Flame?new Color(1f,.28f,.12f):profile.element==ShadowElement.Frost
-                ?new Color(.35f,.82f,1f):profile.element==ShadowElement.Shade?new Color(.55f,.24f,.88f):Color.white;
+            Color element = ElementChart.ColorFor(profile.element);
             RectTransform layer=CreateLayer("CompanionJointSkill");Image dim=AddImage("Dim",layer,Vector2.zero,Vector2.one,new Color(.01f,.005f,.03f,0));
             Text title=AddText("JointTitle",layer,new Vector2(.06f,.62f),new Vector2(.94f,.79f),profile.displayName,accent,42);
             for(int i=0;i<18;i++){float angle=i*Mathf.PI*2f/18f;Image shard=AddImage("BondShard"+i,layer,new Vector2(.5f,.5f),new Vector2(.5f,.5f),WithAlpha(i%2==0?accent:element,.8f));shard.rectTransform.sizeDelta=new Vector2(10,180);shard.rectTransform.anchoredPosition=new Vector2(Mathf.Cos(angle)*260,Mathf.Sin(angle)*310);shard.rectTransform.localRotation=Quaternion.Euler(0,0,-angle*Mathf.Rad2Deg);}
@@ -373,16 +372,7 @@ namespace ShadowTheater.UI
                 ? local : Vector2.zero;
         }
 
-        private static Color StandardColor(ShadowElement element)
-        {
-            switch (element)
-            {
-                case ShadowElement.Flame: return new Color(1f, .22f, .08f, .92f);
-                case ShadowElement.Frost: return new Color(.12f, .82f, 1f, .92f);
-                case ShadowElement.Shade: return new Color(.62f, .22f, 1f, .92f);
-                default: return new Color(.92f, .82f, .58f, .9f);
-            }
-        }
+        private static Color StandardColor(ShadowElement element) => ElementChart.ColorFor(element);
 
         private static void AnimateMotif(RectTransform layer, float progress, SkillData skill)
         {

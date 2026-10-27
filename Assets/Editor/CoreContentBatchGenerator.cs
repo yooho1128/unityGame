@@ -52,11 +52,13 @@ namespace ShadowTheater.EditorTools
                 if (File.Exists(path)) catalogs.Add(JsonUtility.FromJson<CoreCatalog>(File.ReadAllText(path)));
             var baseCatalog = Merge(catalogs);
             catalogs.Add(BuildRegionalExpansion(baseCatalog));
+            // Append AFTER the original expansion so all 97 generated legacy IDs remain stable.
+            catalogs.Add(JsonUtility.FromJson<CoreCatalog>(File.ReadAllText("Assets/Resources/Data/ElementExpansionCatalog.json")));
             var catalog = Merge(catalogs);
             int generatedGrowthForms = ApplyTierGrowthPolicy(catalog);
-            if (catalog.shadows == null || catalog.shadows.Length != TargetCoreShadowCount)
+            if (catalog.shadows == null || catalog.shadows.Length != TargetCoreShadowCount + 11)
             {
-                Debug.LogError($"[CoreContent] 목표 로스터 불일치: {catalog.shadows?.Length ?? 0}/{TargetCoreShadowCount}");
+                Debug.LogError($"[CoreContent] 목표 로스터 불일치: {catalog.shadows?.Length ?? 0}/{TargetCoreShadowCount + 11}");
                 return;
             }
             if (!Validate(catalog, out string error))
@@ -478,6 +480,7 @@ namespace ShadowTheater.EditorTools
                 skill.fpGain = spec.fpGain;
                 skill.damageType = Parse(spec.damageType, DamageType.None);
                 skill.element = Parse(spec.element, ShadowElement.None);
+                skill.forceNeutralElement = spec.forceNeutralElement;
                 skill.damageMultiplier = spec.damageMultiplier;
                 skill.accuracy = spec.accuracy;
                 skill.bonusCritRate = spec.bonusCritRate;
@@ -630,6 +633,8 @@ namespace ShadowTheater.EditorTools
                 shadow.salvationForm ??= new MemoryFormData();
                 shadow.grudgeForm ??= new MemoryFormData();
                 ApplyForm(shadow.restoredForm, spec.restored, skills);
+                var restoredArt = LoadFinalPortrait(spec.shadowId + "_restored");
+                if (restoredArt != null) shadow.restoredForm.silhouetteSprite = restoredArt;
                 ApplyForm(shadow.salvationForm, spec.salvation, skills);
                 ApplyForm(shadow.grudgeForm, spec.grudge, skills);
                 EditorUtility.SetDirty(shadow);
@@ -945,7 +950,7 @@ namespace ShadowTheater.EditorTools
             public int ultimateBurstCount;
             public float damageMultiplier, accuracy, bonusCritRate, healRatio, statusChance, cameraShake;
             public float sfxVolume, sfxPitch, hitStopDuration;
-            public bool isUltimate;
+            public bool isUltimate, forceNeutralElement;
         }
         [Serializable] private class ItemSpec
         {

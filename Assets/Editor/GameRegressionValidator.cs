@@ -18,7 +18,7 @@ using UnityEngine.UI;
 
 namespace ShadowTheater.EditorTools
 {
-    /// <summary>180종 데이터와 63개 필드의 생성 결과를 출시 전 일괄 검사한다.</summary>
+    /// <summary>191종 데이터와 63개 필드의 생성 결과를 출시 전 일괄 검사한다.</summary>
     public static class GameRegressionValidator
     {
         private const string SceneFolder = "Assets/Scenes/Prologue";
@@ -109,6 +109,7 @@ namespace ShadowTheater.EditorTools
             ValidateDevicePolicy(result);
             CoreContentBatchGenerator.ValidateGrowthPolicyRegression(result.errors);
             CombatBalanceAnalyzer.ValidatePolicyRegression(result.errors);
+            ValidateElementExpansion(result);
             RegionDifficultySimulator.ValidatePolicyRegression(result.errors);
             LocalizationTranslationImporter.ValidateRegression(result.errors);
             MobileBuildConfigurator.ValidateScenePolicyRegression(result.errors);
@@ -167,6 +168,34 @@ namespace ShadowTheater.EditorTools
             ValidateBuildSettings(regions, result);
             DeviceValidationReportUtility.ValidateImported(result.errors, result.warnings, requireDeviceReports);
             return result;
+        }
+
+        private static void ValidateElementExpansion(ValidationReport result)
+        {
+            var elements = (ShadowElement[])Enum.GetValues(typeof(ShadowElement));
+            if (elements.Length != 11 || ElementChart.Rules.Length != 11)
+                result.errors.Add("11속성 카탈로그/enum 불일치");
+            foreach (var attack in elements)
+                foreach (var defend in elements)
+                {
+                    var rule = ElementChart.For(attack);
+                    var other = ElementChart.For(defend);
+                    if (rule == null || other == null) { result.errors.Add("속성 규칙 누락"); continue; }
+                    float expected = attack == defend ? 1f : Array.IndexOf(rule.strong, defend.ToString()) >= 0 ? 1.5f :
+                        Array.IndexOf(other.strong, attack.ToString()) >= 0 ? .75f : 1f;
+                    if (ElementChart.GetMultiplier(attack, defend) != expected) result.errors.Add("속성 배율 오류");
+                }
+            if (ElementChart.GetMultiplier(ShadowElement.Light, ShadowElement.Shade) != 1.5f ||
+                ElementChart.GetMultiplier(ShadowElement.Shade, ShadowElement.Light) != 1.5f ||
+                ElementChart.GetMultiplier(ShadowElement.Psychic, ShadowElement.None) != 1.5f ||
+                ElementChart.GetMultiplier(ShadowElement.None, ShadowElement.Psychic) != 1.5f)
+                result.errors.Add("빛/어둠 또는 에스퍼/무속성 상호 강점 오류");
+            var skill = ScriptableObject.CreateInstance<SkillData>();
+            skill.element = ShadowElement.None;
+            if (skill.ResolveElement(ShadowElement.Flame) != ShadowElement.Flame) result.errors.Add("기존 스킬 속성 상속 오류");
+            skill.forceNeutralElement = true;
+            if (skill.ResolveElement(ShadowElement.Flame) != ShadowElement.None) result.errors.Add("고정 무속성 오류");
+            UnityEngine.Object.DestroyImmediate(skill);
         }
 
         private static void ValidateScriptBindings(ValidationReport result)
@@ -1152,7 +1181,7 @@ namespace ShadowTheater.EditorTools
             if (database.items.Count(x => x != null) != 13)
                 result.errors.Add($"도구 데이터 수 불일치: {database.items.Count(x => x != null)}/13");
             result.shadows = database.shadows.Count(x => x != null);
-            if (result.shadows != 180) result.errors.Add($"그림자 데이터 수 불일치: {result.shadows}/180");
+            if (result.shadows != 191) result.errors.Add($"그림자 데이터 수 불일치: {result.shadows}/191");
             var ids = database.shadows.Where(x => x != null).Select(x => x.shadowId).ToList();
             if (ids.Distinct().Count() != ids.Count) result.errors.Add("ShadowDatabase shadowId 중복");
             var ultimates = database.skills.Where(x => x != null && x.isUltimate).ToList();
@@ -1473,7 +1502,7 @@ namespace ShadowTheater.EditorTools
             FinalArtCoverageReport report = JsonUtility.FromJson<FinalArtCoverageReport>(
                 File.ReadAllText(FinalPixelArtPipeline.ReportPath));
             if (report == null) { result.errors.Add("최종 픽셀 아트 보고서 파싱 실패"); return; }
-            if (report.shadowCount != 180) result.errors.Add($"픽셀 아트 대상 그림자 수 불일치: {report.shadowCount}/180");
+            if (report.shadowCount != 191) result.errors.Add($"픽셀 아트 대상 그림자 수 불일치: {report.shadowCount}/191");
             if (report.tileCount != 89) result.errors.Add($"최종 타일 대상 수 불일치: {report.tileCount}/89");
             foreach (string issue in report.invalid ?? new List<string>()) result.errors.Add("최종 아트 규격: " + issue);
             ValidatePixelArtImporters("Assets/Art/Final/Player", result);

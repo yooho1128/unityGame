@@ -37,7 +37,7 @@ namespace ShadowTheater.EditorTools
             ReleaseReadinessBatch.BuildAndroidQaForCi();
         }
         public static void Validate(List<string> errors) => Validate(errors, false);
-        private static void CreateRegistry()
+        public static void CreateRegistry()
         {
             const string path = "Assets/Resources/ShadowArtRoster.asset";
             var roster = AssetDatabase.LoadAssetAtPath<ShadowArtRoster>(path);
@@ -55,13 +55,13 @@ namespace ShadowTheater.EditorTools
             if (database == null) { errors.Add("그림자 전용 아트 검사: 데이터베이스 없음"); return; }
             var report = new Report();
             var registry = AssetDatabase.LoadAssetAtPath<ShadowArtRoster>("Assets/Resources/ShadowArtRoster.asset");
-            if (registry == null || registry.entries.Count < 180 || registry.entries.Select(x => x.shadowId).Distinct().Count() != registry.entries.Count)
+            if (registry == null || registry.entries.Count < 191 || registry.entries.Select(x => x.shadowId).Distinct().Count() != registry.entries.Count)
                 errors.Add("기존 씬용 출시 아트 레지스트리 부족/중복");
             var images = new HashSet<string>(StringComparer.Ordinal);
             var knownIds = new HashSet<string>(database.shadows.Where(x => x != null).Select(x => x.shadowId));
             var reserved = new HashSet<string>(ShadowPortraitAtlasImporter.ReadManifest().reserveIds ?? Array.Empty<string>());
-            if (registry != null && registry.entries.Count(x => knownIds.Contains(x.shadowId)) != 180)
-                errors.Add("실제 게임 180종의 출시 아트 레지스트리 부족");
+            if (registry != null && registry.entries.Count(x => knownIds.Contains(x.shadowId)) != 191)
+                errors.Add("실제 게임 191종의 출시 아트 레지스트리 부족");
             foreach (var sheet in ShadowPortraitAtlasImporter.ReadManifest().sheets)
                 foreach (string id in sheet.ids ?? Array.Empty<string>())
                     if (!knownIds.Contains(id) && !reserved.Contains(id)) errors.Add("전용 시트의 알 수 없는 ID: " + id);
@@ -99,14 +99,14 @@ namespace ShadowTheater.EditorTools
                 finally { UnityEngine.Object.DestroyImmediate(preview); }
             }
             report.uniqueImages = images.Count;
-            if (report.total != 180 || report.portraits != 180 || report.fieldSpecies != 180 || images.Count != 180)
-                errors.Add($"전용 아트 180종 미달: 데이터 {report.total}, 초상 {report.portraits}, 필드 {report.fieldSpecies}, 고유영역 {images.Count}");
+            if (report.total != 191 || report.portraits != 191 || report.fieldSpecies != 191 || images.Count != 191)
+                errors.Add($"전용 아트 191종 미달: 데이터 {report.total}, 초상 {report.portraits}, 필드 {report.fieldSpecies}, 고유영역 {images.Count}");
             if (writeReport)
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(ReportPath));
                 File.WriteAllText(ReportPath, JsonUtility.ToJson(report, true));
             }
-            if (errors.Count == 0) Debug.Log("[ShadowRosterArt] PASS: 180/180 unique portraits, field species, alpha/mobile compression/one-tile bounds");
+            if (errors.Count == 0) Debug.Log("[ShadowRosterArt] PASS: 191/191 unique portraits, field species, alpha/mobile compression/one-tile bounds");
         }
     }
 }

@@ -103,7 +103,7 @@ namespace ShadowTheater.EditorTools
                                          MobileBrandingAssetGenerator.HasConfiguredIcon(BuildTargetGroup.Android) &&
                                          MobileBrandingAssetGenerator.HasConfiguredIcon(BuildTargetGroup.iOS);
 
-            if (report.shadowCount != 180) report.errors.Add($"그림자 데이터 수 {report.shadowCount}/180");
+            if (report.shadowCount != 191) report.errors.Add($"그림자 데이터 수 {report.shadowCount}/191");
             if (report.shadowsWithPortrait != report.shadowCount)
                 report.errors.Add($"전투 초상 참조 {report.shadowsWithPortrait}/{report.shadowCount}");
             if (report.skillsWithAudio != report.skillCount)

@@ -314,11 +314,11 @@ const SK = id => DATA.skills[id];
 const SH = id => DATA.shadows[id];
 const IT = id => DATA.items[id];
 
-const ELEM = { None:{n:"무",c:"var(--none)"}, Flame:{n:"불꽃",c:"var(--flame)"}, Frost:{n:"서리",c:"var(--frost)"}, Shade:{n:"그림자",c:"var(--shade)"} };
+const ELEM = {"None":{"n":"무속성","c":"#CBC4D4","strong":["Psychic"]},"Flame":{"n":"불","c":"#FF8062","strong":["Grass","Frost"]},"Frost":{"n":"얼음","c":"#82C9F0","strong":["Grass","Wind"]},"Shade":{"n":"어둠","c":"#B991F2","strong":["Light","Psychic"]},"Water":{"n":"물","c":"#529FFF","strong":["Flame","Earth"]},"Grass":{"n":"풀","c":"#7BC76B","strong":["Water","Electric"]},"Light":{"n":"빛","c":"#FFE7A0","strong":["Shade"]},"Earth":{"n":"땅","c":"#C99460","strong":["Flame","Electric"]},"Electric":{"n":"전기","c":"#FFE04F","strong":["Water","Wind"]},"Wind":{"n":"바람","c":"#83E4CB","strong":["Earth","Psychic"]},"Psychic":{"n":"에스퍼","c":"#F19ADD","strong":["Frost","Light","None"]}};
 const STATUS_NAME = { Freeze:"빙결", Burn:"화상", Bleed:"출혈", AttackDown:"공격↓", DefenseDown:"방어↓", SpeedDown:"속도↓" };
 function elemMul(a, d){
-  if (a==="None"||d==="None") return 1;
-  const beats=(x,y)=>(x==="Flame"&&y==="Frost")||(x==="Frost"&&y==="Shade")||(x==="Shade"&&y==="Flame");
+  if (a===d) return 1;
+  const beats=(x,y)=>ELEM[x].strong.includes(y);
   if (beats(a,d)) return 1.5; if (beats(d,a)) return 0.75; return 1;
 }
 
@@ -386,7 +386,7 @@ function calcHit(att, def, s){
   if (s.damageType!=="None" && s.damageMultiplier>0){
     const d = def.def*(s.damageType==="Magical"?0.5:1);
     let raw = att.atk*s.damageMultiplier*(100/(100+d));
-    const el = s.element!=="None" ? s.element : att.d.element;
+    const el = s.forceNeutralElement ? "None" : s.element!=="None" ? s.element : att.d.element;
     r.elementMultiplier = elemMul(el, def.d.element); raw*=r.elementMultiplier;
     r.critical = Math.random() < att.d.critRate + s.bonusCritRate; if (r.critical) raw*=1.5;
     raw *= 0.9+Math.random()*0.1;
@@ -414,7 +414,7 @@ function aiChoose(self, opp, fp){
 }
 function aiScore(self, opp, s){
   if (s.target==="Self") return s.healRatio>0 && self.hpRatio<0.4 ? 100 : 0;
-  const el = s.element!=="None"?s.element:self.d.element;
+  const el = s.forceNeutralElement ? "None" : s.element!=="None"?s.element:self.d.element;
   let sc = s.damageMultiplier*s.accuracy*elemMul(el,opp.d.element)*10;
   if (s.statusEffect!=="None"){
     const already = isMajor(s.statusEffect) ? !!opp.major : opp.has(s.statusEffect);
@@ -923,7 +923,7 @@ function fxTick(){
   fxCtx.globalAlpha=1;
   if (particles.length) requestAnimationFrame(fxTick); else { fxRunning=false; fxCtx.clearRect(0,0,fxCv.width,fxCv.height); }
 }
-const ELEM_HEX={None:"#e9e3f5",Flame:"#ff7a59",Frost:"#7fd6ff",Shade:"#c38bff"};
+const ELEM_HEX=Object.fromEntries(Object.entries(ELEM).map(([k,v])=>[k,v.c]));
 
 const P = {
   async say(t, ms=650){ msgEl.textContent=t; await wait(ms); },

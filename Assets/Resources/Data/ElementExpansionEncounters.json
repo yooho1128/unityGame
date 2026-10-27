@@ -1,0 +1,59 @@
+{
+  "entries": [
+    {
+      "shadowId": "ele_ember_lantern_fox",
+      "regionId": "painted_wagon_road",
+      "featured": false
+    },
+    {
+      "shadowId": "ele_tide_bell_otter",
+      "regionId": "tidal_boardwalk",
+      "featured": false
+    },
+    {
+      "shadowId": "ele_seed_stage_deer",
+      "regionId": "moonlit_meadow",
+      "featured": false
+    },
+    {
+      "shadowId": "ele_snow_glass_lynx",
+      "regionId": "forbidden_stacks",
+      "featured": false
+    },
+    {
+      "shadowId": "ele_dawn_paper_crane",
+      "regionId": "lantern_reed_field",
+      "featured": false
+    },
+    {
+      "shadowId": "ele_eclipse_velvet_moth",
+      "regionId": "moonfang_forest",
+      "featured": false
+    },
+    {
+      "shadowId": "ele_patchwork_stage_dog",
+      "regionId": "echo_village",
+      "featured": false
+    },
+    {
+      "shadowId": "ele_clay_bell_tortoise",
+      "regionId": "ash_border",
+      "featured": false
+    },
+    {
+      "shadowId": "ele_spark_spool_squirrel",
+      "regionId": "clockwork_alley",
+      "featured": false
+    },
+    {
+      "shadowId": "ele_breeze_ribbon_swallow",
+      "regionId": "curtain_pass",
+      "featured": false
+    },
+    {
+      "shadowId": "ele_dream_marble_rabbit",
+      "regionId": "mirror_vault",
+      "featured": false
+    }
+  ]
+}

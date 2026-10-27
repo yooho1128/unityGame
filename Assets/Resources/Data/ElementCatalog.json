@@ -1,0 +1,127 @@
+{
+  "strong": 1.5,
+  "weak": 0.75,
+  "neutral": 1,
+  "elements": [
+    {
+      "id": "None",
+      "value": 0,
+      "name": "무속성",
+      "en": "Normal",
+      "color": "#CBC4D4",
+      "strong": [
+        "Psychic"
+      ]
+    },
+    {
+      "id": "Flame",
+      "value": 1,
+      "name": "불",
+      "en": "Fire",
+      "color": "#FF8062",
+      "strong": [
+        "Grass",
+        "Frost"
+      ]
+    },
+    {
+      "id": "Frost",
+      "value": 2,
+      "name": "얼음",
+      "en": "Ice",
+      "color": "#82C9F0",
+      "strong": [
+        "Grass",
+        "Wind"
+      ]
+    },
+    {
+      "id": "Shade",
+      "value": 3,
+      "name": "어둠",
+      "en": "Dark",
+      "color": "#B991F2",
+      "strong": [
+        "Light",
+        "Psychic"
+      ]
+    },
+    {
+      "id": "Water",
+      "value": 4,
+      "name": "물",
+      "en": "Water",
+      "color": "#529FFF",
+      "strong": [
+        "Flame",
+        "Earth"
+      ]
+    },
+    {
+      "id": "Grass",
+      "value": 5,
+      "name": "풀",
+      "en": "Grass",
+      "color": "#7BC76B",
+      "strong": [
+        "Water",
+        "Electric"
+      ]
+    },
+    {
+      "id": "Light",
+      "value": 6,
+      "name": "빛",
+      "en": "Light",
+      "color": "#FFE7A0",
+      "strong": [
+        "Shade"
+      ]
+    },
+    {
+      "id": "Earth",
+      "value": 7,
+      "name": "땅",
+      "en": "Earth",
+      "color": "#C99460",
+      "strong": [
+        "Flame",
+        "Electric"
+      ]
+    },
+    {
+      "id": "Electric",
+      "value": 8,
+      "name": "전기",
+      "en": "Electric",
+      "color": "#FFE04F",
+      "strong": [
+        "Water",
+        "Wind"
+      ]
+    },
+    {
+      "id": "Wind",
+      "value": 9,
+      "name": "바람",
+      "en": "Wind",
+      "color": "#83E4CB",
+      "strong": [
+        "Earth",
+        "Psychic"
+      ]
+    },
+    {
+      "id": "Psychic",
+      "value": 10,
+      "name": "에스퍼",
+      "en": "Psychic",
+      "color": "#F19ADD",
+      "strong": [
+        "Frost",
+        "Light",
+        "None"
+      ]
+    }
+  ]
+}

@@ -101,13 +101,10 @@ namespace ShadowTheater.Story
 
         public static ShadowElement WeaknessOf(ShadowElement element)
         {
-            switch (element)
-            {
-                case ShadowElement.Flame: return ShadowElement.Shade;
-                case ShadowElement.Frost: return ShadowElement.Flame;
-                case ShadowElement.Shade: return ShadowElement.Frost;
-                default: return ShadowElement.None;
-            }
+            foreach (var rule in ElementChart.Rules)
+                if (ElementChart.GetMultiplier((ShadowElement)rule.value, element) > 1f)
+                    return (ShadowElement)rule.value;
+            return ShadowElement.None;
         }
 
         private static ShadowData FindByName(string name)

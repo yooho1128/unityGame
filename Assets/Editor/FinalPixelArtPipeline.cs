@@ -69,6 +69,8 @@ namespace ShadowTheater.EditorTools
 
             ShadowPortraitAtlasImporter.Import(invalid);
             ApplyPortraitOverrides();
+            if (AssetDatabase.LoadAssetAtPath<ShadowDatabase>("Assets/Resources/ShadowDatabase.asset") != null)
+                ShadowRosterArtBatch.CreateRegistry();
             FinalArtCoverageReport report = BuildReport(invalid);
             File.WriteAllText(ReportPath, JsonUtility.ToJson(report, true));
             AssetDatabase.ImportAsset(ReportPath, ImportAssetOptions.ForceSynchronousImport);
@@ -90,6 +92,9 @@ namespace ShadowTheater.EditorTools
                 if (shadow == null || string.IsNullOrEmpty(shadow.shadowId)) continue;
                 Sprite sprite = PortraitFor(shadow.shadowId);
                 if (sprite != null) shadow.silhouetteSprite = sprite;
+                var restored = PortraitFor(shadow.shadowId + "_restored");
+                if (restored != null && shadow.restoredForm != null && shadow.restoredForm.enabled)
+                    shadow.restoredForm.silhouetteSprite = restored;
                 Sprite[] fieldFrames = FieldFramesFor(shadow.shadowId);
                 if (fieldFrames != null) shadow.fieldFrames = fieldFrames;
                 else if (shadow.fieldFrames != null && shadow.fieldFrames.Any(frame =>

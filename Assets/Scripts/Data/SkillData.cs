@@ -26,6 +26,10 @@ namespace ShadowTheater.Data
         [Header("데미지")]
         public DamageType damageType = DamageType.Physical;
         public ShadowElement element = ShadowElement.None;
+        [Tooltip("무속성 기술을 시전자 속성과 무관하게 사용. 기존 기술은 false로 속성 상속 유지")]
+        public bool forceNeutralElement;
+        public ShadowElement ResolveElement(ShadowElement caster) =>
+            forceNeutralElement ? ShadowElement.None : element == ShadowElement.None ? caster : element;
         [Tooltip("공격력 x 계수. 1.0 = 100%")]
         [Min(0f)] public float damageMultiplier = 1f;
         [Range(0f, 1f)] public float accuracy = 1f;

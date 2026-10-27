@@ -39,9 +39,7 @@ namespace ShadowTheater.UI
             direction = (destination - source).normalized;
             angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             magical = skill.damageType == DamageType.Magical;
-            color = skill.element == ShadowElement.Flame ? new Color(1f,.4f,.12f) :
-                skill.element == ShadowElement.Frost ? new Color(.35f,.85f,1f) :
-                skill.element == ShadowElement.Shade ? new Color(.78f,.4f,1f) : new Color(1f,.87f,.55f);
+            color = ElementChart.ColorFor(skill.element);
             advance = actor.parent.InverseTransformVector(layer.TransformVector(direction * (magical ? 16f : 68f)));
             recoil = victim != null ? victim.parent.InverseTransformVector(layer.TransformVector(direction * 22f)) : Vector3.zero;
             projectile = Image("ElementProjectile", BattleFxSpriteLibrary.ForSkill(skill), new Vector2(88,88), color);
