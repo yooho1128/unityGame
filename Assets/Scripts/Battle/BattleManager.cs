@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using ShadowTheater.Data;
+using ShadowTheater.Field;
 using ShadowTheater.Save;
 using ShadowTheater.Story;
 using ShadowTheater.UI;

@@ -965,13 +965,13 @@ namespace ShadowTheater.Save
             if (item.effectType == ItemEffectType.GainExperience)
             {
                 if (target.IsMaxLevel) { message = "이미 최고 레벨입니다."; return false; }
-                int amount = Mathf.Max(1,Mathf.RoundToInt(item.value));
-                int projectedLevel = ProjectLevelAfterExperience(target,amount);
-                restored = amount;
+                int experience = Mathf.Max(1,Mathf.RoundToInt(item.value));
+                int projectedLevel = ProjectLevelAfterExperience(target,experience);
+                restored = experience;
                 excess = projectedLevel-target.level;
                 message = projectedLevel>target.level
-                    ? $"예상 경험치 +{amount} · Lv.{target.level} → Lv.{projectedLevel}"
-                    : $"예상 경험치 +{amount} · 사용 후 다음 레벨까지 {Mathf.Max(0,target.ExpToNext-target.exp-amount)}";
+                    ? $"예상 경험치 +{experience} · Lv.{target.level} → Lv.{projectedLevel}"
+                    : $"예상 경험치 +{experience} · 사용 후 다음 레벨까지 {Mathf.Max(0,target.ExpToNext-target.exp-experience)}";
                 return true;
             }
             if (target.IsFainted)

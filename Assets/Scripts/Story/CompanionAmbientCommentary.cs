@@ -39,7 +39,7 @@ namespace ShadowTheater.Story
             if (SaveManager.HasFlag(key)) return;
 
             SaveManager.SetFlag(key);
-            CompanionBondService.AddExperience(companion.instanceId, 2, out _, out int level);
+            CompanionBondService.AddExperience(companion.instanceId, 2, out int previousLevel, out int level);
             SaveManager.Instance?.TrySave(false);
             string name = L10n.Text(companion.DisplayName);
             SaveFeedbackController.Instance?.ShowMessage(
