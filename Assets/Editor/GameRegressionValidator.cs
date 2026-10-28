@@ -110,6 +110,7 @@ namespace ShadowTheater.EditorTools
             CoreContentBatchGenerator.ValidateGrowthPolicyRegression(result.errors);
             CombatBalanceAnalyzer.ValidatePolicyRegression(result.errors);
             ValidateElementExpansion(result);
+            NpcIdentityValidator.Validate(result.errors);
             RegionDifficultySimulator.ValidatePolicyRegression(result.errors);
             LocalizationTranslationImporter.ValidateRegression(result.errors);
             MobileBuildConfigurator.ValidateScenePolicyRegression(result.errors);
@@ -1709,6 +1710,8 @@ namespace ShadowTheater.EditorTools
                         result.errors.Add($"{region.sceneName}: 이동 방향 카메라 추적 누락");
                     foreach (StoryNpc npc in roots.SelectMany(x => x.GetComponentsInChildren<StoryNpc>(true)))
                     {
+                        if (NpcIdentityCatalog.Find(npc.NpcId) == null)
+                            result.errors.Add($"{region.sceneName}: NPC 전용 이미지/이름 ID 미등록 ({npc.NpcId})");
                         if (npc.GetComponent<FieldNpcPresence>() == null)
                             result.errors.Add($"{region.sceneName}: NPC 시선·발견 반응 누락 ({npc.name})");
                         if (npc.GetComponent<FieldDepthSorter>() == null)

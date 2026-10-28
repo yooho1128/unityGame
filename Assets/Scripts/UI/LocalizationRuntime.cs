@@ -12,6 +12,7 @@ namespace ShadowTheater.UI
     {
         private static Font _koreanFont;
         private static Font _englishFont;
+        public static Font CurrentFont => ResolveFont(L10n.IsEnglish);
 
         private void OnEnable()
         {

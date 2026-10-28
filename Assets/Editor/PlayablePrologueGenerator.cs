@@ -245,7 +245,7 @@ namespace ShadowTheater.EditorTools
         {
             var map = BeginFieldScene("PrologueTheater", "웃음막 유랑촌", new Vector2Int(0, -5),
                 new Color(0.055f, 0.035f, 0.10f), Theme.Theater);
-            CreateNpc(map.fieldRoot, "Aria", new Vector2Int(0, 0), LoadShadow("mage"),
+            CreateNpc(map.fieldRoot, "Aria", new Vector2Int(0, 0),
                 "npc_aria", "npc_aria_intro", "npc_aria_repeat", "talked_npc_aria",
                 new Color(0.72f, 0.42f, 1f));
             CreateInteractable(map.fieldRoot, "FirstScriptShrine", new Vector2Int(-3, 3),
@@ -277,7 +277,7 @@ namespace ShadowTheater.EditorTools
             var map = BeginFieldScene("MoonlitMeadow", "달빛 초원", new Vector2Int(-8, 0),
                 new Color(0.035f, 0.065f, 0.11f), Theme.Meadow);
             CreateAreaTrigger(map.fieldRoot, new Vector2Int(-8, 0), "area_moonlit_meadow");
-            var lanternKeeper = CreateNpc(map.fieldRoot, "LanternKeeperMoen", new Vector2Int(1, 5), LoadShadow("crow"),
+            var lanternKeeper = CreateNpc(map.fieldRoot, "LanternKeeperMoen", new Vector2Int(1, 5),
                 "npc_lantern_keeper", "npc_lantern_keeper_intro", "npc_lantern_keeper_repeat",
                 "talked_npc_lantern_keeper", new Color(1f, 0.70f, 0.38f));
             var keeperRenderer = lanternKeeper.GetComponentInChildren<SpriteRenderer>();
@@ -315,7 +315,7 @@ namespace ShadowTheater.EditorTools
             var map = BeginFieldScene("CurtainPass", "찢어진 장막길", new Vector2Int(-8, 0),
                 new Color(.12f,.07f,.07f), Theme.AshWastes);
             CreateAreaTrigger(map.fieldRoot, new Vector2Int(-8,0), "area_curtain_pass");
-            CreateNpc(map.fieldRoot, "CurtainWatcher", new Vector2Int(0,3), LoadShadow("banner_spearman"),
+            CreateNpc(map.fieldRoot, "CurtainWatcher", new Vector2Int(0,3),
                 "npc_curtain_watcher", "npc_curtain_watcher_intro", "npc_curtain_watcher_repeat",
                 "talked_curtain_watcher", new Color(.84f,.48f,.34f));
             CreateEncounter(map.fieldRoot, "AshHound", new Vector2Int(-2,-4), LoadShadow("ash_hound"), 11,14);
@@ -332,7 +332,7 @@ namespace ShadowTheater.EditorTools
             var map = BeginFieldScene("AshBorder", "재의 국경", new Vector2Int(-8,0),
                 new Color(.15f,.065f,.045f), Theme.AshWastes);
             CreateAreaTrigger(map.fieldRoot, new Vector2Int(-8,0), "area_ash_border");
-            CreateNpc(map.fieldRoot, "AshScout", new Vector2Int(1,4), LoadShadow("soot_archer"),
+            CreateNpc(map.fieldRoot, "AshScout", new Vector2Int(1,4),
                 "npc_ash_scout", "npc_ash_scout_intro", "npc_ash_scout_repeat", "talked_ash_scout",
                 new Color(.92f,.39f,.24f));
             CreateInteractable(map.fieldRoot, "AshBorderSign", new Vector2Int(-3,2), "sign_ash_border",
@@ -352,7 +352,7 @@ namespace ShadowTheater.EditorTools
             var map = BeginFieldScene("CinderCity", "대학로 극단 거리", new Vector2Int(-7,-1),
                 new Color(.14f,.075f,.055f), Theme.EmberCity);
             CreateAreaTrigger(map.fieldRoot, new Vector2Int(-7,-1), "area_cinder_city");
-            CreateNpc(map.fieldRoot, "EmberArchivist", new Vector2Int(2,2), LoadShadow("furnace_keeper"),
+            CreateNpc(map.fieldRoot, "EmberArchivist", new Vector2Int(2,2),
                 "npc_ember_archivist", "npc_ember_archivist_intro", "npc_ember_archivist_repeat",
                 "talked_ember_archivist", new Color(1f,.62f,.34f));
             CreateInteractable(map.fieldRoot, "CitySign", new Vector2Int(-2,-2), "sign_cinder_city",
@@ -391,7 +391,7 @@ namespace ShadowTheater.EditorTools
         {
             var map = BeginFieldScene("EmberCatacombs", "불씨 지하묘", new Vector2Int(-8,0),
                 new Color(.055f,.04f,.065f), Theme.Catacombs);
-            CreateNpc(map.fieldRoot, "AshPriest", new Vector2Int(-2,4), LoadShadow("ash_priest"),
+            CreateNpc(map.fieldRoot, "AshPriest", new Vector2Int(-2,4),
                 "npc_ash_priest", "npc_ash_priest_intro", "npc_ash_priest_repeat", "talked_ash_priest",
                 new Color(.72f,.58f,.82f));
             CreateEncounter(map.fieldRoot, "TombCandleA", new Vector2Int(-4,-4), LoadShadow("tomb_candle"),22,25);
@@ -430,7 +430,7 @@ namespace ShadowTheater.EditorTools
             var map = BeginFieldScene("FrostPort", "물결막 수상극 항구", new Vector2Int(-8,0),
                 new Color(.035f,.09f,.14f), Theme.FrostPort);
             CreateAreaTrigger(map.fieldRoot, new Vector2Int(-8,0), "area_frost_port");
-            CreateNpc(map.fieldRoot, "GlacierFerryman", new Vector2Int(1,3), LoadShadow("glacier_ferryman"),
+            CreateNpc(map.fieldRoot, "GlacierFerryman", new Vector2Int(1,3),
                 "npc_glacier_ferryman", "npc_glacier_ferryman_intro", "npc_glacier_ferryman_repeat",
                 "talked_glacier_ferryman", new Color(.48f,.84f,1f));
             CreateTraversalRoutePair(map.fieldRoot, "FrozenChannel", new Vector2Int(3,4), new Vector2Int(7,4),
@@ -449,7 +449,7 @@ namespace ShadowTheater.EditorTools
             var map = BeginFieldScene("WhiteArchive", "등불막 그림자촌", new Vector2Int(-7,0),
                 new Color(.07f,.11f,.17f), Theme.Archive);
             CreateAreaTrigger(map.fieldRoot, new Vector2Int(-7,0), "area_white_archive");
-            CreateNpc(map.fieldRoot, "SnowScribe", new Vector2Int(1,3), LoadShadow("snow_scribe"),
+            CreateNpc(map.fieldRoot, "SnowScribe", new Vector2Int(1,3),
                 "npc_snow_scribe", "npc_snow_scribe_intro", "npc_snow_scribe_repeat",
                 "talked_snow_scribe", new Color(.72f,.93f,1f));
             CreateInteractable(map.fieldRoot, "ForbiddenIndex", new Vector2Int(-2,2), "sign_forbidden_index",
@@ -488,7 +488,7 @@ namespace ShadowTheater.EditorTools
             var map = BeginFieldScene("MirrorVault", "거울 문고", new Vector2Int(-8,0),
                 new Color(.055f,.055f,.14f), Theme.MirrorVault);
             CreateAreaTrigger(map.fieldRoot, new Vector2Int(-8,0), "area_mirror_vault");
-            CreateNpc(map.fieldRoot, "MirrorScribe", new Vector2Int(-2,3), LoadShadow("mirror_scribe"),
+            CreateNpc(map.fieldRoot, "MirrorScribe", new Vector2Int(-2,3),
                 "npc_mirror_scribe", "npc_mirror_scribe_intro", "npc_mirror_scribe_repeat",
                 "talked_mirror_scribe", new Color(.68f,.71f,1f));
             CreateEncounter(map.fieldRoot, "GlassOwlA", new Vector2Int(-4,-3), LoadShadow("glass_owl"),38,41);
@@ -525,7 +525,7 @@ namespace ShadowTheater.EditorTools
         {
             var map = BeginFieldScene("VioletMarsh", "자줏빛 늪", new Vector2Int(-8,0), new Color(.08f,.035f,.12f), Theme.VioletMarsh);
             CreateAreaTrigger(map.fieldRoot, new Vector2Int(-8,0), "area_violet_marsh");
-            CreateNpc(map.fieldRoot, "MarshGuide", new Vector2Int(1,4), LoadShadow("lantern_toad"), "npc_marsh_guide", "npc_marsh_guide_intro", "npc_marsh_guide_repeat", "talked_marsh_guide", new Color(.8f,.5f,1f));
+            CreateNpc(map.fieldRoot, "MarshGuide", new Vector2Int(1,4), "npc_marsh_guide", "npc_marsh_guide_intro", "npc_marsh_guide_repeat", "talked_marsh_guide", new Color(.8f,.5f,1f));
             CreateEncounter(map.fieldRoot, "MarshSerpentA", new Vector2Int(-4,-3), LoadShadow("marsh_serpent"),44,47);
             CreateEncounter(map.fieldRoot, "LanternToadA", new Vector2Int(5,-3), LoadShadow("lantern_toad"),44,48);
             CreatePortal(map.fieldRoot, "BackToBlueAbyss", new Vector2Int(-9,0), "BlueAbyss", new Vector2Int(8,0), FacingDir.Left);
@@ -538,7 +538,7 @@ namespace ShadowTheater.EditorTools
         {
             var map = BeginFieldScene("HowlVillage", "달가면 산촌", new Vector2Int(-7,0), new Color(.095f,.045f,.13f), Theme.HowlVillage);
             CreateAreaTrigger(map.fieldRoot, new Vector2Int(-7,0), "area_howl_village");
-            CreateNpc(map.fieldRoot, "MoonShaman", new Vector2Int(1,3), LoadShadow("moon_shaman"), "npc_moon_shaman", "npc_moon_shaman_intro", "npc_moon_shaman_repeat", "talked_moon_shaman", new Color(.75f,.62f,1f));
+            CreateNpc(map.fieldRoot, "MoonShaman", new Vector2Int(1,3), "npc_moon_shaman", "npc_moon_shaman_intro", "npc_moon_shaman_repeat", "talked_moon_shaman", new Color(.75f,.62f,1f));
             CreatePortal(map.fieldRoot, "BackToMarsh", new Vector2Int(-9,0), "VioletMarsh", new Vector2Int(8,0), FacingDir.Left);
             CreatePortal(map.fieldRoot, "ToMoonfangForest", new Vector2Int(9,0), "MoonfangForest", new Vector2Int(-8,-2), FacingDir.Right, false, "quest_act4_02_village_complete");
             CreatePortal(map.fieldRoot, "ToMaskDancePass", new Vector2Int(0,8), "MaskDancePass", new Vector2Int(-8,0), FacingDir.Up);
@@ -586,7 +586,7 @@ namespace ShadowTheater.EditorTools
         {
             var map = BeginFieldScene("ThreadMarket", "실타래 인형극 공방촌", new Vector2Int(-8,0), new Color(.13f,.055f,.11f), Theme.ThreadMarket);
             CreateAreaTrigger(map.fieldRoot, new Vector2Int(-8,0), "area_thread_market");
-            CreateNpc(map.fieldRoot, "ThreadMerchant", new Vector2Int(1,4), LoadShadow("thread_cat"), "npc_thread_merchant", "npc_thread_merchant_intro", "npc_thread_merchant_repeat", "talked_thread_merchant", new Color(1f,.55f,.72f));
+            CreateNpc(map.fieldRoot, "ThreadMerchant", new Vector2Int(1,4), "npc_thread_merchant", "npc_thread_merchant_intro", "npc_thread_merchant_repeat", "talked_thread_merchant", new Color(1f,.55f,.72f));
             CreatePortal(map.fieldRoot, "BackToBeastDen", new Vector2Int(-9,0), "SleepingBeastDen", new Vector2Int(8,0), FacingDir.Left);
             CreatePortal(map.fieldRoot, "ToClockworkAlley", new Vector2Int(9,0), "ClockworkAlley", new Vector2Int(-8,0), FacingDir.Right, false, "quest_act5_01_market_complete");
             CreatePortal(map.fieldRoot, "ToStitchField", new Vector2Int(0,8), "StitchField", new Vector2Int(-8,0), FacingDir.Up);
@@ -597,7 +597,7 @@ namespace ShadowTheater.EditorTools
         {
             var map = BeginFieldScene("ClockworkAlley", "태엽 골목", new Vector2Int(-8,0), new Color(.12f,.07f,.075f), Theme.ClockworkAlley);
             CreateAreaTrigger(map.fieldRoot, new Vector2Int(-8,0), "area_clockwork_alley");
-            CreateNpc(map.fieldRoot, "SecondDancer", new Vector2Int(1,3), LoadShadow("second_dancer"), "npc_second_dancer", "npc_second_dancer_intro", "npc_second_dancer_repeat", "talked_second_dancer", new Color(.65f,.82f,1f));
+            CreateNpc(map.fieldRoot, "SecondDancer", new Vector2Int(1,3), "npc_second_dancer", "npc_second_dancer_intro", "npc_second_dancer_repeat", "talked_second_dancer", new Color(.65f,.82f,1f));
             CreateEncounter(map.fieldRoot, "ClockworkMouseA", new Vector2Int(-4,-4), LoadShadow("clockwork_mouse"),62,65);
             CreateEncounter(map.fieldRoot, "BrassClownA", new Vector2Int(5,-2), LoadShadow("brass_clown"),63,66);
             CreatePortal(map.fieldRoot, "BackToMarket", new Vector2Int(-9,0), "ThreadMarket", new Vector2Int(8,0), FacingDir.Left);
@@ -622,7 +622,7 @@ namespace ShadowTheater.EditorTools
         {
             var map = BeginFieldScene("SeveredWorkshop", "끊어진 공방", new Vector2Int(-8,0), new Color(.09f,.055f,.09f), Theme.SeveredWorkshop);
             CreateAreaTrigger(map.fieldRoot, new Vector2Int(-8,0), "area_severed_workshop");
-            CreateNpc(map.fieldRoot, "StitchedKnight", new Vector2Int(-1,4), LoadShadow("stitched_knight"), "npc_stitched_knight", "npc_stitched_knight_intro", "npc_stitched_knight_repeat", "talked_stitched_knight", new Color(.76f,.54f,.65f));
+            CreateNpc(map.fieldRoot, "StitchedKnight", new Vector2Int(-1,4), "npc_stitched_knight", "npc_stitched_knight_intro", "npc_stitched_knight_repeat", "talked_stitched_knight", new Color(.76f,.54f,.65f));
             CreateEncounter(map.fieldRoot, "NeedleThiefB", new Vector2Int(-4,-3), LoadShadow("needle_thief"),68,71);
             CreateEncounter(map.fieldRoot, "StitchedKnightEcho", new Vector2Int(5,-3), LoadShadow("stitched_knight"),69,72);
             CreatePortal(map.fieldRoot, "BackToOpera", new Vector2Int(-9,0), "MarionetteOpera", new Vector2Int(8,0), FacingDir.Left);
@@ -646,7 +646,7 @@ namespace ShadowTheater.EditorTools
         {
             var map = BeginFieldScene("ErasedStation", "별노래 오페라 성도", new Vector2Int(-8,0), new Color(.08f,.08f,.10f), Theme.Censor);
             CreateAreaTrigger(map.fieldRoot, new Vector2Int(-8,0), "area_erased_station");
-            CreateNpc(map.fieldRoot, "InkConductor", new Vector2Int(1,4), LoadShadow("ink_conductor"), "npc_ink_conductor", "npc_ink_conductor_intro", "npc_ink_conductor_repeat", "talked_ink_conductor", new Color(.72f,.72f,.8f));
+            CreateNpc(map.fieldRoot, "InkConductor", new Vector2Int(1,4), "npc_ink_conductor", "npc_ink_conductor_intro", "npc_ink_conductor_repeat", "talked_ink_conductor", new Color(.72f,.72f,.8f));
             CreatePortal(map.fieldRoot, "BackToPuppeteerStage", new Vector2Int(-9,0), "PuppeteerStage", new Vector2Int(8,0), FacingDir.Left);
             CreatePortal(map.fieldRoot, "ToBlankPrison", new Vector2Int(9,0), "BlankPrison", new Vector2Int(0,-7), FacingDir.Right, false, "quest_act6_01_station_complete");
             CreatePortal(map.fieldRoot, "ToSilentFoyer", new Vector2Int(0,8), "SilentFoyer", new Vector2Int(-8,0), FacingDir.Up);
@@ -669,7 +669,7 @@ namespace ShadowTheater.EditorTools
         {
             var map = BeginFieldScene("RedactionLab", "먹칠 연구소", new Vector2Int(-8,0), new Color(.075f,.035f,.085f), Theme.Censor);
             CreateAreaTrigger(map.fieldRoot, new Vector2Int(-8,0), "area_redaction_lab");
-            CreateNpc(map.fieldRoot, "CensorSurgeon", new Vector2Int(-1,4), LoadShadow("censor_surgeon"), "npc_censor_surgeon", "npc_censor_surgeon_intro", "npc_censor_surgeon_repeat", "talked_censor_surgeon", new Color(.66f,.42f,.61f));
+            CreateNpc(map.fieldRoot, "CensorSurgeon", new Vector2Int(-1,4), "npc_censor_surgeon", "npc_censor_surgeon_intro", "npc_censor_surgeon_repeat", "talked_censor_surgeon", new Color(.66f,.42f,.61f));
             CreateEncounter(map.fieldRoot, "BlackVialA", new Vector2Int(-4,-3), LoadShadow("black_vial"),80,83);
             CreateEncounter(map.fieldRoot, "CensorSurgeonEcho", new Vector2Int(5,-3), LoadShadow("censor_surgeon"),81,84);
             CreateBossEncounter(map.fieldRoot, "SubjectMBoss", new Vector2Int(3,4), "extract_subject_m", "boss_subject_m", new Vector2Int(84,86), "boss_subject_m_pre", "boss_subject_m_post", "boss_subject_m_story_complete", "boss_subject_m_reward_claimed", 86, new Color(.72f,.18f,.42f));
@@ -705,7 +705,7 @@ namespace ShadowTheater.EditorTools
         {
             var map=BeginFieldScene("GlassCoast","유리 해안",new Vector2Int(-8,0),new Color(.025f,.10f,.14f),Theme.MemorySea);
             CreateAreaTrigger(map.fieldRoot,new Vector2Int(-8,0),"area_glass_coast");
-            CreateNpc(map.fieldRoot,"WaveBard",new Vector2Int(1,4),LoadShadow("wave_bard"),"npc_wave_bard","npc_wave_bard_intro","npc_wave_bard_repeat","talked_wave_bard",new Color(.44f,.82f,.9f));
+            CreateNpc(map.fieldRoot,"WaveBard",new Vector2Int(1,4),"npc_wave_bard","npc_wave_bard_intro","npc_wave_bard_repeat","talked_wave_bard",new Color(.44f,.82f,.9f));
             CreateEncounter(map.fieldRoot,"GlassConchA",new Vector2Int(-4,-3),LoadShadow("glass_conch"),89,92); CreateEncounter(map.fieldRoot,"StarSandCrabA",new Vector2Int(5,-3),LoadShadow("star_sand_crab"),90,93);
             CreateTraversalRoutePair(map.fieldRoot,"RubberBoatChannel",new Vector2Int(4,3),new Vector2Int(8,3),TraversalAbility.PortableBoat,new Color(.32f,.78f,1f));
             CreatePortal(map.fieldRoot,"BackToBlackArchive",new Vector2Int(-9,0),"BlackArchive",new Vector2Int(8,0),FacingDir.Left); CreatePortal(map.fieldRoot,"ToDrownedGallery",new Vector2Int(9,0),"DrownedGallery",new Vector2Int(0,-7),FacingDir.Right,false,"quest_act7_01_coast_complete"); FinishFieldScene(map,"GlassCoast");
@@ -720,7 +720,7 @@ namespace ShadowTheater.EditorTools
         private static void CreateNameIslands()
         {
             var map=BeginFieldScene("NameIslands","이름의 군도",new Vector2Int(-8,0),new Color(.025f,.09f,.15f),Theme.MemorySea);
-            CreateAreaTrigger(map.fieldRoot,new Vector2Int(-8,0),"area_name_islands"); CreateNpc(map.fieldRoot,"NameKeeper",new Vector2Int(1,4),LoadShadow("nameplate_turtle"),"npc_name_keeper","npc_name_keeper_intro","npc_name_keeper_repeat","talked_name_keeper",new Color(.45f,.82f,1f));
+            CreateAreaTrigger(map.fieldRoot,new Vector2Int(-8,0),"area_name_islands"); CreateNpc(map.fieldRoot,"NameKeeper",new Vector2Int(1,4),"npc_name_keeper","npc_name_keeper_intro","npc_name_keeper_repeat","talked_name_keeper",new Color(.45f,.82f,1f));
             CreateEncounter(map.fieldRoot,"NameBirdA",new Vector2Int(-4,-3),LoadShadow("name_bird"),95,98); CreateEncounter(map.fieldRoot,"NameplateTurtleA",new Vector2Int(5,-3),LoadShadow("nameplate_turtle"),96,99);
             CreatePortal(map.fieldRoot,"BackToGallery",new Vector2Int(-9,0),"DrownedGallery",new Vector2Int(8,0),FacingDir.Left); CreatePortal(map.fieldRoot,"ToLighthouse",new Vector2Int(9,0),"MourningLighthouse",new Vector2Int(0,-7),FacingDir.Right,false,"quest_act7_03_islands_complete"); FinishFieldScene(map,"NameIslands");
         }
@@ -745,7 +745,7 @@ namespace ShadowTheater.EditorTools
         {
             var map=BeginFieldScene("InvertedLobby","뒤집힌 로비",new Vector2Int(0,-7),new Color(.045f,.025f,.11f),Theme.FinalTheater);
             CreateAreaTrigger(map.fieldRoot,new Vector2Int(0,-7),"area_inverted_lobby");
-            CreateNpc(map.fieldRoot,"InvertedGuide",new Vector2Int(0,4),LoadShadow("inverted_guide"),"npc_inverted_guide","npc_inverted_guide_intro","npc_inverted_guide_repeat","talked_inverted_guide",new Color(.68f,.45f,.95f));
+            CreateNpc(map.fieldRoot,"InvertedGuide",new Vector2Int(0,4),"npc_inverted_guide","npc_inverted_guide_intro","npc_inverted_guide_repeat","talked_inverted_guide",new Color(.68f,.45f,.95f));
             CreateEncounter(map.fieldRoot,"CeilingAudienceA",new Vector2Int(-5,0),LoadShadow("ceiling_audience"),104,107);
             CreateEncounter(map.fieldRoot,"MirroredUnderstudyA",new Vector2Int(5,0),LoadShadow("mirrored_understudy"),105,108);
             CreatePortal(map.fieldRoot,"BackToMoonPalace",new Vector2Int(0,-8),"WidowMoonPalace",new Vector2Int(8,0),FacingDir.Down);
@@ -792,7 +792,7 @@ namespace ShadowTheater.EditorTools
         {
             var map=BeginFieldScene("FinalCurtain","마지막 장막",new Vector2Int(0,-6),new Color(.035f,.025f,.055f),Theme.CosmicStage);
             CreateAreaTrigger(map.fieldRoot,new Vector2Int(0,-6),"area_final_curtain");
-            CreateNpc(map.fieldRoot,"RivalDirector",new Vector2Int(-5,2),LoadShadow("rival_director"),"npc_rival_director","npc_rival_director_final","npc_rival_director_repeat","talked_rival_director_final",new Color(.9f,.28f,.52f));
+            CreateNpc(map.fieldRoot,"RivalDirector",new Vector2Int(-5,2),"npc_rival_director","npc_rival_director_final","npc_rival_director_repeat","talked_rival_director_final",new Color(.9f,.28f,.52f));
             CreateEncounter(map.fieldRoot,"CensoredProtagonistA",new Vector2Int(5,-1),LoadShadow("censored_protagonist"),116,119);
             CreateBossEncounter(map.fieldRoot,"OutsideScriptShadowBoss",new Vector2Int(0,3),"outside_script_shadow","boss_final_shadow",new Vector2Int(119,120),"boss_final_shadow_pre","boss_final_shadow_post","boss_final_shadow_story_complete","boss_final_shadow_reward_claimed",120,new Color(.92f,.82f,1f));
             CreateEndingTrigger(map.fieldRoot,new Vector2Int(0,7));
@@ -1224,10 +1224,10 @@ namespace ShadowTheater.EditorTools
             return IsMoonlitWalkable(x, y) && (westRoad || northRoad || southRoad || eastRoad || verticalExitRoad);
         }
 
-        private static GameObject CreateNpc(Transform parent, string name, Vector2Int cell, ShadowData visual,
+        private static GameObject CreateNpc(Transform parent, string name, Vector2Int cell,
                                             string npcId, string first, string repeat, string flag, Color accent)
         {
-            var go = CreateFieldActor(parent, name, cell, visual, false);
+            var go = CreateNpcActor(parent, name, cell, npcId);
             var npc = go.AddComponent<StoryNpc>();
             go.AddComponent<FieldNpcPresence>();
             var so = new SerializedObject(npc);
@@ -1256,8 +1256,7 @@ namespace ShadowTheater.EditorTools
             var stageTwo=new List<GameObject>{CreateRestorationProp(parent,"RepairedFacade",new Vector2Int(6,2),Color.Lerp(region.AccentColor,Color.white,.25f),1.45f),CreateRestorationProp(parent,"FestivalBanner",new Vector2Int(-7,5),region.AccentColor,.75f)};
             var stageThree=new List<GameObject>{CreateRestorationProp(parent,"RestoredGrandStage",new Vector2Int(0,6),Color.Lerp(region.AccentColor,Color.white,.45f),2.1f),CreateRestorationProp(parent,"MarketLantern",new Vector2Int(7,5),new Color(1f,.72f,.3f),.8f)};
             var restorationSo=new SerializedObject(restoration);Set(restorationSo,"regionId",region.regionId);Set(restorationSo,"restoredLightColor",Color.Lerp(region.AccentColor,new Color(1f,.78f,.48f),.55f));SetObjectArray(restorationSo.FindProperty("stageOneObjects"),stageOne);SetObjectArray(restorationSo.FindProperty("stageTwoObjects"),stageTwo);SetObjectArray(restorationSo.FindProperty("stageThreeObjects"),stageThree);restorationSo.ApplyModifiedPropertiesWithoutUndo();
-            var healer = CreateFieldActor(parent, "TownHealer", TownServiceCell(parent, new Vector2Int(-8, 4)),
-                LoadShadow("mage"), false).AddComponent<TownHealerNpc>();
+            var healer = CreateNpcActor(parent, "TownHealer", TownServiceCell(parent, new Vector2Int(-8, 4)), FieldNpcIdentity.ServiceId(region.regionId, "healer")).AddComponent<TownHealerNpc>();
             healer.gameObject.AddComponent<FieldNpcPresence>();
             ConfigureTownPatrol(healer.gameObject,0,new Vector2(1.3f,0f),.48f);
             var healerSo = new SerializedObject(healer);
@@ -1265,8 +1264,7 @@ namespace ShadowTheater.EditorTools
             Set(healerSo, "restCost", 30);
             healerSo.ApplyModifiedPropertiesWithoutUndo();
 
-            var rumor = CreateFieldActor(parent, "TownRumorKeeper", TownServiceCell(parent, new Vector2Int(8, 4)),
-                LoadShadow("crow"), false).AddComponent<TownRumorNpc>();
+            var rumor = CreateNpcActor(parent, "TownRumorKeeper", TownServiceCell(parent, new Vector2Int(8, 4)), FieldNpcIdentity.ServiceId(region.regionId, "rumor")).AddComponent<TownRumorNpc>();
             rumor.gameObject.AddComponent<FieldNpcPresence>();
             ConfigureTownPatrol(rumor.gameObject,0,new Vector2(-1.3f,0f),.46f);
             var rumorSo = new SerializedObject(rumor);
@@ -1275,23 +1273,22 @@ namespace ShadowTheater.EditorTools
             Set(rumorSo, "accent", region.AccentColor);
             rumorSo.ApplyModifiedPropertiesWithoutUndo();
 
-            var investigator = CreateFieldActor(parent, "BossInvestigator", TownServiceCell(parent, new Vector2Int(0, 5)),
-                LoadShadow("mask"), false).AddComponent<BossInvestigatorNpc>();
+            var investigator = CreateNpcActor(parent, "BossInvestigator", TownServiceCell(parent, new Vector2Int(0, 5)), FieldNpcIdentity.ServiceId(region.regionId, "investigator")).AddComponent<BossInvestigatorNpc>();
             investigator.gameObject.AddComponent<FieldNpcPresence>();
             ConfigureTownPatrol(investigator.gameObject,0,new Vector2(0f,-1.4f),.42f);
             var investigatorSo = new SerializedObject(investigator);
             Set(investigatorSo, "act", region.act);
             investigatorSo.ApplyModifiedPropertiesWithoutUndo();
 
-            CreateRecoveryNpc(parent, region, "ReturningCraftsman", new Vector2Int(-2, 5), 2, "puppet");
-            CreateRecoveryNpc(parent, region, "RestoredMerchant", new Vector2Int(2, 5), 3, "mage");
+            CreateRecoveryNpc(parent, region, "ReturningCraftsman", new Vector2Int(-2, 5), 2);
+            CreateRecoveryNpc(parent, region, "RestoredMerchant", new Vector2Int(2, 5), 3);
             CreateResidentRequest(parent,region);
             CreateJournalStand(parent,region);
         }
 
         private static void CreateResidentRequest(Transform parent,RegionData region)
         {
-            var actor=CreateFieldActor(parent,"VillageRequester",TownServiceCell(parent,new Vector2Int(-8,-4)),LoadShadow("puppet"),false);
+            var actor=CreateNpcActor(parent,"VillageRequester",TownServiceCell(parent,new Vector2Int(-8,-4)),FieldNpcIdentity.ServiceId(region.regionId,"requester"));
             actor.AddComponent<FieldNpcPresence>();ConfigureTownPatrol(actor,0,new Vector2(1.1f,0f),.44f);
             var request=actor.AddComponent<TownResidentRequest>();var so=new SerializedObject(request);
             Set(so,"regionId",region.regionId);Set(so,"requestedItemId",region.act>=5?"ink":region.act>=3?"tonic":"salve");
@@ -1365,9 +1362,9 @@ namespace ShadowTheater.EditorTools
         }
 
         private static void CreateRecoveryNpc(Transform parent, RegionData region, string name,
-            Vector2Int cell, int stage, string shadowId)
+            Vector2Int cell, int stage)
         {
-            var actor=CreateFieldActor(parent, name, TownServiceCell(parent, cell), LoadShadow(shadowId), false);var npc = actor.AddComponent<TownRecoveryNpc>();
+            var actor=CreateNpcActor(parent, name, TownServiceCell(parent, cell), FieldNpcIdentity.ServiceId(region.regionId,stage>=3?"merchant":"craftsman"));var npc = actor.AddComponent<TownRecoveryNpc>();
             actor.AddComponent<FieldNpcPresence>();
             var so = new SerializedObject(npc);
             Set(so, "regionId", region.regionId); Set(so, "requiredStage", stage);
@@ -1483,7 +1480,7 @@ namespace ShadowTheater.EditorTools
 
             var rewardRoot = new GameObject("UnlockedMemoryStage");
             rewardRoot.transform.SetParent(parent, false);
-            CreateNpc(rewardRoot.transform, "MemoryNpc", npcCell, LoadShadow(npcShadowId), npcId,
+            CreateNpc(rewardRoot.transform, "MemoryNpc", npcCell, npcId,
                 npcFirst, npcRepeat, "talked_" + npcId, accent);
             CreateEncounter(rewardRoot.transform, "RareFixedEncounter", encounterCell, LoadShadow(rareShadowId),
                 minLevel, maxLevel, encounterId, battleGimmick);
@@ -1514,6 +1511,21 @@ namespace ShadowTheater.EditorTools
             Set(so, "rewardItemId", itemId); Set(so, "rewardItemCount", itemCount);
             Set(so, "rewardGold", gold); Set(so, "rewardMessage", message); Set(so, "accent", accent);
             so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        // NPC art is resolved at runtime so generated scenes never embed a monster sprite.
+        private static GameObject CreateNpcActor(Transform parent, string name, Vector2Int cell, string id)
+        {
+            var go = new GameObject(name, typeof(BoxCollider2D));
+            go.transform.SetParent(parent); go.transform.position = Cell(cell);
+            var visual = new GameObject("Visual", typeof(SpriteRenderer), typeof(ShadowFieldMotion));
+            visual.transform.SetParent(go.transform, false);
+            var renderer = visual.GetComponent<SpriteRenderer>(); renderer.sortingOrder = 8;
+            go.AddComponent<FieldDepthSorter>().Configure(renderer);
+            go.AddComponent<GroundContactShadow>().Configure(renderer);
+            go.GetComponent<BoxCollider2D>().size = new Vector2(.72f, .82f);
+            go.AddComponent<FieldNpcIdentity>().Configure(id);
+            return go;
         }
 
         private static GameObject CreateFieldActor(Transform parent, string name, Vector2Int cell,

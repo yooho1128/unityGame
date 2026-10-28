@@ -59,6 +59,21 @@ namespace ShadowTheater.Field
 
         private void Awake()
         {
+            InitializeMotion();
+        }
+
+        public void ConfigureNpc(Sprite sprite)
+        {
+            Configure(null, sprite != null ? new[] { sprite } : System.Array.Empty<Sprite>());
+            role = ShadowRole.Support;
+            growthTier = GrowthTier.Standard;
+            motionStyle = MotionStyle.Walk;
+            amount = .03f;
+            speed = 4.5f;
+        }
+
+        private void InitializeMotion()
+        {
             if (target == null) target = GetComponent<SpriteRenderer>();
             _baseScale = transform.localScale;
             _baseLocalPosition = transform.localPosition;

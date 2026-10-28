@@ -1,0 +1,593 @@
+{
+  "columns": 4,
+  "rows": 4,
+  "entries": [
+    {
+      "id": "npc_aria",
+      "name": "아리아",
+      "role": "이야기",
+      "region": "",
+      "appearance": "young woman silver bob hair red ribbon navy traveling dress holding screenplay",
+      "sheet": 0,
+      "cell": 0
+    },
+    {
+      "id": "npc_lantern_keeper",
+      "name": "등불지기 모엔",
+      "role": "이야기",
+      "region": "",
+      "appearance": "elderly man copper goggles brown coat brass lantern",
+      "sheet": 0,
+      "cell": 1
+    },
+    {
+      "id": "npc_curtain_watcher",
+      "name": "장막 파수꾼",
+      "role": "이야기",
+      "region": "",
+      "appearance": "tall woman ivory mask indigo guard coat polearm",
+      "sheet": 0,
+      "cell": 2
+    },
+    {
+      "id": "npc_ash_scout",
+      "name": "재의 정찰병",
+      "role": "이야기",
+      "region": "",
+      "appearance": "freckled young man ash scarf short red hair leather scout armor",
+      "sheet": 0,
+      "cell": 3
+    },
+    {
+      "id": "npc_ember_archivist",
+      "name": "재의 기록관",
+      "role": "이야기",
+      "region": "",
+      "appearance": "older woman black bun rust robe book scroll",
+      "sheet": 0,
+      "cell": 4
+    },
+    {
+      "id": "npc_ash_priest",
+      "name": "잿빛 사제",
+      "role": "이야기",
+      "region": "",
+      "appearance": "bald bearded priest grey gold cassock censer",
+      "sheet": 0,
+      "cell": 5
+    },
+    {
+      "id": "npc_glacier_ferryman",
+      "name": "빙하 뱃사공",
+      "role": "이야기",
+      "region": "",
+      "appearance": "stocky old man blue fur hat long wooden oar",
+      "sheet": 0,
+      "cell": 6
+    },
+    {
+      "id": "npc_snow_scribe",
+      "name": "눈송이 서기",
+      "role": "이야기",
+      "region": "",
+      "appearance": "young woman white braid pale blue cape quill",
+      "sheet": 0,
+      "cell": 7
+    },
+    {
+      "id": "npc_mirror_scribe",
+      "name": "거울 필경사",
+      "role": "이야기",
+      "region": "",
+      "appearance": "androgynous silver-haired scribe teal spectacles mirror tablet",
+      "sheet": 0,
+      "cell": 8
+    },
+    {
+      "id": "npc_marsh_guide",
+      "name": "늪의 안내자",
+      "role": "이야기",
+      "region": "",
+      "appearance": "dark-skinned woman green hood reed staff boots",
+      "sheet": 0,
+      "cell": 9
+    },
+    {
+      "id": "npc_moon_shaman",
+      "name": "달술사",
+      "role": "이야기",
+      "region": "",
+      "appearance": "elderly woman purple crescent headdress shaman staff",
+      "sheet": 0,
+      "cell": 10
+    },
+    {
+      "id": "npc_thread_merchant",
+      "name": "실타래 상인",
+      "role": "이야기",
+      "region": "",
+      "appearance": "red-haired woman rose patchwork coat thread spools",
+      "sheet": 0,
+      "cell": 11
+    },
+    {
+      "id": "npc_second_dancer",
+      "name": "초침 무희",
+      "role": "이야기",
+      "region": "",
+      "appearance": "brown-skinned dancer dark hair blue clockwork dress gold anklets",
+      "sheet": 0,
+      "cell": 12
+    },
+    {
+      "id": "npc_stitched_knight",
+      "name": "봉합 기사",
+      "role": "이야기",
+      "region": "",
+      "appearance": "scarred man white stitched armor crimson scarf closed helmet",
+      "sheet": 0,
+      "cell": 13
+    },
+    {
+      "id": "npc_ink_conductor",
+      "name": "먹칠 역무원",
+      "role": "이야기",
+      "region": "",
+      "appearance": "older man charcoal conductor uniform peaked cap pocket watch",
+      "sheet": 0,
+      "cell": 14
+    },
+    {
+      "id": "npc_censor_surgeon",
+      "name": "봉합 검열관",
+      "role": "이야기",
+      "region": "",
+      "appearance": "stern woman plum surgeon coat steel spectacles scissors",
+      "sheet": 0,
+      "cell": 15
+    },
+    {
+      "id": "npc_wave_bard",
+      "name": "파도 악사",
+      "role": "이야기",
+      "region": "",
+      "appearance": "curly-haired man sea blue bard cape small lute",
+      "sheet": 1,
+      "cell": 0
+    },
+    {
+      "id": "npc_name_keeper",
+      "name": "문패 거북",
+      "role": "이야기",
+      "region": "",
+      "appearance": "gentle anthropomorphic tortoise wooden nameplates satchel walking staff",
+      "sheet": 1,
+      "cell": 1
+    },
+    {
+      "id": "npc_inverted_guide",
+      "name": "거꾸로 안내원",
+      "role": "이야기",
+      "region": "",
+      "appearance": "white-haired young man violet inverted-pattern cloak compass",
+      "sheet": 1,
+      "cell": 2
+    },
+    {
+      "id": "npc_rival_director",
+      "name": "또 다른 연출가",
+      "role": "이야기",
+      "region": "",
+      "appearance": "rival woman black top hat burgundy director tails theatrical cane",
+      "sheet": 1,
+      "cell": 3
+    },
+    {
+      "id": "ashes_watchman_memory",
+      "name": "재투성이 파수꾼의 기억",
+      "role": "기억",
+      "region": "",
+      "appearance": "ghostly elderly watchman grey uniform key ring silver hair",
+      "sheet": 1,
+      "cell": 4
+    },
+    {
+      "id": "moon_path_messenger_memory",
+      "name": "달길 전령의 기억",
+      "role": "기억",
+      "region": "",
+      "appearance": "ghostly young woman moon blue messenger cape letter satchel",
+      "sheet": 1,
+      "cell": 5
+    },
+    {
+      "id": "echo_cavern_listener_memory",
+      "name": "울림지기의 기억",
+      "role": "기억",
+      "region": "",
+      "appearance": "ghostly listener man white hood blue earmuffs tuning fork",
+      "sheet": 1,
+      "cell": 6
+    },
+    {
+      "id": "town_prologue_theater_healer",
+      "name": "로아",
+      "role": "웃음막 치유사",
+      "region": "prologue_theater",
+      "appearance": "치유사 · 웃음막 치유사",
+      "sheet": 1,
+      "cell": 7
+    },
+    {
+      "id": "town_prologue_theater_rumor",
+      "name": "벤",
+      "role": "웃음막 소식꾼",
+      "region": "prologue_theater",
+      "appearance": "소식꾼 · 웃음막 소식꾼",
+      "sheet": 1,
+      "cell": 8
+    },
+    {
+      "id": "town_prologue_theater_investigator",
+      "name": "세린",
+      "role": "웃음막 조사관",
+      "region": "prologue_theater",
+      "appearance": "조사관 · 웃음막 조사관",
+      "sheet": 1,
+      "cell": 9
+    },
+    {
+      "id": "town_prologue_theater_craftsman",
+      "name": "도안",
+      "role": "웃음막 장인",
+      "region": "prologue_theater",
+      "appearance": "장인 · 웃음막 장인",
+      "sheet": 1,
+      "cell": 10
+    },
+    {
+      "id": "town_prologue_theater_merchant",
+      "name": "미라",
+      "role": "웃음막 상인",
+      "region": "prologue_theater",
+      "appearance": "상인 · 웃음막 상인",
+      "sheet": 1,
+      "cell": 11
+    },
+    {
+      "id": "town_prologue_theater_requester",
+      "name": "엘",
+      "role": "웃음막 주민",
+      "region": "prologue_theater",
+      "appearance": "주민 · 웃음막 주민",
+      "sheet": 1,
+      "cell": 12
+    },
+    {
+      "id": "town_cinder_city_healer",
+      "name": "유나",
+      "role": "대학로 치유사",
+      "region": "cinder_city",
+      "appearance": "치유사 · 대학로 치유사",
+      "sheet": 1,
+      "cell": 13
+    },
+    {
+      "id": "town_cinder_city_rumor",
+      "name": "카덴",
+      "role": "대학로 소식꾼",
+      "region": "cinder_city",
+      "appearance": "소식꾼 · 대학로 소식꾼",
+      "sheet": 1,
+      "cell": 14
+    },
+    {
+      "id": "town_cinder_city_investigator",
+      "name": "리온",
+      "role": "대학로 조사관",
+      "region": "cinder_city",
+      "appearance": "조사관 · 대학로 조사관",
+      "sheet": 1,
+      "cell": 15
+    },
+    {
+      "id": "town_cinder_city_craftsman",
+      "name": "바르",
+      "role": "대학로 장인",
+      "region": "cinder_city",
+      "appearance": "장인 · 대학로 장인",
+      "sheet": 2,
+      "cell": 0
+    },
+    {
+      "id": "town_cinder_city_merchant",
+      "name": "테아",
+      "role": "대학로 상인",
+      "region": "cinder_city",
+      "appearance": "상인 · 대학로 상인",
+      "sheet": 2,
+      "cell": 1
+    },
+    {
+      "id": "town_cinder_city_requester",
+      "name": "린",
+      "role": "대학로 주민",
+      "region": "cinder_city",
+      "appearance": "주민 · 대학로 주민",
+      "sheet": 2,
+      "cell": 2
+    },
+    {
+      "id": "town_frost_port_healer",
+      "name": "나비",
+      "role": "물결막 치유사",
+      "region": "frost_port",
+      "appearance": "치유사 · 물결막 치유사",
+      "sheet": 2,
+      "cell": 3
+    },
+    {
+      "id": "town_frost_port_rumor",
+      "name": "해든",
+      "role": "물결막 소식꾼",
+      "region": "frost_port",
+      "appearance": "소식꾼 · 물결막 소식꾼",
+      "sheet": 2,
+      "cell": 4
+    },
+    {
+      "id": "town_frost_port_investigator",
+      "name": "모라",
+      "role": "물결막 조사관",
+      "region": "frost_port",
+      "appearance": "조사관 · 물결막 조사관",
+      "sheet": 2,
+      "cell": 5
+    },
+    {
+      "id": "town_frost_port_craftsman",
+      "name": "구스",
+      "role": "물결막 장인",
+      "region": "frost_port",
+      "appearance": "장인 · 물결막 장인",
+      "sheet": 2,
+      "cell": 6
+    },
+    {
+      "id": "town_frost_port_merchant",
+      "name": "노엘",
+      "role": "물결막 상인",
+      "region": "frost_port",
+      "appearance": "상인 · 물결막 상인",
+      "sheet": 2,
+      "cell": 7
+    },
+    {
+      "id": "town_frost_port_requester",
+      "name": "샤온",
+      "role": "물결막 주민",
+      "region": "frost_port",
+      "appearance": "주민 · 물결막 주민",
+      "sheet": 2,
+      "cell": 8
+    },
+    {
+      "id": "town_white_archive_healer",
+      "name": "이솔",
+      "role": "등불막 치유사",
+      "region": "white_archive",
+      "appearance": "치유사 · 등불막 치유사",
+      "sheet": 2,
+      "cell": 9
+    },
+    {
+      "id": "town_white_archive_rumor",
+      "name": "찬",
+      "role": "등불막 소식꾼",
+      "region": "white_archive",
+      "appearance": "소식꾼 · 등불막 소식꾼",
+      "sheet": 2,
+      "cell": 10
+    },
+    {
+      "id": "town_white_archive_investigator",
+      "name": "시엘",
+      "role": "등불막 조사관",
+      "region": "white_archive",
+      "appearance": "조사관 · 등불막 조사관",
+      "sheet": 2,
+      "cell": 11
+    },
+    {
+      "id": "town_white_archive_craftsman",
+      "name": "오르",
+      "role": "등불막 장인",
+      "region": "white_archive",
+      "appearance": "장인 · 등불막 장인",
+      "sheet": 2,
+      "cell": 12
+    },
+    {
+      "id": "town_white_archive_merchant",
+      "name": "루나",
+      "role": "등불막 상인",
+      "region": "white_archive",
+      "appearance": "상인 · 등불막 상인",
+      "sheet": 2,
+      "cell": 13
+    },
+    {
+      "id": "town_white_archive_requester",
+      "name": "하린",
+      "role": "등불막 주민",
+      "region": "white_archive",
+      "appearance": "주민 · 등불막 주민",
+      "sheet": 2,
+      "cell": 14
+    },
+    {
+      "id": "town_howl_village_healer",
+      "name": "소야",
+      "role": "달가면 치유사",
+      "region": "howl_village",
+      "appearance": "치유사 · 달가면 치유사",
+      "sheet": 2,
+      "cell": 15
+    },
+    {
+      "id": "town_howl_village_rumor",
+      "name": "하쿠",
+      "role": "달가면 소식꾼",
+      "region": "howl_village",
+      "appearance": "소식꾼 · 달가면 소식꾼",
+      "sheet": 3,
+      "cell": 0
+    },
+    {
+      "id": "town_howl_village_investigator",
+      "name": "여울",
+      "role": "달가면 조사관",
+      "region": "howl_village",
+      "appearance": "조사관 · 달가면 조사관",
+      "sheet": 3,
+      "cell": 1
+    },
+    {
+      "id": "town_howl_village_craftsman",
+      "name": "탄",
+      "role": "달가면 장인",
+      "region": "howl_village",
+      "appearance": "장인 · 달가면 장인",
+      "sheet": 3,
+      "cell": 2
+    },
+    {
+      "id": "town_howl_village_merchant",
+      "name": "메이",
+      "role": "달가면 상인",
+      "region": "howl_village",
+      "appearance": "상인 · 달가면 상인",
+      "sheet": 3,
+      "cell": 3
+    },
+    {
+      "id": "town_howl_village_requester",
+      "name": "누리",
+      "role": "달가면 주민",
+      "region": "howl_village",
+      "appearance": "주민 · 달가면 주민",
+      "sheet": 3,
+      "cell": 4
+    },
+    {
+      "id": "town_thread_market_healer",
+      "name": "루엔",
+      "role": "실타래 치유사",
+      "region": "thread_market",
+      "appearance": "치유사 · 실타래 치유사",
+      "sheet": 3,
+      "cell": 5
+    },
+    {
+      "id": "town_thread_market_rumor",
+      "name": "마루",
+      "role": "실타래 소식꾼",
+      "region": "thread_market",
+      "appearance": "소식꾼 · 실타래 소식꾼",
+      "sheet": 3,
+      "cell": 6
+    },
+    {
+      "id": "town_thread_market_investigator",
+      "name": "세라",
+      "role": "실타래 조사관",
+      "region": "thread_market",
+      "appearance": "조사관 · 실타래 조사관",
+      "sheet": 3,
+      "cell": 7
+    },
+    {
+      "id": "town_thread_market_craftsman",
+      "name": "토비",
+      "role": "실타래 장인",
+      "region": "thread_market",
+      "appearance": "장인 · 실타래 장인",
+      "sheet": 3,
+      "cell": 8
+    },
+    {
+      "id": "town_thread_market_merchant",
+      "name": "로안",
+      "role": "실타래 상인",
+      "region": "thread_market",
+      "appearance": "상인 · 실타래 상인",
+      "sheet": 3,
+      "cell": 9
+    },
+    {
+      "id": "town_thread_market_requester",
+      "name": "제나",
+      "role": "실타래 주민",
+      "region": "thread_market",
+      "appearance": "주민 · 실타래 주민",
+      "sheet": 3,
+      "cell": 10
+    },
+    {
+      "id": "town_erased_station_healer",
+      "name": "아델",
+      "role": "별노래 치유사",
+      "region": "erased_station",
+      "appearance": "치유사 · 별노래 치유사",
+      "sheet": 3,
+      "cell": 11
+    },
+    {
+      "id": "town_erased_station_rumor",
+      "name": "오웬",
+      "role": "별노래 소식꾼",
+      "region": "erased_station",
+      "appearance": "소식꾼 · 별노래 소식꾼",
+      "sheet": 3,
+      "cell": 12
+    },
+    {
+      "id": "town_erased_station_investigator",
+      "name": "레아",
+      "role": "별노래 조사관",
+      "region": "erased_station",
+      "appearance": "조사관 · 별노래 조사관",
+      "sheet": 3,
+      "cell": 13
+    },
+    {
+      "id": "town_erased_station_craftsman",
+      "name": "가온",
+      "role": "별노래 장인",
+      "region": "erased_station",
+      "appearance": "장인 · 별노래 장인",
+      "sheet": 3,
+      "cell": 14
+    },
+    {
+      "id": "town_erased_station_merchant",
+      "name": "벨라",
+      "role": "별노래 상인",
+      "region": "erased_station",
+      "appearance": "상인 · 별노래 상인",
+      "sheet": 3,
+      "cell": 15
+    },
+    {
+      "id": "town_erased_station_requester",
+      "name": "유리",
+      "role": "별노래 주민",
+      "region": "erased_station",
+      "appearance": "주민 · 별노래 주민",
+      "sheet": 4,
+      "cell": 0,
+      "cropTop": 64,
+      "cropHeight": 352
+    }
+  ]
+}

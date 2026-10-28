@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>그림자 극장 · NPC 캐스트</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#0c121d;color:#f4eedf;font:14px/1.6 system-ui,sans-serif}main{max-width:1200px;margin:auto;padding:32px 20px}h1{font-size:28px}p{color:#b3b8c0}input{width:100%;padding:14px;background:#182536;color:#f4eedf;border:1px solid #415061;margin:10px 0 24px}#cast{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:20px}article{border:1px solid #2c3949;background:#121c2b;padding:16px;text-align:center}.sprite{position:relative;overflow:hidden;width:128px;height:192px;margin:auto;background:radial-gradient(ellipse at 50% 80%,#596d8522,transparent 65%)}.sprite img{position:absolute;width:512px;max-width:none;height:768px;image-rendering:pixelated}.plate{background:#09101be8;padding:4px 8px;margin:10px 0;color:#f4eedf;border-bottom:1px solid #e1be7e88}.plate small{display:block;color:#e1be7e;font-size:11px}code{font-size:10px;overflow-wrap:anywhere;color:#8e9bad}.error{color:#f9a5a5}
+</style>
+<main><p>SHADOW THEATER · NPC CAST</p><h1>마을에 이야기를 더하는 사람들</h1><p>전용 이미지와 이름·역할 검수용 갤러리입니다. 실제 Unity 화면 검증은 별도로 필요합니다.</p><input id="search" aria-label="NPC 이름·역할·지역 검색" placeholder="이름, 역할 또는 지역으로 찾기"><p id="count" role="status"></p><div id="cast"></div></main>
+<script>
+let entries=[];
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function render(){
+ const q=document.querySelector('#search').value.toLowerCase();
+ const list=entries.filter(e=>[e.name,e.role,e.region,e.id].join(' ').toLowerCase().includes(q));
+ document.querySelector('#count').textContent=list.length+' / '+entries.length+'명';
+ document.querySelector('#cast').innerHTML=list.map(e=>'<article><div class="sprite" '+(e.cropHeight?'style="height:'+e.cropHeight/2+'px"':'')+'><img src="../Assets/Resources/Art/Npcs/npc_atlas_'+String(e.sheet).padStart(2,'0')+'.png" alt="" style="left:-'+(e.cell%4*128)+'px;top:-'+(Math.floor(e.cell/4)*192+(e.cropTop||0)/2)+'px"></div><div class="plate">'+esc(e.name)+'<small>'+esc(e.role)+'</small></div><code>'+esc(e.id)+'</code></article>').join('');
+}
+fetch('../Assets/Resources/Data/NpcIdentityCatalog.json').then(r=>{if(!r.ok)throw Error('catalog unavailable');return r.json()}).then(d=>{entries=d.entries;render()}).catch(e=>{document.querySelector('#count').textContent=e.message;document.querySelector('#count').className='error'});
+document.querySelector('#search').addEventListener('input',render);
+</script></html>

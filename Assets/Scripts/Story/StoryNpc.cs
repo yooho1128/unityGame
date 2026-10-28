@@ -9,6 +9,7 @@ namespace ShadowTheater.Story
     public class StoryNpc : MonoBehaviour, IInteractable
     {
         [SerializeField] private string npcId = "npc_aria";
+        public string NpcId => npcId;
         [SerializeField] private string firstDialogueId = "npc_aria_intro";
         [SerializeField] private string repeatDialogueId = "npc_aria_repeat";
         [SerializeField] private string completionFlag = "talked_npc_aria";

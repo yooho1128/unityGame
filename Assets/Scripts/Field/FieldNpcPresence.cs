@@ -40,17 +40,18 @@ namespace ShadowTheater.Field
 
         private void Awake()
         {
+            if (GetComponent<FieldNpcIdentity>() == null) gameObject.AddComponent<FieldNpcIdentity>();
             _renderer = GetComponentInChildren<SpriteRenderer>();
             _visual = _renderer != null ? _renderer.transform : transform;
             _baseScale = _visual.localScale;
             _motion = GetComponentInChildren<ShadowFieldMotion>();
             var icon = new GameObject("NoticeEmote", typeof(SpriteRenderer));
-            icon.transform.SetParent(transform, false); icon.transform.localPosition = new Vector3(0f,1.05f,0f);
+            icon.transform.SetParent(transform, false); icon.transform.localPosition = new Vector3(0f,1.7f,0f);
             _emote = icon.GetComponent<SpriteRenderer>(); _emote.sprite = BattleFxSpriteLibrary.Get(BattleFxGlyph.Star);
             _emote.color = new Color(1f,.86f,.3f,0f); _emote.sortingOrder = 310;
-            _speechShadow=CreateSpeech("AmbientSpeechShadow",new Vector3(.018f,1.37f,0f),
+            _speechShadow=CreateSpeech("AmbientSpeechShadow",new Vector3(.018f,1.87f,0f),
                 new Color(.025f,.018f,.045f,0f),318);
-            _speech=CreateSpeech("AmbientSpeech",new Vector3(0f,1.39f,0f),
+            _speech=CreateSpeech("AmbientSpeech",new Vector3(0f,1.89f,0f),
                 new Color(1f,.96f,.82f,0f),319);
         }
 
@@ -73,8 +74,8 @@ namespace ShadowTheater.Field
                     Mathf.InverseLerp(duration,duration-fade,elapsed));
                 SetSpeechAlpha(alpha);
                 float lift=Mathf.Sin(Mathf.Clamp01(elapsed/duration)*Mathf.PI)*.035f;
-                _speech.transform.localPosition=new Vector3(0f,1.39f+lift,0f);
-                _speechShadow.transform.localPosition=new Vector3(.018f,1.37f+lift,0f);
+                _speech.transform.localPosition=new Vector3(0f,1.89f+lift,0f);
+                _speechShadow.transform.localPosition=new Vector3(.018f,1.87f+lift,0f);
                 yield return null;
             }
             SetSpeechAlpha(0f);_speech.text=string.Empty;_speechShadow.text=string.Empty;
