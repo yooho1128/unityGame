@@ -103,6 +103,17 @@ namespace ShadowTheater.Battle
             ((MajorStatus != null && MajorStatus.type == type) || HasDebuff(type));
         public bool HasAnyStatus => MajorStatus != null || _debuffs.Count > 0;
 
+        public bool NeedsRestoration => !IsFainted && (Hp < MaxHp || HasAnyStatus);
+
+        /// <summary>복합 회복은 기절을 해제하지 않는다. HP가 가득해도 상태 정화는 가능하다.</summary>
+        public int RestoreAndCleanse(float ratio)
+        {
+            if (!NeedsRestoration || ratio <= 0f) return 0;
+            int restored = Heal(Mathf.Max(1, Mathf.RoundToInt(MaxHp * Mathf.Clamp01(ratio))));
+            ClearAllStatus();
+            return restored;
+        }
+
         /// <summary>교체 시 호출: 능력치 디버프만 해제, 주요 상태 이상은 유지</summary>
         public void ClearDebuffs() => _debuffs.Clear();
 

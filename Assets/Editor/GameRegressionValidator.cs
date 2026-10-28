@@ -111,6 +111,7 @@ namespace ShadowTheater.EditorTools
             CombatBalanceAnalyzer.ValidatePolicyRegression(result.errors);
             ValidateElementExpansion(result);
             NpcIdentityValidator.Validate(result.errors);
+            ItemExpansionRegression.Validate(result.errors);
             RegionDifficultySimulator.ValidatePolicyRegression(result.errors);
             LocalizationTranslationImporter.ValidateRegression(result.errors);
             MobileBuildConfigurator.ValidateScenePolicyRegression(result.errors);
@@ -1179,8 +1180,8 @@ namespace ShadowTheater.EditorTools
         {
             var database = AssetDatabase.LoadAssetAtPath<ShadowDatabase>(DatabasePath);
             if (database == null) { result.errors.Add("ShadowDatabase.asset 누락"); return; }
-            if (database.items.Count(x => x != null) != 13)
-                result.errors.Add($"도구 데이터 수 불일치: {database.items.Count(x => x != null)}/13");
+            if (database.items.Count(x => x != null) != 21)
+                result.errors.Add($"도구 데이터 수 불일치: {database.items.Count(x => x != null)}/21");
             result.shadows = database.shadows.Count(x => x != null);
             if (result.shadows != 191) result.errors.Add($"그림자 데이터 수 불일치: {result.shadows}/191");
             var ids = database.shadows.Where(x => x != null).Select(x => x.shadowId).ToList();

@@ -807,7 +807,11 @@
         "loreAppend": "동행 끝에 기억을 되찾고 불등 길잡이이라는 새 이름으로 무대에 섰다."
       },
       "salvation": null,
-      "grudge": null
+      "grudge": null,
+      "dropItemId": "stage_biscuit",
+      "dropChance": 0.18,
+      "dropMinCount": 1,
+      "dropMaxCount": 1
     },
     {
       "shadowId": "ele_tide_bell_otter",
@@ -854,7 +858,11 @@
         "loreAppend": "동행 끝에 기억을 되찾고 밀물의 종지기이라는 새 이름으로 무대에 섰다."
       },
       "salvation": null,
-      "grudge": null
+      "grudge": null,
+      "dropItemId": "reed_flask",
+      "dropChance": 0.18,
+      "dropMinCount": 1,
+      "dropMaxCount": 1
     },
     {
       "shadowId": "ele_seed_stage_deer",
@@ -1089,7 +1097,11 @@
         "loreAppend": "동행 끝에 기억을 되찾고 약속의 무대지킴이이라는 새 이름으로 무대에 섰다."
       },
       "salvation": null,
-      "grudge": null
+      "grudge": null,
+      "dropItemId": "stage_biscuit",
+      "dropChance": 0.18,
+      "dropMinCount": 1,
+      "dropMaxCount": 1
     },
     {
       "shadowId": "ele_clay_bell_tortoise",
@@ -1277,7 +1289,11 @@
         "loreAppend": "동행 끝에 기억을 되찾고 몽환의 구슬술사이라는 새 이름으로 무대에 섰다."
       },
       "salvation": null,
-      "grudge": null
+      "grudge": null,
+      "dropItemId": "pale_ink",
+      "dropChance": 0.18,
+      "dropMinCount": 1,
+      "dropMaxCount": 1
     }
   ]
 }

@@ -233,6 +233,9 @@ namespace ShadowTheater.Battle
                 case ItemEffectType.CureStatus:
                     if (!target.HasAnyStatus) { reason = "해제할 상태 이상이 없습니다."; return false; }
                     break;
+                case ItemEffectType.RestoreAndCleanse:
+                    if (!target.NeedsRestoration) { reason = "회복할 HP나 해제할 상태 이상이 없습니다."; return false; }
+                    break;
                 case ItemEffectType.GainFP:
                     if (GetFp(side) >= maxFp) { reason = "FP가 이미 가득합니다."; return false; }
                     break;
@@ -741,6 +744,15 @@ namespace ShadowTheater.Battle
                 case ItemEffectType.CureStatus:
                     target.ClearAllStatus();
                     break;
+                case ItemEffectType.RestoreAndCleanse:
+                {
+                    int healed = target.RestoreAndCleanse(item.value);
+                    if (a.side == BattleSide.Player) RecordContribution(target, 0, healed, false,
+                        L10n.Text(item.displayName));
+                    if (healed > 0) yield return _presenter.PlayHeal(target, healed);
+                    yield return _presenter.ShowMessage("흐트러진 기억이 정돈되었다. 상태 이상이 모두 해제되었다!");
+                    break;
+                }
                 case ItemEffectType.GainFP:
                     AddFp(a.side, Mathf.RoundToInt(item.value));
                     break;

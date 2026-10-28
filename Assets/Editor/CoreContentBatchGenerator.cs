@@ -54,6 +54,7 @@ namespace ShadowTheater.EditorTools
             catalogs.Add(BuildRegionalExpansion(baseCatalog));
             // Append AFTER the original expansion so all 97 generated legacy IDs remain stable.
             catalogs.Add(JsonUtility.FromJson<CoreCatalog>(File.ReadAllText("Assets/Resources/Data/ElementExpansionCatalog.json")));
+            catalogs.Add(JsonUtility.FromJson<CoreCatalog>(File.ReadAllText("Assets/Resources/Data/ItemExpansionCatalog.json")));
             var catalog = Merge(catalogs);
             int generatedGrowthForms = ApplyTierGrowthPolicy(catalog);
             if (catalog.shadows == null || catalog.shadows.Length != TargetCoreShadowCount + 11)
@@ -402,9 +403,9 @@ namespace ShadowTheater.EditorTools
                 error = "중복된 shadowId가 있습니다.";
                 return false;
             }
-            if (catalog.items.Length != 13)
+            if (catalog.items.Length != 21)
             {
-                error = $"도구 수가 올바르지 않습니다: {catalog.items.Length}/13";
+                error = $"도구 수가 올바르지 않습니다: {catalog.items.Length}/21";
                 return false;
             }
             var itemIds = new HashSet<string>(catalog.items.Select(x => x.itemId));
@@ -542,7 +543,12 @@ namespace ShadowTheater.EditorTools
                 : effect == ItemEffectType.CaptureBoost ? new Color(.70f,.30f,1f,1f)
                 : effect == ItemEffectType.GainExperience ? new Color(1f,.70f,.24f,1f)
                 : new Color(1f,.76f,.30f,1f);
-            if (effect == ItemEffectType.TraversalTool)
+            if (!string.IsNullOrEmpty(spec.iconStyle))
+            {
+                if (ColorUtility.TryParseHtmlString(spec.iconColor, out var accent)) liquid = accent;
+                DrawExpandedItemIcon(texture, spec.iconStyle, outline, liquid);
+            }
+            else if (effect == ItemEffectType.TraversalTool)
             {
                 if (spec.itemId == TraversalAbilityService.FrostwingCompassItemId)
                 {
@@ -590,6 +596,55 @@ namespace ShadowTheater.EditorTools
             var importer=AssetImporter.GetAtPath(path) as TextureImporter;
             if(importer!=null){importer.textureType=TextureImporterType.Sprite;importer.spriteImportMode=SpriteImportMode.Single;importer.spritePixelsPerUnit=64f;importer.alphaIsTransparency=true;importer.mipmapEnabled=false;importer.filterMode=FilterMode.Point;importer.textureCompression=TextureImporterCompression.Uncompressed;importer.SaveAndReimport();}
             return AssetDatabase.LoadAssetAtPath<Sprite>(path);
+        }
+
+        private static void DrawExpandedItemIcon(Texture2D texture, string style, Color ink, Color fill)
+        {
+            switch (style)
+            {
+                case "biscuit":
+                    Rect(texture,10,13,54,51,ink); Rect(texture,14,17,50,47,fill);
+                    Line(texture,15,32,49,32,2,ink);
+                    foreach (int x in new[] { 22, 41 }) foreach (int y in new[] { 24, 40 })
+                        Circle(texture,x,y,3,ink);
+                    break;
+                case "flask":
+                    Rect(texture,19,8,45,46,ink); Rect(texture,23,12,41,42,fill);
+                    Rect(texture,24,45,40,56,ink); Rect(texture,27,54,37,60,fill);
+                    Line(texture,27,17,27,36,2,Color.white);
+                    break;
+                case "candy":
+                    Triangle(texture,7,18,7,46,24,32,ink); Triangle(texture,57,18,57,46,40,32,ink);
+                    Triangle(texture,10,23,10,41,22,32,fill); Triangle(texture,54,23,54,41,42,32,fill);
+                    Circle(texture,32,32,17,ink); Circle(texture,32,32,12,fill);
+                    Line(texture,26,38,38,26,3,Color.white);
+                    break;
+                case "ink":
+                    Rect(texture,13,9,43,37,ink); Rect(texture,17,13,39,33,fill);
+                    Rect(texture,18,37,38,45,ink); Rect(texture,22,20,34,27,Color.white);
+                    Line(texture,36,19,52,54,4,ink); Triangle(texture,42,44,52,59,57,44,fill);
+                    break;
+                case "cup":
+                    Circle(texture,46,30,12,ink); Circle(texture,46,30,7,Color.clear);
+                    Rect(texture,10,16,43,43,ink); Rect(texture,14,20,39,39,fill);
+                    Line(texture,9,12,47,12,4,ink); Line(texture,21,46,19,56,3,fill);
+                    Line(texture,31,47,34,59,3,fill); break;
+                case "elixir":
+                    Circle(texture,32,26,21,ink); Circle(texture,32,26,16,fill);
+                    Rect(texture,25,43,39,55,ink); Rect(texture,23,54,41,60,fill);
+                    Line(texture,25,26,39,26,4,Color.white); Line(texture,32,19,32,33,4,Color.white);
+                    break;
+                case "notes":
+                    Rect(texture,11,10,49,55,ink); Rect(texture,15,14,45,51,fill);
+                    for (int y=23;y<=44;y+=7) Line(texture,21,y,38,y,2,ink);
+                    Line(texture,42,13,55,45,5,ink); Line(texture,43,15,54,43,2,Color.white);
+                    break;
+                case "script":
+                    Rect(texture,10,10,54,54,ink); Rect(texture,14,14,50,50,fill);
+                    Line(texture,31,15,31,49,3,ink); Rect(texture,38,10,44,43,new Color(.75f,.25f,.32f));
+                    Circle(texture,22,33,5,Color.white); break;
+                default: throw new InvalidOperationException("Unknown item icon style: " + style);
+            }
         }
 
         private static List<ShadowData> GenerateShadows(IEnumerable<ShadowSpec> specs,
@@ -954,7 +1009,7 @@ namespace ShadowTheater.EditorTools
         }
         [Serializable] private class ItemSpec
         {
-            public string itemId, displayName, description, effectType;
+            public string itemId, displayName, description, effectType, iconStyle, iconColor;
             public float value;
             public int buyPrice, sellPrice, shopUnlockAct = 1;
             public bool usableInBattle, usableInField, isKeyItem, isEventOnly;
