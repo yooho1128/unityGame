@@ -62,6 +62,19 @@ namespace ShadowTheater.UI
             if (optionTemplate != null) optionTemplate.gameObject.SetActive(false);
             if (resultRoot != null) resultRoot.SetActive(false);
             if (tutorialRoot != null) tutorialRoot.SetActive(false);
+            if (resultDetailsText != null)
+            {
+                // 공연 요약 줄이 늘어나도 잘리지 않도록 상자 안에서 글자 크기를 줄인다.
+                resultDetailsText.resizeTextMaxSize = Mathf.Max(resultDetailsText.fontSize, 16);
+                resultDetailsText.resizeTextMinSize = Mathf.Min(16, resultDetailsText.resizeTextMaxSize);
+                resultDetailsText.resizeTextForBestFit = true;
+            }
+            if (turnText != null)
+            {
+                turnText.resizeTextMaxSize = Mathf.Max(12, turnText.fontSize);
+                turnText.resizeTextMinSize = 12;
+                turnText.resizeTextForBestFit = true;
+            }
             ShowActions(false);
         }
 
@@ -278,7 +291,7 @@ namespace ShadowTheater.UI
 
         private void OnStateChanged(BattleState state)
         {
-            if (turnText != null) turnText.text = $"TURN {manager.Turn}";
+            RefreshTurnLabel();
             if (state == BattleState.WaitingForInput) ShowActions(!manager.IsAuto);
             else if (state == BattleState.ForcedSwitch) { ShowActions(false); OpenSwitches(); }
             else ShowActions(false);
@@ -341,9 +354,18 @@ namespace ShadowTheater.UI
             RefreshLabels();
         }
 
+        /// <summary>턴 수 아래에 관객 주문 진행을 함께 보여 준다. 상단 바는 FP 표시처럼 두 줄을 수용한다.</summary>
+        private void RefreshTurnLabel()
+        {
+            if (turnText == null || manager == null) return;
+            string audience = manager.Audience.HudLabel;
+            turnText.text = string.IsNullOrEmpty(audience) ? $"TURN {manager.Turn}" : $"TURN {manager.Turn}\n{audience}";
+        }
+
         private void RefreshAll()
         {
             if (manager.Context == null) return;
+            RefreshTurnLabel();
             playerPanel.Bind(manager.PlayerActive);
             enemyPanel.Bind(manager.EnemyActive);
             if (recordButton != null) recordButton.interactable = manager.CanRecordCurrent;
@@ -559,6 +581,8 @@ namespace ShadowTheater.UI
                 if (!string.IsNullOrEmpty(outcome.environmentSummary))
                     lines.Add("무대 환경 · " + outcome.environmentSummary);
             }
+            string showcase = BuildShowcaseLine(outcome);
+            if (!string.IsNullOrEmpty(showcase)) lines.Add(showcase);
             if (outcome.capturedShadow != null)
                 lines.Add(L10n.Format("battle.result_recorded", "기억 기록 · {0}",
                     L10n.Text(outcome.capturedShadow.DisplayName)));
@@ -589,6 +613,45 @@ namespace ShadowTheater.UI
             else if (lines.Count == 0)
                 lines.Add(L10n.Get("battle.result_no_loot", "추가 전리품은 없습니다."));
             return string.Join("\n", lines);
+        }
+
+        /// <summary>관객 주문·연속 흥행·주연급 보상을 결과 카드 한 줄로 요약한다.</summary>
+        private static string BuildShowcaseLine(BattleOutcome outcome)
+        {
+            var parts = new List<string>();
+            if (outcome.starVariantAppeared && outcome.result == BattleResult.Victory)
+                parts.Add($"{StarVariantPolicy.Mark} 주연급 금화 ×2");
+            if (!string.IsNullOrEmpty(outcome.audienceRequestTitle))
+                parts.Add(outcome.audienceRequestAchieved
+                    ? $"주문 [{outcome.audienceRequestTitle}] 달성 +{outcome.audienceBonusGold}"
+                    : $"주문 [{outcome.audienceRequestTitle}] 미달성");
+            bool finished = outcome.result == BattleResult.Victory || outcome.result == BattleResult.Captured;
+            if (finished && outcome.performanceStreak >= 2)
+            {
+                string title = PerformanceStreakPolicy.Title(outcome.performanceStreak);
+                string streak = $"연속 흥행 {outcome.performanceStreak}회";
+                if (!string.IsNullOrEmpty(title)) streak += $"({title})";
+                if (outcome.streakBonusGold > 0) streak += $" +{outcome.streakBonusGold}";
+                parts.Add(streak);
+            }
+            else if (!finished)
+            {
+                // 결과 카드는 저장 반영 전에 표시되므로 아직 이전 연속 기록이 남아 있다.
+                int lost = SaveManager.Current?.performanceStreak ?? 0;
+                if (lost >= 2) parts.Add($"연속 흥행 {lost}회 종료");
+            }
+            string line = string.Join(" · ", parts);
+
+            var milestones = new List<string>();
+            if (finished && PerformanceStreakPolicy.IsMilestone(outcome.performanceStreak) &&
+                outcome.performanceStreak > (SaveManager.Current?.performanceStreak ?? 0))
+                milestones.Add($"흥행 이정표! 승리 금화 +{PerformanceStreakPolicy.BonusPercent(outcome.performanceStreak)}%·주연급 출현 상승");
+            int audienceTotal = (SaveManager.Current?.audienceRequestsCompleted ?? 0) + 1;
+            if (outcome.audienceRequestAchieved && AudienceRequest.IsMilestone(audienceTotal))
+                milestones.Add($"관객 주문 누적 {audienceTotal}회! 기억 조각 +{AudienceRequest.MilestoneFragments}");
+            if (milestones.Count > 0)
+                line = string.IsNullOrEmpty(line) ? string.Join(" · ", milestones) : line + "\n" + string.Join(" · ", milestones);
+            return line;
         }
 
         private IEnumerator AnimateResult(bool showing)

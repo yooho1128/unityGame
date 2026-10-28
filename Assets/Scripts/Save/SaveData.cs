@@ -12,7 +12,7 @@ namespace ShadowTheater.Save
     [Serializable]
     public class SaveData
     {
-        public const int CurrentVersion = 12;
+        public const int CurrentVersion = 13;
         public const int MaxPartySize = 6;
 
         public int version = CurrentVersion;
@@ -45,6 +45,11 @@ namespace ShadowTheater.Save
         public List<FlagEntry> flags = new List<FlagEntry>();
         public List<string> clearedEncounterIds = new List<string>(); // 보스/고정 심볼 처치 기록
         public int wildVictoryCount; // 누적형 Defeat 퀘스트 복구용 야생 전투 승리 횟수
+        // ── 공연 기록 (v13) ──
+        public int performanceStreak;        // 도주·패배 없이 이어 온 연속 흥행 횟수
+        public int bestPerformanceStreak;
+        public int audienceRequestsCompleted; // 관객 주문 누적 달성
+        public int starVariantsRecorded;      // 기록한 주연급 변주 그림자 수
         public List<QuestProgressData> quests = new List<QuestProgressData>();
         public List<string> unlockedRegionIds = new List<string>();
         public List<string> visitedRegionIds = new List<string>();

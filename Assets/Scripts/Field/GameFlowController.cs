@@ -277,6 +277,7 @@ namespace ShadowTheater.Field
                     SaveManager.AddItem(loot.itemId, loot.count);
             save.autoBattle = battleManager.IsAuto;
             save.battleSpeed = ctx.timeScale;
+            ApplyShowcaseRecords(save, outcome);
 
             switch (outcome.result)
             {
@@ -284,6 +285,8 @@ namespace ShadowTheater.Field
                 {
                     var shadow = outcome.capturedShadow;
                     shadow.FullHeal(); // 기억이 정화되어 온전한 모습으로 합류
+                    if (shadow.starVariant)
+                        save.starVariantsRecorded = SaveValuePolicy.SaturatingAdd(save.starVariantsRecorded, 1);
                     bool toParty = SaveManager.AddCapturedShadow(shadow, out bool newlyRecorded, out int fragments);
                     outcome.memoryFragmentsGained = fragments;
                     if (newlyRecorded)
@@ -317,6 +320,19 @@ namespace ShadowTheater.Field
             }
         }
 
+        /// <summary>연속 흥행과 관객 주문 누적 기록을 저장한다. 이정표 안내는 전투 결과 카드가 먼저 보여 준다.</summary>
+        private static void ApplyShowcaseRecords(SaveData save, BattleOutcome outcome)
+        {
+            if (save == null || outcome == null) return;
+            save.performanceStreak = PerformanceStreakPolicy.Next(save.performanceStreak, outcome.result);
+            save.bestPerformanceStreak = Mathf.Max(save.bestPerformanceStreak, save.performanceStreak);
+
+            if (!outcome.audienceRequestAchieved) return;
+            save.audienceRequestsCompleted = SaveValuePolicy.SaturatingAdd(save.audienceRequestsCompleted, 1);
+            if (AudienceRequest.IsMilestone(save.audienceRequestsCompleted))
+                save.memoryFragments = SaveValuePolicy.SaturatingAdd(save.memoryFragments, AudienceRequest.MilestoneFragments);
+        }
+
         private void RespawnAtCheckpoint()
         {
             var save = SaveManager.Current;
@@ -348,7 +364,7 @@ namespace ShadowTheater.Field
                 return;
             }
             bool inParty = SaveManager.Current.party.Exists(x => x.instanceId == captured.instanceId);
-            string name = L10n.Text(captured.DisplayName);
+            string name = StarVariantPolicy.Decorate(L10n.Text(captured.DisplayName), captured);
             SaveFeedbackController.Instance?.ShowMessage(inParty
                 ? L10n.Format("capture.to_party", "{0}이(가) 파티에 합류했습니다!", name)
                 : L10n.Format("capture.to_storage", "파티가 가득 차 {0}을(를) 각본 서고에 보관했습니다.", name));

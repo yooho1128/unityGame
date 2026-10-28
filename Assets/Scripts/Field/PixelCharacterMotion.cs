@@ -65,11 +65,11 @@ namespace ShadowTheater.Field
             {
                 if(Time.time<_gestureUntil)
                 {
-                    float t=Mathf.Clamp01((Time.time-_gestureStarted)/1.05f),wave=Mathf.Sin(t*Mathf.PI);
+                    float g=Mathf.Clamp01((Time.time-_gestureStarted)/1.05f),wave=Mathf.Sin(g*Mathf.PI);
                     if(_gestureKind==0)
                     {
-                        transform.localPosition=_restPosition+Vector3.right*Mathf.Sin(t*Mathf.PI*2f)*.018f;
-                        transform.localRotation=_restRotation*Quaternion.Euler(0f,0f,Mathf.Sin(t*Mathf.PI*2f)*2.6f);
+                        transform.localPosition=_restPosition+Vector3.right*Mathf.Sin(g*Mathf.PI*2f)*.018f;
+                        transform.localRotation=_restRotation*Quaternion.Euler(0f,0f,Mathf.Sin(g*Mathf.PI*2f)*2.6f);
                         transform.localScale=Vector3.Scale(fittedScale,new Vector3(1f-wave*.025f,1f+wave*.035f,1f));
                     }
                     else
@@ -84,9 +84,9 @@ namespace ShadowTheater.Field
                 if (turnAge < .16f)
                 {
                     float turn = Mathf.Sin(Mathf.Clamp01(turnAge / .16f) * Mathf.PI);
-                    float direction = _lastFacing == FacingDir.Left ? -1f : _lastFacing == FacingDir.Right ? 1f : 0f;
-                    transform.localPosition = _restPosition + Vector3.right * (direction * turn * .014f);
-                    transform.localRotation = _restRotation * Quaternion.Euler(0f, 0f, -direction * turn * 2.2f);
+                    float turnDirection = _lastFacing == FacingDir.Left ? -1f : _lastFacing == FacingDir.Right ? 1f : 0f;
+                    transform.localPosition = _restPosition + Vector3.right * (turnDirection * turn * .014f);
+                    transform.localRotation = _restRotation * Quaternion.Euler(0f, 0f, -turnDirection * turn * 2.2f);
                     transform.localScale = Vector3.Scale(fittedScale,
                         new Vector3(1f + turn * .045f, 1f - turn * .035f, 1f));
                     return;

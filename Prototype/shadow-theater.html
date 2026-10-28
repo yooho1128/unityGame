@@ -1,3 +1,8 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>그림자 극장 잔영</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,6 +21,8 @@
   --spd:1;
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}
+.bbar{flex-wrap:wrap}.bbar span{min-width:0;overflow-wrap:anywhere}
 html,body{height:100%}
 body{background:var(--ink);color:var(--text);font-family:var(--f-body);font-size:14px;line-height:1.5;padding-inline:16px;padding-block:12px 24px}
 button{font-family:inherit;color:inherit;cursor:pointer}
@@ -160,7 +167,8 @@ header h1 small{font-size:13px;color:var(--dim);margin-left:6px;font-family:var(
 @media (prefers-reduced-motion: reduce){ .curtain{transition-duration:.01s} }
 @media (max-width:400px){ .dpad{grid-template-columns:repeat(3,38px);grid-template-rows:repeat(3,38px)} .abtn{width:54px;height:54px} }
 </style>
-
+</head>
+<body>
 <div class="app">
   <header>
     <h1>그림자 극장 잔영<small>전투·필드 프로토타입</small></h1>
@@ -325,7 +333,7 @@ function elemMul(a, d){
 // ═════════════════════════════════════════════════════════════
 // 2. 개체 (ShadowInstance) / 전투 유닛 (BattleUnit)
 // ═════════════════════════════════════════════════════════════
-const stat = (inst,k) => { const d=SH(inst.shadowId); return Math.round(d["base"+k] + d[k.toLowerCase()+"Growth"]*(inst.level-1)); };
+const stat = (inst,k) => { const d=SH(inst.shadowId); return Math.round((d["base"+k] + d[k.toLowerCase()+"Growth"]*(inst.level-1))*(inst.star?STAR_STAT:1)); };
 const maxHpOf = inst => stat(inst,"Hp");
 const expToNext = inst => 20 + inst.level*inst.level*5;
 function newInst(id, lv){ const i={ instanceId:Math.random().toString(36).slice(2,10), shadowId:id, level:Math.max(1,lv), exp:0, currentHp:0 }; i.currentHp=maxHpOf(i); return i; }
@@ -343,7 +351,7 @@ class Unit {
   constructor(inst, side){ this.inst=inst; this.side=side; this.major=null; this.debuffs=[];this.healUses=0;this.nextHealTurn=1;
     if (inst.currentHp<0||inst.currentHp>this.maxHp) inst.currentHp=this.maxHp; }
   get d(){ return SH(this.inst.shadowId); }
-  get name(){ return this.d.displayName; }
+  get name(){ return (this.inst.star?"★ ":"")+this.d.displayName; }
   get level(){ return this.inst.level; }
   get maxHp(){ return maxHpOf(this.inst); }
   get hp(){ return this.inst.currentHp; }
@@ -404,7 +412,71 @@ function captureChance(t, bonus){
   const st = t.major ? (t.major.type==="Freeze"?1.5:1.2) : 1;
   return Math.min(1, Math.max(0, t.d.baseCaptureRate*hpF*st*bonus));
 }
-const expReward = u => Math.round(u.d.expReward*u.level/5)+5;
+const expReward = u => Math.round((Math.round(u.d.expReward*u.level/5)+5)*(u.inst.star?STAR_EXP:1));
+
+// ── 관객 주문 · 연속 흥행 · 주연급 변주 (Unity AudienceRequest.cs / ShowcasePolicies.cs와 같은 규칙) ──
+// 프로토타입에는 열연(앙코르)이 없어 [앙코르 요청] 주문은 제외한다.
+const STAR_BASE=1/64, STAR_STAT=1.1, STAR_EXP=1.5, STAR_GOLD=2;
+const FORCE_STAR = new URLSearchParams(location.search).has("star"); // ?star 로 주연급 조우 확인
+const starChance = streak => STAR_BASE*(1+Math.min(Math.max(streak,0),10)*0.1);
+const streakBonusPct = streak => Math.min(Math.max(streak-1,0),10)*3;
+const streakTitle = n => n>=25?"전설의 장기 공연":n>=10?"매진 행렬":n>=5?"입소문":n>=3?"흥행 조짐":"";
+const AUD_REPERTOIRE=2;
+const AUD = {
+  WeaknessFinale:{t:"약점 피날레",  d:()=>"약점 속성 공격으로 상대를 쓰러뜨려 주세요.", mid:true},
+  SwiftCurtain:  {t:"빠른 막내림",  d:a=>`${a.limit}턴 안에 공연을 끝내 주세요.`},
+  NoUnderstudy:  {t:"대역 없는 무대", d:()=>"아군이 한 명도 쓰러지지 않고 이겨 주세요."},
+  TensionScene:  {t:"긴장의 순간",  d:()=>"상대에게 상태 이상을 걸어 주세요.", mid:true},
+  CriticalLine:  {t:"결정적 대사",  d:()=>"치명타를 한 번 성공시켜 주세요.", mid:true},
+  Repertoire:    {t:"다채로운 레퍼토리", d:()=>`서로 다른 기술을 ${AUD_REPERTOIRE}종류 선보여 주세요.`, mid:true},
+  RecordScene:   {t:"기록의 순간",  d:()=>"이 그림자를 각본집에 기록해 주세요."}
+};
+const skillElem = (u,s) => s.forceNeutralElement ? "None" : s.element!=="None" ? s.element : u.d.element;
+function chooseAudience(){
+  const boss=B.ctx.mode==="Boss", alive=B.p.filter(u=>!u.fainted);
+  const dmg=s=>s&&s.damageType!=="None"&&s.damageMultiplier>0;
+  const weak=alive.some(u=>[u.d.basicAttack,...u.d.skills].some(id=>{ const s=SK(id); return dmg(s)&&B.e.some(e=>elemMul(skillElem(u,s),e.d.element)>1); }));
+  const status=alive.some(u=>u.d.skills.some(id=>{ const s=SK(id); return s&&s.target!=="Self"&&s.statusEffect!=="None"&&s.statusChance>0; }));
+  const rep=new Set(alive.flatMap(u=>u.d.skills.filter(id=>id!==u.d.basicAttack))).size>=AUD_REPERTOIRE;
+  const pool=[["SwiftCurtain",3],["NoUnderstudy",boss?3:1.5],["CriticalLine",2]];
+  if (weak) pool.push(["WeaknessFinale",3]); if (status) pool.push(["TensionScene",2]);
+  if (rep) pool.push(["Repertoire",2]); if (canCapture()&&EA().d.baseCaptureRate>0) pool.push(["RecordScene",2.5]);
+  let r=Math.random()*pool.reduce((a,b)=>a+b[1],0);
+  for (const [type,w] of pool) if ((r-=w)<0) return type;
+  return pool[pool.length-1][0];
+}
+async function beginAudience(){
+  const type=chooseAudience();
+  B.aud={ type, state:"Pending", limit:Math.max(1,B.e.length)*(B.ctx.mode==="Boss"?5:3), skills:new Set() };
+  updateBar();
+  await P.say(`관객 주문 · ${AUD[type].t} — ${AUD[type].d(B.aud)}`, 1100);
+}
+const audPending = type => B.aud && B.aud.state==="Pending" && (!type || B.aud.type===type);
+async function audAchieve(){
+  B.aud.state="Achieved"; updateBar();
+  if (AUD[B.aud.type].mid){ addFp("Player",1); refreshInfo(); }
+  await P.say(`관객 주문 [${AUD[B.aud.type].t}] 달성!${AUD[B.aud.type].mid?" 객석의 환호에 FP +1":""}`, 800);
+}
+async function audFail(){ B.aud.state="Failed"; updateBar(); await P.say(`객석에 아쉬운 한숨이 흐른다… 관객 주문 [${AUD[B.aud.type].t}] 실패`, 800); }
+function concludeShowcase(result){
+  const o=B.outcome, done=result==="Victory"||result==="Captured";
+  if (B.aud){
+    if (B.aud.state==="Pending"){
+      const final=B.aud.type==="SwiftCurtain"||B.aud.type==="NoUnderstudy" ? done : B.aud.type==="RecordScene" ? result==="Captured" : false;
+      B.aud.state = final ? "Achieved" : "Failed";
+    }
+    o.audTitle=AUD[B.aud.type].t; o.audOk=done && B.aud.state==="Achieved";
+    if (o.audOk){
+      const base=B.e.reduce((a,u)=>a+u.d.goldReward*(u.inst.star?STAR_GOLD:1),0);
+      o.audGold=Math.max(15,Math.ceil(base/2))*(B.ctx.mode==="Boss"?2:1); o.gold=(o.gold||0)+o.audGold;
+      G.audienceDone++;
+    }
+  }
+  o.lostStreak = done ? 0 : G.streak;
+  G.streak = done ? G.streak+1 : (result==="Defeat"||result==="Escaped") ? 0 : G.streak;
+  G.bestStreak=Math.max(G.bestStreak,G.streak); o.streak=G.streak;
+  if (result==="Victory"){ o.streakGold=Math.round((o.gold-(o.audGold||0))*streakBonusPct(G.streak)/100); o.gold+=o.streakGold; }
+}
 
 function aiChoose(self, opp, fp){
   const basic=self.d.basicAttack, cands=[];
@@ -431,7 +503,7 @@ const PRIORITY = {Escape:4, Switch:3, Item:2, Record:2, Attack:0, Skill:0};
 // 4. 게임 상태 (SaveData)
 // ═════════════════════════════════════════════════════════════
 const G = { party:[], seen:new Set(), recorded:new Set(), gold:100, inv:{potion:3,tonic:1,ink:2,salve:1},
-  cleared:new Set(), auto:false, speed:1, bestFloor:0, busy:false };
+  cleared:new Set(), auto:false, speed:1, bestFloor:0, busy:false, streak:0, bestStreak:0, audienceDone:0 };
 const wait = ms => new Promise(r=>setTimeout(r, ms/G.speed));
 const realWait = ms => new Promise(r=>setTimeout(r, ms));
 const $ = s => document.querySelector(s);
@@ -759,10 +831,12 @@ const opponent=side=>side==="Player"?EA():PA();
 const canCapture=()=>B.ctx.mode==="Wild";
 const canEscape=()=>B.ctx.mode==="Wild"||B.ctx.mode==="Training";
 function addFp(side,n){ B.fp[side]=Math.max(0,Math.min(5,B.fp[side]+n)); }
-function finish(result){ B.outcome.result=result; B.ended=true; }
+function finish(result){ B.outcome.result=result; B.ended=true; concludeShowcase(result); }
 
 async function battleLoop(){
   await P.intro();
+  if (EA().inst.star) await P.say(`객석이 술렁인다! 주연급 ${EA().d.displayName}이(가) 무대에 올랐다! (능력치 +10% · 보상 증가)`, 1100);
+  await beginAudience();
   while(!B.ended){
     B.turn++; addFp("Player",1); addFp("Enemy",1); refreshInfo(); updateBar();
     let pa = await waitPlayerAction();
@@ -781,6 +855,7 @@ async function battleLoop(){
     if (B.ended) break;
     await endOfTurn();
     await handleFaints();
+    if (!B.ended && audPending("SwiftCurtain") && B.turn>=B.aud.limit) await audFail();
   }
   await P.result();
   return B.outcome;
@@ -819,17 +894,25 @@ async function doSkill(a){
   if (B.fp[a.side] < s.fpCost||!canHealSkill(u,s,B.turn)){ s=SK(u.d.basicAttack); a.skill=u.d.basicAttack; }
   if(!s||!canHealSkill(u,s,B.turn))return;
   addFp(a.side, s.fpGain - s.fpCost); refreshInfo();
+  let rep=false;
+  if (a.side==="Player" && a.skill!==u.d.basicAttack && audPending("Repertoire")){
+    B.aud.skills.add(a.skill); updateBar(); rep=B.aud.skills.size>=AUD_REPERTOIRE;
+  }
   if (s.target==="Self"){
     await P.say(`${u.name}의 ${s.displayName}!`, 450);
     let h=0;
     if(isHealingSkill(s)){u.healUses++;u.nextHealTurn=B.turn+HEAL_REST_TURNS+1;h=u.heal(Math.max(1,Math.round(u.maxHp*s.healRatio)))}
-    await P.heal(u,h); return;
+    await P.heal(u,h); if (rep) await audAchieve(); return;
   }
   const hit=calcHit(u,o,s);
   if (!hit.missed && hit.damage>0) hit.damage=o.takeDamage(hit.damage);
   await P.skill(u,o,s,hit);
+  if (a.side==="Player" && audPending() && (rep || (!hit.missed && hit.damage>0 &&
+      ((B.aud.type==="CriticalLine" && hit.critical) || (B.aud.type==="WeaknessFinale" && o.fainted && hit.elementMultiplier>1)))))
+    await audAchieve();
   if (!hit.missed && hit.statusApplied && !o.fainted && o.applyStatus(s.statusEffect,s.statusDuration)){
     refreshInfo(); await P.say(`${o.name}에게 [${STATUS_NAME[s.statusEffect]}] 효과!`);
+    if (a.side==="Player" && audPending("TensionScene")) await audAchieve();
   }
 }
 async function doSwitch(side, idx, silent){
@@ -879,6 +962,7 @@ async function endOfTurn(){
 }
 async function handleFaints(){
   if (B.ended) return;
+  if (PA().fainted && audPending("NoUnderstudy")) await audFail();
   if (EA().fainted){
     const def=EA(); await P.faint(def);
     const exp=expReward(def); B.outcome.exp+=exp;
@@ -888,7 +972,7 @@ async function handleFaints(){
       if (ups>0){ refreshInfo(); await P.say(`${PA().name}의 레벨이 ${PA().level}(으)로 올랐다!`, 800); }
     }
     const next=B.e.findIndex(u=>!u.fainted);
-    if (next<0){ B.outcome.gold=B.e.reduce((a,u)=>a+u.d.goldReward,0); finish("Victory"); return; }
+    if (next<0){ B.outcome.gold=B.e.reduce((a,u)=>a+u.d.goldReward*(u.inst.star?STAR_GOLD:1),0); finish("Victory"); return; }
     await P.say("상대가 다음 그림자를 무대에 올린다!");
     await doSwitch("Enemy", next);
   }
@@ -980,6 +1064,11 @@ const P = {
                : o.result==="Defeat" ? "모든 배우가 쓰러졌다… 천막으로 돌아간다."
                : o.result==="Captured" ? "새로운 배우가 극단에 합류했다." : "";
     if (line) await this.say(line, 900);
+    const extra=[];
+    if (o.audTitle) extra.push(o.audOk?`관객 주문 [${o.audTitle}] 달성 +${o.audGold} G`:`관객 주문 [${o.audTitle}] 미달성`);
+    if (o.streak>=2){ const t=streakTitle(o.streak); extra.push(`연속 흥행 ${o.streak}회${t?`(${t})`:""}${o.streakGold?` +${o.streakGold} G`:""}`); }
+    else if (o.lostStreak>=2) extra.push(`연속 흥행 ${o.lostStreak}회 종료`);
+    if (extra.length) await this.say(extra.join(" · "), 1300);
   }
 };
 function refreshInfo(){
@@ -1001,7 +1090,8 @@ function refreshInfo(){
 function updateBar(){
   $("#btnAuto").classList.toggle("on",G.auto); $("#btnSpeed").textContent="x"+G.speed;
   document.documentElement.style.setProperty("--spd",G.speed);
-  $("#turnLbl").textContent = B ? `TURN ${B.turn}` : "";
+  const aud = B && B.aud ? ` · 주문 ${AUD[B.aud.type].t}${B.aud.type==="Repertoire"&&B.aud.state==="Pending"?` ${B.aud.skills.size}/${AUD_REPERTOIRE}`:""}${B.aud.type==="SwiftCurtain"&&B.aud.state==="Pending"?` ~${B.aud.limit}턴`:""}${B.aud.state==="Achieved"?" ✓":B.aud.state==="Failed"?" ✕":""}` : "";
+  $("#turnLbl").textContent = B ? `TURN ${B.turn}${aud}` : "";
 }
 
 // 메뉴
@@ -1059,7 +1149,12 @@ async function symbolBattle(sym){
   await realWait(220);
   await curtainClose();
   const lv=()=>sym.levelRange[0]+Math.floor(Math.random()*(sym.levelRange[1]-sym.levelRange[0]+1));
-  setupBattle({ mode:sym.mode, playerParty:G.party, enemyParty:[newInst(sym.shadowId,lv())], encounterId:sym.encounterId });
+  const foe=newInst(sym.shadowId,lv());
+  if (sym.mode==="Wild" && SH(sym.shadowId).baseCaptureRate>0 && (FORCE_STAR || Math.random()<starChance(G.streak))){
+    foe.star=true; foe.currentHp=maxHpOf(foe);
+    toast("★ 객석이 술렁인다… 주연급 그림자의 기척이 무대 위로 다가온다!"); await realWait(900);
+  }
+  setupBattle({ mode:sym.mode, playerParty:G.party, enemyParty:[foe], encounterId:sym.encounterId });
   await curtainOpen();
   const out=await battleLoop();
   applyOutcome(out);
@@ -1077,7 +1172,7 @@ async function symbolBattle(sym){
   hudKey=""; B=null;
   await curtainOpen();
   G.busy=false;
-  if (out.result==="Captured") toast(`각본집에 새 기록: ${SH(out.captured.shadowId).displayName}`);
+  if (out.result==="Captured") toast(`각본집에 새 기록: ${out.captured.star?"★ 주연급 ":""}${SH(out.captured.shadowId).displayName}`);
   if (out.result==="Victory" && sym.encounterId) toast("검열관이 물러났다. 지워진 이름들이 희미하게 돌아온다.");
 }
 function applyOutcome(out){
@@ -1173,6 +1268,7 @@ function buildStarters(){
   }
 }
 async function startGame(id){
+  G.streak=0; G.bestStreak=0; G.audienceDone=0;
   G.party=[newInst(id,5)]; G.recorded=new Set([id]); G.seen=new Set([id]);
   G.gold=100; G.inv={potion:3,tonic:1,ink:2,salve:1}; G.cleared=new Set(); G.bestFloor=0;
   player.x=player.px=CHECKPOINT.x; player.y=player.py=CHECKPOINT.y; player.moving=false;
@@ -1241,3 +1337,6 @@ buildStarters();
 showLayer("select");
 requestAnimationFrame(t=>{ lastT=t; fieldLoop(t); });
 </script>
+
+</body>
+</html>

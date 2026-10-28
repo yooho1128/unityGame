@@ -433,6 +433,10 @@ namespace ShadowTheater.Save
             data.gold = Mathf.Max(0, data.gold);
             data.memoryFragments = Mathf.Max(0, data.memoryFragments);
             data.wildVictoryCount = Mathf.Max(0, data.wildVictoryCount);
+            data.performanceStreak = Mathf.Max(0, data.performanceStreak);
+            data.bestPerformanceStreak = Mathf.Max(data.performanceStreak, data.bestPerformanceStreak);
+            data.audienceRequestsCompleted = Mathf.Max(0, data.audienceRequestsCompleted);
+            data.starVariantsRecorded = Mathf.Max(0, data.starVariantsRecorded);
             data.playTimeSeconds = Mathf.Max(0f, data.playTimeSeconds);
             data.battleSpeed = Mathf.Clamp(data.battleSpeed <= 0f ? 1f : data.battleSpeed, 1f, 3f);
             data.facing = Mathf.Clamp(data.facing, 0, 3);
@@ -637,7 +641,8 @@ namespace ShadowTheater.Save
             shadow.EnsureHp();
             newlyRecorded = MarkRecorded(shadow.shadowId);
 
-            if (!newlyRecorded)
+            // 주연급 변주 개체는 이미 기록한 종이어도 조각으로 환원하지 않고 그대로 합류시킨다.
+            if (!newlyRecorded && !shadow.starVariant)
             {
                 duplicateFragments = CollectionGrowthService.DuplicateFragments(shadow.Data);
                 Current.memoryFragments = SaveValuePolicy.SaturatingAdd(Current.memoryFragments, duplicateFragments);
@@ -965,13 +970,13 @@ namespace ShadowTheater.Save
             if (item.effectType == ItemEffectType.GainExperience)
             {
                 if (target.IsMaxLevel) { message = "이미 최고 레벨입니다."; return false; }
-                int amount = Mathf.Max(1,Mathf.RoundToInt(item.value));
-                int projectedLevel = ProjectLevelAfterExperience(target,amount);
-                restored = amount;
+                int experience = Mathf.Max(1,Mathf.RoundToInt(item.value));
+                int projectedLevel = ProjectLevelAfterExperience(target,experience);
+                restored = experience;
                 excess = projectedLevel-target.level;
                 message = projectedLevel>target.level
-                    ? $"예상 경험치 +{amount} · Lv.{target.level} → Lv.{projectedLevel}"
-                    : $"예상 경험치 +{amount} · 사용 후 다음 레벨까지 {Mathf.Max(0,target.ExpToNext-target.exp-amount)}";
+                    ? $"예상 경험치 +{experience} · Lv.{target.level} → Lv.{projectedLevel}"
+                    : $"예상 경험치 +{experience} · 사용 후 다음 레벨까지 {Mathf.Max(0,target.ExpToNext-target.exp-experience)}";
                 return true;
             }
             if (target.IsFainted)

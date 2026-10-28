@@ -104,7 +104,7 @@ namespace ShadowTheater.UI
             }
             _boundUnit = unit;
             AdvanceHealthPresentation(0f);
-            if (nameText != null) nameText.text = L10n.Text(unit.Name);
+            if (nameText != null) nameText.text = StarVariantPolicy.Decorate(L10n.Text(unit.Name), unit.Instance);
             if (levelText != null) levelText.text = $"Lv.{unit.Level}";
             if (elementText != null)
             {

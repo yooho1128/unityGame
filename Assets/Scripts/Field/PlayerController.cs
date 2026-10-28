@@ -230,11 +230,11 @@ namespace ShadowTheater.Field
         {
             if (_inputHeld)
             {
-                bool changedDirection = _bufferedDirection != Vector2Int.zero &&
-                                        _bufferedDirection != completedDirection;
+                bool heldTurn = _bufferedDirection != Vector2Int.zero &&
+                                _bufferedDirection != completedDirection;
                 bool holdRepeatReady = CanRepeatHeldStep(_steppedForCurrentPress,
                     Time.unscaledTime-_inputPressedAt,holdRepeatDelay);
-                return changedDirection || holdRepeatReady
+                return heldTurn || holdRepeatReady
                     ? _bufferedDirection : Vector2Int.zero;
             }
 

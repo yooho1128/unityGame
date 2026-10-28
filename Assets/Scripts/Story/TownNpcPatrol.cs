@@ -73,8 +73,8 @@ namespace ShadowTheater.Story
             if (player != null && Vector2.Distance(transform.position,player.transform.position) < 2.25f)
             {
                 _velocity = Vector3.zero;
-                float dx = player.transform.position.x-transform.position.x;
-                if (_renderer != null && Mathf.Abs(dx)>.08f) _renderer.flipX=dx<0f;
+                float playerDx = player.transform.position.x-transform.position.x;
+                if (_renderer != null && Mathf.Abs(playerDx)>.08f) _renderer.flipX=playerDx<0f;
                 if (!_watchingPlayer) _motion?.PlayGesture(.52f);
                 _watchingPlayer = true;
                 _waitUntil = Time.time + .36f;
