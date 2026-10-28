@@ -336,8 +336,11 @@ function addExp(inst, amount){
 }
 const isMajor = t => t==="Freeze"||t==="Burn"||t==="Bleed";
 
+const HEAL_LIMIT=3, HEAL_REST_TURNS=2;
+const isHealingSkill=s=>s&&s.target==="Self"&&s.healRatio>0;
+const canHealSkill=(u,s,turn)=>!isHealingSkill(s)||(!u.fainted&&u.hp<u.maxHp&&u.healUses<HEAL_LIMIT&&turn>=u.nextHealTurn);
 class Unit {
-  constructor(inst, side){ this.inst=inst; this.side=side; this.major=null; this.debuffs=[];
+  constructor(inst, side){ this.inst=inst; this.side=side; this.major=null; this.debuffs=[];this.healUses=0;this.nextHealTurn=1;
     if (inst.currentHp<0||inst.currentHp>this.maxHp) inst.currentHp=this.maxHp; }
   get d(){ return SH(this.inst.shadowId); }
   get name(){ return this.d.displayName; }
@@ -405,7 +408,7 @@ const expReward = u => Math.round(u.d.expReward*u.level/5)+5;
 
 function aiChoose(self, opp, fp){
   const basic=self.d.basicAttack, cands=[];
-  for (const id of self.d.skills){ const s=SK(id); if (!s||s.fpCost>fp) continue; cands.push({id,score:aiScore(self,opp,s)}); }
+  for (const id of self.d.skills){ const s=SK(id); if (!s||s.fpCost>fp||!canHealSkill(self,s,B.turn)) continue; cands.push({id,score:aiScore(self,opp,s)}); }
   if (!cands.length) return {type:"Attack", side:self.side, skill:basic};
   cands.sort((a,b)=>b.score-a.score);
   const best=cands[0];
@@ -813,11 +816,13 @@ async function doSkill(a){
   if (!u.canAct){ await P.say(`${u.name}은(는) 얼어붙어 움직일 수 없다!`);
     if (u.consumeFreeze()) await P.say(`${u.name}의 [${STATUS_NAME.Freeze}] 상태가 풀렸다.`, 500);
     return; }
-  if (B.fp[a.side] < s.fpCost){ s=SK(u.d.basicAttack); a.skill=u.d.basicAttack; }
+  if (B.fp[a.side] < s.fpCost||!canHealSkill(u,s,B.turn)){ s=SK(u.d.basicAttack); a.skill=u.d.basicAttack; }
+  if(!s||!canHealSkill(u,s,B.turn))return;
   addFp(a.side, s.fpGain - s.fpCost); refreshInfo();
   if (s.target==="Self"){
     await P.say(`${u.name}의 ${s.displayName}!`, 450);
-    const h=u.heal(Math.round(u.maxHp*s.healRatio));
+    let h=0;
+    if(isHealingSkill(s)){u.healUses++;u.nextHealTurn=B.turn+HEAL_REST_TURNS+1;h=u.heal(Math.max(1,Math.round(u.maxHp*s.healRatio)))}
     await P.heal(u,h); return;
   }
   const hit=calcHit(u,o,s);
@@ -1016,7 +1021,8 @@ function setMenu(kind){
   else if (kind==="skill"){
     menuEl.className="menu two";
     for (const id of PA().d.skills){ const s=SK(id); if(!s) continue;
-      add(`<span class="elem" style="background:${ELEM[s.element].c}"></span>${s.displayName}<span class="cost">${s.fpCost}FP</span>`, ()=>submit({type:"Skill",side:"Player",skill:id}), {disabled:B.fp.Player<s.fpCost}); }
+      const healing=isHealingSkill(s), hint=healing?` · 회복 공용 ${Math.max(0,HEAL_LIMIT-PA().healUses)}/${HEAL_LIMIT}회 · ${Math.max(0,PA().nextHealTurn-B.turn)}턴 대기`:"";
+      add(`<span class="elem" style="background:${ELEM[s.element].c}"></span>${s.displayName}${hint}<span class="cost">${s.fpCost}FP</span>`, ()=>submit({type:"Skill",side:"Player",skill:id}), {disabled:B.fp.Player<s.fpCost||!canHealSkill(PA(),s,B.turn)}); }
     add("← 뒤로",()=>setMenu("main"));
   }
   else if (kind==="switch"||kind==="forced"){

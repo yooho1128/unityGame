@@ -102,6 +102,17 @@ namespace ShadowTheater.Battle
             type != StatusEffectType.None &&
             ((MajorStatus != null && MajorStatus.type == type) || HasDebuff(type));
         public bool HasAnyStatus => MajorStatus != null || _debuffs.Count > 0;
+        public HealingSkillBudget HealingSkills { get; } = new HealingSkillBudget();
+        public static bool IsHealingSkill(SkillData skill) =>
+            skill != null && skill.target == SkillTarget.Self && skill.healRatio > 0f;
+        public bool CanUseHealingSkill(SkillData skill, int turn) =>
+            !IsHealingSkill(skill) || (!IsFainted && Hp < MaxHp && HealingSkills.CanUse(turn));
+
+        public int UseHealingSkill(SkillData skill, int turn)
+        {
+            if (!IsHealingSkill(skill) || !CanUseHealingSkill(skill, turn) || !HealingSkills.TryConsume(turn)) return 0;
+            return Heal(Mathf.Max(1, Mathf.RoundToInt(MaxHp * Mathf.Clamp01(skill.healRatio))));
+        }
 
         public bool NeedsRestoration => !IsFainted && (Hp < MaxHp || HasAnyStatus);
 

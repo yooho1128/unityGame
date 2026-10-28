@@ -141,8 +141,9 @@ namespace ShadowTheater.UI
             if (skill.target == SkillTarget.Self && skill.healRatio > 0f)
             {
                 int restored = Mathf.Min(manager.PlayerActive.MaxHp - manager.PlayerActive.Hp,
-                    Mathf.Max(0, Mathf.RoundToInt(manager.PlayerActive.MaxHp * skill.healRatio)));
+                    Mathf.Max(1, Mathf.RoundToInt(manager.PlayerActive.MaxHp * skill.healRatio)));
                 detail += L10n.Format("battle.skill_heal_preview", " · 예상 회복 +{0} HP", restored);
+                detail += $"\n회복 공용 {manager.PlayerActive.HealingSkills.Remaining}/{HealingSkillBudget.Limit}회 남음 · 사용 후 {HealingSkillBudget.RestTurns}턴 대기";
             }
             else if (skill.target == SkillTarget.Enemy)
             {

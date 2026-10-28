@@ -263,6 +263,13 @@ namespace ShadowTheater.Battle
             { reason = L10n.Format("battle.fp_shortage", "FP 부족 · 현재 {0} / 필요 {1}", GetFp(BattleSide.Player), skill.fpCost); return false; }
             if (skill.target == SkillTarget.Self && skill.healRatio > 0f && PlayerActive.Hp >= PlayerActive.MaxHp)
             { reason = L10n.Get("battle.hp_full", "HP가 이미 가득합니다."); return false; }
+            if (BattleUnit.IsHealingSkill(skill))
+            {
+                if (PlayerActive.HealingSkills.Remaining <= 0)
+                { reason = "이번 전투의 회복 스킬을 모두 사용했습니다. (3/3)"; return false; }
+                int wait = PlayerActive.HealingSkills.WaitTurns(Turn);
+                if (wait > 0) { reason = $"회복 스킬 재사용까지 {wait}턴 남았습니다."; return false; }
+            }
             return true;
         }
 
@@ -563,17 +570,17 @@ namespace ShadowTheater.Battle
             }
 
             // FP 처리 (AI가 잘못 골랐을 때 대비해 한 번 더 체크)
-            if (GetFp(a.side) < skill.fpCost)
+            if (GetFp(a.side) < skill.fpCost || !user.CanUseHealingSkill(skill, Turn))
             {
                 skill = user.BasicAttack;
-                if (skill == null) yield break;
+                if (skill == null || !user.CanUseHealingSkill(skill, Turn)) yield break;
             }
             AddFp(a.side, skill.fpGain - skill.fpCost);
 
             // 자기 대상 (회복/버프)
             if (skill.target == SkillTarget.Self)
             {
-                int healed = user.Heal(Mathf.RoundToInt(user.MaxHp * skill.healRatio));
+                int healed = BattleUnit.IsHealingSkill(skill) ? user.UseHealingSkill(skill, Turn) : 0;
                 if (a.side == BattleSide.Player) RecordContribution(user, 0, healed, false,
                     L10n.Text(skill.displayName));
                 yield return _presenter.PlaySkill(user, user, skill, new HitResult { elementMultiplier = 1f });
@@ -984,7 +991,7 @@ namespace ShadowTheater.Battle
                     ? BattleAiProfile.BossDesperate
                     : BattleAI.ProfileFor(Active(side).Data, boss);
             }
-            return BattleAI.Choose(Active(side), Opponent(side), GetFp(side), profile);
+            return BattleAI.Choose(Active(side), Opponent(side), GetFp(side), profile, Turn);
         }
 
         private static int FindNextAlive(List<BattleUnit> units, int exclude)

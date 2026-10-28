@@ -35,14 +35,14 @@ namespace ShadowTheater.Battle
         }
 
         public static BattleAction Choose(BattleUnit self, BattleUnit opponent, int currentFp,
-                                          BattleAiProfile profile = BattleAiProfile.Normal)
+                                          BattleAiProfile profile = BattleAiProfile.Normal, int battleTurn = 1)
         {
             var basic = self.BasicAttack;
             var candidates = new List<(SkillData skill, float score)>();
 
             foreach (var s in self.Skills)
             {
-                if (s == null || s.fpCost > currentFp) continue;
+                if (s == null || s.fpCost > currentFp || !self.CanUseHealingSkill(s, battleTurn)) continue;
                 float score = Score(self, opponent, s, profile);
                 if (score > 0f) candidates.Add((s, score));
             }

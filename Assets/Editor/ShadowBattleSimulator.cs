@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using ShadowTheater.Data;
+using ShadowTheater.Battle;
 using UnityEditor;
 using UnityEngine;
 
@@ -114,8 +115,8 @@ namespace ShadowTheater.EditorTools
                 a.fp = Math.Min(5, a.fp + 1); b.fp = Math.Min(5, b.fp + 1);
                 SimUnit lead = a.speed > b.speed || a.speed == b.speed && random.NextDouble() < .5 ? a : b;
                 SimUnit follow = lead == a ? b : a;
-                Act(lead, follow, random);
-                if (follow.hp > 0) Act(follow, lead, random);
+                Act(lead, follow, random, turn);
+                if (follow.hp > 0) Act(follow, lead, random, turn);
             }
             if (a.hp == b.hp) return 0;
             if (a.hp <= 0) return -1;
@@ -145,18 +146,22 @@ namespace ShadowTheater.EditorTools
         private static ShadowData[] BuildBalancedParty(IEnumerable<ShadowData> pool,int size,System.Random random)
         {var source=pool.Where(x=>x!=null).Distinct().ToList();var party=new List<ShadowData>();foreach(ShadowRole role in Enum.GetValues(typeof(ShadowRole))){var candidate=source.Where(x=>x.role==role&&!party.Contains(x)).OrderBy(_=>random.Next()).FirstOrDefault();if(candidate!=null&&party.Count<size)party.Add(candidate);}foreach(var candidate in source.OrderBy(_=>random.Next()))if(party.Count<size&&!party.Contains(candidate))party.Add(candidate);return party.Take(size).ToArray();}
         private static int PartyBattle(ShadowData[] first,ShadowData[] second,int seed)
-        {var random=new System.Random(seed);var a=first.Select(x=>new SimUnit(x,SimulationLevel)).ToList();var b=second.Select(x=>new SimUnit(x,SimulationLevel)).ToList();int ai=0,bi=0;for(int turn=0;turn<360&&ai<a.Count&&bi<b.Count;turn++){SimUnit au=a[ai],bu=b[bi];au.fp=Math.Min(5,au.fp+1);bu.fp=Math.Min(5,bu.fp+1);SimUnit lead=au.speed>bu.speed||au.speed==bu.speed&&random.NextDouble()<.5?au:bu;SimUnit follow=lead==au?bu:au;Act(lead,follow,random);if(follow.hp>0)Act(follow,lead,random);if(au.hp<=0)ai++;if(bu.hp<=0)bi++;}if(ai>=a.Count&&bi>=b.Count)return 0;if(ai>=a.Count)return -1;if(bi>=b.Count)return 1;float ah=a.Skip(ai).Sum(x=>Math.Max(0,x.hp)/(float)x.maxHp),bh=b.Skip(bi).Sum(x=>Math.Max(0,x.hp)/(float)x.maxHp);return Math.Abs(ah-bh)<.05f?0:ah>bh?1:-1;}
+        {var random=new System.Random(seed);var a=first.Select(x=>new SimUnit(x,SimulationLevel)).ToList();var b=second.Select(x=>new SimUnit(x,SimulationLevel)).ToList();int ai=0,bi=0;for(int turn=0;turn<360&&ai<a.Count&&bi<b.Count;turn++){SimUnit au=a[ai],bu=b[bi];au.fp=Math.Min(5,au.fp+1);bu.fp=Math.Min(5,bu.fp+1);SimUnit lead=au.speed>bu.speed||au.speed==bu.speed&&random.NextDouble()<.5?au:bu;SimUnit follow=lead==au?bu:au;Act(lead,follow,random,turn+1);if(follow.hp>0)Act(follow,lead,random,turn+1);if(au.hp<=0)ai++;if(bu.hp<=0)bi++;}if(ai>=a.Count&&bi>=b.Count)return 0;if(ai>=a.Count)return -1;if(bi>=b.Count)return 1;float ah=a.Skip(ai).Sum(x=>Math.Max(0,x.hp)/(float)x.maxHp),bh=b.Skip(bi).Sum(x=>Math.Max(0,x.hp)/(float)x.maxHp);return Math.Abs(ah-bh)<.05f?0:ah>bh?1:-1;}
         private static void RecordParty(Dictionary<string,PartyResult> results,IEnumerable<ShadowData> party,bool won,bool draw){foreach(var shadow in party){var r=results[shadow.shadowId];r.games++;if(draw)r.draws++;else if(won)r.wins++;}}
         private static void RecordComposition(Dictionary<string,CompositionResult> results,ShadowData[] party,bool won,bool draw){string roles=string.Join("+",party.Select(x=>x.role.ToString()).OrderBy(x=>x));string elements=string.Join("+",party.Select(x=>x.element.ToString()).OrderBy(x=>x));string key=$"{party.Length}|{roles}|{elements}";if(!results.TryGetValue(key,out var r)){r=new CompositionResult{size=party.Length,names=$"역할 {roles} / 속성 {elements}"};results.Add(key,r);}r.games++;if(draw)r.draws++;else if(won)r.wins++;}
         private static string PartyVerdict(float rate,int games)=>games<3?"표본 부족":rate<.42f?"조합 약세":rate>.58f?"조합 강세":"안정";
 
-        private static void Act(SimUnit actor, SimUnit target, System.Random random)
+        private static void Act(SimUnit actor, SimUnit target, System.Random random, int turn)
         {
-            SkillData skill = Choose(actor, target);
+            SkillData skill = Choose(actor, target, turn);
             if (skill == null) { target.hp = Math.Max(0, target.hp - 1); return; }
             actor.fp = Math.Max(0, actor.fp + skill.fpGain - skill.fpCost);
             if (skill.target == SkillTarget.Self && skill.healRatio > 0f)
-            { actor.hp = Math.Min(actor.maxHp, actor.hp + Mathf.RoundToInt(actor.maxHp * skill.healRatio)); return; }
+            {
+                if (actor.healing.TryConsume(turn))
+                    actor.hp = Math.Min(actor.maxHp, actor.hp + Math.Max(1, Mathf.RoundToInt(actor.maxHp * skill.healRatio)));
+                return;
+            }
             if (!skill.DealsDamage || random.NextDouble() > skill.accuracy * (1f - target.evasion)) return;
             float defense = target.defense * (skill.damageType == DamageType.Magical ? .5f : 1f);
             float element = ElementChart.GetMultiplier(skill.ResolveElement(actor.data.element),
@@ -166,10 +171,11 @@ namespace ShadowTheater.EditorTools
             target.hp = Math.Max(0, target.hp - Math.Max(1, Mathf.RoundToInt(raw * (.9f + (float)random.NextDouble() * .1f))));
         }
 
-        private static SkillData Choose(SimUnit actor, SimUnit target)
+        private static SkillData Choose(SimUnit actor, SimUnit target, int turn)
         {
             IEnumerable<SkillData> skills = (actor.data.skills ?? new List<SkillData>())
-                .Where(x => x != null && x.requiredLevel <= SimulationLevel && x.fpCost <= actor.fp);
+                .Where(x => x != null && x.requiredLevel <= SimulationLevel && x.fpCost <= actor.fp &&
+                    (!BattleUnit.IsHealingSkill(x) || actor.healing.CanUse(turn)));
             SkillData best = actor.data.basicAttack;
             float bestScore = Score(actor, target, best);
             foreach (SkillData skill in skills)
@@ -215,6 +221,7 @@ namespace ShadowTheater.EditorTools
         private sealed class CompositionResult{public int size,games,wins,draws;public string names;public float WinRate=>games==0?.5f:(wins+draws*.5f)/games;}
         private sealed class SimUnit
         {
+            public readonly HealingSkillBudget healing = new HealingSkillBudget();
             public readonly ShadowData data; public readonly int maxHp, attack, defense, speed; public readonly float crit, evasion;
             public int hp, fp;
             public SimUnit(ShadowData data, int level)

@@ -113,6 +113,7 @@ namespace ShadowTheater.EditorTools
             NpcIdentityValidator.Validate(result.errors);
             ItemExpansionRegression.Validate(result.errors);
             BackstageEasterEggRegression.Validate(result.errors);
+            HealingSkillRegression.Validate(result.errors);
             RegionDifficultySimulator.ValidatePolicyRegression(result.errors);
             LocalizationTranslationImporter.ValidateRegression(result.errors);
             MobileBuildConfigurator.ValidateScenePolicyRegression(result.errors);
