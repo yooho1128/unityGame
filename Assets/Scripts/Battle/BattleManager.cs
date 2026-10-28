@@ -44,7 +44,6 @@ namespace ShadowTheater.Battle
         public BattleState State { get; private set; } = BattleState.None;
         public BattleContext Context { get; private set; }
         public int Turn { get; private set; }
-        public bool IsAuto { get; private set; }
 
         public IReadOnlyList<BattleUnit> PlayerUnits => _playerUnits;
         public IReadOnlyList<BattleUnit> EnemyUnits => _enemyUnits;
@@ -159,7 +158,6 @@ namespace ShadowTheater.Battle
             _fp[0] = _fp[1] = startFp;
             _lastVoluntarySwitchTurn[0] = _lastVoluntarySwitchTurn[1] = -99;
             Turn = 0;
-            IsAuto = context.autoBattle;
             _captureBonus = 1f;
             _jointSkillUsed = false;
             ShadowInstance companion = CompanionBondService.CurrentCompanion();
@@ -186,7 +184,7 @@ namespace ShadowTheater.Battle
         /// <summary>UI 버튼 → 플레이어 행동 제출. 유효하지 않으면 false</summary>
         public bool SubmitAction(BattleAction action) => SubmitAction(action, out _);
 
-        public bool CanChooseAction => State == BattleState.WaitingForInput && !IsAuto && _pendingAction == null;
+        public bool CanChooseAction => State == BattleState.WaitingForInput && _pendingAction == null;
 
         public bool SubmitAction(BattleAction action, out string reason)
         {
@@ -197,7 +195,7 @@ namespace ShadowTheater.Battle
             // 기절로 인한 강제 교체
             if (State == BattleState.ForcedSwitch)
             {
-                if (IsAuto || _pendingForcedSwitch >= 0 || action.type != ActionType.Switch || !CanSwitchTo(action.switchIndex))
+                if (_pendingForcedSwitch >= 0 || action.type != ActionType.Switch || !CanSwitchTo(action.switchIndex))
                 { reason = L10n.Get("battle.switch_unavailable", "지금은 이 그림자로 교체할 수 없습니다."); return false; }
                 _pendingForcedSwitch = action.switchIndex;
                 return true;
@@ -214,7 +212,6 @@ namespace ShadowTheater.Battle
             return true;
         }
 
-        public void SetAuto(bool on) => IsAuto = on;
 
         public void SetSpeed(float timeScale)
         {
@@ -342,9 +339,8 @@ namespace ShadowTheater.Battle
                 // 1) 플레이어 입력
                 _pendingAction = null;
                 SetState(BattleState.WaitingForInput);
-                yield return new WaitUntil(() => _pendingAction != null || IsAuto);
-                var playerAction = _pendingAction
-                    ?? ChooseAiAction(BattleSide.Player, true);
+                yield return new WaitUntil(() => _pendingAction != null);
+                var playerAction = _pendingAction;
                 playerAction.actor = PlayerActive;
 
                 SetState(BattleState.ResolvingTurn);
@@ -893,18 +889,10 @@ namespace ShadowTheater.Battle
                     yield break;
                 }
 
-                if (IsAuto)
-                {
-                    _pendingForcedSwitch = next;
-                }
-                else
-                {
-                    _pendingForcedSwitch = -1;
-                    SetState(BattleState.ForcedSwitch);
-                    yield return new WaitUntil(() => _pendingForcedSwitch >= 0 || IsAuto);
-                    if (_pendingForcedSwitch < 0) _pendingForcedSwitch = next;
-                    SetState(BattleState.ResolvingTurn);
-                }
+                _pendingForcedSwitch = -1;
+                SetState(BattleState.ForcedSwitch);
+                yield return new WaitUntil(() => _pendingForcedSwitch >= 0);
+                SetState(BattleState.ResolvingTurn);
 
                 yield return DoSwitch(BattleSide.Player, _pendingForcedSwitch);
                 _pendingForcedSwitch = -1;

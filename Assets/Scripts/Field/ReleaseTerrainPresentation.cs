@@ -33,6 +33,7 @@ namespace ShadowTheater.Field
 
         public static void StylePortal(MapPortal portal)
         {
+            if (portal.GetComponent<PortalExitMarker>() == null) portal.gameObject.AddComponent<PortalExitMarker>();
             var original = portal.GetComponent<SpriteRenderer>();
             var ring = Resources.Load<Sprite>("Art/FX/Ring");
             if (original == null || ring == null || portal.transform.Find("ExitRing") != null) return;

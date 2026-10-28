@@ -430,6 +430,7 @@ namespace ShadowTheater.Save
         private static void Sanitize(SaveData data)
         {
             data.saveGuid = string.IsNullOrEmpty(data.saveGuid) ? Guid.NewGuid().ToString("N") : data.saveGuid;
+            data.autoBattle = false; // 구버전 자동 전투 설정은 폐기한다.
             data.gold = Mathf.Max(0, data.gold);
             data.memoryFragments = Mathf.Max(0, data.memoryFragments);
             data.wildVictoryCount = Mathf.Max(0, data.wildVictoryCount);
@@ -969,14 +970,18 @@ namespace ShadowTheater.Save
             { message = "사용할 그림자를 선택하세요."; return false; }
             if (item.effectType == ItemEffectType.GainExperience)
             {
-                if (target.IsMaxLevel) { message = "이미 최고 레벨입니다."; return false; }
-                int experience = Mathf.Max(1,Mathf.RoundToInt(item.value));
-                int projectedLevel = ProjectLevelAfterExperience(target,experience);
+                int requested = Mathf.Max(1, Mathf.RoundToInt(item.value));
+                if (!TrainingItemPolicy.TryGrant(TrainingItemPolicy.Find(item.itemId), target.level, target.exp,
+                    requested, ShadowInstance.ExperienceToNext, out int experience, out string range))
+                { message = range; return false; }
+                int projectedLevel = ProjectLevelAfterExperience(target, experience);
                 restored = experience;
                 excess = projectedLevel-target.level;
                 message = projectedLevel>target.level
                     ? $"예상 경험치 +{experience} · Lv.{target.level} → Lv.{projectedLevel}"
                     : $"예상 경험치 +{experience} · 사용 후 다음 레벨까지 {Mathf.Max(0,target.ExpToNext-target.exp-experience)}";
+                message += $" · {range}";
+                if (experience < requested) message += " · 상한까지의 경험치만 적용됩니다.";
                 return true;
             }
             if (target.IsFainted)

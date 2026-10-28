@@ -50,7 +50,7 @@ namespace ShadowTheater.Battle
             if (bm == null || bm.Context == null) return;
 
             GUILayout.BeginArea(new Rect(10, 10, 320, 600), GUI.skin.box);
-            GUILayout.Label($"Turn {bm.Turn}  |  State: {bm.State}  |  Auto: {bm.IsAuto}");
+            GUILayout.Label($"Turn {bm.Turn}  |  State: {bm.State}");
             GUILayout.Label($"FP  나 {bm.GetFp(BattleSide.Player)}/{bm.MaxFp}   적 {bm.GetFp(BattleSide.Enemy)}/{bm.MaxFp}");
             GUILayout.Label($"[나] {bm.PlayerActive.Name} Lv.{bm.PlayerActive.Level}  HP {bm.PlayerActive.Hp}/{bm.PlayerActive.MaxHp}  {bm.PlayerActive.MajorStatus?.type}");
             GUILayout.Label($"[적] {bm.EnemyActive.Name} Lv.{bm.EnemyActive.Level}  HP {bm.EnemyActive.Hp}/{bm.EnemyActive.MaxHp}  {bm.EnemyActive.MajorStatus?.type}");
@@ -81,7 +81,6 @@ namespace ShadowTheater.Battle
                 }
             }
 
-            if (GUILayout.Button(bm.IsAuto ? "Auto OFF" : "Auto ON")) bm.SetAuto(!bm.IsAuto);
             if (bm.IsEnded && GUILayout.Button("다시 시작")) StartTest();
             GUILayout.EndArea();
         }

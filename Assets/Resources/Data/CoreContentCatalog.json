@@ -693,7 +693,7 @@
     {
       "itemId": "rehearsal_script",
       "displayName": "기억의 연습 대본",
-      "description": "되찾은 장면을 반복 연습해 선택한 그림자에게 경험치 300을 전한다.",
+      "description": "필드에서 경험치 300을 전한다. Lv.1~19에 사용하며 최대 Lv.20까지만 성장한다. 상한을 넘는 경험치는 지급하지 않는다.",
       "effectType": "GainExperience",
       "value": 300,
       "usableInBattle": false,

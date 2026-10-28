@@ -49,7 +49,7 @@ namespace ShadowTheater.UI
             _onSell = onSell;
             if (icon != null) { icon.sprite = item.icon; icon.enabled = item.icon != null; icon.preserveAspect = true; }
             if (nameText != null) nameText.text = L10n.Text(item.displayName);
-            if (descriptionText != null) descriptionText.text = L10n.Text(item.description);
+            if (descriptionText != null) descriptionText.text = InventoryDescription(item);
             if (ownedText != null) ownedText.text = L10n.Format("shop.owned", "보유 {0}", owned);
             if (buyPriceText != null) buyPriceText.text = L10n.Format("shop.buy_price", "구매 {0:N0}", item.buyPrice);
             if (sellPriceText != null) sellPriceText.text = L10n.Format("shop.sell_price", "판매 {0:N0}", item.sellPrice);
@@ -60,5 +60,12 @@ namespace ShadowTheater.UI
 
         private void Buy() { if (isActiveAndEnabled && buyButton != null && buyButton.interactable) _onBuy?.Invoke(_item); }
         private void Sell() { if (isActiveAndEnabled && sellButton != null && sellButton.interactable) _onSell?.Invoke(_item); }
+        private static string InventoryDescription(ItemData item)
+        {
+            var rule = TrainingItemPolicy.Find(item.itemId);
+            return rule != null ? $"경험치 {Mathf.RoundToInt(item.value)} · {TrainingItemPolicy.RangeLabel(rule)} · 상한 초과분은 지급하지 않습니다."
+                : L10n.Text(item.description);
+        }
+
     }
 }

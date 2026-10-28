@@ -1,0 +1,7 @@
+{
+  "entries": [
+    { "itemId": "rehearsal_script", "minimumLevel": 1, "maximumLevel": 20 },
+    { "itemId": "annotated_script", "minimumLevel": 20, "maximumLevel": 50 },
+    { "itemId": "complete_script", "minimumLevel": 50, "maximumLevel": 80 }
+  ]
+}

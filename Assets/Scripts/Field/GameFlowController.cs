@@ -168,7 +168,6 @@ namespace ShadowTheater.Field
                 weather = world.weather,
                 bossInvestigationLevel = mode == BattleMode.Boss && enemies != null && enemies.Count > 0
                     ? BossInvestigationService.PreparationLevel(enemies[0].Data) : 0,
-                autoBattle = save.autoBattle,
                 timeScale = save.battleSpeed
             };
         }
@@ -275,7 +274,6 @@ namespace ShadowTheater.Field
             foreach (BattleLoot loot in outcome.loot)
                 if (loot != null && !string.IsNullOrEmpty(loot.itemId) && loot.count > 0)
                     SaveManager.AddItem(loot.itemId, loot.count);
-            save.autoBattle = battleManager.IsAuto;
             save.battleSpeed = ctx.timeScale;
             ApplyShowcaseRecords(save, outcome);
 

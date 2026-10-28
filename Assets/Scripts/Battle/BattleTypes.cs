@@ -99,7 +99,6 @@ namespace ShadowTheater.Battle
         public Dictionary<ItemData, int> inventory; // 전투 중 사용할 도구 (null 가능)
         public string encounterId;                 // 퀘스트 플래그/심볼 제거용
         public BattleGimmick gimmick;
-        public bool autoBattle;
         public float timeScale = 1f;               // 접근성/연출 배속 옵션
         public int bossInvestigationLevel;          // 0~3, 마을 사전 조사 단서 수
         public string regionId;

@@ -69,7 +69,7 @@ namespace ShadowTheater.Save
 
         // ── 옵션 ──
         public float battleSpeed = 1f;
-        public bool autoBattle;
+        public bool autoBattle; // 구버전 JSON 호환용. 로드 시 false로 정리하며 게임에서 사용하지 않는다.
     }
 
     [Serializable]

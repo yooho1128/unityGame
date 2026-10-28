@@ -36,7 +36,6 @@ namespace ShadowTheater.EditorTools
             var turn = Text("Turn", topBar, new Vector2(0.025f, 0f), new Vector2(0.24f, 1f), 26, TextAnchor.MiddleLeft);
             var fp = Text("FP", topBar, new Vector2(0.32f, 0f), new Vector2(0.56f, 1f), 26, TextAnchor.MiddleCenter);
             fp.text = "FP 0 / 5\n열연 0 / 3";
-            var auto = Button("Auto", topBar, new Vector2(0.64f, 0.12f), new Vector2(0.82f, 0.88f), "AUTO OFF");
             var speed = Button("Speed", topBar, new Vector2(0.84f, 0.12f), new Vector2(0.975f, 0.88f), "×1");
 
             // 포켓몬식 대각선 구도: 두 유닛 패널과 파티 슬롯의 영역이 절대 겹치지 않는다.
@@ -105,7 +104,7 @@ namespace ShadowTheater.EditorTools
             Set(so,"actionRoot",actions.gameObject); Set(so,"optionRoot",options.gameObject); Set(so,"optionContent",content);
             Set(so,"optionTemplate",template); Set(so,"messageRoot",messageCard.gameObject); Set(so,"messageText",message);
             Set(so,"optionPromptText",optionPrompt); Set(so,"fpText",fp); Set(so,"turnText",turn);
-            Set(so,"autoText",auto.GetComponentInChildren<Text>()); Set(so,"speedText",speed.GetComponentInChildren<Text>());
+            Set(so,"speedText",speed.GetComponentInChildren<Text>());
             Set(so,"recordText",record.GetComponentInChildren<Text>()); Set(so,"recordButton",record); Set(so,"escapeButton",escape); so.ApplyModifiedPropertiesWithoutUndo();
             so.Update(); Set(so,"resultRoot",result.gameObject); Set(so,"resultGroup",resultGroup); Set(so,"resultCard",resultCard);
             Set(so,"resultAccent",resultAccent); Set(so,"resultTitleText",resultTitle); Set(so,"resultSummaryText",resultSummary);
@@ -125,7 +124,6 @@ namespace ShadowTheater.EditorTools
             UnityEditor.Events.UnityEventTools.AddPersistentListener(items.onClick, ui.OpenItems);
             UnityEditor.Events.UnityEventTools.AddPersistentListener(escape.onClick, ui.Escape);
             UnityEditor.Events.UnityEventTools.AddPersistentListener(back.onClick, ui.BackToActions);
-            UnityEditor.Events.UnityEventTools.AddPersistentListener(auto.onClick, ui.ToggleAuto);
             UnityEditor.Events.UnityEventTools.AddPersistentListener(speed.onClick, ui.CycleSpeed);
             UnityEditor.Events.UnityEventTools.AddPersistentListener(resultContinue.onClick, ui.ConfirmResult);
             UnityEditor.Events.UnityEventTools.AddPersistentListener(tutorialNext.onClick, ui.NextTutorial);

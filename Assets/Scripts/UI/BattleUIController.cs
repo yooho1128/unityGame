@@ -75,6 +75,13 @@ namespace ShadowTheater.UI
                 turnText.resizeTextMinSize = 12;
                 turnText.resizeTextForBestFit = true;
             }
+            // 기존 생성 프리팹에 남은 AUTO 버튼도 즉시 숨긴다.
+            if (autoText != null)
+            {
+                var oldAuto = autoText.GetComponentInParent<Button>();
+                if (oldAuto != null) oldAuto.gameObject.SetActive(false);
+                else autoText.gameObject.SetActive(false);
+            }
             ShowActions(false);
         }
 
@@ -187,7 +194,7 @@ namespace ShadowTheater.UI
 
         public void OpenSwitches()
         {
-            if (manager == null || manager.IsAuto || (!manager.CanChooseAction && manager.State != BattleState.ForcedSwitch)) return;
+            if (manager == null || (!manager.CanChooseAction && manager.State != BattleState.ForcedSwitch)) return;
             OpenOptions(manager.State == BattleState.ForcedSwitch
                 ? L10n.Get("battle.choose_next", "다음 그림자를 선택하세요")
                 : L10n.Get("battle.choose_switch", "교체할 그림자를 선택하세요"));
@@ -245,14 +252,6 @@ namespace ShadowTheater.UI
             if (actionRoot != null) actionRoot.SetActive(manager.CanChooseAction);
         }
 
-        public void ToggleAuto()
-        {
-            manager.SetAuto(!manager.IsAuto);
-            ClearOptions();
-            if (manager.State == BattleState.ForcedSwitch && !manager.IsAuto) OpenSwitches();
-            else ShowActions(manager.CanChooseAction);
-            RefreshLabels();
-        }
 
         public void CycleSpeed()
         {
@@ -292,7 +291,7 @@ namespace ShadowTheater.UI
         private void OnStateChanged(BattleState state)
         {
             RefreshTurnLabel();
-            if (state == BattleState.WaitingForInput) ShowActions(!manager.IsAuto);
+            if (state == BattleState.WaitingForInput) ShowActions(true);
             else if (state == BattleState.ForcedSwitch) { ShowActions(false); OpenSwitches(); }
             else ShowActions(false);
             RefreshAll();
@@ -301,7 +300,7 @@ namespace ShadowTheater.UI
 
         private void TryOpenTutorial()
         {
-            if (tutorialRoot == null || manager.IsAuto || SaveManager.Current == null ||
+            if (tutorialRoot == null || SaveManager.Current == null ||
                 SaveManager.HasFlag(BattleTutorialFlag) || _tutorialStep >= 0) return;
             _tutorialStep = 0;
             tutorialRoot.SetActive(true);
@@ -386,7 +385,6 @@ namespace ShadowTheater.UI
             if (fpText != null && manager.Context != null)
                 fpText.text = $"FP {manager.GetFp(BattleSide.Player)} / {manager.MaxFp}\n" +
                     L10n.Format("battle.momentum_label", "열연 {0} / {1}", manager.Momentum, manager.MaxMomentum);
-            if (autoText != null) autoText.text = manager.IsAuto ? "AUTO ON" : "AUTO OFF";
             if (speedText != null) speedText.text = $"×{_speed:0}";
             if (recordText != null && manager.Context != null)
             {

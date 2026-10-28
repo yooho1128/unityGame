@@ -1066,8 +1066,8 @@ namespace ShadowTheater.EditorTools
                 var cameraFollow = go.AddComponent<FieldCameraFollow>();
                 var so = new SerializedObject(cameraFollow);
                 Set(so, "target", target);
-                Set(so, "minBounds", new Vector2(-7f, -2f));
-                Set(so, "maxBounds", new Vector2(7f, 2f));
+                Set(so, "minBounds", new Vector2(-7f, -4.5f));
+                Set(so, "maxBounds", new Vector2(7f, 4.5f));
                 so.ApplyModifiedPropertiesWithoutUndo();
             }
             return camera;

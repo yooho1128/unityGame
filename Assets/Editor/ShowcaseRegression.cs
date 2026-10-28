@@ -93,9 +93,9 @@ namespace ShadowTheater.EditorTools
                 legacy.bestPerformanceStreak != 0 || legacy.audienceRequestsCompleted != 0 || legacy.starVariantsRecorded != 0)
                 errors.Add("v12 공연 기록 기본값 마이그레이션 실패");
             var damaged = new SaveData { performanceStreak = -1, bestPerformanceStreak = -2,
-                audienceRequestsCompleted = -1, starVariantsRecorded = -1 };
+                audienceRequestsCompleted = -1, starVariantsRecorded = -1, autoBattle = true };
             SaveManager.Migrate(damaged, out _);
-            if (damaged.performanceStreak != 0 || damaged.bestPerformanceStreak != 0 ||
+            if (damaged.autoBattle || damaged.performanceStreak != 0 || damaged.bestPerformanceStreak != 0 ||
                 damaged.audienceRequestsCompleted != 0 || damaged.starVariantsRecorded != 0)
                 errors.Add("공연 기록 음수 복구 실패");
         }

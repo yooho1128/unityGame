@@ -125,7 +125,7 @@ namespace ShadowTheater.UI
             if (selectedItemText != null) selectedItemText.text = _selectedItem != null
                 ? L10n.Text(_selectedItem.displayName) + $"  x{SaveManager.GetItemCount(_selectedItem.itemId)}"
                 : L10n.Get("inventory.select_item", "도구를 선택하세요");
-            if (descriptionText != null) descriptionText.text = _selectedItem != null ? L10n.Text(_selectedItem.description) : string.Empty;
+            if (descriptionText != null) descriptionText.text = _selectedItem != null ? InventoryDescription(_selectedItem) : string.Empty;
             if (descriptionText != null && _selectedItem != null)
                 descriptionText.text += "\n" + preview;
             if (selectedTargetText != null) selectedTargetText.text = _selectedTarget != null
@@ -149,5 +149,12 @@ namespace ShadowTheater.UI
         private void RefreshIfOpen() { if (IsOpen) _refreshPending = true; }
         private void LateUpdate() { if (IsOpen && _refreshPending) Refresh(); }
         private void ReleasePlayer() { if (!_lockedPlayer) return; PlayerController.Instance?.Unlock(); _lockedPlayer = false; }
+        private static string InventoryDescription(ItemData item)
+        {
+            var rule = TrainingItemPolicy.Find(item.itemId);
+            return rule != null ? $"경험치 {Mathf.RoundToInt(item.value)} · {TrainingItemPolicy.RangeLabel(rule)} · 상한 초과분은 지급하지 않습니다."
+                : L10n.Text(item.description);
+        }
+
     }
 }

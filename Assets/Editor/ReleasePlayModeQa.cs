@@ -278,7 +278,6 @@ namespace ShadowTheater.EditorTools
             while (MapLoader.Instance.IsTransitioning) yield return null;
             yield return Wait(.3f);
 
-            SaveManager.Current.autoBattle = true;
             SaveManager.Current.battleSpeed = 3f;
             bool battleFinished = false;
             GameFlowController.Instance.StartScriptedBattle(BattleMode.Wild,
@@ -286,12 +285,19 @@ namespace ShadowTheater.EditorTools
             float battleDeadline = Time.unscaledTime + 45f;
             while (GameFlowController.Instance.IsInBattle && Time.unscaledTime < battleDeadline)
             {
+                // 에디터 QA만 입력 API로 공격을 제출한다. 게임에는 자동 전투 경로가 없다.
+                var manager = UnityEngine.Object.FindObjectOfType<BattleManager>();
+                if (manager != null && manager.CanChooseAction)
+                    manager.SubmitAction(BattleAction.Attack(BattleSide.Player, manager.PlayerActive.BasicAttack));
+                if (manager != null && manager.State == BattleState.ForcedSwitch)
+                    for (int i = 0; i < manager.PlayerUnits.Count; i++)
+                        if (manager.CanSwitchTo(i)) { manager.SubmitAction(BattleAction.Switch(BattleSide.Player, i)); break; }
                 var ui = UnityEngine.Object.FindObjectOfType<BattleUIController>();
                 if (ui != null) ui.ConfirmResult();
                 yield return null;
             }
             Require(battleFinished && !GameFlowController.Instance.IsInBattle && !PlayerController.Instance.IsLocked, "Battle victory returns to controllable field");
-            Notes.Add("Real battle start, auto resolution, result confirmation, field return and movement unlock PASS");
+            Notes.Add("Real battle start, explicit QA attack input, result confirmation, field return and movement unlock PASS");
         }
 
         private static T Field<T>(object owner, string name) => (T)owner.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic).GetValue(owner);

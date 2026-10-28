@@ -224,7 +224,6 @@ header h1 small{font-size:13px;color:var(--dim);margin-left:6px;font-family:var(
         <div class="msg" id="msg"></div>
         <div class="menu" id="menu"></div>
         <div class="bbar">
-          <button id="btnAuto">AUTO</button>
           <button id="btnSpeed">x1</button>
           <span id="turnLbl"></span>
         </div>
@@ -503,7 +502,7 @@ const PRIORITY = {Escape:4, Switch:3, Item:2, Record:2, Attack:0, Skill:0};
 // 4. 게임 상태 (SaveData)
 // ═════════════════════════════════════════════════════════════
 const G = { party:[], seen:new Set(), recorded:new Set(), gold:100, inv:{potion:3,tonic:1,ink:2,salve:1},
-  cleared:new Set(), auto:false, speed:1, bestFloor:0, busy:false, streak:0, bestStreak:0, audienceDone:0 };
+  cleared:new Set(), speed:1, bestFloor:0, busy:false, streak:0, bestStreak:0, audienceDone:0 };
 const wait = ms => new Promise(r=>setTimeout(r, ms/G.speed));
 const realWait = ms => new Promise(r=>setTimeout(r, ms));
 const $ = s => document.querySelector(s);
@@ -840,7 +839,6 @@ async function battleLoop(){
   while(!B.ended){
     B.turn++; addFp("Player",1); addFp("Enemy",1); refreshInfo(); updateBar();
     let pa = await waitPlayerAction();
-    if (!pa) pa = aiChoose(PA(), EA(), B.fp.Player);
     pa.actor=PA();
     const ea=aiChoose(EA(), PA(), B.fp.Enemy); ea.actor=EA();
     setMenu("none");
@@ -869,12 +867,11 @@ function orderActions(p,e){
 }
 function waitPlayerAction(){
   return new Promise(res=>{
-    if (G.auto){ setTimeout(()=>res(null), 250/G.speed); return; }
     B.resolve=res; setMenu("main");
     msgEl.textContent=`${PA().name}은(는) 무엇을 할까?`;
   });
 }
-function submit(a){ if (!B||!B.resolve) return; const r=B.resolve; B.resolve=null; setMenu("none"); r(a); }
+function submit(a){ if (!a||!B||!B.resolve) return; const r=B.resolve; B.resolve=null; setMenu("none"); r(a); }
 
 async function execute(a){
   switch(a.type){
@@ -980,9 +977,7 @@ async function handleFaints(){
     await P.faint(PA());
     const alive=B.p.map((u,i)=>[u,i]).filter(([u])=>!u.fainted);
     if (!alive.length){ finish("Defeat"); return; }
-    let idx;
-    if (G.auto || alive.length===1) idx=alive[0][1];
-    else idx = await new Promise(res=>{ B.forced=res; setMenu("forced"); msgEl.textContent="다음 배우를 무대에 올리세요."; });
+    const idx = await new Promise(res=>{ B.forced=res; setMenu("forced"); msgEl.textContent="다음 배우를 무대에 올리세요."; });
     setMenu("none");
     await doSwitch("Player", idx);
   }
@@ -1088,7 +1083,7 @@ function refreshInfo(){
   }
 }
 function updateBar(){
-  $("#btnAuto").classList.toggle("on",G.auto); $("#btnSpeed").textContent="x"+G.speed;
+  $("#btnSpeed").textContent="x"+G.speed;
   document.documentElement.style.setProperty("--spd",G.speed);
   const aud = B && B.aud ? ` · 주문 ${AUD[B.aud.type].t}${B.aud.type==="Repertoire"&&B.aud.state==="Pending"?` ${B.aud.skills.size}/${AUD_REPERTOIRE}`:""}${B.aud.type==="SwiftCurtain"&&B.aud.state==="Pending"?` ~${B.aud.limit}턴`:""}${B.aud.state==="Achieved"?" ✓":B.aud.state==="Failed"?" ✕":""}` : "";
   $("#turnLbl").textContent = B ? `TURN ${B.turn}${aud}` : "";
@@ -1202,7 +1197,7 @@ async function trainingTower(){
     if (last.result!=="Victory") break;
     G.bestFloor=Math.max(G.bestFloor,floor);
     msgEl.textContent=`${floor}층 돌파! (최고 기록 ${G.bestFloor}층) HP는 회복되지 않습니다.`;
-    const go = G.auto ? (await wait(900), G.party.some(i=>i.currentHp>maxHpOf(i)*0.3)) : await new Promise(res=>{
+    const go = await new Promise(res=>{
       menuEl.innerHTML=""; menuEl.className="menu two";
       const a=el("button","primary","다음 층으로"); a.onclick=()=>res(true);
       const b=el("button","","천막으로 복귀"); b.onclick=()=>res(false);
@@ -1295,7 +1290,6 @@ $("#btnA").onclick=()=>{ if(!G.busy && $("#modal").hidden) interact(); };
 $("#btnParty").onclick=()=>{ if(!G.busy) openParty(); };
 $("#btnBook").onclick=()=>{ if(!G.busy) openBook(); };
 $("#btnTower").onclick=()=>{ if($("#modal").hidden) trainingTower(); };
-$("#btnAuto").onclick=()=>{ G.auto=!G.auto; updateBar(); if (G.auto && B){ if (B.resolve) submit(null); if (B.forced){ const r=B.forced; B.forced=null; r(B.p.findIndex(u=>!u.fainted)); } } };
 $("#btnSpeed").onclick=()=>{ G.speed = G.speed===1?2:G.speed===2?3:1; updateBar(); };
 addEventListener("resize",()=>{ if(!$("#field").hidden) resizeField(); });
 

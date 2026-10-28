@@ -35,6 +35,10 @@ namespace ShadowTheater.Field
         private void Start()
         {
             if (target == null && PlayerController.Instance != null) target = PlayerController.Instance.transform;
+            // Legacy generated scenes clamp Y to ±2, hiding the north exit at Y=8 with a 5.5 camera.
+            // Upgrade those known limits as well as generating corrected bounds for new scenes.
+            if (clampToBounds && Mathf.Approximately(minBounds.y, -2f) && Mathf.Approximately(maxBounds.y, 2f))
+            { minBounds.y = -4.5f; maxBounds.y = 4.5f; }
             Snap();
         }
 

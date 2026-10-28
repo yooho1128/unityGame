@@ -89,7 +89,7 @@
     {
       "itemId": "annotated_script",
       "displayName": "주석 달린 기억 대본",
-      "description": "필드에서 선택한 그림자에게 경험치 900을 전한다. 최고 레벨 그림자에게는 사용할 수 없다.",
+      "description": "필드에서 경험치 900을 전한다. Lv.20~49에 사용하며 최대 Lv.50까지만 성장한다. 상한을 넘는 경험치는 지급하지 않는다.",
       "effectType": "GainExperience",
       "value": 900,
       "buyPrice": 240,
@@ -103,7 +103,7 @@
     {
       "itemId": "complete_script",
       "displayName": "완성된 기억 대본",
-      "description": "필드에서 선택한 그림자에게 경험치 2400을 전한다. 최고 레벨 그림자에게는 사용할 수 없다.",
+      "description": "필드에서 경험치 2400을 전한다. Lv.50~79에 사용하며 최대 Lv.80까지만 성장한다. 상한을 넘는 경험치는 지급하지 않는다.",
       "effectType": "GainExperience",
       "value": 2400,
       "buyPrice": 640,
