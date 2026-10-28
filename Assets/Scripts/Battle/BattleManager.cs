@@ -131,7 +131,14 @@ namespace ShadowTheater.Battle
             _enemyUnits.Clear();
             CompanionPassiveSnapshot passive = CompanionBondService.CurrentPassive();
             foreach (var s in context.playerParty) _playerUnits.Add(new BattleUnit(s, BattleSide.Player, passive));
-            foreach (var s in context.enemyParty) _enemyUnits.Add(new BattleUnit(s, BattleSide.Enemy));
+            var region = RegionRepository.Get(context.regionId);
+            var difficulty = EncounterDifficultyPolicy.For(region != null ? region.act : 0, context.mode);
+            foreach (var s in context.enemyParty)
+            {
+                var enemy = new BattleUnit(s, BattleSide.Enemy);
+                enemy.ConfigureDifficulty(difficulty);
+                _enemyUnits.Add(enemy);
+            }
 
             _playerIdx = FindNextAlive(_playerUnits, -1);
             _enemyIdx = FindNextAlive(_enemyUnits, -1);
@@ -934,18 +941,19 @@ namespace ShadowTheater.Battle
 
         private IEnumerator GrantExp(BattleUnit defeated)
         {
-            var receivers = new List<BattleUnit>();
-            foreach (BattleUnit unit in _playerUnits)
-                if (_playerParticipants.Contains(unit) && !unit.IsFainted) receivers.Add(unit);
-            if (receivers.Count == 0 && !PlayerActive.IsFainted) receivers.Add(PlayerActive);
-
-            int exp = DamageCalculator.SplitExperience(DamageCalculator.ExpReward(defeated), receivers.Count);
-            foreach (BattleUnit receiver in receivers)
+            int reward = DamageCalculator.ExpReward(defeated);
+            int supportCount = 0;
+            foreach (BattleUnit receiver in _playerUnits)
             {
-                _outcome.expGained += exp;
+                if (receiver.Instance.IsMaxLevel) continue;
+                bool participated = _playerParticipants.Contains(receiver);
+                int exp = PartyExperiencePolicy.Amount(reward, participated);
+                _outcome.expGained = SaveValuePolicy.SaturatingAdd(_outcome.expGained, exp);
                 var knownSkills = new HashSet<SkillData>(receiver.Instance.GetAvailableSkills());
-                int ups = receiver.Instance.AddExp(exp);
-                yield return _presenter.ShowMessage($"{receiver.Name}은(는) 참여 경험치 {exp}을(를) 얻었다.");
+                int ups = PartyExperiencePolicy.Apply(receiver.Instance, exp);
+                if (participated)
+                    yield return _presenter.ShowMessage($"{receiver.Name}은(는) 참여 경험치 {exp}을(를) 얻었다.");
+                else supportCount++;
                 if (ups > 0)
                 {
                     if (!_outcome.leveledUpInstanceIds.Contains(receiver.Instance.instanceId))
@@ -957,6 +965,8 @@ namespace ShadowTheater.Battle
                 }
                 OnUnitChanged?.Invoke(receiver);
             }
+            if (supportCount > 0)
+                yield return _presenter.ShowMessage($"대기 그림자 {supportCount}마리도 지원 경험치 {PartyExperiencePolicy.Amount(reward, false)}을(를) 각각 얻었다.");
 
             // 다음 적 그림자에 대한 참여 기록은 현재 출전 그림자부터 새로 시작한다.
             _playerParticipants.Clear();

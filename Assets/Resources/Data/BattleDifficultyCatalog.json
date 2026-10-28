@@ -1,0 +1,8 @@
+{
+  "chapters": [
+    { "throughAct": 1, "enemyDamage": 0.60, "enemyVulnerability": 1.30, "bossDamage": 0.45, "bossVulnerability": 2.60, "maxHitRatio": 0.40 },
+    { "throughAct": 3, "enemyDamage": 0.75, "enemyVulnerability": 1.20, "bossDamage": 0.55, "bossVulnerability": 2.40, "maxHitRatio": 0.50 },
+    { "throughAct": 5, "enemyDamage": 0.85, "enemyVulnerability": 1.15, "bossDamage": 0.60, "bossVulnerability": 2.20, "maxHitRatio": 0.55 },
+    { "throughAct": 8, "enemyDamage": 0.95, "enemyVulnerability": 1.05, "bossDamage": 0.65, "bossVulnerability": 2.00, "maxHitRatio": 0.65 }
+  ]
+}

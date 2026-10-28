@@ -57,6 +57,9 @@ namespace ShadowTheater.Battle
         public float Evasion => Mathf.Clamp01(Instance.Evasion + CompanionPassive.evasionBonus);
         public SkillData BasicAttack => Data.basicAttack;
         public List<SkillData> Skills => Instance.GetAvailableSkills();
+        public EncounterDifficultyProfile Difficulty { get; private set; } = EncounterDifficultyProfile.Neutral;
+        public void ConfigureDifficulty(EncounterDifficultyProfile profile) =>
+            Difficulty = Side == BattleSide.Enemy ? profile : EncounterDifficultyProfile.Neutral;
 
         public bool CanAct => MajorStatus == null || MajorStatus.type != StatusEffectType.Freeze;
 

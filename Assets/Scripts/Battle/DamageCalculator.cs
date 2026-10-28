@@ -36,12 +36,13 @@ namespace ShadowTheater.Battle
                 ShadowElement atkElem = skill.ResolveElement(attacker.Data.element);
                 r.elementMultiplier = ElementChart.GetMultiplier(atkElem, defender.Data.element);
                 raw *= r.elementMultiplier;
+                raw *= attacker.Difficulty.damage * defender.Difficulty.vulnerability;
 
                 r.critical = Random.value < attacker.CritRate + skill.bonusCritRate;
                 if (r.critical) raw *= CritMultiplier;
 
                 raw *= Random.Range(0.9f, 1.0f); // 난수 편차
-                r.damage = Mathf.Max(1, Mathf.RoundToInt(raw));
+                r.damage = LimitEnemyHit(attacker, defender, Mathf.Max(1, Mathf.RoundToInt(raw)));
             }
 
             // 3) 상태 이상 판정 (실제 적용은 BattleManager)
@@ -64,7 +65,8 @@ namespace ShadowTheater.Battle
             float expectedCritical = 1f + criticalChance * (CritMultiplier - 1f);
             float raw = attacker.Atk * skill.damageMultiplier * reduced *
                         ElementChart.GetMultiplier(element, defender.Data.element) * .95f * expectedCritical;
-            return Mathf.Max(1, Mathf.RoundToInt(raw));
+            raw *= attacker.Difficulty.damage * defender.Difficulty.vulnerability;
+            return LimitEnemyHit(attacker, defender, Mathf.Max(1, Mathf.RoundToInt(raw)));
         }
 
         public static HitResult CalculateJoint(BattleUnit attacker, BattleUnit companion,
@@ -76,9 +78,10 @@ namespace ShadowTheater.Battle
             float reduced = DefenseConstant / (DefenseConstant + Mathf.Max(0f, defender.Def * .65f));
             result.elementMultiplier = ElementChart.GetMultiplier(profile.element, defender.Data.element);
             float raw = combinedAttack * profile.power * reduced * result.elementMultiplier;
+            raw *= attacker.Difficulty.damage * defender.Difficulty.vulnerability;
             result.critical = Random.value < Mathf.Clamp01((attacker.CritRate + companion.CritRate) * .5f);
             if (result.critical) raw *= CritMultiplier;
-            result.damage = Mathf.Max(1, Mathf.RoundToInt(raw * Random.Range(.94f, 1.01f)));
+            result.damage = LimitEnemyHit(attacker, defender, Mathf.Max(1, Mathf.RoundToInt(raw * Random.Range(.94f, 1.01f))));
             result.statusApplied = profile.status != StatusEffectType.None && Random.value < profile.statusChance;
             return result;
         }
@@ -97,6 +100,13 @@ namespace ShadowTheater.Battle
                 : 1f;
 
             return Mathf.Clamp01(target.Data.baseCaptureRate * hpFactor * statusBonus * itemBonus);
+        }
+
+        private static int LimitEnemyHit(BattleUnit attacker, BattleUnit defender, int damage)
+        {
+            if (attacker.Side != BattleSide.Enemy || defender.Side != BattleSide.Player ||
+                attacker.Difficulty.maxHitRatio <= 0f) return damage;
+            return Mathf.Min(damage, Mathf.Max(1, Mathf.FloorToInt(defender.MaxHp * attacker.Difficulty.maxHitRatio)));
         }
 
         public static int ExpReward(BattleUnit defeated) =>
