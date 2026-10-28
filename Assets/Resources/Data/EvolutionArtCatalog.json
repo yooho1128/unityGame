@@ -1,0 +1,1734 @@
+{
+  "entries": [
+    {
+      "shadowId": "knight",
+      "stage": "restored",
+      "formName": "성문의 수호자",
+      "portrait": "Art/Evolution/Portraits/knight_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/knight_restored_01",
+        "Art/Evolution/Field/knight_restored_02"
+      ]
+    },
+    {
+      "shadowId": "knight",
+      "stage": "salvation",
+      "formName": "진명·백성의 방패 카일",
+      "portrait": "Art/Evolution/Portraits/knight_salvation",
+      "fieldFrames": [
+        "Art/Evolution/Field/knight_salvation_01",
+        "Art/Evolution/Field/knight_salvation_02"
+      ]
+    },
+    {
+      "shadowId": "knight",
+      "stage": "grudge",
+      "formName": "진명·재의 집행자 카일",
+      "portrait": "Art/Evolution/Portraits/knight_grudge",
+      "fieldFrames": [
+        "Art/Evolution/Field/knight_grudge_01",
+        "Art/Evolution/Field/knight_grudge_02"
+      ]
+    },
+    {
+      "shadowId": "mage",
+      "stage": "restored",
+      "formName": "해빙의 기록관",
+      "portrait": "Art/Evolution/Portraits/mage_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/mage_restored_01",
+        "Art/Evolution/Field/mage_restored_02"
+      ]
+    },
+    {
+      "shadowId": "mage",
+      "stage": "salvation",
+      "formName": "진명·기억사서 세라",
+      "portrait": "Art/Evolution/Portraits/mage_salvation",
+      "fieldFrames": [
+        "Art/Evolution/Field/mage_salvation_01",
+        "Art/Evolution/Field/mage_salvation_02"
+      ]
+    },
+    {
+      "shadowId": "mage",
+      "stage": "grudge",
+      "formName": "진명·영점예언자 세라",
+      "portrait": "Art/Evolution/Portraits/mage_grudge",
+      "fieldFrames": [
+        "Art/Evolution/Field/mage_grudge_01",
+        "Art/Evolution/Field/mage_grudge_02"
+      ]
+    },
+    {
+      "shadowId": "beast",
+      "stage": "restored",
+      "formName": "달언덕의 파수견",
+      "portrait": "Art/Evolution/Portraits/beast_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/beast_restored_01",
+        "Art/Evolution/Field/beast_restored_02"
+      ]
+    },
+    {
+      "shadowId": "beast",
+      "stage": "salvation",
+      "formName": "진명·귀향수 루프",
+      "portrait": "Art/Evolution/Portraits/beast_salvation",
+      "fieldFrames": [
+        "Art/Evolution/Field/beast_salvation_01",
+        "Art/Evolution/Field/beast_salvation_02"
+      ]
+    },
+    {
+      "shadowId": "beast",
+      "stage": "grudge",
+      "formName": "진명·월식아 루프",
+      "portrait": "Art/Evolution/Portraits/beast_grudge",
+      "fieldFrames": [
+        "Art/Evolution/Field/beast_grudge_01",
+        "Art/Evolution/Field/beast_grudge_02"
+      ]
+    },
+    {
+      "shadowId": "puppet",
+      "stage": "restored",
+      "formName": "스스로 춤추는 인형",
+      "portrait": "Art/Evolution/Portraits/puppet_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/puppet_restored_01",
+        "Art/Evolution/Field/puppet_restored_02"
+      ]
+    },
+    {
+      "shadowId": "puppet",
+      "stage": "salvation",
+      "formName": "진명·자유인형 피노",
+      "portrait": "Art/Evolution/Portraits/puppet_salvation",
+      "fieldFrames": [
+        "Art/Evolution/Field/puppet_salvation_01",
+        "Art/Evolution/Field/puppet_salvation_02"
+      ]
+    },
+    {
+      "shadowId": "puppet",
+      "stage": "grudge",
+      "formName": "진명·역조종자 피노",
+      "portrait": "Art/Evolution/Portraits/puppet_grudge",
+      "fieldFrames": [
+        "Art/Evolution/Field/puppet_grudge_01",
+        "Art/Evolution/Field/puppet_grudge_02"
+      ]
+    },
+    {
+      "shadowId": "crow",
+      "stage": "restored",
+      "formName": "봉화의 날개",
+      "portrait": "Art/Evolution/Portraits/crow_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/crow_restored_01",
+        "Art/Evolution/Field/crow_restored_02"
+      ]
+    },
+    {
+      "shadowId": "crow",
+      "stage": "salvation",
+      "formName": "진명·새벽전령 카라",
+      "portrait": "Art/Evolution/Portraits/crow_salvation",
+      "fieldFrames": [
+        "Art/Evolution/Field/crow_salvation_01",
+        "Art/Evolution/Field/crow_salvation_02"
+      ]
+    },
+    {
+      "shadowId": "crow",
+      "stage": "grudge",
+      "formName": "진명·화장조 카라",
+      "portrait": "Art/Evolution/Portraits/crow_grudge",
+      "fieldFrames": [
+        "Art/Evolution/Field/crow_grudge_01",
+        "Art/Evolution/Field/crow_grudge_02"
+      ]
+    },
+    {
+      "shadowId": "mask",
+      "stage": "restored",
+      "formName": "우는 광대",
+      "portrait": "Art/Evolution/Portraits/mask_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/mask_restored_01",
+        "Art/Evolution/Field/mask_restored_02"
+      ]
+    },
+    {
+      "shadowId": "mask",
+      "stage": "salvation",
+      "formName": "진명·미소지기 니오",
+      "portrait": "Art/Evolution/Portraits/mask_salvation",
+      "fieldFrames": [
+        "Art/Evolution/Field/mask_salvation_01",
+        "Art/Evolution/Field/mask_salvation_02"
+      ]
+    },
+    {
+      "shadowId": "mask",
+      "stage": "grudge",
+      "formName": "진명·빙소귀 니오",
+      "portrait": "Art/Evolution/Portraits/mask_grudge",
+      "fieldFrames": [
+        "Art/Evolution/Field/mask_grudge_01",
+        "Art/Evolution/Field/mask_grudge_02"
+      ]
+    },
+    {
+      "shadowId": "censor",
+      "stage": "restored",
+      "formName": "기억을 되찾은 검열관 무명",
+      "portrait": "Art/Evolution/Portraits/censor_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/censor_restored_01",
+        "Art/Evolution/Field/censor_restored_02"
+      ]
+    },
+    {
+      "shadowId": "ash_hound",
+      "stage": "restored",
+      "formName": "국경의 충견",
+      "portrait": "Art/Evolution/Portraits/ash_hound_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/ash_hound_restored_01",
+        "Art/Evolution/Field/ash_hound_restored_02"
+      ]
+    },
+    {
+      "shadowId": "banner_spearman",
+      "stage": "restored",
+      "formName": "피난로의 창병",
+      "portrait": "Art/Evolution/Portraits/banner_spearman_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/banner_spearman_restored_01",
+        "Art/Evolution/Field/banner_spearman_restored_02"
+      ]
+    },
+    {
+      "shadowId": "furnace_keeper",
+      "stage": "restored",
+      "formName": "새벽의 화로지기",
+      "portrait": "Art/Evolution/Portraits/furnace_keeper_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/furnace_keeper_restored_01",
+        "Art/Evolution/Field/furnace_keeper_restored_02"
+      ]
+    },
+    {
+      "shadowId": "bell_knight",
+      "stage": "restored",
+      "formName": "새벽을 알리는 기사",
+      "portrait": "Art/Evolution/Portraits/bell_knight_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/bell_knight_restored_01",
+        "Art/Evolution/Field/bell_knight_restored_02"
+      ]
+    },
+    {
+      "shadowId": "kneeling_captain",
+      "stage": "restored",
+      "formName": "마지막 성문대장",
+      "portrait": "Art/Evolution/Portraits/kneeling_captain_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/kneeling_captain_restored_01",
+        "Art/Evolution/Field/kneeling_captain_restored_02"
+      ]
+    },
+    {
+      "shadowId": "kneeling_captain",
+      "stage": "salvation",
+      "formName": "진명·새벽의 무릎 꿇지 않는 대장",
+      "portrait": "Art/Evolution/Portraits/kneeling_captain_salvation",
+      "fieldFrames": [
+        "Art/Evolution/Field/kneeling_captain_salvation_01",
+        "Art/Evolution/Field/kneeling_captain_salvation_02"
+      ]
+    },
+    {
+      "shadowId": "kneeling_captain",
+      "stage": "grudge",
+      "formName": "진명·심연의 무릎 꿇지 않는 대장",
+      "portrait": "Art/Evolution/Portraits/kneeling_captain_grudge",
+      "fieldFrames": [
+        "Art/Evolution/Field/kneeling_captain_grudge_01",
+        "Art/Evolution/Field/kneeling_captain_grudge_02"
+      ]
+    },
+    {
+      "shadowId": "ash_priest",
+      "stage": "restored",
+      "formName": "이름의 장례사",
+      "portrait": "Art/Evolution/Portraits/ash_priest_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/ash_priest_restored_01",
+        "Art/Evolution/Field/ash_priest_restored_02"
+      ]
+    },
+    {
+      "shadowId": "headless_guard",
+      "stage": "restored",
+      "formName": "증언의 호위기사",
+      "portrait": "Art/Evolution/Portraits/headless_guard_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/headless_guard_restored_01",
+        "Art/Evolution/Field/headless_guard_restored_02"
+      ]
+    },
+    {
+      "shadowId": "headless_guard",
+      "stage": "salvation",
+      "formName": "진명·새벽의 목 없는 호위기사",
+      "portrait": "Art/Evolution/Portraits/headless_guard_salvation",
+      "fieldFrames": [
+        "Art/Evolution/Field/headless_guard_salvation_01",
+        "Art/Evolution/Field/headless_guard_salvation_02"
+      ]
+    },
+    {
+      "shadowId": "headless_guard",
+      "stage": "grudge",
+      "formName": "진명·심연의 목 없는 호위기사",
+      "portrait": "Art/Evolution/Portraits/headless_guard_grudge",
+      "fieldFrames": [
+        "Art/Evolution/Field/headless_guard_grudge_01",
+        "Art/Evolution/Field/headless_guard_grudge_02"
+      ]
+    },
+    {
+      "shadowId": "ash_king",
+      "stage": "restored",
+      "formName": "패망을 인정한 왕",
+      "portrait": "Art/Evolution/Portraits/ash_king_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/ash_king_restored_01",
+        "Art/Evolution/Field/ash_king_restored_02"
+      ]
+    },
+    {
+      "shadowId": "ash_king",
+      "stage": "salvation",
+      "formName": "진명·새벽왕 아우렐",
+      "portrait": "Art/Evolution/Portraits/ash_king_salvation",
+      "fieldFrames": [
+        "Art/Evolution/Field/ash_king_salvation_01",
+        "Art/Evolution/Field/ash_king_salvation_02"
+      ]
+    },
+    {
+      "shadowId": "ash_king",
+      "stage": "grudge",
+      "formName": "진명·장례왕 아우렐",
+      "portrait": "Art/Evolution/Portraits/ash_king_grudge",
+      "fieldFrames": [
+        "Art/Evolution/Field/ash_king_grudge_01",
+        "Art/Evolution/Field/ash_king_grudge_02"
+      ]
+    },
+    {
+      "shadowId": "frost_gull",
+      "stage": "restored",
+      "formName": "새벽항의 길잡이",
+      "portrait": "Art/Evolution/Portraits/frost_gull_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/frost_gull_restored_01",
+        "Art/Evolution/Field/frost_gull_restored_02"
+      ]
+    },
+    {
+      "shadowId": "glacier_ferryman",
+      "stage": "restored",
+      "formName": "새 항로의 사공",
+      "portrait": "Art/Evolution/Portraits/glacier_ferryman_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/glacier_ferryman_restored_01",
+        "Art/Evolution/Field/glacier_ferryman_restored_02"
+      ]
+    },
+    {
+      "shadowId": "glacier_ferryman",
+      "stage": "salvation",
+      "formName": "진명·귀항지기 하론",
+      "portrait": "Art/Evolution/Portraits/glacier_ferryman_salvation",
+      "fieldFrames": [
+        "Art/Evolution/Field/glacier_ferryman_salvation_01",
+        "Art/Evolution/Field/glacier_ferryman_salvation_02"
+      ]
+    },
+    {
+      "shadowId": "glacier_ferryman",
+      "stage": "grudge",
+      "formName": "진명·빙해장송 하론",
+      "portrait": "Art/Evolution/Portraits/glacier_ferryman_grudge",
+      "fieldFrames": [
+        "Art/Evolution/Field/glacier_ferryman_grudge_01",
+        "Art/Evolution/Field/glacier_ferryman_grudge_02"
+      ]
+    },
+    {
+      "shadowId": "ink_fox",
+      "stage": "restored",
+      "formName": "원고의 파수꾼",
+      "portrait": "Art/Evolution/Portraits/ink_fox_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/ink_fox_restored_01",
+        "Art/Evolution/Field/ink_fox_restored_02"
+      ]
+    },
+    {
+      "shadowId": "book_drake",
+      "stage": "restored",
+      "formName": "걸어 다니는 서고",
+      "portrait": "Art/Evolution/Portraits/book_drake_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/book_drake_restored_01",
+        "Art/Evolution/Field/book_drake_restored_02"
+      ]
+    },
+    {
+      "shadowId": "book_drake",
+      "stage": "salvation",
+      "formName": "진명·새벽의 책 먹는 용",
+      "portrait": "Art/Evolution/Portraits/book_drake_salvation",
+      "fieldFrames": [
+        "Art/Evolution/Field/book_drake_salvation_01",
+        "Art/Evolution/Field/book_drake_salvation_02"
+      ]
+    },
+    {
+      "shadowId": "book_drake",
+      "stage": "grudge",
+      "formName": "진명·심연의 책 먹는 용",
+      "portrait": "Art/Evolution/Portraits/book_drake_grudge",
+      "fieldFrames": [
+        "Art/Evolution/Field/book_drake_grudge_01",
+        "Art/Evolution/Field/book_drake_grudge_02"
+      ]
+    },
+    {
+      "shadowId": "mirror_scribe",
+      "stage": "restored",
+      "formName": "가능성의 필경사",
+      "portrait": "Art/Evolution/Portraits/mirror_scribe_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/mirror_scribe_restored_01",
+        "Art/Evolution/Field/mirror_scribe_restored_02"
+      ]
+    },
+    {
+      "shadowId": "inverted_librarian",
+      "stage": "restored",
+      "formName": "두 결말의 사서",
+      "portrait": "Art/Evolution/Portraits/inverted_librarian_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/inverted_librarian_restored_01",
+        "Art/Evolution/Field/inverted_librarian_restored_02"
+      ]
+    },
+    {
+      "shadowId": "inverted_librarian",
+      "stage": "salvation",
+      "formName": "진명·새벽의 반전된 사서",
+      "portrait": "Art/Evolution/Portraits/inverted_librarian_salvation",
+      "fieldFrames": [
+        "Art/Evolution/Field/inverted_librarian_salvation_01",
+        "Art/Evolution/Field/inverted_librarian_salvation_02"
+      ]
+    },
+    {
+      "shadowId": "inverted_librarian",
+      "stage": "grudge",
+      "formName": "진명·심연의 반전된 사서",
+      "portrait": "Art/Evolution/Portraits/inverted_librarian_grudge",
+      "fieldFrames": [
+        "Art/Evolution/Field/inverted_librarian_grudge_01",
+        "Art/Evolution/Field/inverted_librarian_grudge_02"
+      ]
+    },
+    {
+      "shadowId": "infinite_archive_dragon",
+      "stage": "restored",
+      "formName": "금서를 증언하는 용",
+      "portrait": "Art/Evolution/Portraits/infinite_archive_dragon_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/infinite_archive_dragon_restored_01",
+        "Art/Evolution/Field/infinite_archive_dragon_restored_02"
+      ]
+    },
+    {
+      "shadowId": "infinite_archive_dragon",
+      "stage": "salvation",
+      "formName": "진명·청람의 기록룡 아르키온",
+      "portrait": "Art/Evolution/Portraits/infinite_archive_dragon_salvation",
+      "fieldFrames": [
+        "Art/Evolution/Field/infinite_archive_dragon_salvation_01",
+        "Art/Evolution/Field/infinite_archive_dragon_salvation_02"
+      ]
+    },
+    {
+      "shadowId": "infinite_archive_dragon",
+      "stage": "grudge",
+      "formName": "진명·백지재앙 아르키온",
+      "portrait": "Art/Evolution/Portraits/infinite_archive_dragon_grudge",
+      "fieldFrames": [
+        "Art/Evolution/Field/infinite_archive_dragon_grudge_01",
+        "Art/Evolution/Field/infinite_archive_dragon_grudge_02"
+      ]
+    },
+    {
+      "shadowId": "marsh_serpent",
+      "stage": "restored",
+      "formName": "수렁의 길잡이",
+      "portrait": "Art/Evolution/Portraits/marsh_serpent_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/marsh_serpent_restored_01",
+        "Art/Evolution/Field/marsh_serpent_restored_02"
+      ]
+    },
+    {
+      "shadowId": "mask_hunter",
+      "stage": "restored",
+      "formName": "숲의 거짓 발자국",
+      "portrait": "Art/Evolution/Portraits/mask_hunter_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/mask_hunter_restored_01",
+        "Art/Evolution/Field/mask_hunter_restored_02"
+      ]
+    },
+    {
+      "shadowId": "moon_shaman",
+      "stage": "restored",
+      "formName": "기억을 되찾은 달술사",
+      "portrait": "Art/Evolution/Portraits/moon_shaman_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/moon_shaman_restored_01",
+        "Art/Evolution/Field/moon_shaman_restored_02"
+      ]
+    },
+    {
+      "shadowId": "bloodmane_stalker",
+      "stage": "restored",
+      "formName": "사냥을 끝낸 추격자",
+      "portrait": "Art/Evolution/Portraits/bloodmane_stalker_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/bloodmane_stalker_restored_01",
+        "Art/Evolution/Field/bloodmane_stalker_restored_02"
+      ]
+    },
+    {
+      "shadowId": "bloodmane_stalker",
+      "stage": "salvation",
+      "formName": "진명·새벽의 붉은 뿔의 추격자",
+      "portrait": "Art/Evolution/Portraits/bloodmane_stalker_salvation",
+      "fieldFrames": [
+        "Art/Evolution/Field/bloodmane_stalker_salvation_01",
+        "Art/Evolution/Field/bloodmane_stalker_salvation_02"
+      ]
+    },
+    {
+      "shadowId": "bloodmane_stalker",
+      "stage": "grudge",
+      "formName": "진명·심연의 붉은 뿔의 추격자",
+      "portrait": "Art/Evolution/Portraits/bloodmane_stalker_grudge",
+      "fieldFrames": [
+        "Art/Evolution/Field/bloodmane_stalker_grudge_01",
+        "Art/Evolution/Field/bloodmane_stalker_grudge_02"
+      ]
+    },
+    {
+      "shadowId": "moon_heart",
+      "stage": "restored",
+      "formName": "기억을 되찾은 달의 심장",
+      "portrait": "Art/Evolution/Portraits/moon_heart_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/moon_heart_restored_01",
+        "Art/Evolution/Field/moon_heart_restored_02"
+      ]
+    },
+    {
+      "shadowId": "night_devouring_beast",
+      "stage": "restored",
+      "formName": "공포를 품은 수호수",
+      "portrait": "Art/Evolution/Portraits/night_devouring_beast_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/night_devouring_beast_restored_01",
+        "Art/Evolution/Field/night_devouring_beast_restored_02"
+      ]
+    },
+    {
+      "shadowId": "night_devouring_beast",
+      "stage": "salvation",
+      "formName": "진명·월식수 루페온",
+      "portrait": "Art/Evolution/Portraits/night_devouring_beast_salvation",
+      "fieldFrames": [
+        "Art/Evolution/Field/night_devouring_beast_salvation_01",
+        "Art/Evolution/Field/night_devouring_beast_salvation_02"
+      ]
+    },
+    {
+      "shadowId": "night_devouring_beast",
+      "stage": "grudge",
+      "formName": "진명·무월재앙 루페온",
+      "portrait": "Art/Evolution/Portraits/night_devouring_beast_grudge",
+      "fieldFrames": [
+        "Art/Evolution/Field/night_devouring_beast_grudge_01",
+        "Art/Evolution/Field/night_devouring_beast_grudge_02"
+      ]
+    },
+    {
+      "shadowId": "thread_cat",
+      "stage": "restored",
+      "formName": "시장 골목 수선사",
+      "portrait": "Art/Evolution/Portraits/thread_cat_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/thread_cat_restored_01",
+        "Art/Evolution/Field/thread_cat_restored_02"
+      ]
+    },
+    {
+      "shadowId": "second_dancer",
+      "stage": "restored",
+      "formName": "새 박자의 무희",
+      "portrait": "Art/Evolution/Portraits/second_dancer_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/second_dancer_restored_01",
+        "Art/Evolution/Field/second_dancer_restored_02"
+      ]
+    },
+    {
+      "shadowId": "scissor_conductor",
+      "stage": "restored",
+      "formName": "기억을 되찾은 가위 지휘자",
+      "portrait": "Art/Evolution/Portraits/scissor_conductor_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/scissor_conductor_restored_01",
+        "Art/Evolution/Field/scissor_conductor_restored_02"
+      ]
+    },
+    {
+      "shadowId": "wire_primadonna",
+      "stage": "restored",
+      "formName": "실을 끊은 독창자",
+      "portrait": "Art/Evolution/Portraits/wire_primadonna_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/wire_primadonna_restored_01",
+        "Art/Evolution/Field/wire_primadonna_restored_02"
+      ]
+    },
+    {
+      "shadowId": "wire_primadonna",
+      "stage": "salvation",
+      "formName": "진명·새벽의 줄 위의 프리마돈나",
+      "portrait": "Art/Evolution/Portraits/wire_primadonna_salvation",
+      "fieldFrames": [
+        "Art/Evolution/Field/wire_primadonna_salvation_01",
+        "Art/Evolution/Field/wire_primadonna_salvation_02"
+      ]
+    },
+    {
+      "shadowId": "wire_primadonna",
+      "stage": "grudge",
+      "formName": "진명·심연의 줄 위의 프리마돈나",
+      "portrait": "Art/Evolution/Portraits/wire_primadonna_grudge",
+      "fieldFrames": [
+        "Art/Evolution/Field/wire_primadonna_grudge_01",
+        "Art/Evolution/Field/wire_primadonna_grudge_02"
+      ]
+    },
+    {
+      "shadowId": "stitched_knight",
+      "stage": "restored",
+      "formName": "기억을 되찾은 봉합 기사",
+      "portrait": "Art/Evolution/Portraits/stitched_knight_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/stitched_knight_restored_01",
+        "Art/Evolution/Field/stitched_knight_restored_02"
+      ]
+    },
+    {
+      "shadowId": "last_puppeteer",
+      "stage": "restored",
+      "formName": "실을 놓은 연출가",
+      "portrait": "Art/Evolution/Portraits/last_puppeteer_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/last_puppeteer_restored_01",
+        "Art/Evolution/Field/last_puppeteer_restored_02"
+      ]
+    },
+    {
+      "shadowId": "last_puppeteer",
+      "stage": "salvation",
+      "formName": "진명·자유극장주 마리온",
+      "portrait": "Art/Evolution/Portraits/last_puppeteer_salvation",
+      "fieldFrames": [
+        "Art/Evolution/Field/last_puppeteer_salvation_01",
+        "Art/Evolution/Field/last_puppeteer_salvation_02"
+      ]
+    },
+    {
+      "shadowId": "last_puppeteer",
+      "stage": "grudge",
+      "formName": "진명·천사장 마리온",
+      "portrait": "Art/Evolution/Portraits/last_puppeteer_grudge",
+      "fieldFrames": [
+        "Art/Evolution/Field/last_puppeteer_grudge_01",
+        "Art/Evolution/Field/last_puppeteer_grudge_02"
+      ]
+    },
+    {
+      "shadowId": "ticketless_passenger",
+      "stage": "restored",
+      "formName": "귀가역을 기억한 여행자",
+      "portrait": "Art/Evolution/Portraits/ticketless_passenger_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/ticketless_passenger_restored_01",
+        "Art/Evolution/Field/ticketless_passenger_restored_02"
+      ]
+    },
+    {
+      "shadowId": "ticketless_passenger",
+      "stage": "salvation",
+      "formName": "진명·귀향객 미라",
+      "portrait": "Art/Evolution/Portraits/ticketless_passenger_salvation",
+      "fieldFrames": [
+        "Art/Evolution/Field/ticketless_passenger_salvation_01",
+        "Art/Evolution/Field/ticketless_passenger_salvation_02"
+      ]
+    },
+    {
+      "shadowId": "ticketless_passenger",
+      "stage": "grudge",
+      "formName": "진명·무한승객 미라",
+      "portrait": "Art/Evolution/Portraits/ticketless_passenger_grudge",
+      "fieldFrames": [
+        "Art/Evolution/Field/ticketless_passenger_grudge_01",
+        "Art/Evolution/Field/ticketless_passenger_grudge_02"
+      ]
+    },
+    {
+      "shadowId": "ink_conductor",
+      "stage": "restored",
+      "formName": "선로를 바꾼 역무원",
+      "portrait": "Art/Evolution/Portraits/ink_conductor_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/ink_conductor_restored_01",
+        "Art/Evolution/Field/ink_conductor_restored_02"
+      ]
+    },
+    {
+      "shadowId": "ink_conductor",
+      "stage": "salvation",
+      "formName": "진명·해방역장 오르도",
+      "portrait": "Art/Evolution/Portraits/ink_conductor_salvation",
+      "fieldFrames": [
+        "Art/Evolution/Field/ink_conductor_salvation_01",
+        "Art/Evolution/Field/ink_conductor_salvation_02"
+      ]
+    },
+    {
+      "shadowId": "ink_conductor",
+      "stage": "grudge",
+      "formName": "진명·검은 종착역 오르도",
+      "portrait": "Art/Evolution/Portraits/ink_conductor_grudge",
+      "fieldFrames": [
+        "Art/Evolution/Field/ink_conductor_grudge_01",
+        "Art/Evolution/Field/ink_conductor_grudge_02"
+      ]
+    },
+    {
+      "shadowId": "numbered_prisoner",
+      "stage": "restored",
+      "formName": "이름을 새기는 죄수",
+      "portrait": "Art/Evolution/Portraits/numbered_prisoner_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/numbered_prisoner_restored_01",
+        "Art/Evolution/Field/numbered_prisoner_restored_02"
+      ]
+    },
+    {
+      "shadowId": "zero_warden",
+      "stage": "restored",
+      "formName": "기억을 되찾은 제0호 간수",
+      "portrait": "Art/Evolution/Portraits/zero_warden_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/zero_warden_restored_01",
+        "Art/Evolution/Field/zero_warden_restored_02"
+      ]
+    },
+    {
+      "shadowId": "zero_warden",
+      "stage": "salvation",
+      "formName": "진명·새벽의 제0호 간수",
+      "portrait": "Art/Evolution/Portraits/zero_warden_salvation",
+      "fieldFrames": [
+        "Art/Evolution/Field/zero_warden_salvation_01",
+        "Art/Evolution/Field/zero_warden_salvation_02"
+      ]
+    },
+    {
+      "shadowId": "zero_warden",
+      "stage": "grudge",
+      "formName": "진명·심연의 제0호 간수",
+      "portrait": "Art/Evolution/Portraits/zero_warden_grudge",
+      "fieldFrames": [
+        "Art/Evolution/Field/zero_warden_grudge_01",
+        "Art/Evolution/Field/zero_warden_grudge_02"
+      ]
+    },
+    {
+      "shadowId": "censor_surgeon",
+      "stage": "restored",
+      "formName": "기억을 되찾은 봉합 검열관",
+      "portrait": "Art/Evolution/Portraits/censor_surgeon_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/censor_surgeon_restored_01",
+        "Art/Evolution/Field/censor_surgeon_restored_02"
+      ]
+    },
+    {
+      "shadowId": "extract_subject_m",
+      "stage": "restored",
+      "formName": "기억을 되찾은 추출 실험체 M",
+      "portrait": "Art/Evolution/Portraits/extract_subject_m_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/extract_subject_m_restored_01",
+        "Art/Evolution/Field/extract_subject_m_restored_02"
+      ]
+    },
+    {
+      "shadowId": "extract_subject_m",
+      "stage": "salvation",
+      "formName": "진명·새벽의 추출 실험체 M",
+      "portrait": "Art/Evolution/Portraits/extract_subject_m_salvation",
+      "fieldFrames": [
+        "Art/Evolution/Field/extract_subject_m_salvation_01",
+        "Art/Evolution/Field/extract_subject_m_salvation_02"
+      ]
+    },
+    {
+      "shadowId": "extract_subject_m",
+      "stage": "grudge",
+      "formName": "진명·심연의 추출 실험체 M",
+      "portrait": "Art/Evolution/Portraits/extract_subject_m_grudge",
+      "fieldFrames": [
+        "Art/Evolution/Field/extract_subject_m_grudge_01",
+        "Art/Evolution/Field/extract_subject_m_grudge_02"
+      ]
+    },
+    {
+      "shadowId": "mute_judge",
+      "stage": "restored",
+      "formName": "기억을 되찾은 무언의 재판장",
+      "portrait": "Art/Evolution/Portraits/mute_judge_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/mute_judge_restored_01",
+        "Art/Evolution/Field/mute_judge_restored_02"
+      ]
+    },
+    {
+      "shadowId": "high_censor_nox",
+      "stage": "restored",
+      "formName": "죄를 읽는 검열관",
+      "portrait": "Art/Evolution/Portraits/high_censor_nox_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/high_censor_nox_restored_01",
+        "Art/Evolution/Field/high_censor_nox_restored_02"
+      ]
+    },
+    {
+      "shadowId": "high_censor_nox",
+      "stage": "salvation",
+      "formName": "진명·기록수호자 녹티스",
+      "portrait": "Art/Evolution/Portraits/high_censor_nox_salvation",
+      "fieldFrames": [
+        "Art/Evolution/Field/high_censor_nox_salvation_01",
+        "Art/Evolution/Field/high_censor_nox_salvation_02"
+      ]
+    },
+    {
+      "shadowId": "high_censor_nox",
+      "stage": "grudge",
+      "formName": "진명·무명왕 녹티스",
+      "portrait": "Art/Evolution/Portraits/high_censor_nox_grudge",
+      "fieldFrames": [
+        "Art/Evolution/Field/high_censor_nox_grudge_01",
+        "Art/Evolution/Field/high_censor_nox_grudge_02"
+      ]
+    },
+    {
+      "shadowId": "wave_bard",
+      "stage": "restored",
+      "formName": "기억을 되찾은 파도 악사",
+      "portrait": "Art/Evolution/Portraits/wave_bard_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/wave_bard_restored_01",
+        "Art/Evolution/Field/wave_bard_restored_02"
+      ]
+    },
+    {
+      "shadowId": "drowned_painter",
+      "stage": "restored",
+      "formName": "기억을 되찾은 익사한 화가",
+      "portrait": "Art/Evolution/Portraits/drowned_painter_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/drowned_painter_restored_01",
+        "Art/Evolution/Field/drowned_painter_restored_02"
+      ]
+    },
+    {
+      "shadowId": "drowned_painter",
+      "stage": "salvation",
+      "formName": "진명·새벽의 익사한 화가",
+      "portrait": "Art/Evolution/Portraits/drowned_painter_salvation",
+      "fieldFrames": [
+        "Art/Evolution/Field/drowned_painter_salvation_01",
+        "Art/Evolution/Field/drowned_painter_salvation_02"
+      ]
+    },
+    {
+      "shadowId": "drowned_painter",
+      "stage": "grudge",
+      "formName": "진명·심연의 익사한 화가",
+      "portrait": "Art/Evolution/Portraits/drowned_painter_grudge",
+      "fieldFrames": [
+        "Art/Evolution/Field/drowned_painter_grudge_01",
+        "Art/Evolution/Field/drowned_painter_grudge_02"
+      ]
+    },
+    {
+      "shadowId": "nameplate_turtle",
+      "stage": "restored",
+      "formName": "기억을 되찾은 문패 거북",
+      "portrait": "Art/Evolution/Portraits/nameplate_turtle_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/nameplate_turtle_restored_01",
+        "Art/Evolution/Field/nameplate_turtle_restored_02"
+      ]
+    },
+    {
+      "shadowId": "mourning_keeper",
+      "stage": "restored",
+      "formName": "기억을 되찾은 등대를 지키는 상주",
+      "portrait": "Art/Evolution/Portraits/mourning_keeper_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/mourning_keeper_restored_01",
+        "Art/Evolution/Field/mourning_keeper_restored_02"
+      ]
+    },
+    {
+      "shadowId": "mourning_keeper",
+      "stage": "salvation",
+      "formName": "진명·새벽의 등대를 지키는 상주",
+      "portrait": "Art/Evolution/Portraits/mourning_keeper_salvation",
+      "fieldFrames": [
+        "Art/Evolution/Field/mourning_keeper_salvation_01",
+        "Art/Evolution/Field/mourning_keeper_salvation_02"
+      ]
+    },
+    {
+      "shadowId": "mourning_keeper",
+      "stage": "grudge",
+      "formName": "진명·심연의 등대를 지키는 상주",
+      "portrait": "Art/Evolution/Portraits/mourning_keeper_grudge",
+      "fieldFrames": [
+        "Art/Evolution/Field/mourning_keeper_grudge_01",
+        "Art/Evolution/Field/mourning_keeper_grudge_02"
+      ]
+    },
+    {
+      "shadowId": "inverted_guide",
+      "stage": "restored",
+      "formName": "기억을 되찾은 거꾸로 안내원",
+      "portrait": "Art/Evolution/Portraits/inverted_guide_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/inverted_guide_restored_01",
+        "Art/Evolution/Field/inverted_guide_restored_02"
+      ]
+    },
+    {
+      "shadowId": "interlude_manager",
+      "stage": "restored",
+      "formName": "기억을 되찾은 막간의 관리자",
+      "portrait": "Art/Evolution/Portraits/interlude_manager_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/interlude_manager_restored_01",
+        "Art/Evolution/Field/interlude_manager_restored_02"
+      ]
+    },
+    {
+      "shadowId": "interlude_manager",
+      "stage": "salvation",
+      "formName": "진명·새벽의 막간의 관리자",
+      "portrait": "Art/Evolution/Portraits/interlude_manager_salvation",
+      "fieldFrames": [
+        "Art/Evolution/Field/interlude_manager_salvation_01",
+        "Art/Evolution/Field/interlude_manager_salvation_02"
+      ]
+    },
+    {
+      "shadowId": "interlude_manager",
+      "stage": "grudge",
+      "formName": "진명·심연의 막간의 관리자",
+      "portrait": "Art/Evolution/Portraits/interlude_manager_grudge",
+      "fieldFrames": [
+        "Art/Evolution/Field/interlude_manager_grudge_01",
+        "Art/Evolution/Field/interlude_manager_grudge_02"
+      ]
+    },
+    {
+      "shadowId": "first_line_echo",
+      "stage": "restored",
+      "formName": "기억을 되찾은 첫 대사의 메아리",
+      "portrait": "Art/Evolution/Portraits/first_line_echo_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/first_line_echo_restored_01",
+        "Art/Evolution/Field/first_line_echo_restored_02"
+      ]
+    },
+    {
+      "shadowId": "golden_mask",
+      "stage": "restored",
+      "formName": "기억을 되찾은 황금 가면",
+      "portrait": "Art/Evolution/Portraits/golden_mask_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/golden_mask_restored_01",
+        "Art/Evolution/Field/golden_mask_restored_02"
+      ]
+    },
+    {
+      "shadowId": "silent_applause",
+      "stage": "restored",
+      "formName": "기억을 되찾은 침묵의 박수",
+      "portrait": "Art/Evolution/Portraits/silent_applause_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/silent_applause_restored_01",
+        "Art/Evolution/Field/silent_applause_restored_02"
+      ]
+    },
+    {
+      "shadowId": "censored_protagonist",
+      "stage": "restored",
+      "formName": "기억을 되찾은 검열된 주인공",
+      "portrait": "Art/Evolution/Portraits/censored_protagonist_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/censored_protagonist_restored_01",
+        "Art/Evolution/Field/censored_protagonist_restored_02"
+      ]
+    },
+    {
+      "shadowId": "rival_director",
+      "stage": "restored",
+      "formName": "기억을 되찾은 또 다른 연출가",
+      "portrait": "Art/Evolution/Portraits/rival_director_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/rival_director_restored_01",
+        "Art/Evolution/Field/rival_director_restored_02"
+      ]
+    },
+    {
+      "shadowId": "rival_director",
+      "stage": "salvation",
+      "formName": "진명·새벽의 또 다른 연출가",
+      "portrait": "Art/Evolution/Portraits/rival_director_salvation",
+      "fieldFrames": [
+        "Art/Evolution/Field/rival_director_salvation_01",
+        "Art/Evolution/Field/rival_director_salvation_02"
+      ]
+    },
+    {
+      "shadowId": "rival_director",
+      "stage": "grudge",
+      "formName": "진명·심연의 또 다른 연출가",
+      "portrait": "Art/Evolution/Portraits/rival_director_grudge",
+      "fieldFrames": [
+        "Art/Evolution/Field/rival_director_grudge_01",
+        "Art/Evolution/Field/rival_director_grudge_02"
+      ]
+    },
+    {
+      "shadowId": "outside_script_shadow",
+      "stage": "restored",
+      "formName": "기억을 되찾은 각본 밖의 그림자",
+      "portrait": "Art/Evolution/Portraits/outside_script_shadow_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/outside_script_shadow_restored_01",
+        "Art/Evolution/Field/outside_script_shadow_restored_02"
+      ]
+    },
+    {
+      "shadowId": "outside_script_shadow",
+      "stage": "salvation",
+      "formName": "진명·새벽의 각본 밖의 그림자",
+      "portrait": "Art/Evolution/Portraits/outside_script_shadow_salvation",
+      "fieldFrames": [
+        "Art/Evolution/Field/outside_script_shadow_salvation_01",
+        "Art/Evolution/Field/outside_script_shadow_salvation_02"
+      ]
+    },
+    {
+      "shadowId": "outside_script_shadow",
+      "stage": "grudge",
+      "formName": "진명·심연의 각본 밖의 그림자",
+      "portrait": "Art/Evolution/Portraits/outside_script_shadow_grudge",
+      "fieldFrames": [
+        "Art/Evolution/Field/outside_script_shadow_grudge_01",
+        "Art/Evolution/Field/outside_script_shadow_grudge_02"
+      ]
+    },
+    {
+      "shadowId": "exp_echo_village_01",
+      "stage": "restored",
+      "formName": "기억을 되찾은 등불 심부름꾼",
+      "portrait": "Art/Evolution/Portraits/exp_echo_village_01_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_echo_village_01_restored_01",
+        "Art/Evolution/Field/exp_echo_village_01_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_echo_village_02",
+      "stage": "restored",
+      "formName": "기억을 되찾은 종이 우산 소녀",
+      "portrait": "Art/Evolution/Portraits/exp_echo_village_02_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_echo_village_02_restored_01",
+        "Art/Evolution/Field/exp_echo_village_02_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_echo_village_03",
+      "stage": "restored",
+      "formName": "기억을 되찾은 골목의 검은 개",
+      "portrait": "Art/Evolution/Portraits/exp_echo_village_03_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_echo_village_03_restored_01",
+        "Art/Evolution/Field/exp_echo_village_03_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_moonlit_boss_stage_01",
+      "stage": "restored",
+      "formName": "기억을 되찾은 월식의 시녀",
+      "portrait": "Art/Evolution/Portraits/exp_moonlit_boss_stage_01_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_moonlit_boss_stage_01_restored_01",
+        "Art/Evolution/Field/exp_moonlit_boss_stage_01_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_moonlit_boss_stage_02",
+      "stage": "restored",
+      "formName": "기억을 되찾은 상복 나비",
+      "portrait": "Art/Evolution/Portraits/exp_moonlit_boss_stage_02_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_moonlit_boss_stage_02_restored_01",
+        "Art/Evolution/Field/exp_moonlit_boss_stage_02_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_forbidden_stacks_01",
+      "stage": "restored",
+      "formName": "기억을 되찾은 잉크 망령",
+      "portrait": "Art/Evolution/Portraits/exp_forbidden_stacks_01_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_forbidden_stacks_01_restored_01",
+        "Art/Evolution/Field/exp_forbidden_stacks_01_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_blue_abyss_01",
+      "stage": "restored",
+      "formName": "기억을 되찾은 빙결 문장",
+      "portrait": "Art/Evolution/Portraits/exp_blue_abyss_01_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_blue_abyss_01_restored_01",
+        "Art/Evolution/Field/exp_blue_abyss_01_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_blue_abyss_02",
+      "stage": "restored",
+      "formName": "기억을 되찾은 침묵의 마도사",
+      "portrait": "Art/Evolution/Portraits/exp_blue_abyss_02_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_blue_abyss_02_restored_01",
+        "Art/Evolution/Field/exp_blue_abyss_02_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_violet_marsh_01",
+      "stage": "restored",
+      "formName": "기억을 되찾은 수렁 사냥꾼",
+      "portrait": "Art/Evolution/Portraits/exp_violet_marsh_01_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_violet_marsh_01_restored_01",
+        "Art/Evolution/Field/exp_violet_marsh_01_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_moonfang_forest_01",
+      "stage": "restored",
+      "formName": "기억을 되찾은 검은 발톱",
+      "portrait": "Art/Evolution/Portraits/exp_moonfang_forest_01_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_moonfang_forest_01_restored_01",
+        "Art/Evolution/Field/exp_moonfang_forest_01_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_bloodmoon_ridge_01",
+      "stage": "restored",
+      "formName": "기억을 되찾은 핏빛 갈기",
+      "portrait": "Art/Evolution/Portraits/exp_bloodmoon_ridge_01_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_bloodmoon_ridge_01_restored_01",
+        "Art/Evolution/Field/exp_bloodmoon_ridge_01_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_sleeping_beast_den_01",
+      "stage": "restored",
+      "formName": "기억을 되찾은 자줏빛 포효",
+      "portrait": "Art/Evolution/Portraits/exp_sleeping_beast_den_01_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_sleeping_beast_den_01_restored_01",
+        "Art/Evolution/Field/exp_sleeping_beast_den_01_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_severed_workshop_01",
+      "stage": "restored",
+      "formName": "기억을 되찾은 톱니 심장",
+      "portrait": "Art/Evolution/Portraits/exp_severed_workshop_01_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_severed_workshop_01_restored_01",
+        "Art/Evolution/Field/exp_severed_workshop_01_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_severed_workshop_02",
+      "stage": "restored",
+      "formName": "기억을 되찾은 천 개 손의 장인",
+      "portrait": "Art/Evolution/Portraits/exp_severed_workshop_02_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_severed_workshop_02_restored_01",
+        "Art/Evolution/Field/exp_severed_workshop_02_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_puppeteer_stage_01",
+      "stage": "restored",
+      "formName": "기억을 되찾은 검은 실뭉치",
+      "portrait": "Art/Evolution/Portraits/exp_puppeteer_stage_01_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_puppeteer_stage_01_restored_01",
+        "Art/Evolution/Field/exp_puppeteer_stage_01_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_puppeteer_stage_02",
+      "stage": "restored",
+      "formName": "기억을 되찾은 왕관 인형",
+      "portrait": "Art/Evolution/Portraits/exp_puppeteer_stage_02_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_puppeteer_stage_02_restored_01",
+        "Art/Evolution/Field/exp_puppeteer_stage_02_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_silent_court_01",
+      "stage": "restored",
+      "formName": "기억을 되찾은 먹지 배심원",
+      "portrait": "Art/Evolution/Portraits/exp_silent_court_01_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_silent_court_01_restored_01",
+        "Art/Evolution/Field/exp_silent_court_01_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_silent_court_02",
+      "stage": "restored",
+      "formName": "기억을 되찾은 가위 집행관",
+      "portrait": "Art/Evolution/Portraits/exp_silent_court_02_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_silent_court_02_restored_01",
+        "Art/Evolution/Field/exp_silent_court_02_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_black_archive_01",
+      "stage": "restored",
+      "formName": "기억을 되찾은 검열의 칼날",
+      "portrait": "Art/Evolution/Portraits/exp_black_archive_01_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_black_archive_01_restored_01",
+        "Art/Evolution/Field/exp_black_archive_01_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_black_archive_02",
+      "stage": "restored",
+      "formName": "기억을 되찾은 원한의 대역",
+      "portrait": "Art/Evolution/Portraits/exp_black_archive_02_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_black_archive_02_restored_01",
+        "Art/Evolution/Field/exp_black_archive_02_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_name_islands_01",
+      "stage": "restored",
+      "formName": "기억을 되찾은 호명하는 고래",
+      "portrait": "Art/Evolution/Portraits/exp_name_islands_01_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_name_islands_01_restored_01",
+        "Art/Evolution/Field/exp_name_islands_01_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_mourning_lighthouse_01",
+      "stage": "restored",
+      "formName": "기억을 되찾은 푸른 상복",
+      "portrait": "Art/Evolution/Portraits/exp_mourning_lighthouse_01_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_mourning_lighthouse_01_restored_01",
+        "Art/Evolution/Field/exp_mourning_lighthouse_01_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_widow_moon_palace_01",
+      "stage": "restored",
+      "formName": "기억을 되찾은 월해의 기사",
+      "portrait": "Art/Evolution/Portraits/exp_widow_moon_palace_01_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_widow_moon_palace_01_restored_01",
+        "Art/Evolution/Field/exp_widow_moon_palace_01_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_widow_moon_palace_02",
+      "stage": "restored",
+      "formName": "기억을 되찾은 은빛 상주",
+      "portrait": "Art/Evolution/Portraits/exp_widow_moon_palace_02_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_widow_moon_palace_02_restored_01",
+        "Art/Evolution/Field/exp_widow_moon_palace_02_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_widow_moon_palace_03",
+      "stage": "restored",
+      "formName": "기억을 되찾은 진명 · 셀레네",
+      "portrait": "Art/Evolution/Portraits/exp_widow_moon_palace_03_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_widow_moon_palace_03_restored_01",
+        "Art/Evolution/Field/exp_widow_moon_palace_03_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_painted_wagon_road_01",
+      "stage": "restored",
+      "formName": "기억을 되찾은 천막쥐",
+      "portrait": "Art/Evolution/Portraits/exp_painted_wagon_road_01_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_painted_wagon_road_01_restored_01",
+        "Art/Evolution/Field/exp_painted_wagon_road_01_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_forgotten_tent_01",
+      "stage": "restored",
+      "formName": "기억을 되찾은 버려진 광대",
+      "portrait": "Art/Evolution/Portraits/exp_forgotten_tent_01_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_forgotten_tent_01_restored_01",
+        "Art/Evolution/Field/exp_forgotten_tent_01_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_silent_clown_stage_01",
+      "stage": "restored",
+      "formName": "기억을 되찾은 침묵한 광대",
+      "portrait": "Art/Evolution/Portraits/exp_silent_clown_stage_01_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_silent_clown_stage_01_restored_01",
+        "Art/Evolution/Field/exp_silent_clown_stage_01_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_poster_alley_01",
+      "stage": "restored",
+      "formName": "기억을 되찾은 대역 배우",
+      "portrait": "Art/Evolution/Portraits/exp_poster_alley_01_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_poster_alley_01_restored_01",
+        "Art/Evolution/Field/exp_poster_alley_01_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_poster_alley_02",
+      "stage": "restored",
+      "formName": "기억을 되찾은 버려진 대본",
+      "portrait": "Art/Evolution/Portraits/exp_poster_alley_02_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_poster_alley_02_restored_01",
+        "Art/Evolution/Field/exp_poster_alley_02_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_sealed_small_theater_01",
+      "stage": "restored",
+      "formName": "기억을 되찾은 마지막 대역 배우",
+      "portrait": "Art/Evolution/Portraits/exp_sealed_small_theater_01_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_sealed_small_theater_01_restored_01",
+        "Art/Evolution/Field/exp_sealed_small_theater_01_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_matte_projection_room_01",
+      "stage": "restored",
+      "formName": "기억을 되찾은 빛 먹는 영사기사",
+      "portrait": "Art/Evolution/Portraits/exp_matte_projection_room_01_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_matte_projection_room_01_restored_01",
+        "Art/Evolution/Field/exp_matte_projection_room_01_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_moon_eater_ritual_01",
+      "stage": "restored",
+      "formName": "기억을 되찾은 달을 먹는 산신",
+      "portrait": "Art/Evolution/Portraits/exp_moon_eater_ritual_01_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_moon_eater_ritual_01_restored_01",
+        "Art/Evolution/Field/exp_moon_eater_ritual_01_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_stitch_field_01",
+      "stage": "restored",
+      "formName": "기억을 되찾은 실감개 상인",
+      "portrait": "Art/Evolution/Portraits/exp_stitch_field_01_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_stitch_field_01_restored_01",
+        "Art/Evolution/Field/exp_stitch_field_01_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_clockwork_heart_stage_01",
+      "stage": "restored",
+      "formName": "기억을 되찾은 태엽 심장의 장인",
+      "portrait": "Art/Evolution/Portraits/exp_clockwork_heart_stage_01_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_clockwork_heart_stage_01_restored_01",
+        "Art/Evolution/Field/exp_clockwork_heart_stage_01_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_ghost_orchestra_pit_01",
+      "stage": "restored",
+      "formName": "기억을 되찾은 박자 잃은 지휘자",
+      "portrait": "Art/Evolution/Portraits/exp_ghost_orchestra_pit_01_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_ghost_orchestra_pit_01_restored_01",
+        "Art/Evolution/Field/exp_ghost_orchestra_pit_01_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_curtain_pass_01",
+      "stage": "restored",
+      "formName": "기억을 되찾은 재의 국경의 그을음망령",
+      "portrait": "Art/Evolution/Portraits/exp_curtain_pass_01_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_curtain_pass_01_restored_01",
+        "Art/Evolution/Field/exp_curtain_pass_01_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_ember_catacombs_01",
+      "stage": "restored",
+      "formName": "기억을 되찾은 금단의 서가의 잉크여우",
+      "portrait": "Art/Evolution/Portraits/exp_ember_catacombs_01_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_ember_catacombs_01_restored_01",
+        "Art/Evolution/Field/exp_ember_catacombs_01_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_blue_abyss_03",
+      "stage": "restored",
+      "formName": "기억을 되찾은 잠든 야수의 굴의 절벽박쥐",
+      "portrait": "Art/Evolution/Portraits/exp_blue_abyss_03_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_blue_abyss_03_restored_01",
+        "Art/Evolution/Field/exp_blue_abyss_03_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_sleeping_beast_den_02",
+      "stage": "restored",
+      "formName": "기억을 되찾은 백지 감옥의 백지나비",
+      "portrait": "Art/Evolution/Portraits/exp_sleeping_beast_den_02_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_sleeping_beast_den_02_restored_01",
+        "Art/Evolution/Field/exp_sleeping_beast_den_02_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_blank_prison_01",
+      "stage": "restored",
+      "formName": "기억을 되찾은 애도의 등대의 등대나비",
+      "portrait": "Art/Evolution/Portraits/exp_blank_prison_01_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_blank_prison_01_restored_01",
+        "Art/Evolution/Field/exp_blank_prison_01_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_name_islands_02",
+      "stage": "restored",
+      "formName": "기억을 되찾은 채색 수레길의 장막쥐",
+      "portrait": "Art/Evolution/Portraits/exp_name_islands_02_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_name_islands_02_restored_01",
+        "Art/Evolution/Field/exp_name_islands_02_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_first_actor_room_01",
+      "stage": "restored",
+      "formName": "기억을 되찾은 숨 쉬는 거품 동굴의 문장벌레",
+      "portrait": "Art/Evolution/Portraits/exp_first_actor_room_01_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_first_actor_room_01_restored_01",
+        "Art/Evolution/Field/exp_first_actor_room_01_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_tidal_boardwalk_01",
+      "stage": "restored",
+      "formName": "기억을 되찾은 거꾸로 흐르는 달길의 절벽박쥐",
+      "portrait": "Art/Evolution/Portraits/exp_tidal_boardwalk_01_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_tidal_boardwalk_01_restored_01",
+        "Art/Evolution/Field/exp_tidal_boardwalk_01_restored_02"
+      ]
+    },
+    {
+      "shadowId": "exp_matte_projection_room_02",
+      "stage": "restored",
+      "formName": "기억을 되찾은 찢어진 장막길의 수레까마귀",
+      "portrait": "Art/Evolution/Portraits/exp_matte_projection_room_02_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/exp_matte_projection_room_02_restored_01",
+        "Art/Evolution/Field/exp_matte_projection_room_02_restored_02"
+      ]
+    },
+    {
+      "shadowId": "boss_moonlit_widow",
+      "stage": "restored",
+      "formName": "월화의 상주",
+      "portrait": "Art/Evolution/Portraits/boss_moonlit_widow_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/boss_moonlit_widow_restored_01",
+        "Art/Evolution/Field/boss_moonlit_widow_restored_02"
+      ]
+    },
+    {
+      "shadowId": "boss_moonlit_widow",
+      "stage": "salvation",
+      "formName": "진명·월백화 연화",
+      "portrait": "Art/Evolution/Portraits/boss_moonlit_widow_salvation",
+      "fieldFrames": [
+        "Art/Evolution/Field/boss_moonlit_widow_salvation_01",
+        "Art/Evolution/Field/boss_moonlit_widow_salvation_02"
+      ]
+    },
+    {
+      "shadowId": "boss_moonlit_widow",
+      "stage": "grudge",
+      "formName": "진명·식월귀 연화",
+      "portrait": "Art/Evolution/Portraits/boss_moonlit_widow_grudge",
+      "fieldFrames": [
+        "Art/Evolution/Field/boss_moonlit_widow_grudge_01",
+        "Art/Evolution/Field/boss_moonlit_widow_grudge_02"
+      ]
+    },
+    {
+      "shadowId": "legend_first_actor",
+      "stage": "restored",
+      "formName": "기억의 비극배우",
+      "portrait": "Art/Evolution/Portraits/legend_first_actor_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/legend_first_actor_restored_01",
+        "Art/Evolution/Field/legend_first_actor_restored_02"
+      ]
+    },
+    {
+      "shadowId": "legend_first_actor",
+      "stage": "salvation",
+      "formName": "진명·이야기의 수호자 아델",
+      "portrait": "Art/Evolution/Portraits/legend_first_actor_salvation",
+      "fieldFrames": [
+        "Art/Evolution/Field/legend_first_actor_salvation_01",
+        "Art/Evolution/Field/legend_first_actor_salvation_02"
+      ]
+    },
+    {
+      "shadowId": "legend_first_actor",
+      "stage": "grudge",
+      "formName": "진명·가면왕 아델",
+      "portrait": "Art/Evolution/Portraits/legend_first_actor_grudge",
+      "fieldFrames": [
+        "Art/Evolution/Field/legend_first_actor_grudge_01",
+        "Art/Evolution/Field/legend_first_actor_grudge_02"
+      ]
+    },
+    {
+      "shadowId": "legend_last_audience",
+      "stage": "restored",
+      "formName": "별길의 검표원",
+      "portrait": "Art/Evolution/Portraits/legend_last_audience_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/legend_last_audience_restored_01",
+        "Art/Evolution/Field/legend_last_audience_restored_02"
+      ]
+    },
+    {
+      "shadowId": "legend_last_audience",
+      "stage": "salvation",
+      "formName": "진명·기억의 관람석 에스카",
+      "portrait": "Art/Evolution/Portraits/legend_last_audience_salvation",
+      "fieldFrames": [
+        "Art/Evolution/Field/legend_last_audience_salvation_01",
+        "Art/Evolution/Field/legend_last_audience_salvation_02"
+      ]
+    },
+    {
+      "shadowId": "legend_last_audience",
+      "stage": "grudge",
+      "formName": "진명·포식극장 에스카",
+      "portrait": "Art/Evolution/Portraits/legend_last_audience_grudge",
+      "fieldFrames": [
+        "Art/Evolution/Field/legend_last_audience_grudge_01",
+        "Art/Evolution/Field/legend_last_audience_grudge_02"
+      ]
+    },
+    {
+      "shadowId": "ele_ember_lantern_fox",
+      "stage": "restored",
+      "formName": "불등 길잡이",
+      "portrait": "Art/Evolution/Portraits/ele_ember_lantern_fox_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/ele_ember_lantern_fox_restored_01",
+        "Art/Evolution/Field/ele_ember_lantern_fox_restored_02"
+      ]
+    },
+    {
+      "shadowId": "ele_tide_bell_otter",
+      "stage": "restored",
+      "formName": "밀물의 종지기",
+      "portrait": "Art/Evolution/Portraits/ele_tide_bell_otter_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/ele_tide_bell_otter_restored_01",
+        "Art/Evolution/Field/ele_tide_bell_otter_restored_02"
+      ]
+    },
+    {
+      "shadowId": "ele_seed_stage_deer",
+      "stage": "restored",
+      "formName": "새싹의 무대지기",
+      "portrait": "Art/Evolution/Portraits/ele_seed_stage_deer_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/ele_seed_stage_deer_restored_01",
+        "Art/Evolution/Field/ele_seed_stage_deer_restored_02"
+      ]
+    },
+    {
+      "shadowId": "ele_snow_glass_lynx",
+      "stage": "restored",
+      "formName": "빙화의 사서수",
+      "portrait": "Art/Evolution/Portraits/ele_snow_glass_lynx_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/ele_snow_glass_lynx_restored_01",
+        "Art/Evolution/Field/ele_snow_glass_lynx_restored_02"
+      ]
+    },
+    {
+      "shadowId": "ele_dawn_paper_crane",
+      "stage": "restored",
+      "formName": "여명의 접지기",
+      "portrait": "Art/Evolution/Portraits/ele_dawn_paper_crane_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/ele_dawn_paper_crane_restored_01",
+        "Art/Evolution/Field/ele_dawn_paper_crane_restored_02"
+      ]
+    },
+    {
+      "shadowId": "ele_eclipse_velvet_moth",
+      "stage": "restored",
+      "formName": "장막의 월식나방",
+      "portrait": "Art/Evolution/Portraits/ele_eclipse_velvet_moth_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/ele_eclipse_velvet_moth_restored_01",
+        "Art/Evolution/Field/ele_eclipse_velvet_moth_restored_02"
+      ]
+    },
+    {
+      "shadowId": "ele_patchwork_stage_dog",
+      "stage": "restored",
+      "formName": "약속의 무대지킴이",
+      "portrait": "Art/Evolution/Portraits/ele_patchwork_stage_dog_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/ele_patchwork_stage_dog_restored_01",
+        "Art/Evolution/Field/ele_patchwork_stage_dog_restored_02"
+      ]
+    },
+    {
+      "shadowId": "ele_clay_bell_tortoise",
+      "stage": "restored",
+      "formName": "대지의 종루거북",
+      "portrait": "Art/Evolution/Portraits/ele_clay_bell_tortoise_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/ele_clay_bell_tortoise_restored_01",
+        "Art/Evolution/Field/ele_clay_bell_tortoise_restored_02"
+      ]
+    },
+    {
+      "shadowId": "ele_spark_spool_squirrel",
+      "stage": "restored",
+      "formName": "뇌광의 실감개",
+      "portrait": "Art/Evolution/Portraits/ele_spark_spool_squirrel_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/ele_spark_spool_squirrel_restored_01",
+        "Art/Evolution/Field/ele_spark_spool_squirrel_restored_02"
+      ]
+    },
+    {
+      "shadowId": "ele_breeze_ribbon_swallow",
+      "stage": "restored",
+      "formName": "하늘막의 전령",
+      "portrait": "Art/Evolution/Portraits/ele_breeze_ribbon_swallow_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/ele_breeze_ribbon_swallow_restored_01",
+        "Art/Evolution/Field/ele_breeze_ribbon_swallow_restored_02"
+      ]
+    },
+    {
+      "shadowId": "ele_dream_marble_rabbit",
+      "stage": "restored",
+      "formName": "몽환의 구슬술사",
+      "portrait": "Art/Evolution/Portraits/ele_dream_marble_rabbit_restored",
+      "fieldFrames": [
+        "Art/Evolution/Field/ele_dream_marble_rabbit_restored_01",
+        "Art/Evolution/Field/ele_dream_marble_rabbit_restored_02"
+      ]
+    }
+  ]
+}

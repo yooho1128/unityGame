@@ -692,6 +692,7 @@ namespace ShadowTheater.EditorTools
                 if (restoredArt != null) shadow.restoredForm.silhouetteSprite = restoredArt;
                 ApplyForm(shadow.salvationForm, spec.salvation, skills);
                 ApplyForm(shadow.grudgeForm, spec.grudge, skills);
+                EvolutionArtCatalog.ApplyTo(shadow);
                 EditorUtility.SetDirty(shadow);
                 result.Add(shadow);
             }
@@ -711,6 +712,7 @@ namespace ShadowTheater.EditorTools
         {
             target.enabled = spec != null && !string.IsNullOrWhiteSpace(spec.formName);
             target.silhouetteSprite = null; // 전용 아트가 없으면 기본 실루엣과 포인트 컬러를 사용한다.
+            target.fieldFrames = null;
             target.bonusSkills = new List<SkillData>();
             if (!target.enabled) return;
             target.formName = spec.formName;

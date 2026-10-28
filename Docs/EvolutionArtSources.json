@@ -1,0 +1,2061 @@
+{
+  "sheets": [
+    {
+      "path": "Docs/ArtSources/Evolution/sheet_00.png",
+      "reference": "Docs/ArtSources/Evolution/references/ref_00.png",
+      "forms": [
+        {
+          "shadowId": "knight",
+          "baseName": "잿빛 기사",
+          "stage": "restored",
+          "formName": "성문의 수호자",
+          "color": "#FFAA62",
+          "baseColor": "#FF7659",
+          "element": "Flame",
+          "role": "PhysicalDealer",
+          "lore": "그가 지키려 한 것은 왕의 성이 아니라 성문 밖의 사람들이었다."
+        },
+        {
+          "shadowId": "knight",
+          "baseName": "잿빛 기사",
+          "stage": "salvation",
+          "formName": "진명·백성의 방패 카일",
+          "color": "#FFD27A",
+          "baseColor": "#FF7659",
+          "element": "Flame",
+          "role": "PhysicalDealer",
+          "lore": "카일은 검을 들지 않았던 선택을 죄가 아닌 맹세로 받아들였다."
+        },
+        {
+          "shadowId": "knight",
+          "baseName": "잿빛 기사",
+          "stage": "grudge",
+          "formName": "진명·재의 집행자 카일",
+          "color": "#FF342E",
+          "baseColor": "#FF7659",
+          "element": "Flame",
+          "role": "PhysicalDealer",
+          "lore": "카일은 왕과 백성 모두를 버린 세계에 마지막 판결을 내린다."
+        },
+        {
+          "shadowId": "mage",
+          "baseName": "서리 사서",
+          "stage": "restored",
+          "formName": "해빙의 기록관",
+          "color": "#B8EAFF",
+          "baseColor": "#7FD6FF",
+          "element": "Frost",
+          "role": "MagicNuker",
+          "lore": "책은 예언서가 아니라 멸망을 막기 위해 그녀가 보낸 경고의 초고였다."
+        },
+        {
+          "shadowId": "mage",
+          "baseName": "서리 사서",
+          "stage": "salvation",
+          "formName": "진명·기억사서 세라",
+          "color": "#DDF7FF",
+          "baseColor": "#7FD6FF",
+          "element": "Frost",
+          "role": "MagicNuker",
+          "lore": "세라는 미래보다 현재의 사람들을 기록하기로 했다."
+        },
+        {
+          "shadowId": "mage",
+          "baseName": "서리 사서",
+          "stage": "grudge",
+          "formName": "진명·영점예언자 세라",
+          "color": "#4777FF",
+          "baseColor": "#7FD6FF",
+          "element": "Frost",
+          "role": "MagicNuker",
+          "lore": "세라는 아무도 믿지 않았던 멸망을 이번에는 직접 실현한다."
+        },
+        {
+          "shadowId": "beast",
+          "baseName": "밤의 방랑자",
+          "stage": "restored",
+          "formName": "달언덕의 파수견",
+          "color": "#D9B6FF",
+          "baseColor": "#C38BFF",
+          "element": "Shade",
+          "role": "SpeedUtility",
+          "lore": "그는 버려진 것이 아니라 문 안의 가족을 지키기 위해 스스로 밖에 남았다."
+        },
+        {
+          "shadowId": "beast",
+          "baseName": "밤의 방랑자",
+          "stage": "salvation",
+          "formName": "진명·귀향수 루프",
+          "color": "#E9D5FF",
+          "baseColor": "#C38BFF",
+          "element": "Shade",
+          "role": "SpeedUtility",
+          "lore": "루프는 돌아갈 집 대신 함께 걸을 무리를 선택했다."
+        }
+      ],
+      "rowSplit": 364
+    },
+    {
+      "path": "Docs/ArtSources/Evolution/sheet_01.png",
+      "reference": "Docs/ArtSources/Evolution/references/ref_01.png",
+      "forms": [
+        {
+          "shadowId": "beast",
+          "baseName": "밤의 방랑자",
+          "stage": "grudge",
+          "formName": "진명·월식아 루프",
+          "color": "#E438A7",
+          "baseColor": "#C38BFF",
+          "element": "Shade",
+          "role": "SpeedUtility",
+          "lore": "루프는 닫힌 모든 문을 이빨로 뜯어내기로 했다."
+        },
+        {
+          "shadowId": "puppet",
+          "baseName": "끊어진 인형",
+          "stage": "restored",
+          "formName": "스스로 춤추는 인형",
+          "color": "#FFE3A3",
+          "baseColor": "#E9C77B",
+          "element": "None",
+          "role": "Support",
+          "lore": "마지막 동작은 인형사의 명령이 아니라 인형 자신의 춤이었다."
+        },
+        {
+          "shadowId": "puppet",
+          "baseName": "끊어진 인형",
+          "stage": "salvation",
+          "formName": "진명·자유인형 피노",
+          "color": "#FFF0C2",
+          "baseColor": "#E9C77B",
+          "element": "None",
+          "role": "Support",
+          "lore": "피노는 박수가 없어도 새로운 춤을 시작한다."
+        },
+        {
+          "shadowId": "puppet",
+          "baseName": "끊어진 인형",
+          "stage": "grudge",
+          "formName": "진명·역조종자 피노",
+          "color": "#FF557F",
+          "baseColor": "#E9C77B",
+          "element": "None",
+          "role": "Support",
+          "lore": "피노는 관객의 손발에 보이지 않는 실을 걸었다."
+        },
+        {
+          "shadowId": "crow",
+          "baseName": "재까마귀",
+          "stage": "restored",
+          "formName": "봉화의 날개",
+          "color": "#FFC084",
+          "baseColor": "#FF9A6B",
+          "element": "Flame",
+          "role": "SpeedUtility",
+          "lore": "아무도 보지 못한 봉화도 누군가를 지키려는 마음이었다."
+        },
+        {
+          "shadowId": "crow",
+          "baseName": "재까마귀",
+          "stage": "salvation",
+          "formName": "진명·새벽전령 카라",
+          "color": "#FFE3A1",
+          "baseColor": "#FF9A6B",
+          "element": "Flame",
+          "role": "SpeedUtility",
+          "lore": "카라는 경고가 아닌 새벽의 소식을 전하기 위해 날아오른다."
+        },
+        {
+          "shadowId": "crow",
+          "baseName": "재까마귀",
+          "stage": "grudge",
+          "formName": "진명·화장조 카라",
+          "color": "#FF3C25",
+          "baseColor": "#FF9A6B",
+          "element": "Flame",
+          "role": "SpeedUtility",
+          "lore": "카라는 아무도 보지 않은 봉화로 하늘 전체를 태운다."
+        },
+        {
+          "shadowId": "mask",
+          "baseName": "얼음 가면",
+          "stage": "restored",
+          "formName": "우는 광대",
+          "color": "#CAF1FF",
+          "baseColor": "#9FE3FF",
+          "element": "Frost",
+          "role": "Tank",
+          "lore": "그가 원한 것은 웃음이 아니라 함께 울어 줄 한 사람이었다."
+        }
+      ],
+      "rowSplit": 337
+    },
+    {
+      "path": "Docs/ArtSources/Evolution/sheet_02.png",
+      "reference": "Docs/ArtSources/Evolution/references/ref_02.png",
+      "forms": [
+        {
+          "shadowId": "mask",
+          "baseName": "얼음 가면",
+          "stage": "salvation",
+          "formName": "진명·미소지기 니오",
+          "color": "#E7FAFF",
+          "baseColor": "#9FE3FF",
+          "element": "Frost",
+          "role": "Tank",
+          "lore": "니오는 슬픔 뒤에 오는 진짜 미소를 지킨다."
+        },
+        {
+          "shadowId": "mask",
+          "baseName": "얼음 가면",
+          "stage": "grudge",
+          "formName": "진명·빙소귀 니오",
+          "color": "#557CFF",
+          "baseColor": "#9FE3FF",
+          "element": "Frost",
+          "role": "Tank",
+          "lore": "니오의 웃음은 보는 이의 눈물까지 얼려 버린다."
+        },
+        {
+          "shadowId": "censor",
+          "baseName": "검열관 무명",
+          "stage": "restored",
+          "formName": "기억을 되찾은 검열관 무명",
+          "color": "#FF4D6D",
+          "baseColor": "#FF4D6D",
+          "element": "Shade",
+          "role": "MagicNuker",
+          "lore": "흩어진 장면이 이어지며 검열관 무명은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "ash_hound",
+          "baseName": "불씨 사냥개",
+          "stage": "restored",
+          "formName": "국경의 충견",
+          "color": "#FF9A5B",
+          "baseColor": "#E86842",
+          "element": "Flame",
+          "role": "SpeedUtility",
+          "lore": "이제 지킬 대상은 폐허가 아니라 함께 걷는 이들이다."
+        },
+        {
+          "shadowId": "banner_spearman",
+          "baseName": "깃발 없는 창병",
+          "stage": "restored",
+          "formName": "피난로의 창병",
+          "color": "#EFA56C",
+          "baseColor": "#C95A45",
+          "element": "None",
+          "role": "PhysicalDealer",
+          "lore": "빈 깃대에는 지켜 낸 사람들의 이름이 매달렸다."
+        },
+        {
+          "shadowId": "furnace_keeper",
+          "baseName": "화로지기",
+          "stage": "restored",
+          "formName": "새벽의 화로지기",
+          "color": "#FFD084",
+          "baseColor": "#F09B55",
+          "element": "Flame",
+          "role": "Support",
+          "lore": "그 불씨는 왕국이 아니라 살아남은 사람들의 아침을 밝혔다."
+        },
+        {
+          "shadowId": "bell_knight",
+          "baseName": "종탑 기사",
+          "stage": "restored",
+          "formName": "새벽을 알리는 기사",
+          "color": "#F6D18B",
+          "baseColor": "#D39B62",
+          "element": "Flame",
+          "role": "Tank",
+          "lore": "마지막 종소리는 장례가 아니라 살아남은 이들의 기상이 되었다."
+        },
+        {
+          "shadowId": "kneeling_captain",
+          "baseName": "무릎 꿇지 않는 대장",
+          "stage": "restored",
+          "formName": "마지막 성문대장",
+          "color": "#FF8B52",
+          "baseColor": "#E14632",
+          "element": "Flame",
+          "role": "PhysicalDealer",
+          "lore": "반역자라는 기록 아래 수천 명의 생존자가 있었다."
+        }
+      ],
+      "rowSplit": 344
+    },
+    {
+      "path": "Docs/ArtSources/Evolution/sheet_03.png",
+      "reference": "Docs/ArtSources/Evolution/references/ref_03.png",
+      "forms": [
+        {
+          "shadowId": "kneeling_captain",
+          "baseName": "무릎 꿇지 않는 대장",
+          "stage": "salvation",
+          "formName": "진명·새벽의 무릎 꿇지 않는 대장",
+          "color": "#F7E7A9",
+          "baseColor": "#E14632",
+          "element": "Flame",
+          "role": "PhysicalDealer",
+          "lore": "비극을 지우지 않고 품어 낸 진명이 다음 장면을 비추기 시작했다."
+        },
+        {
+          "shadowId": "kneeling_captain",
+          "baseName": "무릎 꿇지 않는 대장",
+          "stage": "grudge",
+          "formName": "진명·심연의 무릎 꿇지 않는 대장",
+          "color": "#B62E68",
+          "baseColor": "#E14632",
+          "element": "Flame",
+          "role": "PhysicalDealer",
+          "lore": "상처를 놓지 않은 진명이 원한을 칼날로 벼려 마지막 막을 찢는다."
+        },
+        {
+          "shadowId": "ash_priest",
+          "baseName": "잿빛 사제",
+          "stage": "restored",
+          "formName": "이름의 장례사",
+          "color": "#E5D5F1",
+          "baseColor": "#B9A0C8",
+          "element": "Shade",
+          "role": "Support",
+          "lore": "침묵 속에서도 이름은 완전한 장례문이 되었다."
+        },
+        {
+          "shadowId": "headless_guard",
+          "baseName": "목 없는 호위기사",
+          "stage": "restored",
+          "formName": "증언의 호위기사",
+          "color": "#D29AB8",
+          "baseColor": "#694C62",
+          "element": "Shade",
+          "role": "Tank",
+          "lore": "충성의 대상은 왕좌가 아니라 진실이었다."
+        },
+        {
+          "shadowId": "headless_guard",
+          "baseName": "목 없는 호위기사",
+          "stage": "salvation",
+          "formName": "진명·새벽의 목 없는 호위기사",
+          "color": "#F7E7A9",
+          "baseColor": "#694C62",
+          "element": "Shade",
+          "role": "Tank",
+          "lore": "비극을 지우지 않고 품어 낸 진명이 다음 장면을 비추기 시작했다."
+        },
+        {
+          "shadowId": "headless_guard",
+          "baseName": "목 없는 호위기사",
+          "stage": "grudge",
+          "formName": "진명·심연의 목 없는 호위기사",
+          "color": "#B62E68",
+          "baseColor": "#694C62",
+          "element": "Shade",
+          "role": "Tank",
+          "lore": "상처를 놓지 않은 진명이 원한을 칼날로 벼려 마지막 막을 찢는다."
+        },
+        {
+          "shadowId": "ash_king",
+          "baseName": "재의 왕",
+          "stage": "restored",
+          "formName": "패망을 인정한 왕",
+          "color": "#FF9B62",
+          "baseColor": "#FF3F2C",
+          "element": "Flame",
+          "role": "MagicNuker",
+          "lore": "처음으로 왕은 자신의 명령이 틀렸다고 입 밖에 냈다."
+        },
+        {
+          "shadowId": "ash_king",
+          "baseName": "재의 왕",
+          "stage": "salvation",
+          "formName": "진명·새벽왕 아우렐",
+          "color": "#FFF0A8",
+          "baseColor": "#FF3F2C",
+          "element": "Flame",
+          "role": "MagicNuker",
+          "lore": "아우렐은 왕관을 내려놓고 남은 이들의 첫 번째 시민이 되었다."
+        }
+      ],
+      "rowSplit": 344
+    },
+    {
+      "path": "Docs/ArtSources/Evolution/sheet_04.png",
+      "reference": "Docs/ArtSources/Evolution/references/ref_04.png",
+      "forms": [
+        {
+          "shadowId": "ash_king",
+          "baseName": "재의 왕",
+          "stage": "grudge",
+          "formName": "진명·장례왕 아우렐",
+          "color": "#9E1018",
+          "baseColor": "#FF3F2C",
+          "element": "Flame",
+          "role": "MagicNuker",
+          "lore": "아우렐은 왕국을 버린 세상 전체를 거대한 장작더미로 선언했다."
+        },
+        {
+          "shadowId": "frost_gull",
+          "baseName": "서리 갈매기",
+          "stage": "restored",
+          "formName": "새벽항의 길잡이",
+          "color": "#C7F6FF",
+          "baseColor": "#8DDCF0",
+          "element": "Frost",
+          "role": "SpeedUtility",
+          "lore": "이제 그 날갯짓은 돌아갈 항구가 아닌 나아갈 길을 가리킨다."
+        },
+        {
+          "shadowId": "glacier_ferryman",
+          "baseName": "빙하 뱃사공",
+          "stage": "restored",
+          "formName": "새 항로의 사공",
+          "color": "#A9EFFF",
+          "baseColor": "#64B7D5",
+          "element": "Frost",
+          "role": "Tank",
+          "lore": "빈 배는 이제 살아 있는 이들의 다음 항로를 연다."
+        },
+        {
+          "shadowId": "glacier_ferryman",
+          "baseName": "빙하 뱃사공",
+          "stage": "salvation",
+          "formName": "진명·귀항지기 하론",
+          "color": "#D9FAFF",
+          "baseColor": "#64B7D5",
+          "element": "Frost",
+          "role": "Tank",
+          "lore": "하론은 마지막 승객이 아니라 모두의 귀항을 맞는 첫 사공이 되었다."
+        },
+        {
+          "shadowId": "glacier_ferryman",
+          "baseName": "빙하 뱃사공",
+          "stage": "grudge",
+          "formName": "진명·빙해장송 하론",
+          "color": "#377CA7",
+          "baseColor": "#64B7D5",
+          "element": "Frost",
+          "role": "Tank",
+          "lore": "하론은 명부에서 지워진 모든 이름을 얼음 바다의 장송곡으로 되돌려 보냈다."
+        },
+        {
+          "shadowId": "ink_fox",
+          "baseName": "잉크 여우",
+          "stage": "restored",
+          "formName": "원고의 파수꾼",
+          "color": "#98AEFF",
+          "baseColor": "#6684D9",
+          "element": "Shade",
+          "role": "SpeedUtility",
+          "lore": "훔친 것이 아니라 이름에게 제자리를 찾아 주었을 뿐이다."
+        },
+        {
+          "shadowId": "book_drake",
+          "baseName": "책 먹는 용",
+          "stage": "restored",
+          "formName": "걸어 다니는 서고",
+          "color": "#80C6FF",
+          "baseColor": "#4B86E8",
+          "element": "Frost",
+          "role": "PhysicalDealer",
+          "lore": "그가 삼킨 모든 책은 다시 한 장씩 세상으로 돌아온다."
+        },
+        {
+          "shadowId": "book_drake",
+          "baseName": "책 먹는 용",
+          "stage": "salvation",
+          "formName": "진명·새벽의 책 먹는 용",
+          "color": "#F7E7A9",
+          "baseColor": "#4B86E8",
+          "element": "Frost",
+          "role": "PhysicalDealer",
+          "lore": "비극을 지우지 않고 품어 낸 진명이 다음 장면을 비추기 시작했다."
+        }
+      ],
+      "rowSplit": 316
+    },
+    {
+      "path": "Docs/ArtSources/Evolution/sheet_05.png",
+      "reference": "Docs/ArtSources/Evolution/references/ref_05.png",
+      "forms": [
+        {
+          "shadowId": "book_drake",
+          "baseName": "책 먹는 용",
+          "stage": "grudge",
+          "formName": "진명·심연의 책 먹는 용",
+          "color": "#B62E68",
+          "baseColor": "#4B86E8",
+          "element": "Frost",
+          "role": "PhysicalDealer",
+          "lore": "상처를 놓지 않은 진명이 원한을 칼날로 벼려 마지막 막을 찢는다."
+        },
+        {
+          "shadowId": "mirror_scribe",
+          "baseName": "거울 필경사",
+          "stage": "restored",
+          "formName": "가능성의 필경사",
+          "color": "#C4DBFF",
+          "baseColor": "#91B9FF",
+          "element": "Frost",
+          "role": "MagicNuker",
+          "lore": "쓰이지 않은 결말도 누군가의 진실이었다."
+        },
+        {
+          "shadowId": "inverted_librarian",
+          "baseName": "반전된 사서",
+          "stage": "restored",
+          "formName": "두 결말의 사서",
+          "color": "#B8A7FF",
+          "baseColor": "#7A64D8",
+          "element": "Shade",
+          "role": "MagicNuker",
+          "lore": "서로 다른 두 삶은 어느 쪽도 거짓이 아니었다."
+        },
+        {
+          "shadowId": "inverted_librarian",
+          "baseName": "반전된 사서",
+          "stage": "salvation",
+          "formName": "진명·새벽의 반전된 사서",
+          "color": "#F7E7A9",
+          "baseColor": "#7A64D8",
+          "element": "Shade",
+          "role": "MagicNuker",
+          "lore": "비극을 지우지 않고 품어 낸 진명이 다음 장면을 비추기 시작했다."
+        },
+        {
+          "shadowId": "inverted_librarian",
+          "baseName": "반전된 사서",
+          "stage": "grudge",
+          "formName": "진명·심연의 반전된 사서",
+          "color": "#B62E68",
+          "baseColor": "#7A64D8",
+          "element": "Shade",
+          "role": "MagicNuker",
+          "lore": "상처를 놓지 않은 진명이 원한을 칼날로 벼려 마지막 막을 찢는다."
+        },
+        {
+          "shadowId": "infinite_archive_dragon",
+          "baseName": "무한서고의 용",
+          "stage": "restored",
+          "formName": "금서를 증언하는 용",
+          "color": "#78B9FF",
+          "baseColor": "#315EEA",
+          "element": "Frost",
+          "role": "MagicNuker",
+          "lore": "봉인은 예언을 감추기 위한 것이 아니라 거짓 교리를 가두기 위한 것이었다."
+        },
+        {
+          "shadowId": "infinite_archive_dragon",
+          "baseName": "무한서고의 용",
+          "stage": "salvation",
+          "formName": "진명·청람의 기록룡 아르키온",
+          "color": "#D8F7FF",
+          "baseColor": "#315EEA",
+          "element": "Frost",
+          "role": "MagicNuker",
+          "lore": "아르키온은 모든 기록을 소유하지 않고 누구나 읽을 수 있는 하늘에 펼쳤다."
+        },
+        {
+          "shadowId": "infinite_archive_dragon",
+          "baseName": "무한서고의 용",
+          "stage": "grudge",
+          "formName": "진명·백지재앙 아르키온",
+          "color": "#3D43A8",
+          "baseColor": "#315EEA",
+          "element": "Frost",
+          "role": "MagicNuker",
+          "lore": "아르키온은 거짓을 쓴 모든 손과 함께 세상의 문장을 얼려 버렸다."
+        }
+      ],
+      "rowSplit": 339
+    },
+    {
+      "path": "Docs/ArtSources/Evolution/sheet_06.png",
+      "reference": "Docs/ArtSources/Evolution/references/ref_06.png",
+      "forms": [
+        {
+          "shadowId": "marsh_serpent",
+          "baseName": "보랏빛 늪뱀",
+          "stage": "restored",
+          "formName": "수렁의 길잡이",
+          "color": "#D69BEA",
+          "baseColor": "#A75AC7",
+          "element": "Shade",
+          "role": "SpeedUtility",
+          "lore": "독기는 적을 막고 등은 길 잃은 이들을 태운다."
+        },
+        {
+          "shadowId": "mask_hunter",
+          "baseName": "가면 사냥꾼",
+          "stage": "restored",
+          "formName": "숲의 거짓 발자국",
+          "color": "#E3A2EF",
+          "baseColor": "#B86DC9",
+          "element": "Shade",
+          "role": "PhysicalDealer",
+          "lore": "가면은 정체를 숨기는 도구가 아니라 생명을 지키는 방패였다."
+        },
+        {
+          "shadowId": "moon_shaman",
+          "baseName": "달술사",
+          "stage": "restored",
+          "formName": "기억을 되찾은 달술사",
+          "color": "#B8A1E8",
+          "baseColor": "#B8A1E8",
+          "element": "Frost",
+          "role": "Support",
+          "lore": "흩어진 장면이 이어지며 달술사은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "bloodmane_stalker",
+          "baseName": "붉은 뿔의 추격자",
+          "stage": "restored",
+          "formName": "사냥을 끝낸 추격자",
+          "color": "#F38AAC",
+          "baseColor": "#E64672",
+          "element": "Flame",
+          "role": "PhysicalDealer",
+          "lore": "붉은 뿔은 이제 추격이 아니라 길 잃은 자의 귀환을 알린다."
+        },
+        {
+          "shadowId": "bloodmane_stalker",
+          "baseName": "붉은 뿔의 추격자",
+          "stage": "salvation",
+          "formName": "진명·새벽의 붉은 뿔의 추격자",
+          "color": "#F7E7A9",
+          "baseColor": "#E64672",
+          "element": "Flame",
+          "role": "PhysicalDealer",
+          "lore": "비극을 지우지 않고 품어 낸 진명이 다음 장면을 비추기 시작했다."
+        },
+        {
+          "shadowId": "bloodmane_stalker",
+          "baseName": "붉은 뿔의 추격자",
+          "stage": "grudge",
+          "formName": "진명·심연의 붉은 뿔의 추격자",
+          "color": "#B62E68",
+          "baseColor": "#E64672",
+          "element": "Flame",
+          "role": "PhysicalDealer",
+          "lore": "상처를 놓지 않은 진명이 원한을 칼날로 벼려 마지막 막을 찢는다."
+        },
+        {
+          "shadowId": "moon_heart",
+          "baseName": "달의 심장",
+          "stage": "restored",
+          "formName": "기억을 되찾은 달의 심장",
+          "color": "#C06AE5",
+          "baseColor": "#C06AE5",
+          "element": "Shade",
+          "role": "Support",
+          "lore": "흩어진 장면이 이어지며 달의 심장은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "night_devouring_beast",
+          "baseName": "밤을 삼킨 짐승",
+          "stage": "restored",
+          "formName": "공포를 품은 수호수",
+          "color": "#BC7BE9",
+          "baseColor": "#8E42D8",
+          "element": "Shade",
+          "role": "PhysicalDealer",
+          "lore": "밤을 삼킨 것은 세상을 어둡게 하려는 일이 아니라 다른 이들에게 새벽을 돌려주기 위해서였다."
+        }
+      ],
+      "rowSplit": 310
+    },
+    {
+      "path": "Docs/ArtSources/Evolution/sheet_07.png",
+      "reference": "Docs/ArtSources/Evolution/references/ref_07.png",
+      "forms": [
+        {
+          "shadowId": "night_devouring_beast",
+          "baseName": "밤을 삼킨 짐승",
+          "stage": "salvation",
+          "formName": "진명·월식수 루페온",
+          "color": "#E6C8FF",
+          "baseColor": "#8E42D8",
+          "element": "Shade",
+          "role": "PhysicalDealer",
+          "lore": "루페온은 공포를 삼키지 않고 함께 노래해 나누는 법을 배웠다."
+        },
+        {
+          "shadowId": "night_devouring_beast",
+          "baseName": "밤을 삼킨 짐승",
+          "stage": "grudge",
+          "formName": "진명·무월재앙 루페온",
+          "color": "#5B167E",
+          "baseColor": "#8E42D8",
+          "element": "Shade",
+          "role": "PhysicalDealer",
+          "lore": "루페온은 자신에게 공포를 떠넘긴 모든 이름과 함께 달을 삼켰다."
+        },
+        {
+          "shadowId": "thread_cat",
+          "baseName": "천 조각 고양이",
+          "stage": "restored",
+          "formName": "시장 골목 수선사",
+          "color": "#F4B5CE",
+          "baseColor": "#D98AAC",
+          "element": "Shade",
+          "role": "SpeedUtility",
+          "lore": "훔친 천은 새 몸이 필요한 이들에게 돌아갔다."
+        },
+        {
+          "shadowId": "second_dancer",
+          "baseName": "초침 무희",
+          "stage": "restored",
+          "formName": "새 박자의 무희",
+          "color": "#BCE6F5",
+          "baseColor": "#86B8D6",
+          "element": "Frost",
+          "role": "PhysicalDealer",
+          "lore": "이제 다음 발걸음은 누구도 정해 주지 않는다."
+        },
+        {
+          "shadowId": "scissor_conductor",
+          "baseName": "가위 지휘자",
+          "stage": "restored",
+          "formName": "기억을 되찾은 가위 지휘자",
+          "color": "#B85A83",
+          "baseColor": "#B85A83",
+          "element": "Shade",
+          "role": "PhysicalDealer",
+          "lore": "흩어진 장면이 이어지며 가위 지휘자은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "wire_primadonna",
+          "baseName": "줄 위의 프리마돈나",
+          "stage": "restored",
+          "formName": "실을 끊은 독창자",
+          "color": "#F68CB6",
+          "baseColor": "#E14C89",
+          "element": "Shade",
+          "role": "MagicNuker",
+          "lore": "첫 자유의 노래는 완벽하지 않았기에 온전히 자신의 것이었다."
+        },
+        {
+          "shadowId": "wire_primadonna",
+          "baseName": "줄 위의 프리마돈나",
+          "stage": "salvation",
+          "formName": "진명·새벽의 줄 위의 프리마돈나",
+          "color": "#F7E7A9",
+          "baseColor": "#E14C89",
+          "element": "Shade",
+          "role": "MagicNuker",
+          "lore": "비극을 지우지 않고 품어 낸 진명이 다음 장면을 비추기 시작했다."
+        },
+        {
+          "shadowId": "wire_primadonna",
+          "baseName": "줄 위의 프리마돈나",
+          "stage": "grudge",
+          "formName": "진명·심연의 줄 위의 프리마돈나",
+          "color": "#B62E68",
+          "baseColor": "#E14C89",
+          "element": "Shade",
+          "role": "MagicNuker",
+          "lore": "상처를 놓지 않은 진명이 원한을 칼날로 벼려 마지막 막을 찢는다."
+        }
+      ],
+      "rowSplit": 343
+    },
+    {
+      "path": "Docs/ArtSources/Evolution/sheet_08.png",
+      "reference": "Docs/ArtSources/Evolution/references/ref_08.png",
+      "forms": [
+        {
+          "shadowId": "stitched_knight",
+          "baseName": "봉합 기사",
+          "stage": "restored",
+          "formName": "기억을 되찾은 봉합 기사",
+          "color": "#A87891",
+          "baseColor": "#A87891",
+          "element": "None",
+          "role": "Tank",
+          "lore": "흩어진 장면이 이어지며 봉합 기사은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "last_puppeteer",
+          "baseName": "마지막 인형사",
+          "stage": "restored",
+          "formName": "실을 놓은 연출가",
+          "color": "#EF76A8",
+          "baseColor": "#D72E73",
+          "element": "Shade",
+          "role": "MagicNuker",
+          "lore": "완벽하지 않은 선택도 배우 자신의 장면임을 받아들였다."
+        },
+        {
+          "shadowId": "last_puppeteer",
+          "baseName": "마지막 인형사",
+          "stage": "salvation",
+          "formName": "진명·자유극장주 마리온",
+          "color": "#FFD8E9",
+          "baseColor": "#D72E73",
+          "element": "Shade",
+          "role": "MagicNuker",
+          "lore": "마리온은 실을 무대 장막으로 엮고 모든 배우에게 자신의 대사를 돌려주었다."
+        },
+        {
+          "shadowId": "last_puppeteer",
+          "baseName": "마지막 인형사",
+          "stage": "grudge",
+          "formName": "진명·천사장 마리온",
+          "color": "#71103D",
+          "baseColor": "#D72E73",
+          "element": "Shade",
+          "role": "MagicNuker",
+          "lore": "마리온은 선택이 고통을 만든다며 세상 모든 손목에 검은 실을 묶었다."
+        },
+        {
+          "shadowId": "ticketless_passenger",
+          "baseName": "표 없는 승객",
+          "stage": "restored",
+          "formName": "귀가역을 기억한 여행자",
+          "color": "#D5D8E2",
+          "baseColor": "#AEB2C3",
+          "element": "None",
+          "role": "SpeedUtility",
+          "lore": "빈 표 뒷면에 가족이 기다리는 역의 이름을 다시 적었다."
+        },
+        {
+          "shadowId": "ticketless_passenger",
+          "baseName": "표 없는 승객",
+          "stage": "salvation",
+          "formName": "진명·귀향객 미라",
+          "color": "#F3E8C9",
+          "baseColor": "#AEB2C3",
+          "element": "None",
+          "role": "SpeedUtility",
+          "lore": "미라는 목적지가 아니라 기다리는 사람을 향해 돌아가는 길을 선택했다."
+        },
+        {
+          "shadowId": "ticketless_passenger",
+          "baseName": "표 없는 승객",
+          "stage": "grudge",
+          "formName": "진명·무한승객 미라",
+          "color": "#686D83",
+          "baseColor": "#AEB2C3",
+          "element": "None",
+          "role": "SpeedUtility",
+          "lore": "미라는 자신을 내리지 못하게 한 모든 선로를 끝없는 밤으로 묶었다."
+        },
+        {
+          "shadowId": "ink_conductor",
+          "baseName": "먹칠 역무원",
+          "stage": "restored",
+          "formName": "선로를 바꾼 역무원",
+          "color": "#A19DAE",
+          "baseColor": "#777486",
+          "element": "Shade",
+          "role": "Support",
+          "lore": "먹칠은 목적지를 없앤 것이 아니라 수감 열차를 속이기 위한 임시 표식이었다."
+        }
+      ],
+      "rowSplit": 367
+    },
+    {
+      "path": "Docs/ArtSources/Evolution/sheet_09.png",
+      "reference": "Docs/ArtSources/Evolution/references/ref_09.png",
+      "forms": [
+        {
+          "shadowId": "ink_conductor",
+          "baseName": "먹칠 역무원",
+          "stage": "salvation",
+          "formName": "진명·해방역장 오르도",
+          "color": "#E0D9EE",
+          "baseColor": "#777486",
+          "element": "Shade",
+          "role": "Support",
+          "lore": "오르도는 누구도 정해진 목적지로 끌려가지 않는 역의 첫 출발신호를 울렸다."
+        },
+        {
+          "shadowId": "ink_conductor",
+          "baseName": "먹칠 역무원",
+          "stage": "grudge",
+          "formName": "진명·검은 종착역 오르도",
+          "color": "#4A4659",
+          "baseColor": "#777486",
+          "element": "Shade",
+          "role": "Support",
+          "lore": "오르도는 검열단의 모든 열차를 돌아올 수 없는 검은 종착역으로 보냈다."
+        },
+        {
+          "shadowId": "numbered_prisoner",
+          "baseName": "번호 죄수",
+          "stage": "restored",
+          "formName": "이름을 새기는 죄수",
+          "color": "#C7CAD7",
+          "baseColor": "#9295A5",
+          "element": "Shade",
+          "role": "PhysicalDealer",
+          "lore": "마지막 빈칸에 자신의 이름도 다시 새겼다."
+        },
+        {
+          "shadowId": "zero_warden",
+          "baseName": "제0호 간수",
+          "stage": "restored",
+          "formName": "기억을 되찾은 제0호 간수",
+          "color": "#E0E2EA",
+          "baseColor": "#E0E2EA",
+          "element": "Frost",
+          "role": "Tank",
+          "lore": "흩어진 장면이 이어지며 제0호 간수은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "zero_warden",
+          "baseName": "제0호 간수",
+          "stage": "salvation",
+          "formName": "진명·새벽의 제0호 간수",
+          "color": "#F7E7A9",
+          "baseColor": "#E0E2EA",
+          "element": "Frost",
+          "role": "Tank",
+          "lore": "비극을 지우지 않고 품어 낸 진명이 다음 장면을 비추기 시작했다."
+        },
+        {
+          "shadowId": "zero_warden",
+          "baseName": "제0호 간수",
+          "stage": "grudge",
+          "formName": "진명·심연의 제0호 간수",
+          "color": "#B62E68",
+          "baseColor": "#E0E2EA",
+          "element": "Frost",
+          "role": "Tank",
+          "lore": "상처를 놓지 않은 진명이 원한을 칼날로 벼려 마지막 막을 찢는다."
+        },
+        {
+          "shadowId": "censor_surgeon",
+          "baseName": "봉합 검열관",
+          "stage": "restored",
+          "formName": "기억을 되찾은 봉합 검열관",
+          "color": "#8E6583",
+          "baseColor": "#8E6583",
+          "element": "Shade",
+          "role": "Support",
+          "lore": "흩어진 장면이 이어지며 봉합 검열관은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "extract_subject_m",
+          "baseName": "추출 실험체 M",
+          "stage": "restored",
+          "formName": "기억을 되찾은 추출 실험체 M",
+          "color": "#B92F67",
+          "baseColor": "#B92F67",
+          "element": "Flame",
+          "role": "MagicNuker",
+          "lore": "흩어진 장면이 이어지며 추출 실험체 M은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        }
+      ],
+      "rowSplit": 335
+    },
+    {
+      "path": "Docs/ArtSources/Evolution/sheet_10.png",
+      "reference": "Docs/ArtSources/Evolution/references/ref_10.png",
+      "forms": [
+        {
+          "shadowId": "extract_subject_m",
+          "baseName": "추출 실험체 M",
+          "stage": "salvation",
+          "formName": "진명·새벽의 추출 실험체 M",
+          "color": "#F7E7A9",
+          "baseColor": "#B92F67",
+          "element": "Flame",
+          "role": "MagicNuker",
+          "lore": "비극을 지우지 않고 품어 낸 진명이 다음 장면을 비추기 시작했다."
+        },
+        {
+          "shadowId": "extract_subject_m",
+          "baseName": "추출 실험체 M",
+          "stage": "grudge",
+          "formName": "진명·심연의 추출 실험체 M",
+          "color": "#B62E68",
+          "baseColor": "#B92F67",
+          "element": "Flame",
+          "role": "MagicNuker",
+          "lore": "상처를 놓지 않은 진명이 원한을 칼날로 벼려 마지막 막을 찢는다."
+        },
+        {
+          "shadowId": "mute_judge",
+          "baseName": "무언의 재판장",
+          "stage": "restored",
+          "formName": "기억을 되찾은 무언의 재판장",
+          "color": "#6B6073",
+          "baseColor": "#6B6073",
+          "element": "None",
+          "role": "PhysicalDealer",
+          "lore": "흩어진 장면이 이어지며 무언의 재판장은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "high_censor_nox",
+          "baseName": "대검열관 노크스",
+          "stage": "restored",
+          "formName": "죄를 읽는 검열관",
+          "color": "#79648B",
+          "baseColor": "#3F304B",
+          "element": "Shade",
+          "role": "MagicNuker",
+          "lore": "처음으로 자신이 지운 이름들을 소리 내어 읽었다."
+        },
+        {
+          "shadowId": "high_censor_nox",
+          "baseName": "대검열관 노크스",
+          "stage": "salvation",
+          "formName": "진명·기록수호자 녹티스",
+          "color": "#D8C9E5",
+          "baseColor": "#3F304B",
+          "element": "Shade",
+          "role": "MagicNuker",
+          "lore": "녹티스는 고통을 지우는 대신 견딜 수 있도록 기록 곁을 지켰다."
+        },
+        {
+          "shadowId": "high_censor_nox",
+          "baseName": "대검열관 노크스",
+          "stage": "grudge",
+          "formName": "진명·무명왕 녹티스",
+          "color": "#1D1425",
+          "baseColor": "#3F304B",
+          "element": "Shade",
+          "role": "MagicNuker",
+          "lore": "녹티스는 이름이 존재하는 한 고통도 끝나지 않는다며 세계 전체를 먹칠했다."
+        },
+        {
+          "shadowId": "wave_bard",
+          "baseName": "파도 악사",
+          "stage": "restored",
+          "formName": "기억을 되찾은 파도 악사",
+          "color": "#59AFC9",
+          "baseColor": "#59AFC9",
+          "element": "Frost",
+          "role": "MagicNuker",
+          "lore": "흩어진 장면이 이어지며 파도 악사은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "drowned_painter",
+          "baseName": "익사한 화가",
+          "stage": "restored",
+          "formName": "기억을 되찾은 익사한 화가",
+          "color": "#478EB8",
+          "baseColor": "#478EB8",
+          "element": "Frost",
+          "role": "MagicNuker",
+          "lore": "흩어진 장면이 이어지며 익사한 화가은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        }
+      ],
+      "rowSplit": 338
+    },
+    {
+      "path": "Docs/ArtSources/Evolution/sheet_11.png",
+      "reference": "Docs/ArtSources/Evolution/references/ref_11.png",
+      "forms": [
+        {
+          "shadowId": "drowned_painter",
+          "baseName": "익사한 화가",
+          "stage": "salvation",
+          "formName": "진명·새벽의 익사한 화가",
+          "color": "#F7E7A9",
+          "baseColor": "#478EB8",
+          "element": "Frost",
+          "role": "MagicNuker",
+          "lore": "비극을 지우지 않고 품어 낸 진명이 다음 장면을 비추기 시작했다."
+        },
+        {
+          "shadowId": "drowned_painter",
+          "baseName": "익사한 화가",
+          "stage": "grudge",
+          "formName": "진명·심연의 익사한 화가",
+          "color": "#B62E68",
+          "baseColor": "#478EB8",
+          "element": "Frost",
+          "role": "MagicNuker",
+          "lore": "상처를 놓지 않은 진명이 원한을 칼날로 벼려 마지막 막을 찢는다."
+        },
+        {
+          "shadowId": "nameplate_turtle",
+          "baseName": "문패 거북",
+          "stage": "restored",
+          "formName": "기억을 되찾은 문패 거북",
+          "color": "#69AFC2",
+          "baseColor": "#69AFC2",
+          "element": "None",
+          "role": "Tank",
+          "lore": "흩어진 장면이 이어지며 문패 거북은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "mourning_keeper",
+          "baseName": "등대를 지키는 상주",
+          "stage": "restored",
+          "formName": "기억을 되찾은 등대를 지키는 상주",
+          "color": "#7794C8",
+          "baseColor": "#7794C8",
+          "element": "Shade",
+          "role": "Support",
+          "lore": "흩어진 장면이 이어지며 등대를 지키는 상주은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "mourning_keeper",
+          "baseName": "등대를 지키는 상주",
+          "stage": "salvation",
+          "formName": "진명·새벽의 등대를 지키는 상주",
+          "color": "#F7E7A9",
+          "baseColor": "#7794C8",
+          "element": "Shade",
+          "role": "Support",
+          "lore": "비극을 지우지 않고 품어 낸 진명이 다음 장면을 비추기 시작했다."
+        },
+        {
+          "shadowId": "mourning_keeper",
+          "baseName": "등대를 지키는 상주",
+          "stage": "grudge",
+          "formName": "진명·심연의 등대를 지키는 상주",
+          "color": "#B62E68",
+          "baseColor": "#7794C8",
+          "element": "Shade",
+          "role": "Support",
+          "lore": "상처를 놓지 않은 진명이 원한을 칼날로 벼려 마지막 막을 찢는다."
+        },
+        {
+          "shadowId": "inverted_guide",
+          "baseName": "거꾸로 안내원",
+          "stage": "restored",
+          "formName": "기억을 되찾은 거꾸로 안내원",
+          "color": "#A778E8",
+          "baseColor": "#A778E8",
+          "element": "Shade",
+          "role": "Support",
+          "lore": "흩어진 장면이 이어지며 거꾸로 안내원은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "interlude_manager",
+          "baseName": "막간의 관리자",
+          "stage": "restored",
+          "formName": "기억을 되찾은 막간의 관리자",
+          "color": "#754AA8",
+          "baseColor": "#754AA8",
+          "element": "Shade",
+          "role": "Support",
+          "lore": "흩어진 장면이 이어지며 막간의 관리자은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        }
+      ],
+      "rowSplit": 338
+    },
+    {
+      "path": "Docs/ArtSources/Evolution/sheet_12.png",
+      "reference": "Docs/ArtSources/Evolution/references/ref_12.png",
+      "forms": [
+        {
+          "shadowId": "interlude_manager",
+          "baseName": "막간의 관리자",
+          "stage": "salvation",
+          "formName": "진명·새벽의 막간의 관리자",
+          "color": "#F7E7A9",
+          "baseColor": "#754AA8",
+          "element": "Shade",
+          "role": "Support",
+          "lore": "비극을 지우지 않고 품어 낸 진명이 다음 장면을 비추기 시작했다."
+        },
+        {
+          "shadowId": "interlude_manager",
+          "baseName": "막간의 관리자",
+          "stage": "grudge",
+          "formName": "진명·심연의 막간의 관리자",
+          "color": "#B62E68",
+          "baseColor": "#754AA8",
+          "element": "Shade",
+          "role": "Support",
+          "lore": "상처를 놓지 않은 진명이 원한을 칼날로 벼려 마지막 막을 찢는다."
+        },
+        {
+          "shadowId": "first_line_echo",
+          "baseName": "첫 대사의 메아리",
+          "stage": "restored",
+          "formName": "기억을 되찾은 첫 대사의 메아리",
+          "color": "#E6BE68",
+          "baseColor": "#E6BE68",
+          "element": "None",
+          "role": "MagicNuker",
+          "lore": "흩어진 장면이 이어지며 첫 대사의 메아리은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "golden_mask",
+          "baseName": "황금 가면",
+          "stage": "restored",
+          "formName": "기억을 되찾은 황금 가면",
+          "color": "#D9A43E",
+          "baseColor": "#D9A43E",
+          "element": "None",
+          "role": "PhysicalDealer",
+          "lore": "흩어진 장면이 이어지며 황금 가면은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "silent_applause",
+          "baseName": "침묵의 박수",
+          "stage": "restored",
+          "formName": "기억을 되찾은 침묵의 박수",
+          "color": "#8B82F2",
+          "baseColor": "#8B82F2",
+          "element": "Shade",
+          "role": "SpeedUtility",
+          "lore": "흩어진 장면이 이어지며 침묵의 박수은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "censored_protagonist",
+          "baseName": "검열된 주인공",
+          "stage": "restored",
+          "formName": "기억을 되찾은 검열된 주인공",
+          "color": "#D7D0E5",
+          "baseColor": "#D7D0E5",
+          "element": "Shade",
+          "role": "PhysicalDealer",
+          "lore": "흩어진 장면이 이어지며 검열된 주인공은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "rival_director",
+          "baseName": "또 다른 연출가",
+          "stage": "restored",
+          "formName": "기억을 되찾은 또 다른 연출가",
+          "color": "#E04478",
+          "baseColor": "#E04478",
+          "element": "Shade",
+          "role": "Support",
+          "lore": "흩어진 장면이 이어지며 또 다른 연출가은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "rival_director",
+          "baseName": "또 다른 연출가",
+          "stage": "salvation",
+          "formName": "진명·새벽의 또 다른 연출가",
+          "color": "#F7E7A9",
+          "baseColor": "#E04478",
+          "element": "Shade",
+          "role": "Support",
+          "lore": "비극을 지우지 않고 품어 낸 진명이 다음 장면을 비추기 시작했다."
+        }
+      ],
+      "rowSplit": 313
+    },
+    {
+      "path": "Docs/ArtSources/Evolution/sheet_13.png",
+      "reference": "Docs/ArtSources/Evolution/references/ref_13.png",
+      "forms": [
+        {
+          "shadowId": "rival_director",
+          "baseName": "또 다른 연출가",
+          "stage": "grudge",
+          "formName": "진명·심연의 또 다른 연출가",
+          "color": "#B62E68",
+          "baseColor": "#E04478",
+          "element": "Shade",
+          "role": "Support",
+          "lore": "상처를 놓지 않은 진명이 원한을 칼날로 벼려 마지막 막을 찢는다."
+        },
+        {
+          "shadowId": "outside_script_shadow",
+          "baseName": "각본 밖의 그림자",
+          "stage": "restored",
+          "formName": "기억을 되찾은 각본 밖의 그림자",
+          "color": "#F0E7FF",
+          "baseColor": "#F0E7FF",
+          "element": "None",
+          "role": "MagicNuker",
+          "lore": "흩어진 장면이 이어지며 각본 밖의 그림자은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "outside_script_shadow",
+          "baseName": "각본 밖의 그림자",
+          "stage": "salvation",
+          "formName": "진명·새벽의 각본 밖의 그림자",
+          "color": "#F7E7A9",
+          "baseColor": "#F0E7FF",
+          "element": "None",
+          "role": "MagicNuker",
+          "lore": "비극을 지우지 않고 품어 낸 진명이 다음 장면을 비추기 시작했다."
+        },
+        {
+          "shadowId": "outside_script_shadow",
+          "baseName": "각본 밖의 그림자",
+          "stage": "grudge",
+          "formName": "진명·심연의 각본 밖의 그림자",
+          "color": "#B62E68",
+          "baseColor": "#F0E7FF",
+          "element": "None",
+          "role": "MagicNuker",
+          "lore": "상처를 놓지 않은 진명이 원한을 칼날로 벼려 마지막 막을 찢는다."
+        },
+        {
+          "shadowId": "exp_echo_village_01",
+          "baseName": "등불 심부름꾼",
+          "stage": "restored",
+          "formName": "기억을 되찾은 등불 심부름꾼",
+          "color": "#55C6BD",
+          "baseColor": "#55C6BD",
+          "element": "None",
+          "role": "Tank",
+          "lore": "흩어진 장면이 이어지며 등불 심부름꾼은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "exp_echo_village_02",
+          "baseName": "종이 우산 소녀",
+          "stage": "restored",
+          "formName": "기억을 되찾은 종이 우산 소녀",
+          "color": "#55C6BD",
+          "baseColor": "#55C6BD",
+          "element": "None",
+          "role": "Support",
+          "lore": "흩어진 장면이 이어지며 종이 우산 소녀은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "exp_echo_village_03",
+          "baseName": "골목의 검은 개",
+          "stage": "restored",
+          "formName": "기억을 되찾은 골목의 검은 개",
+          "color": "#55C6BD",
+          "baseColor": "#55C6BD",
+          "element": "None",
+          "role": "PhysicalDealer",
+          "lore": "흩어진 장면이 이어지며 골목의 검은 개은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "exp_moonlit_boss_stage_01",
+          "baseName": "월식의 시녀",
+          "stage": "restored",
+          "formName": "기억을 되찾은 월식의 시녀",
+          "color": "#D45AA8",
+          "baseColor": "#D45AA8",
+          "element": "None",
+          "role": "PhysicalDealer",
+          "lore": "흩어진 장면이 이어지며 월식의 시녀은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        }
+      ],
+      "rowSplit": 356
+    },
+    {
+      "path": "Docs/ArtSources/Evolution/sheet_14.png",
+      "reference": "Docs/ArtSources/Evolution/references/ref_14.png",
+      "forms": [
+        {
+          "shadowId": "exp_moonlit_boss_stage_02",
+          "baseName": "상복 나비",
+          "stage": "restored",
+          "formName": "기억을 되찾은 상복 나비",
+          "color": "#D45AA8",
+          "baseColor": "#D45AA8",
+          "element": "None",
+          "role": "MagicNuker",
+          "lore": "흩어진 장면이 이어지며 상복 나비은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "exp_forbidden_stacks_01",
+          "baseName": "잉크 망령",
+          "stage": "restored",
+          "formName": "기억을 되찾은 잉크 망령",
+          "color": "#638EDB",
+          "baseColor": "#638EDB",
+          "element": "Frost",
+          "role": "Support",
+          "lore": "흩어진 장면이 이어지며 잉크 망령은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "exp_blue_abyss_01",
+          "baseName": "빙결 문장",
+          "stage": "restored",
+          "formName": "기억을 되찾은 빙결 문장",
+          "color": "#4E7FEF",
+          "baseColor": "#4E7FEF",
+          "element": "Frost",
+          "role": "MagicNuker",
+          "lore": "흩어진 장면이 이어지며 빙결 문장은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "exp_blue_abyss_02",
+          "baseName": "침묵의 마도사",
+          "stage": "restored",
+          "formName": "기억을 되찾은 침묵의 마도사",
+          "color": "#4E7FEF",
+          "baseColor": "#4E7FEF",
+          "element": "Frost",
+          "role": "SpeedUtility",
+          "lore": "흩어진 장면이 이어지며 침묵의 마도사은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "exp_violet_marsh_01",
+          "baseName": "수렁 사냥꾼",
+          "stage": "restored",
+          "formName": "기억을 되찾은 수렁 사냥꾼",
+          "color": "#A45AC8",
+          "baseColor": "#A45AC8",
+          "element": "Shade",
+          "role": "SpeedUtility",
+          "lore": "흩어진 장면이 이어지며 수렁 사냥꾼은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "exp_moonfang_forest_01",
+          "baseName": "검은 발톱",
+          "stage": "restored",
+          "formName": "기억을 되찾은 검은 발톱",
+          "color": "#7658C9",
+          "baseColor": "#7658C9",
+          "element": "Shade",
+          "role": "Support",
+          "lore": "흩어진 장면이 이어지며 검은 발톱은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "exp_bloodmoon_ridge_01",
+          "baseName": "핏빛 갈기",
+          "stage": "restored",
+          "formName": "기억을 되찾은 핏빛 갈기",
+          "color": "#C94578",
+          "baseColor": "#C94578",
+          "element": "Shade",
+          "role": "PhysicalDealer",
+          "lore": "흩어진 장면이 이어지며 핏빛 갈기은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "exp_sleeping_beast_den_01",
+          "baseName": "자줏빛 포효",
+          "stage": "restored",
+          "formName": "기억을 되찾은 자줏빛 포효",
+          "color": "#8D48C7",
+          "baseColor": "#8D48C7",
+          "element": "Shade",
+          "role": "MagicNuker",
+          "lore": "흩어진 장면이 이어지며 자줏빛 포효은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        }
+      ],
+      "rowSplit": 308
+    },
+    {
+      "path": "Docs/ArtSources/Evolution/sheet_15.png",
+      "reference": "Docs/ArtSources/Evolution/references/ref_15.png",
+      "forms": [
+        {
+          "shadowId": "exp_severed_workshop_01",
+          "baseName": "톱니 심장",
+          "stage": "restored",
+          "formName": "기억을 되찾은 톱니 심장",
+          "color": "#B76B9D",
+          "baseColor": "#B76B9D",
+          "element": "None",
+          "role": "PhysicalDealer",
+          "lore": "흩어진 장면이 이어지며 톱니 심장은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "exp_severed_workshop_02",
+          "baseName": "천 개 손의 장인",
+          "stage": "restored",
+          "formName": "기억을 되찾은 천 개 손의 장인",
+          "color": "#B76B9D",
+          "baseColor": "#B76B9D",
+          "element": "None",
+          "role": "MagicNuker",
+          "lore": "흩어진 장면이 이어지며 천 개 손의 장인은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "exp_puppeteer_stage_01",
+          "baseName": "검은 실뭉치",
+          "stage": "restored",
+          "formName": "기억을 되찾은 검은 실뭉치",
+          "color": "#E04478",
+          "baseColor": "#E04478",
+          "element": "None",
+          "role": "MagicNuker",
+          "lore": "흩어진 장면이 이어지며 검은 실뭉치은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "exp_puppeteer_stage_02",
+          "baseName": "왕관 인형",
+          "stage": "restored",
+          "formName": "기억을 되찾은 왕관 인형",
+          "color": "#E04478",
+          "baseColor": "#E04478",
+          "element": "None",
+          "role": "SpeedUtility",
+          "lore": "흩어진 장면이 이어지며 왕관 인형은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "exp_silent_court_01",
+          "baseName": "먹지 배심원",
+          "stage": "restored",
+          "formName": "기억을 되찾은 먹지 배심원",
+          "color": "#67506F",
+          "baseColor": "#67506F",
+          "element": "Shade",
+          "role": "PhysicalDealer",
+          "lore": "흩어진 장면이 이어지며 먹지 배심원은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "exp_silent_court_02",
+          "baseName": "가위 집행관",
+          "stage": "restored",
+          "formName": "기억을 되찾은 가위 집행관",
+          "color": "#67506F",
+          "baseColor": "#67506F",
+          "element": "Shade",
+          "role": "MagicNuker",
+          "lore": "흩어진 장면이 이어지며 가위 집행관은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "exp_black_archive_01",
+          "baseName": "검열의 칼날",
+          "stage": "restored",
+          "formName": "기억을 되찾은 검열의 칼날",
+          "color": "#4A354F",
+          "baseColor": "#4A354F",
+          "element": "Shade",
+          "role": "MagicNuker",
+          "lore": "흩어진 장면이 이어지며 검열의 칼날은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "exp_black_archive_02",
+          "baseName": "원한의 대역",
+          "stage": "restored",
+          "formName": "기억을 되찾은 원한의 대역",
+          "color": "#4A354F",
+          "baseColor": "#4A354F",
+          "element": "Shade",
+          "role": "SpeedUtility",
+          "lore": "흩어진 장면이 이어지며 원한의 대역은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        }
+      ],
+      "rowSplit": 316
+    },
+    {
+      "path": "Docs/ArtSources/Evolution/sheet_16.png",
+      "reference": "Docs/ArtSources/Evolution/references/ref_16.png",
+      "forms": [
+        {
+          "shadowId": "exp_name_islands_01",
+          "baseName": "호명하는 고래",
+          "stage": "restored",
+          "formName": "기억을 되찾은 호명하는 고래",
+          "color": "#6CC5E6",
+          "baseColor": "#6CC5E6",
+          "element": "Frost",
+          "role": "Support",
+          "lore": "흩어진 장면이 이어지며 호명하는 고래은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "exp_mourning_lighthouse_01",
+          "baseName": "푸른 상복",
+          "stage": "restored",
+          "formName": "기억을 되찾은 푸른 상복",
+          "color": "#87B9DF",
+          "baseColor": "#87B9DF",
+          "element": "Frost",
+          "role": "PhysicalDealer",
+          "lore": "흩어진 장면이 이어지며 푸른 상복은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "exp_widow_moon_palace_01",
+          "baseName": "월해의 기사",
+          "stage": "restored",
+          "formName": "기억을 되찾은 월해의 기사",
+          "color": "#C3B6FF",
+          "baseColor": "#C3B6FF",
+          "element": "Frost",
+          "role": "MagicNuker",
+          "lore": "흩어진 장면이 이어지며 월해의 기사은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "exp_widow_moon_palace_02",
+          "baseName": "은빛 상주",
+          "stage": "restored",
+          "formName": "기억을 되찾은 은빛 상주",
+          "color": "#C3B6FF",
+          "baseColor": "#C3B6FF",
+          "element": "Frost",
+          "role": "SpeedUtility",
+          "lore": "흩어진 장면이 이어지며 은빛 상주은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "exp_widow_moon_palace_03",
+          "baseName": "진명 · 셀레네",
+          "stage": "restored",
+          "formName": "기억을 되찾은 진명 · 셀레네",
+          "color": "#C3B6FF",
+          "baseColor": "#C3B6FF",
+          "element": "Frost",
+          "role": "Tank",
+          "lore": "흩어진 장면이 이어지며 진명 · 셀레네은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "exp_painted_wagon_road_01",
+          "baseName": "천막쥐",
+          "stage": "restored",
+          "formName": "기억을 되찾은 천막쥐",
+          "color": "#D79A58",
+          "baseColor": "#D79A58",
+          "element": "None",
+          "role": "SpeedUtility",
+          "lore": "흩어진 장면이 이어지며 천막쥐은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "exp_forgotten_tent_01",
+          "baseName": "버려진 광대",
+          "stage": "restored",
+          "formName": "기억을 되찾은 버려진 광대",
+          "color": "#A96A62",
+          "baseColor": "#A96A62",
+          "element": "None",
+          "role": "Tank",
+          "lore": "흩어진 장면이 이어지며 버려진 광대은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "exp_silent_clown_stage_01",
+          "baseName": "침묵한 광대",
+          "stage": "restored",
+          "formName": "기억을 되찾은 침묵한 광대",
+          "color": "#C94F67",
+          "baseColor": "#C94F67",
+          "element": "None",
+          "role": "Support",
+          "lore": "흩어진 장면이 이어지며 침묵한 광대은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        }
+      ],
+      "rowSplit": 309
+    },
+    {
+      "path": "Docs/ArtSources/Evolution/sheet_17.png",
+      "reference": "Docs/ArtSources/Evolution/references/ref_17.png",
+      "forms": [
+        {
+          "shadowId": "exp_poster_alley_01",
+          "baseName": "대역 배우",
+          "stage": "restored",
+          "formName": "기억을 되찾은 대역 배우",
+          "color": "#D85C54",
+          "baseColor": "#D85C54",
+          "element": "Flame",
+          "role": "PhysicalDealer",
+          "lore": "흩어진 장면이 이어지며 대역 배우은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "exp_poster_alley_02",
+          "baseName": "버려진 대본",
+          "stage": "restored",
+          "formName": "기억을 되찾은 버려진 대본",
+          "color": "#D85C54",
+          "baseColor": "#D85C54",
+          "element": "Flame",
+          "role": "MagicNuker",
+          "lore": "흩어진 장면이 이어지며 버려진 대본은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "exp_sealed_small_theater_01",
+          "baseName": "마지막 대역 배우",
+          "stage": "restored",
+          "formName": "기억을 되찾은 마지막 대역 배우",
+          "color": "#8E3F62",
+          "baseColor": "#8E3F62",
+          "element": "Flame",
+          "role": "SpeedUtility",
+          "lore": "흩어진 장면이 이어지며 마지막 대역 배우은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "exp_matte_projection_room_01",
+          "baseName": "빛 먹는 영사기사",
+          "stage": "restored",
+          "formName": "기억을 되찾은 빛 먹는 영사기사",
+          "color": "#393C64",
+          "baseColor": "#393C64",
+          "element": "Shade",
+          "role": "Tank",
+          "lore": "흩어진 장면이 이어지며 빛 먹는 영사기사은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "exp_moon_eater_ritual_01",
+          "baseName": "달을 먹는 산신",
+          "stage": "restored",
+          "formName": "기억을 되찾은 달을 먹는 산신",
+          "color": "#8E315D",
+          "baseColor": "#8E315D",
+          "element": "Shade",
+          "role": "MagicNuker",
+          "lore": "흩어진 장면이 이어지며 달을 먹는 산신은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "exp_stitch_field_01",
+          "baseName": "실감개 상인",
+          "stage": "restored",
+          "formName": "기억을 되찾은 실감개 상인",
+          "color": "#D07A9C",
+          "baseColor": "#D07A9C",
+          "element": "None",
+          "role": "SpeedUtility",
+          "lore": "흩어진 장면이 이어지며 실감개 상인은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "exp_clockwork_heart_stage_01",
+          "baseName": "태엽 심장의 장인",
+          "stage": "restored",
+          "formName": "기억을 되찾은 태엽 심장의 장인",
+          "color": "#9C486F",
+          "baseColor": "#9C486F",
+          "element": "None",
+          "role": "Support",
+          "lore": "흩어진 장면이 이어지며 태엽 심장의 장인은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "exp_ghost_orchestra_pit_01",
+          "baseName": "박자 잃은 지휘자",
+          "stage": "restored",
+          "formName": "기억을 되찾은 박자 잃은 지휘자",
+          "color": "#57516F",
+          "baseColor": "#57516F",
+          "element": "Shade",
+          "role": "MagicNuker",
+          "lore": "흩어진 장면이 이어지며 박자 잃은 지휘자은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        }
+      ],
+      "rowSplit": 339
+    },
+    {
+      "path": "Docs/ArtSources/Evolution/sheet_18.png",
+      "reference": "Docs/ArtSources/Evolution/references/ref_18.png",
+      "forms": [
+        {
+          "shadowId": "exp_curtain_pass_01",
+          "baseName": "재의 국경의 그을음망령",
+          "stage": "restored",
+          "formName": "기억을 되찾은 재의 국경의 그을음망령",
+          "color": "#CF684D",
+          "baseColor": "#CF684D",
+          "element": "Flame",
+          "role": "SpeedUtility",
+          "lore": "흩어진 장면이 이어지며 재의 국경의 그을음망령은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "exp_ember_catacombs_01",
+          "baseName": "금단의 서가의 잉크여우",
+          "stage": "restored",
+          "formName": "기억을 되찾은 금단의 서가의 잉크여우",
+          "color": "#638EDB",
+          "baseColor": "#638EDB",
+          "element": "Frost",
+          "role": "Support",
+          "lore": "흩어진 장면이 이어지며 금단의 서가의 잉크여우은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "exp_blue_abyss_03",
+          "baseName": "잠든 야수의 굴의 절벽박쥐",
+          "stage": "restored",
+          "formName": "기억을 되찾은 잠든 야수의 굴의 절벽박쥐",
+          "color": "#8D48C7",
+          "baseColor": "#8D48C7",
+          "element": "Shade",
+          "role": "MagicNuker",
+          "lore": "흩어진 장면이 이어지며 잠든 야수의 굴의 절벽박쥐은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "exp_sleeping_beast_den_02",
+          "baseName": "백지 감옥의 백지나비",
+          "stage": "restored",
+          "formName": "기억을 되찾은 백지 감옥의 백지나비",
+          "color": "#9298AA",
+          "baseColor": "#9298AA",
+          "element": "Shade",
+          "role": "Tank",
+          "lore": "흩어진 장면이 이어지며 백지 감옥의 백지나비은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "exp_blank_prison_01",
+          "baseName": "애도의 등대의 등대나비",
+          "stage": "restored",
+          "formName": "기억을 되찾은 애도의 등대의 등대나비",
+          "color": "#87B9DF",
+          "baseColor": "#87B9DF",
+          "element": "Frost",
+          "role": "PhysicalDealer",
+          "lore": "흩어진 장면이 이어지며 애도의 등대의 등대나비은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "exp_name_islands_02",
+          "baseName": "채색 수레길의 장막쥐",
+          "stage": "restored",
+          "formName": "기억을 되찾은 채색 수레길의 장막쥐",
+          "color": "#D79A58",
+          "baseColor": "#D79A58",
+          "element": "None",
+          "role": "SpeedUtility",
+          "lore": "흩어진 장면이 이어지며 채색 수레길의 장막쥐은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "exp_first_actor_room_01",
+          "baseName": "숨 쉬는 거품 동굴의 문장벌레",
+          "stage": "restored",
+          "formName": "기억을 되찾은 숨 쉬는 거품 동굴의 문장벌레",
+          "color": "#318FB3",
+          "baseColor": "#318FB3",
+          "element": "Frost",
+          "role": "Support",
+          "lore": "흩어진 장면이 이어지며 숨 쉬는 거품 동굴의 문장벌레은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "exp_tidal_boardwalk_01",
+          "baseName": "거꾸로 흐르는 달길의 절벽박쥐",
+          "stage": "restored",
+          "formName": "기억을 되찾은 거꾸로 흐르는 달길의 절벽박쥐",
+          "color": "#7866C8",
+          "baseColor": "#7866C8",
+          "element": "Shade",
+          "role": "Tank",
+          "lore": "흩어진 장면이 이어지며 거꾸로 흐르는 달길의 절벽박쥐은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        }
+      ],
+      "rowSplit": 330
+    },
+    {
+      "path": "Docs/ArtSources/Evolution/sheet_19.png",
+      "reference": "Docs/ArtSources/Evolution/references/ref_19.png",
+      "forms": [
+        {
+          "shadowId": "exp_matte_projection_room_02",
+          "baseName": "찢어진 장막길의 수레까마귀",
+          "stage": "restored",
+          "formName": "기억을 되찾은 찢어진 장막길의 수레까마귀",
+          "color": "#8A77B7",
+          "baseColor": "#8A77B7",
+          "element": "None",
+          "role": "SpeedUtility",
+          "lore": "흩어진 장면이 이어지며 찢어진 장막길의 수레까마귀은(는) 자신이 지키려 했던 마지막 약속을 기억했다."
+        },
+        {
+          "shadowId": "boss_moonlit_widow",
+          "baseName": "달빛의 미망인",
+          "stage": "restored",
+          "formName": "월화의 상주",
+          "color": "#C8DDFF",
+          "baseColor": "#A9C9FF",
+          "element": "Frost",
+          "role": "Support",
+          "lore": "그녀는 자신이 기다린 한 사람이 아니라, 돌아오지 못한 모두를 애도하고 있었다."
+        },
+        {
+          "shadowId": "boss_moonlit_widow",
+          "baseName": "달빛의 미망인",
+          "stage": "salvation",
+          "formName": "진명·월백화 연화",
+          "color": "#EAF4FF",
+          "baseColor": "#A9C9FF",
+          "element": "Frost",
+          "role": "Support",
+          "lore": "연화는 떠난 이름을 붙들지 않고 달빛 속에서 다시 불러 준다."
+        },
+        {
+          "shadowId": "boss_moonlit_widow",
+          "baseName": "달빛의 미망인",
+          "stage": "grudge",
+          "formName": "진명·식월귀 연화",
+          "color": "#FF316E",
+          "baseColor": "#A9C9FF",
+          "element": "Frost",
+          "role": "Support",
+          "lore": "연화는 자신을 홀로 남긴 모든 이름을 월식 아래에 묻기로 했다."
+        },
+        {
+          "shadowId": "legend_first_actor",
+          "baseName": "최초의 배우",
+          "stage": "restored",
+          "formName": "기억의 비극배우",
+          "color": "#E4C978",
+          "baseColor": "#D6AE58",
+          "element": "None",
+          "role": "MagicNuker",
+          "lore": "찢어진 첫 각본에는 관객이 아니라 자신의 아이에게 남긴 작별이 적혀 있었다."
+        },
+        {
+          "shadowId": "legend_first_actor",
+          "baseName": "최초의 배우",
+          "stage": "salvation",
+          "formName": "진명·이야기의 수호자 아델",
+          "color": "#54F2DE",
+          "baseColor": "#D6AE58",
+          "element": "None",
+          "role": "MagicNuker",
+          "lore": "아델은 자신의 이름보다 다음 배우의 이야기가 살아남는 길을 선택했다."
+        },
+        {
+          "shadowId": "legend_first_actor",
+          "baseName": "최초의 배우",
+          "stage": "grudge",
+          "formName": "진명·가면왕 아델",
+          "color": "#FF3B35",
+          "baseColor": "#D6AE58",
+          "element": "None",
+          "role": "MagicNuker",
+          "lore": "아델은 자신을 잊은 세계의 모든 배역을 직접 조종하기로 했다."
+        },
+        {
+          "shadowId": "legend_last_audience",
+          "baseName": "마지막 관객",
+          "stage": "restored",
+          "formName": "별길의 검표원",
+          "color": "#C18BFF",
+          "baseColor": "#A868FF",
+          "element": "Shade",
+          "role": "Tank",
+          "lore": "수천 개의 목소리는 마지막 장면을 본 순서대로 조용히 좌석 번호를 읊었다."
+        }
+      ],
+      "rowSplit": 339
+    },
+    {
+      "path": "Docs/ArtSources/Evolution/sheet_20.png",
+      "reference": "Docs/ArtSources/Evolution/references/ref_20.png",
+      "forms": [
+        {
+          "shadowId": "legend_last_audience",
+          "baseName": "마지막 관객",
+          "stage": "salvation",
+          "formName": "진명·기억의 관람석 에스카",
+          "color": "#F4D99A",
+          "baseColor": "#A868FF",
+          "element": "Shade",
+          "role": "Tank",
+          "lore": "에스카는 끝을 기억하되 다음 공연을 위해 자리를 비워 두었다."
+        },
+        {
+          "shadowId": "legend_last_audience",
+          "baseName": "마지막 관객",
+          "stage": "grudge",
+          "formName": "진명·포식극장 에스카",
+          "color": "#D92772",
+          "baseColor": "#A868FF",
+          "element": "Shade",
+          "role": "Tank",
+          "lore": "에스카는 자신들이 본 종말을 세계에도 똑같이 관람시키려 입을 벌렸다."
+        },
+        {
+          "shadowId": "ele_ember_lantern_fox",
+          "baseName": "불등 여우",
+          "stage": "restored",
+          "formName": "불등 길잡이",
+          "color": "#FF8062",
+          "baseColor": "#FF8062",
+          "element": "Flame",
+          "role": "SpeedUtility",
+          "lore": "동행 끝에 기억을 되찾고 불등 길잡이이라는 새 이름으로 무대에 섰다."
+        },
+        {
+          "shadowId": "ele_tide_bell_otter",
+          "baseName": "물종 수달",
+          "stage": "restored",
+          "formName": "밀물의 종지기",
+          "color": "#529FFF",
+          "baseColor": "#529FFF",
+          "element": "Water",
+          "role": "Support",
+          "lore": "동행 끝에 기억을 되찾고 밀물의 종지기이라는 새 이름으로 무대에 섰다."
+        },
+        {
+          "shadowId": "ele_seed_stage_deer",
+          "baseName": "씨앗 무대사슴",
+          "stage": "restored",
+          "formName": "새싹의 무대지기",
+          "color": "#7BC76B",
+          "baseColor": "#7BC76B",
+          "element": "Grass",
+          "role": "Tank",
+          "lore": "동행 끝에 기억을 되찾고 새싹의 무대지기이라는 새 이름으로 무대에 섰다."
+        },
+        {
+          "shadowId": "ele_snow_glass_lynx",
+          "baseName": "눈유리 스라소니",
+          "stage": "restored",
+          "formName": "빙화의 사서수",
+          "color": "#82C9F0",
+          "baseColor": "#82C9F0",
+          "element": "Frost",
+          "role": "MagicNuker",
+          "lore": "동행 끝에 기억을 되찾고 빙화의 사서수이라는 새 이름으로 무대에 섰다."
+        },
+        {
+          "shadowId": "ele_dawn_paper_crane",
+          "baseName": "새벽 종이학",
+          "stage": "restored",
+          "formName": "여명의 접지기",
+          "color": "#FFE7A0",
+          "baseColor": "#FFE7A0",
+          "element": "Light",
+          "role": "Support",
+          "lore": "동행 끝에 기억을 되찾고 여명의 접지기이라는 새 이름으로 무대에 섰다."
+        },
+        {
+          "shadowId": "ele_eclipse_velvet_moth",
+          "baseName": "월식 벨벳나방",
+          "stage": "restored",
+          "formName": "장막의 월식나방",
+          "color": "#B991F2",
+          "baseColor": "#B991F2",
+          "element": "Shade",
+          "role": "MagicNuker",
+          "lore": "동행 끝에 기억을 되찾고 장막의 월식나방이라는 새 이름으로 무대에 섰다."
+        }
+      ],
+      "rowSplit": 327
+    },
+    {
+      "path": "Docs/ArtSources/Evolution/sheet_21.png",
+      "reference": "Docs/ArtSources/Evolution/references/ref_21.png",
+      "forms": [
+        {
+          "shadowId": "ele_patchwork_stage_dog",
+          "baseName": "헝겊 무대강아지",
+          "stage": "restored",
+          "formName": "약속의 무대지킴이",
+          "color": "#CBC4D4",
+          "baseColor": "#CBC4D4",
+          "element": "None",
+          "role": "PhysicalDealer",
+          "lore": "동행 끝에 기억을 되찾고 약속의 무대지킴이이라는 새 이름으로 무대에 섰다."
+        },
+        {
+          "shadowId": "ele_clay_bell_tortoise",
+          "baseName": "흙종 거북",
+          "stage": "restored",
+          "formName": "대지의 종루거북",
+          "color": "#C99460",
+          "baseColor": "#C99460",
+          "element": "Earth",
+          "role": "Tank",
+          "lore": "동행 끝에 기억을 되찾고 대지의 종루거북이라는 새 이름으로 무대에 섰다."
+        },
+        {
+          "shadowId": "ele_spark_spool_squirrel",
+          "baseName": "불꽃실 다람쥐",
+          "stage": "restored",
+          "formName": "뇌광의 실감개",
+          "color": "#FFE04F",
+          "baseColor": "#FFE04F",
+          "element": "Electric",
+          "role": "SpeedUtility",
+          "lore": "동행 끝에 기억을 되찾고 뇌광의 실감개이라는 새 이름으로 무대에 섰다."
+        },
+        {
+          "shadowId": "ele_breeze_ribbon_swallow",
+          "baseName": "바람리본 제비",
+          "stage": "restored",
+          "formName": "하늘막의 전령",
+          "color": "#83E4CB",
+          "baseColor": "#83E4CB",
+          "element": "Wind",
+          "role": "SpeedUtility",
+          "lore": "동행 끝에 기억을 되찾고 하늘막의 전령이라는 새 이름으로 무대에 섰다."
+        },
+        {
+          "shadowId": "ele_dream_marble_rabbit",
+          "baseName": "꿈구슬 토끼",
+          "stage": "restored",
+          "formName": "몽환의 구슬술사",
+          "color": "#F19ADD",
+          "baseColor": "#F19ADD",
+          "element": "Psychic",
+          "role": "MagicNuker",
+          "lore": "동행 끝에 기억을 되찾고 몽환의 구슬술사이라는 새 이름으로 무대에 섰다."
+        }
+      ],
+      "rowSplit": 339
+    }
+  ]
+}

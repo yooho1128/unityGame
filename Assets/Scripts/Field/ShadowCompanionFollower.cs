@@ -40,6 +40,7 @@ namespace ShadowTheater.Field
             _player.OnStepStarted += RememberFootstep;
             _player.OnInteractionStarted += ReactToInteraction;
             SaveManager.PartyChanged += RefreshCompanion;
+            MemoryAwakeningService.StageChanged += OnMemoryStageChanged;
             RefreshCompanion();
             _lastActivityAt = Time.time;
             _nextCuriosityAt = Time.time + 2.4f;
@@ -122,6 +123,7 @@ namespace ShadowTheater.Field
             if (_player != null) _player.OnStepStarted -= RememberFootstep;
             if (_player != null) _player.OnInteractionStarted -= ReactToInteraction;
             SaveManager.PartyChanged -= RefreshCompanion;
+            MemoryAwakeningService.StageChanged -= OnMemoryStageChanged;
         }
 
         private void CreateActor()
@@ -151,13 +153,19 @@ namespace ShadowTheater.Field
             if (_actor == null) return;
             _actor.gameObject.SetActive(companion != null);
             if (companion == null) return;
-            Sprite[] frames = companion.Data.fieldFrames;
+            Sprite[] frames = companion.FieldFrames;
             _renderer.sprite = frames != null && frames.Length > 0 ? frames[0] : companion.Silhouette;
             _renderer.color = Color.white;
             FieldSpriteSizing.Fit(_renderer, .92f);
             _motion.Configure(companion.Data, frames);
             int bondLevel = CompanionBondService.BondLevel(companion.instanceId);
             _bondReactionDelay = reactionDelay * Mathf.Lerp(1.18f,.55f,Mathf.InverseLerp(1f,5f,bondLevel));
+        }
+
+        private void OnMemoryStageChanged(ShadowInstance instance)
+        {
+            if (instance != null && _companion != null && instance.instanceId == _companion.instanceId)
+                RefreshCompanion();
         }
 
         private void RememberFootstep(Vector2Int from, Vector2Int to)

@@ -166,6 +166,7 @@ namespace ShadowTheater.EditorTools
                                   $"(키 {localization.missingKeys}, KO {localization.missingKorean}, 포맷 {localization.formatErrors}) — " +
                                   LocalizationCoverageValidator.ReportPath);
             ValidateFinalArt(result);
+            ValidateEvolutionArt(result);
             ValidateMusic(result);
             ReleaseAssetPipeline.Validate(result.errors, result.warnings);
             ValidateFrontEnd(result);
@@ -1496,6 +1497,50 @@ namespace ShadowTheater.EditorTools
         {if(index>=flags.Length){yield return new Dictionary<string,int>(current,StringComparer.Ordinal);yield break;}foreach(int value in values){current[flags[index]]=value;foreach(var result in EnumerateAssignments(flags,values,index+1,current))yield return result;}current.Remove(flags[index]);}
         private static bool EndingMatches(EndingDefinition ending,IReadOnlyDictionary<string,int> flags)
         {foreach(var requirement in ending.requirements??new List<EndingFlagRequirement>()){if(requirement==null||string.IsNullOrEmpty(requirement.flag))continue;int value=flags.TryGetValue(requirement.flag,out int found)?found:0;if(value<requirement.minValue||requirement.maxValue!=0&&value>requirement.maxValue)return false;}return true;}
+
+        private static void ValidateEvolutionArt(ValidationReport result)
+        {
+            var database = AssetDatabase.LoadAssetAtPath<ShadowDatabase>(DatabasePath);
+            var expected = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var shadow in database?.shadows ?? new List<ShadowData>())
+            {
+                var instance = new ShadowInstance(shadow, 1);
+                var forms = new[] { shadow.restoredForm, shadow.salvationForm, shadow.grudgeForm };
+                var stages = new[] { "restored", "salvation", "grudge" };
+                for (int i = 0; i < forms.Length; i++)
+                {
+                    if (forms[i] == null || !forms[i].enabled) continue;
+                    string key = shadow.shadowId + "/" + stages[i]; expected.Add(key);
+                    instance.memoryStage = i == 0 ? MemoryStage.Restored : MemoryStage.TrueName;
+                    instance.awakeningPath = i == 2 ? AwakeningPath.Grudge : AwakeningPath.Salvation;
+                    var portrait = EvolutionArtCatalog.Portrait(shadow.shadowId, stages[i]);
+                    var frames = EvolutionArtCatalog.FieldFrames(shadow.shadowId, stages[i]);
+                    if (portrait == null || frames == null || frames.Length != 2)
+                    { result.errors.Add("진화 외형 누락: " + key); continue; }
+                    if (EvolutionArtCatalog.Stage(instance) != stages[i] || instance.Silhouette != portrait || instance.FieldFrames != frames)
+                        result.errors.Add("저장 단계에 따른 진화 외형 선택 실패: " + key);
+                    foreach (var frame in frames)
+                    {
+                        if (frame.rect.width != 24 || frame.rect.height != 32 ||
+                            !FinalPixelArtPipeline.IsGameplayReadableFieldFrame(AssetDatabase.GetAssetPath(frame), out _))
+                            result.errors.Add("진화 동행 프레임 규격: " + key);
+                    }
+                }
+                if (shadow.salvationForm != null && shadow.salvationForm.enabled)
+                {
+                    // Match ShadowData.GetForm for older TrueName saves without an explicit path.
+                    instance.memoryStage = MemoryStage.TrueName; instance.awakeningPath = AwakeningPath.None;
+                    if (EvolutionArtCatalog.Stage(instance) != "salvation") result.errors.Add("기존 진명 경로 외형 호환 실패: " + shadow.shadowId);
+                }
+                instance.memoryStage = MemoryStage.Echo; instance.awakeningPath = AwakeningPath.None;
+                if (EvolutionArtCatalog.Stage(instance) != null || instance.FieldFrames != shadow.fieldFrames)
+                    result.errors.Add("잔영 기본 외형 복귀 실패: " + shadow.shadowId);
+            }
+            foreach (var entry in EvolutionArtCatalog.All)
+                if (!expected.Remove(entry.shadowId + "/" + entry.stage)) result.errors.Add("진화 아트에 알 수 없는 형태: " + entry.shadowId + "/" + entry.stage);
+            foreach (string key in expected) result.errors.Add("진화 아트 카탈로그 누락: " + key);
+            ValidatePixelArtImporters("Assets/Resources/Art/Evolution/Field", result);
+        }
 
         private static void ValidateFinalArt(ValidationReport result)
         {

@@ -45,6 +45,10 @@ namespace ShadowTheater.EditorTools
                     if (texture.width != texture.height || texture.width < 192)
                         invalid.Add($"초상은 192px 이상 정사각형이어야 함: {path} ({texture.width}x{texture.height})");
                 });
+            ImportFolder("Assets/Resources/Art/Evolution/Portraits", 256f, FilterMode.Point, new Vector2(.5f, 0f),
+                (path, texture) => { if (texture.width != 512 || texture.height != 512) invalid.Add("진화 초상 규격: " + path); });
+            ImportFolder("Assets/Resources/Art/Evolution/Field", 32f, FilterMode.Point, new Vector2(.5f, 0f),
+                (path, texture) => { if (texture.width != 24 || texture.height != 32) invalid.Add("진화 동행 규격: " + path); });
             ImportFolder(FieldFolder, 32f, FilterMode.Point, new Vector2(.5f, 0f),
                 (path, texture) =>
                 {
@@ -95,6 +99,7 @@ namespace ShadowTheater.EditorTools
                 var restored = PortraitFor(shadow.shadowId + "_restored");
                 if (restored != null && shadow.restoredForm != null && shadow.restoredForm.enabled)
                     shadow.restoredForm.silhouetteSprite = restored;
+                EvolutionArtCatalog.ApplyTo(shadow);
                 Sprite[] fieldFrames = FieldFramesFor(shadow.shadowId);
                 if (fieldFrames != null) shadow.fieldFrames = fieldFrames;
                 else if (shadow.fieldFrames != null && shadow.fieldFrames.Any(frame =>
@@ -198,7 +203,11 @@ namespace ShadowTheater.EditorTools
             foreach (string path in Directory.GetFiles(PortraitFolder, "*.png"))
             {
                 string id = Path.GetFileNameWithoutExtension(path);
-                if (!knownIds.Contains(id)) invalid.Add("알 수 없는 그림자 초상 파일명: " + path.Replace('\\', '/'));
+                bool formPortrait = false;
+                foreach (string suffix in new[] { "_restored", "_salvation", "_grudge" })
+                    if (id.EndsWith(suffix, StringComparison.Ordinal) &&
+                        knownIds.Contains(id.Substring(0, id.Length - suffix.Length))) formPortrait = true;
+                if (!knownIds.Contains(id) && !formPortrait) invalid.Add("알 수 없는 그림자 초상 파일명: " + path.Replace('\\', '/'));
             }
             foreach (string path in Directory.GetFiles(FieldFolder, "*.png"))
             {
@@ -284,7 +293,7 @@ namespace ShadowTheater.EditorTools
                 importer.mipmapEnabled = false;
                 importer.filterMode = filter;
                 importer.textureCompression = TextureImporterCompression.Uncompressed;
-                if (folder == PortraitFolder)
+                if (folder == PortraitFolder || folder == "Assets/Resources/Art/Evolution/Portraits")
                 {
                     var mobile = importer.GetPlatformTextureSettings("Android");
                     mobile.name = "Android"; mobile.overridden = true; mobile.maxTextureSize = 1024;

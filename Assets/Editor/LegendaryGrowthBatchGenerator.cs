@@ -156,6 +156,7 @@ namespace ShadowTheater.EditorTools
             ApplyForm(shadow.restoredForm, spec.restored, SpriteFor(sprites, spec.shadowId, "restored"), skills);
             ApplyForm(shadow.salvationForm, spec.salvation, SpriteFor(sprites, spec.shadowId, "salvation"), skills);
             ApplyForm(shadow.grudgeForm, spec.grudge, SpriteFor(sprites, spec.shadowId, "grudge"), skills);
+            EvolutionArtCatalog.ApplyTo(shadow);
             EditorUtility.SetDirty(shadow);
             return shadow;
         }

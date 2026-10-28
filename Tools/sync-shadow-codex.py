@@ -62,3 +62,7 @@ if 'id="elementChart"' not in html:
     html=html.replace('const h=location.hash.slice(1);',"document.getElementById('elementTable').innerHTML='<thead><tr><th>공격 ↓ / 방어 →</th>'+Object.values(EL).map(e=>'<th>'+e[0]+'</th>').join('')+'</tr></thead><tbody>'+Object.keys(EL).map(a=>'<tr><th>'+EL[a][0]+'</th>'+Object.keys(EL).map(b=>'<td>'+matchup(a,b)+'×</td>').join('')+'</tr>').join('')+'</tbody>';\nconst h=location.hash.slice(1);")
 html_path.write_text(html)
 print(f'Updated {len(data["shadows"])} shadows, {len(data["skills"])} skills, 11 elements, 382 field frames and 22 new portraits in {target}')
+
+# Restore all stage art after refreshing the expansion roster.
+import subprocess
+subprocess.run([sys.executable,str(root/"Tools/sync-evolution-codex.py"),str(target.parents[1])],check=True)

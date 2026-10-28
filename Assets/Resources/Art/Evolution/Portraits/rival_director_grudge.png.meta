@@ -1,0 +1,27 @@
+fileFormatVersion: 2
+guid: f1603a08175d1cbbff08904488157fdc
+TextureImporter:
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    enableMipMap: 0
+    sRGBTexture: 1
+  isReadable: 0
+  textureType: 8
+  spriteMode: 1
+  spritePixelsToUnits: 256
+  alignment: 7
+  spritePivot: {x: 0.5, y: 0}
+  alphaIsTransparency: 1
+  nPOTScale: 0
+  maxTextureSize: 1024
+  textureCompression: 0
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  userData:
+  assetBundleName:
+  assetBundleVariant:

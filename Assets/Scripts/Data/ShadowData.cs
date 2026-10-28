@@ -9,6 +9,7 @@ namespace ShadowTheater.Data
         public bool enabled;
         public string formName;
         public Sprite silhouetteSprite;
+        public Sprite[] fieldFrames;
         [ColorUsage(true, true)] public Color accentColor = Color.white;
         [Min(1)] public int requiredLevel = 10;
         [Tooltip("개인 기억 퀘스트 완료 플래그. 비우면 레벨만 검사")]

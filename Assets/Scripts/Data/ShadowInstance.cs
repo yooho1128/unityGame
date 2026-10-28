@@ -47,8 +47,21 @@ namespace ShadowTheater.Data
                                                 (trainingFocus == TrainingFocus.Power && masteryPoints >= 20 ? .02f : 0f));
         public float Evasion => Mathf.Clamp01(Data.evasion + (ActiveForm?.bonusEvasion ?? 0f) +
                                                (trainingFocus == TrainingFocus.Tempo && masteryPoints >= 20 ? .02f : 0f));
-        public Sprite Silhouette => ActiveForm != null && ActiveForm.silhouetteSprite != null
-            ? ActiveForm.silhouetteSprite : Data.silhouetteSprite;
+        public Sprite Silhouette => EvolutionArtCatalog.Portrait(shadowId, EvolutionArtCatalog.Stage(this)) ??
+            (ActiveForm != null && ActiveForm.silhouetteSprite != null ? ActiveForm.silhouetteSprite : Data.silhouetteSprite);
+        public Sprite[] FieldFrames
+        {
+            get
+            {
+                string stage = EvolutionArtCatalog.Stage(this);
+                if (stage == null) return Data.fieldFrames;
+                var dedicated = EvolutionArtCatalog.FieldFrames(shadowId, stage);
+                if (dedicated != null) return dedicated;
+                if (ActiveForm.fieldFrames != null && ActiveForm.fieldFrames.Length > 0) return ActiveForm.fieldFrames;
+                // An evolved portrait is a better fallback than silently reverting to the base walking form.
+                return ActiveForm.silhouetteSprite != null ? new[] { ActiveForm.silhouetteSprite } : Data.fieldFrames;
+            }
+        }
         public Color AccentColor => ActiveForm != null ? ActiveForm.accentColor : Data.accentColor;
         public string DisplayName => ActiveForm != null && !string.IsNullOrEmpty(ActiveForm.formName)
             ? ActiveForm.formName : Data.displayName;
