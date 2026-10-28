@@ -110,6 +110,8 @@ namespace ShadowTheater.UI
                 _lockedPlayer = true;
             }
             FieldUiModalState.Show(root);
+            TheatreUiStyle.ApplyBook(root);
+            TheatreUiStyle.BookFilter(root, _filter);
             if (_selectedData == null && contentRoot is RectTransform content) content.anchoredPosition = Vector2.zero;
             RefreshList();
         }
@@ -129,6 +131,7 @@ namespace ShadowTheater.UI
         {
             if (!IsOpen) return;
             _filter = filter;
+            TheatreUiStyle.BookFilter(root, _filter);
             if (contentRoot is RectTransform content) content.anchoredPosition = Vector2.zero;
             RefreshList();
         }

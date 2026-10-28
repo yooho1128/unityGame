@@ -22,14 +22,21 @@ namespace ShadowTheater.UI
             mesh.Clear();
             foreach (var point in points)
             {
-                int start = mesh.currentVertCount;
-                mesh.AddVert(point + Vector2.up * 3, color, Vector2.zero);
-                mesh.AddVert(point + Vector2.right * 3, color, Vector2.zero);
-                mesh.AddVert(point + Vector2.down * 3, color, Vector2.zero);
-                mesh.AddVert(point + Vector2.left * 3, color, Vector2.zero);
-                mesh.AddTriangle(start, start + 1, start + 2);
-                mesh.AddTriangle(start, start + 2, start + 3);
+                // A dark backing keeps route beads legible on both snow and illuminated roads.
+                Diamond(mesh, point, 5f, new Color(.025f, .04f, .06f, .85f));
+                Diamond(mesh, point, 3f, color);
             }
+        }
+
+        private static void Diamond(VertexHelper mesh, Vector2 point, float radius, Color tint)
+        {
+            int start = mesh.currentVertCount;
+            mesh.AddVert(point + Vector2.up * radius, tint, Vector2.zero);
+            mesh.AddVert(point + Vector2.right * radius, tint, Vector2.zero);
+            mesh.AddVert(point + Vector2.down * radius, tint, Vector2.zero);
+            mesh.AddVert(point + Vector2.left * radius, tint, Vector2.zero);
+            mesh.AddTriangle(start, start + 1, start + 2);
+            mesh.AddTriangle(start, start + 2, start + 3);
         }
     }
 }

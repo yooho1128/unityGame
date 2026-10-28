@@ -31,6 +31,7 @@ namespace ShadowTheater.UI
 
         private IEnumerator Start()
         {
+            StylePresentation();
             if (root != null) root.alpha = 0f;
             if (card != null) _home = card.anchoredPosition;
             yield return null;
@@ -75,6 +76,32 @@ namespace ShadowTheater.UI
                 text += "\n" + L10n.Format("exploration.milestone", "탐험 이정표 {0}/{1} 달성",
                     reward.milestone, reward.totalRegions);
             return text;
+        }
+
+        private void StylePresentation()
+        {
+            Color brass = new Color(.85f, .71f, .43f);
+            if (card != null)
+            {
+                var background = card.GetComponent<Image>();
+                if (background != null) background.color = new Color(.035f, .055f, .085f, .95f);
+                var outline = card.GetComponent<Outline>();
+                if (outline != null)
+                {
+                    outline.effectColor = new Color(brass.r, brass.g, brass.b, .5f);
+                    outline.effectDistance = new Vector2(1f, -1f);
+                }
+            }
+            if (actText != null) actText.color = brass;
+            if (regionText != null)
+            {
+                regionText.color = new Color(.95f, .92f, .85f);
+                regionText.resizeTextForBestFit = true;
+                regionText.resizeTextMinSize = 32;
+                regionText.resizeTextMaxSize = 48;
+            }
+            if (environmentText != null) environmentText.color = new Color(.72f, .80f, .84f);
+            if (discoveryText != null) discoveryText.color = brass;
         }
 
         private void ConfigureRegionalArt(RegionData region)

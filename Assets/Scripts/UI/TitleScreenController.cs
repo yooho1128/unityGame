@@ -149,6 +149,7 @@ namespace ShadowTheater.UI
 
         private void ShowTitle()
         {
+            TheatreUiStyle.ApplyTitle(titleRoot);
             starterSelection?.Hide();
             endingGallery?.Close();
             settingsPanel?.Close();

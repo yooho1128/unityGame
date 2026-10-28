@@ -33,6 +33,13 @@ namespace ShadowTheater.UI
             gameObject.SetActive(data != null);
             if (data == null) return;
 
+            TheatreUiStyle.Button(selectButton);
+            TheatreUiStyle.Panel(GetComponent<Image>(), TheatreUiStyle.Surface);
+            TheatreUiStyle.Text(nameText, TheatreUiStyle.Ivory, true);
+            TheatreUiStyle.Text(titleText, TheatreUiStyle.Muted);
+            TheatreUiStyle.Text(roleText, ElementChart.ColorFor(data.element), true);
+            TheatreUiStyle.Text(statsText, TheatreUiStyle.Muted);
+
             if (silhouette != null)
             {
                 silhouette.sprite = data.silhouetteSprite;

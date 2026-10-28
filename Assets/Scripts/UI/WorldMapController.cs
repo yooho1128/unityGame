@@ -38,6 +38,7 @@ namespace ShadowTheater.UI
         {
             if (Instance != null && Instance != this) { Destroy(gameObject); return; }
             Instance = this;
+            StylePresentation();
             root?.SetActive(false);
             nodeTemplate?.gameObject.SetActive(false);
         }
@@ -217,6 +218,53 @@ namespace ShadowTheater.UI
             foreach (var label in new[] { actText, environmentText, levelText, summaryText, shadowsText, bossText, feedbackText })
                 if (label != null) label.text = string.Empty;
             if (travelButton != null) travelButton.interactable = false;
+        }
+
+        private void StylePresentation()
+        {
+            Color ink = new Color(.035f, .055f, .085f, .99f);
+            Color ivory = new Color(.95f, .92f, .85f);
+            Color brass = new Color(.85f, .71f, .43f);
+            if (root != null)
+            {
+                var background = root.GetComponent<Image>();
+                if (background != null) background.color = ink;
+                var heading = root.transform.Find("Header")?.GetComponent<Text>();
+                if (heading != null) heading.color = ivory;
+                var detail = root.transform.Find("Detail")?.GetComponent<Image>();
+                if (detail != null) detail.color = new Color(.07f, .10f, .14f);
+            }
+            if (nameText != null) nameText.color = ivory;
+            if (actText != null) actText.color = brass;
+            if (progressText != null) progressText.color = brass;
+            if (levelText != null) levelText.color = brass;
+            if (summaryText != null)
+            {
+                summaryText.color = new Color(.79f, .83f, .86f);
+                summaryText.lineSpacing = 1.08f;
+            }
+            if (environmentText != null) environmentText.color = new Color(.64f, .72f, .78f);
+            if (shadowsText != null) shadowsText.color = new Color(.79f, .83f, .86f);
+            if (feedbackText != null) feedbackText.color = new Color(.55f, .85f, .82f);
+            if (travelButton != null)
+            {
+                var image = travelButton.targetGraphic as Image;
+                if (image != null) image.color = brass;
+                var label = travelButton.GetComponentInChildren<Text>();
+                if (label != null)
+                {
+                    label.color = ink;
+                    label.fontStyle = FontStyle.Bold;
+                    var outline = label.GetComponent<Outline>();
+                    if (outline != null) outline.enabled = false;
+                }
+                var colors = travelButton.colors;
+                colors.highlightedColor = Color.white;
+                colors.pressedColor = new Color(.78f, .78f, .78f);
+                colors.disabledColor = new Color(.5f, .5f, .5f, .7f);
+                colors.fadeDuration = .12f;
+                travelButton.colors = colors;
+            }
         }
 
         private static string Join(string[] values) => values == null || values.Length == 0

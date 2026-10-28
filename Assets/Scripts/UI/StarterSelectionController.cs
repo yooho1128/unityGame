@@ -22,6 +22,7 @@ namespace ShadowTheater.UI
         {
             _onSelected = onSelected;
             if (root != null) root.SetActive(true);
+            TheatreUiStyle.ApplyStarterSelection(root);
             for (int i = 0; i < cards.Count; i++)
                 cards[i].Bind(i < starters.Count ? starters[i] : null, Select);
         }

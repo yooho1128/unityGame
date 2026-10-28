@@ -35,6 +35,11 @@ namespace ShadowTheater.UI
             _data = data;
             _state = state;
             _onSelected = onSelected;
+            TheatreUiStyle.Button(button);
+            TheatreUiStyle.Text(numberText, TheatreUiStyle.Muted);
+            TheatreUiStyle.Text(nameText, TheatreUiStyle.Ivory, true);
+            TheatreUiStyle.Text(stateText, state == ScriptBookEntryState.Recorded
+                ? TheatreUiStyle.Mint : TheatreUiStyle.Muted);
             if (numberText != null) numberText.text = $"No.{index + 1:000}";
             if (nameText != null) nameText.text = state == ScriptBookEntryState.Unknown
                 ? "???" : L10n.Text(data.displayName);
@@ -57,6 +62,10 @@ namespace ShadowTheater.UI
 
         public void SetSelected(string shadowId)
         {
+            bool selected = _data != null && _data.shadowId == shadowId;
+            TheatreUiStyle.Panel(button != null ? button.targetGraphic as Image : null,
+                selected ? TheatreUiStyle.Raised : TheatreUiStyle.Surface);
+            if (numberText != null) numberText.color = selected ? TheatreUiStyle.Brass : TheatreUiStyle.Muted;
             if (stateText != null) stateText.text = (_data?.shadowId == shadowId ? "▶ " : "") + StateLabel(_state);
         }
 

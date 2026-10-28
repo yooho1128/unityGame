@@ -41,7 +41,7 @@ namespace ShadowTheater.EditorTools
             header.text = "각본집 · 잊힌 배역";
             var progress = CreateText("Progress", root, new Vector2(0.48f, 0.91f),
                 new Vector2(0.84f, 0.98f), 23, FontStyle.Bold, TextAnchor.MiddleRight);
-            progress.text = "조우 0 · 기록 0/180\n다음 수집 보상 5";
+            progress.text = "조우 0 · 기록 0/191\n다음 수집 보상 5";
             progress.color = new Color(0.72f, 0.58f, 1f, 1f);
             var close = CreateButton("Close", root, new Vector2(0.86f, 0.92f),
                 new Vector2(0.96f, 0.975f), "×", new Color(0.17f, 0.10f, 0.27f, 1f));

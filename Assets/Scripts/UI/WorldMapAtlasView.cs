@@ -33,8 +33,10 @@ namespace ShadowTheater.UI
         private readonly List<GameObject> spawned = new List<GameObject>();
         private readonly List<GameObject> trails = new List<GameObject>();
         private readonly Dictionary<string, Text> markers = new Dictionary<string, Text>();
+        private readonly Dictionary<string, Image> ribbons = new Dictionary<string, Image>();
         private readonly Dictionary<string, Vector2> positions = new Dictionary<string, Vector2>();
         private readonly Text title;
+        private readonly Text legend;
         private readonly Button previous;
         private readonly Button next;
         private readonly Button questButton;
@@ -46,8 +48,10 @@ namespace ShadowTheater.UI
         private Texture2D artwork;
         private float width;
         private float height;
-        private static readonly Color Gold = new Color(1f, .79f, .32f);
-        private static readonly Color Cyan = new Color(.3f, .9f, 1f);
+        private static readonly Color Gold = new Color(.85f, .71f, .43f);
+        private static readonly Color Cyan = new Color(.55f, .85f, .82f);
+        private static readonly Color Ivory = new Color(.95f, .92f, .85f);
+        private static readonly Color Ink = new Color(.035f, .055f, .085f, .97f);
 
         public WorldMapAtlasView(RectTransform parent, Font labelFont, Action<RegionData> onSelect)
         {
@@ -64,20 +68,27 @@ namespace ShadowTheater.UI
             scroll.horizontal = scroll.vertical = true;
             scroll.movementType = ScrollRect.MovementType.Clamped;
             // Reserve toolbar space without modifying serialized prefabs.
-            scroll.viewport.offsetMax = new Vector2(scroll.viewport.offsetMax.x, -100f);
+            scroll.viewport.offsetMax = new Vector2(scroll.viewport.offsetMax.x, -128f);
             var toolbar = Rect("AtlasToolbar", scroll.transform, Vector2.zero, Vector2.zero);
             toolbar.anchorMin = new Vector2(0, 1);
             toolbar.anchorMax = Vector2.one;
             toolbar.pivot = new Vector2(.5f, 1);
-            toolbar.sizeDelta = new Vector2(0, 100);
+            toolbar.sizeDelta = new Vector2(0, 128);
             toolbar.anchoredPosition = Vector2.zero;
             var backdrop = toolbar.gameObject.AddComponent<Image>();
-            backdrop.color = new Color(.035f, .04f, .07f, .98f);
-            title = Label(toolbar, "AtlasTitle", "", new Vector2(0, -4), new Vector2(900, 34), 21);
+            backdrop.color = Ink;
+            title = Label(toolbar, "AtlasTitle", "", new Vector2(0, -5), new Vector2(900, 34), 23);
+            title.color = Ivory;
+            title.fontStyle = FontStyle.Bold;
             title.rectTransform.anchorMin = new Vector2(0, 1);
             title.rectTransform.anchorMax = Vector2.one;
             title.rectTransform.pivot = new Vector2(.5f, 1);
             title.rectTransform.sizeDelta = new Vector2(0, 34);
+            legend = Label(toolbar, "AtlasLegend", "", new Vector2(0, -43), new Vector2(0, 24), 16);
+            legend.rectTransform.anchorMin = new Vector2(0, 1);
+            legend.rectTransform.anchorMax = Vector2.one;
+            legend.rectTransform.pivot = new Vector2(.5f, 1);
+            legend.color = new Color(.65f, .73f, .79f);
             previous = Control(toolbar, "‹", 0, () => ChangePage(-1));
             next = Control(toolbar, "›", 1, () => ChangePage(1));
             zoomOut = Control(toolbar, "−", 2, () => Zoom(-.5f));
@@ -171,7 +182,11 @@ namespace ShadowTheater.UI
                 bool current = RegionProgress.GetState(r) == RegionMapState.Current;
                 bool quest = QuestDestination()?.regionId == entry.Key;
                 entry.Value.text = current ? "●" : quest ? "◆" : "○";
-                entry.Value.color = current ? Cyan : quest || region?.regionId == entry.Key ? Gold : Color.white;
+                bool highlighted = quest || region?.regionId == entry.Key;
+                entry.Value.color = current ? Cyan : highlighted ? Gold : Ivory;
+                if (ribbons.TryGetValue(entry.Key, out var ribbon))
+                    ribbon.color = current ? new Color(.055f, .18f, .21f, .97f)
+                        : highlighted ? new Color(.22f, .17f, .09f, .97f) : Ink;
             }
         }
 
@@ -179,7 +194,7 @@ namespace ShadowTheater.UI
         {
             UiListLayout.Clear(trails);
             UiListLayout.Clear(spawned);
-            markers.Clear(); positions.Clear();
+            markers.Clear(); ribbons.Clear(); positions.Clear();
             var newArtwork = Resources.Load<Texture2D>(data.pages[page].resource);
             if (artwork != null && artwork != newArtwork) Resources.UnloadAsset(artwork);
             artwork = newArtwork;
@@ -217,14 +232,24 @@ namespace ShadowTheater.UI
                 bool known = IsKnown(region);
                 string name = known ? L10n.Get($"region.{region.regionId}.name", L10n.Text(region.displayName)) : "???";
                 var plate = Rect("NameRibbon", pin, new Vector2(74, location.y > .84f ? 24 : -51), new Vector2(148, 30));
-                plate.gameObject.AddComponent<Image>().color = new Color(.025f, .03f, .05f, .85f);
-                Label(plate, "Name", name, new Vector2(74, -15), new Vector2(144, 30), 18);
+                var ribbon = plate.gameObject.AddComponent<Image>();
+                ribbon.color = Ink;
+                ribbon.raycastTarget = false;
+                ribbons[region.regionId] = ribbon;
+                var edge = Rect("RibbonEdge", plate, new Vector2(74, -1), new Vector2(148, 2));
+                var edgeImage = edge.gameObject.AddComponent<Image>();
+                edgeImage.color = known ? Gold : new Color(.35f, .39f, .44f);
+                edgeImage.raycastTarget = false;
+                var nameLabel = Label(plate, "Name", name, new Vector2(74, -15), new Vector2(138, 30), 18);
+                nameLabel.color = Ivory;
                 if (RegionProgress.GetState(region) == RegionMapState.Current || quest?.regionId == region.regionId)
                     Label(pin, "Status", RegionProgress.GetState(region) == RegionMapState.Current
                         ? L10n.Get("map.current", "현재 위치") : L10n.Get("atlas.destination", "퀘스트 목적지"),
                         new Vector2(74, 14), new Vector2(144, 28), 17).color = quest?.regionId == region.regionId ? Gold : Cyan;
             }
-            title.text = $"{page + 1}/{data.pages.Length} · {L10n.Text(data.pages[page].title)}";
+            title.text = $"{page + 1:00} / {data.pages.Length:00}   ·   {L10n.Text(data.pages[page].title)}   ·   {zoom:0.0}×";
+            legend.text = "● " + L10n.Get("map.current", "현재 위치") + "    ◆ " +
+                L10n.Get("atlas.destination", "퀘스트 목적지") + "    ○ " + L10n.Get("map.route_known", "경로 발견");
             previous.interactable = page > 0;
             next.interactable = page < data.pages.Length - 1;
             questButton.interactable = quest != null;
@@ -271,12 +296,22 @@ namespace ShadowTheater.UI
             rect.pivot = new Vector2(.5f, 0);
             rect.sizeDelta = new Vector2(-8, 54);
             rect.anchoredPosition = new Vector2(0, 4);
-            var image = rect.gameObject.AddComponent<Image>(); image.color = new Color(.13f, .16f, .22f);
+            var image = rect.gameObject.AddComponent<Image>();
+            image.color = index >= 4 ? Gold : new Color(.12f, .17f, .23f);
             var button = rect.gameObject.AddComponent<Button>(); button.targetGraphic = image;
+            var colors = button.colors;
+            colors.highlightedColor = new Color(1.12f, 1.12f, 1.12f);
+            colors.pressedColor = new Color(.78f, .78f, .78f);
+            colors.disabledColor = new Color(.48f, .48f, .48f, .75f);
+            colors.fadeDuration = .12f;
+            button.colors = colors;
             button.onClick.AddListener(() => action());
             var label = Label(rect, "Label", text, Vector2.zero, Vector2.zero, 22);
             label.rectTransform.anchorMin = Vector2.zero; label.rectTransform.anchorMax = Vector2.one;
             label.rectTransform.offsetMin = label.rectTransform.offsetMax = Vector2.zero;
+            label.color = index >= 4 ? new Color(.06f, .075f, .09f) : Ivory;
+            label.fontStyle = FontStyle.Bold;
+            label.GetComponent<Outline>().enabled = false;
             return button;
         }
 

@@ -330,7 +330,7 @@ namespace ShadowTheater.EditorTools
             image.color = new Color(0.055f, 0.04f, 0.10f, 0.98f);
             var button = rect.gameObject.AddComponent<Button>();
             button.targetGraphic = image;
-            HandheldUiKit.Button(button, color);
+            HandheldUiKit.Button(button, TheatreUiStyle.Surface);
 
             var glow = CreateRect("Accent", rect, Vector2.zero, new Vector2(0.018f, 1f))
                 .gameObject.AddComponent<Image>();
@@ -374,6 +374,7 @@ namespace ShadowTheater.EditorTools
             var text = CreateText("Label", rect, Vector2.zero, Vector2.one, 31, FontStyle.Bold,
                 TextAnchor.MiddleCenter);
             text.text = label;
+            TheatreUiStyle.Button(button, name == "NewGameButton");
             return button;
         }
 
