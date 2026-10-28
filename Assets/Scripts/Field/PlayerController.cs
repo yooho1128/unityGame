@@ -293,6 +293,7 @@ namespace ShadowTheater.Field
 
             Vector3 from = transform.position;
             Vector3 to = FieldGrid.Current.CellToWorld(target);
+            ShadowTheater.Story.BackstageEasterEgg.OnPlayerStep();
             OnStepStarted?.Invoke(Cell, target);
             Cell = target; // 출발 시점에 칸 예약 (심볼과 겹침 방지)
             _steppedForCurrentPress = true;

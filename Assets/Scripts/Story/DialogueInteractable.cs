@@ -20,9 +20,12 @@ namespace ShadowTheater.Story
             if (oneShot && !string.IsNullOrEmpty(completionFlag) && SaveManager.HasFlag(completionFlag)) return;
             var controller = DialogueController.Instance;
             if (controller == null || controller.IsPlaying) return;
+            if (BackstageEasterEgg.TryOpen(dialogueId)) return;
+            var ritualReading = BackstageEasterEgg.CompletedReading(dialogueId);
 
             controller.Play(dialogueId, accent, () =>
             {
+                ritualReading?.Invoke();
                 if (!string.IsNullOrEmpty(completionFlag)) SaveManager.SetFlag(completionFlag);
                 if (SaveManager.Instance != null && SaveManager.Current != null)
                     SaveManager.Instance.Save();

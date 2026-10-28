@@ -162,6 +162,23 @@ namespace ShadowTheater.Save
 
         public void Save(bool captureRuntimeState = true) => TrySave(captureRuntimeState);
 
+        /// <summary>커튼 뒤 명령 전에 현재 슬롯을 별도 보존한다. 일반 .bak 순환과 독립적이다.</summary>
+        public bool TryCreateDeveloperBackup(out string path)
+        {
+            path = string.Empty;
+            if (_current == null || !TrySave()) return false;
+            try
+            {
+                string directory = Path.Combine(Application.persistentDataPath, "backstage-backups");
+                Directory.CreateDirectory(directory);
+                path = Path.Combine(directory, $"save_{slot}_{DateTime.UtcNow:yyyyMMdd_HHmmss_fffffff}_{Guid.NewGuid():N}.json");
+                File.Copy(SavePath, path, false);
+                return true;
+            }
+            catch (Exception e) when (e is IOException || e is UnauthorizedAccessException)
+            { path = string.Empty; return false; }
+        }
+
         /// <summary>실제 파일 교체가 완료됐는지 반환한다. 실패 시 현재 플레이 데이터는 유지한다.</summary>
         public bool TrySave(bool captureRuntimeState = true)
         {
@@ -1006,12 +1023,14 @@ namespace ShadowTheater.Save
                 message=target.level>before
                     ? $"{L10n.Text(item.displayName)} 사용 · 경험치 +{restored} · Lv.{before} → Lv.{target.level}"
                     : $"{L10n.Text(item.displayName)} 사용 · 경험치 +{restored}";
+                BackstageEasterEgg.OnFieldItemUsed(item.itemId);
                 return true;
             }
             target.currentHp += restored;
             AddItem(item.itemId, -1);
             PartyChanged?.Invoke();
             message = L10n.Format("inventory.heal_used", "{0} 사용 · HP {1} 회복", L10n.Text(item.displayName), restored);
+            BackstageEasterEgg.OnFieldItemUsed(item.itemId);
             return true;
         }
 
