@@ -28,6 +28,7 @@ namespace ShadowTheater.Field
         private string _companionInstanceId;
         private GameFlowController _flow;
         private Coroutine _pendingEntrance;
+        private PlayerController _omenLockedPlayer;
 
         private IEnumerator Start()
         {
@@ -63,6 +64,7 @@ namespace ShadowTheater.Field
             if (_pendingEntrance != null) StopCoroutine(_pendingEntrance);
             _pendingEntrance = null;
             _battlePending = false;
+            ReleaseOmenLock(); // StopCoroutine은 finally를 실행하지 않을 수 있다.
         }
 
         private void OnEnable()
@@ -101,20 +103,40 @@ namespace ShadowTheater.Field
             {
                 // Defer one frame so a simultaneous symbol/portal transition can take priority.
                 yield return null;
-                if (candidate.shadow.growthTier == GrowthTier.Rare)
+                var enemy = new ShadowInstance(candidate.shadow, level);
+                // 주연급 변주: 연속 흥행이 길수록 자주 등장한다. 생성 직후 HP를 강화된 최대치로 맞춘다.
+                enemy.starVariant = candidate.shadow.IsCapturable &&
+                                    StarVariantPolicy.Roll(UnityEngine.Random.value, SaveManager.Current?.performanceStreak ?? 0);
+                if (enemy.starVariant) enemy.FullHeal();
+                bool omen = enemy.starVariant || candidate.shadow.growthTier == GrowthTier.Rare;
+                if (omen)
                 {
-                    SaveFeedbackController.Instance?.ShowMessage(FieldWorldState.RareEncounterSignal(world));
-                    yield return new WaitForSecondsRealtime(.8f);
+                    // 전조 동안 계속 걸어 포털로 빠져나가 희귀 조우를 놓치지 않도록 이동을 잠근다.
+                    _omenLockedPlayer = _player;
+                    _omenLockedPlayer?.Lock();
+                    SaveFeedbackController.Instance?.ShowMessage(enemy.starVariant
+                        ? $"{StarVariantPolicy.Mark} 객석이 술렁인다… 주연급 그림자의 기척이 무대 위로 다가온다!"
+                        : FieldWorldState.RareEncounterSignal(world));
+                    yield return new WaitForSecondsRealtime(enemy.starVariant ? 1.1f : .8f);
+                    // CanStartEncounter는 잠긴 플레이어를 거부한다. 같은 프레임에 BattleFlow가 다시 잠그므로 이동 틈은 없다.
+                    ReleaseOmenLock();
                 }
                 if (_flow == null || !_flow.CanStartEncounter)
                 { ResetCounter(); yield break; }
-                _flow.StartRandomBattle(new List<ShadowInstance> { new ShadowInstance(candidate.shadow, level) }, region);
+                _flow.StartRandomBattle(new List<ShadowInstance> { enemy }, region);
             }
             finally
             {
+                ReleaseOmenLock();
                 _battlePending = false;
                 _pendingEntrance = null;
             }
+        }
+
+        private void ReleaseOmenLock()
+        {
+            if (_omenLockedPlayer != null) _omenLockedPlayer.Unlock();
+            _omenLockedPlayer = null;
         }
 
         private void OnBattleFinished(BattleContext context, BattleOutcome outcome)

@@ -30,7 +30,7 @@ namespace ShadowTheater.UI
             if (portrait != null) { portrait.sprite = instance.Silhouette; portrait.color = ShadowPortraitStyle.Tint(portrait.sprite); portrait.preserveAspect = true; }
             if (hpFill != null) hpFill.fillAmount = instance.MaxHp > 0 ? (float)instance.currentHp / instance.MaxHp : 0f;
             if (expFill != null) expFill.fillAmount = instance.ExpProgress;
-            if (nameText != null) nameText.text = L10n.Text(instance.DisplayName);
+            if (nameText != null) nameText.text = ShadowTheater.Battle.StarVariantPolicy.Decorate(L10n.Text(instance.DisplayName), instance);
             if (infoText != null) infoText.text = $"Lv.{instance.level}  HP {instance.currentHp}/{instance.MaxHp}";
             if (stageText != null) stageText.text = MemoryAwakeningService.StageLabel(instance) +
                                                     $"\n숙련 {instance.masteryPoints} · {CollectionGrowthService.FocusLabel(instance.trainingFocus)}";

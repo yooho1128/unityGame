@@ -131,6 +131,12 @@ namespace ShadowTheater.Battle
         public string decisiveAction;
         public string environmentSummary;
         public int memoryFragmentsGained;
+        public string audienceRequestTitle;      // 이번 공연의 관객 주문 (없으면 빈 문자열)
+        public bool audienceRequestAchieved;
+        public int audienceBonusGold;
+        public int performanceStreak;            // 이 결과를 반영한 연속 흥행 횟수
+        public int streakBonusGold;
+        public bool starVariantAppeared;         // 주연급 변주 그림자가 상대로 등장했는지
         public List<string> participantInstanceIds = new List<string>();
         public List<BattleLoot> loot = new List<BattleLoot>();
         public List<string> leveledUpInstanceIds = new List<string>();

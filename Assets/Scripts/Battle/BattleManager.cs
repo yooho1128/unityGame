@@ -77,6 +77,8 @@ namespace ShadowTheater.Battle
         private readonly Dictionary<string, BattleContribution> _contributions =
             new Dictionary<string, BattleContribution>(StringComparer.Ordinal);
         private string _lastDecisiveAction;
+        private readonly AudienceRequest _audience = new AudienceRequest();
+        public AudienceRequest Audience => _audience;
 
         private sealed class BattleContribution
         {
@@ -170,6 +172,7 @@ namespace ShadowTheater.Battle
             _playerFaints = 0;
             _contributions.Clear();
             _lastDecisiveAction = string.Empty;
+            _audience.Reset();
             _pendingAction = null;
             _pendingForcedSwitch = -1;
             _outcome = new BattleOutcome { encounterId = context.encounterId };
@@ -323,6 +326,8 @@ namespace ShadowTheater.Battle
                     : Context.bossInvestigationLevel >= 2 ? investigation.phaseHint : investigation.weaknessHint);
                 if (Context.bossInvestigationLevel >= 2) AddFp(BattleSide.Player, 1);
             }
+            yield return AnnounceStarVariant();
+            yield return BeginAudienceRequest();
 
             while (!IsEnded)
             {
@@ -367,6 +372,8 @@ namespace ShadowTheater.Battle
                 // 4) 턴 종료
                 yield return EndOfTurn();
                 yield return HandleFaints();
+                if (!IsEnded && _audience.NotifyTurnEnded(Turn))
+                    yield return _presenter.ShowMessage(_audience.FailedMessage);
             }
 
             yield return _presenter.PlayResult(_outcome);
@@ -585,6 +592,9 @@ namespace ShadowTheater.Battle
             }
             AddFp(a.side, skill.fpGain - skill.fpCost);
 
+            bool repertoire = a.side == BattleSide.Player && skill != user.BasicAttack &&
+                              _audience.NotifyPlayerSkill(skill.skillId);
+
             // 자기 대상 (회복/버프)
             if (skill.target == SkillTarget.Self)
             {
@@ -594,6 +604,7 @@ namespace ShadowTheater.Battle
                 yield return _presenter.PlaySkill(user, user, skill, new HitResult { elementMultiplier = 1f });
                 if (healed > 0) yield return _presenter.PlayHeal(user, healed);
                 OnUnitChanged?.Invoke(user);
+                if (repertoire) yield return AudienceAchieved();
                 yield break;
             }
 
@@ -615,12 +626,17 @@ namespace ShadowTheater.Battle
                 yield return _presenter.ShowMessage(L10n.Get("battle.encore_finish",
                     "완벽한 막내림! 앙코르로 마지막 장면을 장식했다."));
             OnUnitChanged?.Invoke(opponent);
+            if (a.side == BattleSide.Player &&
+                (repertoire | (encore && _audience.NotifyEncore()) | _audience.NotifyPlayerHit(hit, opponent.IsFainted)))
+                yield return AudienceAchieved();
 
             if (!hit.missed && hit.statusApplied && !opponent.IsFainted &&
                 opponent.ApplyStatus(skill.statusEffect, skill.statusDuration))
             {
                 yield return _presenter.PlayStatusApplied(opponent, skill.statusEffect);
                 OnUnitChanged?.Invoke(opponent);
+                if (a.side == BattleSide.Player && _audience.NotifyStatusInflicted())
+                    yield return AudienceAchieved();
             }
         }
 
@@ -651,8 +667,14 @@ namespace ShadowTheater.Battle
             if (encoreFinish)
                 yield return _presenter.ShowMessage(L10n.Get("battle.encore_finish",
                     "완벽한 막내림! 앙코르로 마지막 장면을 장식했다."));
+            if (_audience.NotifyPlayerSkill(AudienceRequest.JointSkillKey) |
+                (encore && _audience.NotifyEncore()) | _audience.NotifyPlayerHit(hit, EnemyActive.IsFainted))
+                yield return AudienceAchieved();
             if (hit.statusApplied && !EnemyActive.IsFainted && EnemyActive.ApplyStatus(profile.status, 2))
+            {
                 yield return _presenter.PlayStatusApplied(EnemyActive, profile.status);
+                if (_audience.NotifyStatusInflicted()) yield return AudienceAchieved();
+            }
             OnUnitChanged?.Invoke(EnemyActive);
         }
 
@@ -837,9 +859,7 @@ namespace ShadowTheater.Battle
                 int next = FindNextAlive(_enemyUnits, _enemyIdx);
                 if (next < 0)
                 {
-                    long baseGold = 0;
-                    foreach (var e in _enemyUnits) baseGold += Mathf.Max(0, e.Data.goldReward);
-                    _outcome.goldGained = (int)Math.Min(baseGold, int.MaxValue);
+                    _outcome.goldGained = EnemyBaseGold();
                     BattlePerformanceResult performance = BattlePerformance.Evaluate(Turn, _enemyUnits.Count,
                         _outcome.encoreCount, _outcome.encoreFinishes, _playerFaints, _outcome.goldGained);
                     _outcome.performanceRank = performance.rank;
@@ -861,6 +881,8 @@ namespace ShadowTheater.Battle
             {
                 _playerFaints++;
                 yield return _presenter.PlayFaint(PlayerActive);
+                if (_audience.NotifyPlayerFaint())
+                    yield return _presenter.ShowMessage(_audience.FailedMessage);
 
                 int next = FindNextAlive(_playerUnits, -1);
                 if (next < 0)
@@ -892,8 +914,10 @@ namespace ShadowTheater.Battle
             foreach (BattleUnit enemy in _enemyUnits)
             {
                 ShadowData data = enemy.Data;
-                if (data == null || string.IsNullOrEmpty(data.dropItemId) || data.dropChance <= 0f ||
-                    UnityEngine.Random.value > data.dropChance) continue;
+                // 주연급 변주 그림자는 드롭 도구를 반드시 남긴다.
+                bool guaranteed = enemy.Instance.starVariant;
+                if (data == null || string.IsNullOrEmpty(data.dropItemId) ||
+                    (!guaranteed && (data.dropChance <= 0f || UnityEngine.Random.value > data.dropChance))) continue;
                 int count = UnityEngine.Random.Range(Mathf.Max(1, data.dropMinCount), Mathf.Max(data.dropMinCount, data.dropMaxCount) + 1);
                 BattleLoot existing = _outcome.loot.Find(x => x.itemId == data.dropItemId);
                 if (existing != null) existing.count += count;
@@ -942,7 +966,8 @@ namespace ShadowTheater.Battle
 
         private IEnumerator GrantExp(BattleUnit defeated)
         {
-            int reward = DamageCalculator.ExpReward(defeated);
+            int reward = StarVariantPolicy.Experience(DamageCalculator.ExpReward(defeated),
+                defeated.Instance.starVariant);
             int supportCount = 0;
             foreach (BattleUnit receiver in _playerUnits)
             {
@@ -1069,7 +1094,94 @@ namespace ShadowTheater.Battle
         private void Finish(BattleResult result, BattleState state)
         {
             _outcome.result = result;
+            ConcludeShowcase(result);
             SetState(state);
+        }
+
+        private int EnemyBaseGold()
+        {
+            long gold = 0;
+            foreach (BattleUnit enemy in _enemyUnits)
+                gold += StarVariantPolicy.Gold(enemy.Data.goldReward, enemy.Instance.starVariant);
+            return (int)Math.Min(gold, int.MaxValue);
+        }
+
+        /// <summary>관객 주문과 연속 흥행 보너스를 결과에 확정한다. 저장 반영은 GameFlowController가 한다.</summary>
+        private void ConcludeShowcase(BattleResult result)
+        {
+            int enemyGold = EnemyBaseGold();
+            if (_audience.IsActive)
+            {
+                _outcome.audienceRequestTitle = _audience.Title;
+                _outcome.audienceRequestAchieved = _audience.Conclude(result);
+                if (_outcome.audienceRequestAchieved)
+                {
+                    _outcome.audienceBonusGold = AudienceRequest.RewardGold(enemyGold, Context.mode);
+                    _outcome.goldGained = SaveValuePolicy.SaturatingAdd(_outcome.goldGained, _outcome.audienceBonusGold);
+                }
+            }
+            _outcome.performanceStreak = PerformanceStreakPolicy.Next(SaveManager.Current?.performanceStreak ?? 0, result);
+            if (result == BattleResult.Victory)
+            {
+                _outcome.streakBonusGold = PerformanceStreakPolicy.BonusGold(enemyGold, _outcome.performanceStreak);
+                _outcome.goldGained = SaveValuePolicy.SaturatingAdd(_outcome.goldGained, _outcome.streakBonusGold);
+            }
+        }
+
+        private IEnumerator AnnounceStarVariant()
+        {
+            BattleUnit star = _enemyUnits.Find(x => x.Instance.starVariant);
+            if (star == null) yield break;
+            _outcome.starVariantAppeared = true;
+            yield return _presenter.ShowMessage(
+                $"객석이 술렁인다! 주연급 {L10n.Text(star.Name)}이(가) 무대에 올랐다!\n능력치 +10% · 경험치·금화 증가 · 전리품 확정");
+        }
+
+        private IEnumerator BeginAudienceRequest()
+        {
+            // 첫 전투 안내 중에는 새로운 규칙을 더하지 않는다.
+            if (Context == null || SaveManager.Current == null || !SaveManager.HasFlag("tutorial_battle_complete"))
+                yield break;
+            var context = new AudienceRequestContext
+            {
+                mode = Context.mode,
+                enemyCount = _enemyUnits.Count,
+                canRecord = CanRecordCurrent
+            };
+            var repertoire = new HashSet<SkillData>();
+            foreach (BattleUnit unit in _playerUnits)
+            {
+                if (unit.IsFainted) continue;
+                if (HasWeaknessOption(unit, unit.BasicAttack)) context.hasWeaknessOption = true;
+                foreach (SkillData skill in unit.Skills)
+                {
+                    if (skill == null || skill == unit.BasicAttack) continue;
+                    repertoire.Add(skill);
+                    if (HasWeaknessOption(unit, skill)) context.hasWeaknessOption = true;
+                    if (skill.target != SkillTarget.Self && skill.statusEffect != StatusEffectType.None &&
+                        skill.statusChance > 0f) context.hasStatusOption = true;
+                }
+            }
+            context.hasRepertoireOption = repertoire.Count >= AudienceRequest.RepertoireTarget;
+            AudienceRequestType type = AudienceRequest.Choose(context, UnityEngine.Random.value);
+            if (type == AudienceRequestType.None) yield break;
+            _audience.Begin(type, context);
+            yield return _presenter.ShowMessage($"관객 주문 · {_audience.Title}\n{_audience.Description}");
+        }
+
+        private bool HasWeaknessOption(BattleUnit user, SkillData skill)
+        {
+            if (skill == null || !skill.DealsDamage) return false;
+            ShadowElement element = skill.ResolveElement(user.Data.element);
+            foreach (BattleUnit enemy in _enemyUnits)
+                if (!enemy.IsFainted && ElementChart.GetMultiplier(element, enemy.Data.element) > 1f) return true;
+            return false;
+        }
+
+        private IEnumerator AudienceAchieved()
+        {
+            if (_audience.IsMidBattleRequest) AddFp(BattleSide.Player, AudienceRequest.MidBattleFpReward);
+            yield return _presenter.ShowMessage(_audience.AchievedMessage);
         }
 
         private void SetState(BattleState s)

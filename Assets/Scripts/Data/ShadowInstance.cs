@@ -12,6 +12,7 @@ namespace ShadowTheater.Data
     public class ShadowInstance
     {
         public const int MaxLevel = 120;
+        public const float StarVariantStatMultiplier = 1.1f;
 
         public string instanceId;   // 같은 그림자 중복 수집 대비 고유 ID
         public string shadowId;
@@ -23,6 +24,7 @@ namespace ShadowTheater.Data
         public TrainingFocus trainingFocus;
         public int masteryPoints;
         public int victories;
+        public bool starVariant;    // 주연급 변주 개체: 희귀 야생 조우에서만 등장, 전 능력치 +10%
 
         [NonSerialized] private ShadowData _data;
         public ShadowData Data => _data != null ? _data : (_data = ShadowDatabase.Instance.GetShadow(shadowId));
@@ -39,10 +41,10 @@ namespace ShadowTheater.Data
         }
 
         public MemoryFormData ActiveForm => Data.GetForm(memoryStage, awakeningPath);
-        public int MaxHp => ApplyMultiplier(Data.GetHp(level), (ActiveForm?.hpMultiplier ?? 1f) * FocusMultiplier(TrainingFocus.Guard, 1.04f));
-        public int Atk => ApplyMultiplier(Data.GetAtk(level), (ActiveForm?.atkMultiplier ?? 1f) * FocusMultiplier(TrainingFocus.Power, 1.06f));
-        public int Def => ApplyMultiplier(Data.GetDef(level), (ActiveForm?.defMultiplier ?? 1f) * FocusMultiplier(TrainingFocus.Guard, 1.06f));
-        public int Spd => ApplyMultiplier(Data.GetSpd(level), (ActiveForm?.spdMultiplier ?? 1f) * FocusMultiplier(TrainingFocus.Tempo, 1.06f));
+        public int MaxHp => ApplyMultiplier(Data.GetHp(level), (ActiveForm?.hpMultiplier ?? 1f) * FocusMultiplier(TrainingFocus.Guard, 1.04f) * StarMultiplier);
+        public int Atk => ApplyMultiplier(Data.GetAtk(level), (ActiveForm?.atkMultiplier ?? 1f) * FocusMultiplier(TrainingFocus.Power, 1.06f) * StarMultiplier);
+        public int Def => ApplyMultiplier(Data.GetDef(level), (ActiveForm?.defMultiplier ?? 1f) * FocusMultiplier(TrainingFocus.Guard, 1.06f) * StarMultiplier);
+        public int Spd => ApplyMultiplier(Data.GetSpd(level), (ActiveForm?.spdMultiplier ?? 1f) * FocusMultiplier(TrainingFocus.Tempo, 1.06f) * StarMultiplier);
         public float CritRate => Mathf.Clamp01(Data.critRate + (ActiveForm?.bonusCritRate ?? 0f) +
                                                 (trainingFocus == TrainingFocus.Power && masteryPoints >= 20 ? .02f : 0f));
         public float Evasion => Mathf.Clamp01(Data.evasion + (ActiveForm?.bonusEvasion ?? 0f) +
@@ -137,6 +139,8 @@ namespace ShadowTheater.Data
 
         private static int ApplyMultiplier(int value, float multiplier) =>
             Mathf.Max(1, Mathf.RoundToInt(value * multiplier));
+
+        private float StarMultiplier => starVariant ? StarVariantStatMultiplier : 1f;
 
         private float FocusMultiplier(TrainingFocus focus, float value) =>
             trainingFocus == focus && masteryPoints >= 20 ? value : 1f;
