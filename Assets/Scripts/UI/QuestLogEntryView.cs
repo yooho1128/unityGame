@@ -33,7 +33,7 @@ namespace ShadowTheater.UI
         public void SetSelected(string questId)
         {
             if(stateText==null||_quest==null||_progress==null)return;
-            stateText.text=_quest.questId==questId?"▶":_progress.completed?"✓":"□";
+            stateText.text=_progress.completed?"✓":QuestManager.Instance?.TrackedQuest?.questId==_quest.questId?"◆":_quest.questId==questId?"▶":"□";
         }
         private void Select()=>_onSelect?.Invoke(_quest,_progress);
     }

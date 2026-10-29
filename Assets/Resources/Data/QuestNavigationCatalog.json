@@ -1,0 +1,556 @@
+{
+  "entries": [
+    {
+      "type": "Defeat",
+      "targetId": "boss_archive_dragon",
+      "regionId": "blue_abyss",
+      "x": 0,
+      "y": 4,
+      "label": "무한서고의 용"
+    },
+    {
+      "type": "Defeat",
+      "targetId": "boss_ash_king",
+      "regionId": "crownless_throne",
+      "x": 0,
+      "y": 4,
+      "label": "재의 왕"
+    },
+    {
+      "type": "Defeat",
+      "targetId": "boss_barracks_captain",
+      "regionId": "ruined_barracks",
+      "x": 0,
+      "y": 5,
+      "label": "무릎 꿇지 않는 대장"
+    },
+    {
+      "type": "Defeat",
+      "targetId": "boss_bloodmane",
+      "regionId": "bloodmoon_ridge",
+      "x": 0,
+      "y": 5,
+      "label": "붉은 뿔의 추격자"
+    },
+    {
+      "type": "Defeat",
+      "targetId": "boss_book_drake",
+      "regionId": "forbidden_stacks",
+      "x": 0,
+      "y": 5,
+      "label": "책 먹는 용"
+    },
+    {
+      "type": "Defeat",
+      "targetId": "boss_drowned_painter",
+      "regionId": "drowned_gallery",
+      "x": 0,
+      "y": 5,
+      "label": "익사한 화가"
+    },
+    {
+      "type": "Defeat",
+      "targetId": "boss_final_shadow",
+      "regionId": "final_curtain",
+      "x": 0,
+      "y": 3,
+      "label": "각본 밖의 그림자"
+    },
+    {
+      "type": "Defeat",
+      "targetId": "boss_first_actor",
+      "regionId": "first_actor_room",
+      "x": 0,
+      "y": 4,
+      "label": "최초의 배우"
+    },
+    {
+      "type": "Defeat",
+      "targetId": "boss_headless_guard",
+      "regionId": "ember_catacombs",
+      "x": 0,
+      "y": 4,
+      "label": "목 없는 호위기사"
+    },
+    {
+      "type": "Defeat",
+      "targetId": "boss_high_censor_nox",
+      "regionId": "black_archive",
+      "x": 0,
+      "y": 4,
+      "label": "대검열관 노크스"
+    },
+    {
+      "type": "Defeat",
+      "targetId": "boss_interlude_manager",
+      "regionId": "endless_backstage",
+      "x": 0,
+      "y": 5,
+      "label": "막간의 관리자"
+    },
+    {
+      "type": "Defeat",
+      "targetId": "boss_inverted_librarian",
+      "regionId": "mirror_vault",
+      "x": 3,
+      "y": 4,
+      "label": "반전된 사서"
+    },
+    {
+      "type": "Defeat",
+      "targetId": "boss_last_audience",
+      "regionId": "cosmic_auditorium",
+      "x": 0,
+      "y": 4,
+      "label": "마지막 관객"
+    },
+    {
+      "type": "Defeat",
+      "targetId": "boss_last_puppeteer",
+      "regionId": "puppeteer_stage",
+      "x": 0,
+      "y": 4,
+      "label": "마지막 인형사"
+    },
+    {
+      "type": "Defeat",
+      "targetId": "boss_moonlit_stage",
+      "regionId": "moonlit_boss_stage",
+      "x": 0,
+      "y": 3,
+      "label": "달빛의 미망인"
+    },
+    {
+      "type": "Defeat",
+      "targetId": "boss_mourning_keeper",
+      "regionId": "mourning_lighthouse",
+      "x": 0,
+      "y": 5,
+      "label": "등대를 지키는 상주"
+    },
+    {
+      "type": "Defeat",
+      "targetId": "boss_mute_judge",
+      "regionId": "silent_court",
+      "x": 0,
+      "y": 5,
+      "label": "무언의 재판장"
+    },
+    {
+      "type": "Defeat",
+      "targetId": "boss_night_beast",
+      "regionId": "sleeping_beast_den",
+      "x": 0,
+      "y": 4,
+      "label": "밤을 삼킨 짐승"
+    },
+    {
+      "type": "Defeat",
+      "targetId": "boss_primadonna",
+      "regionId": "marionette_opera",
+      "x": 0,
+      "y": 5,
+      "label": "줄 위의 프리마돈나"
+    },
+    {
+      "type": "Defeat",
+      "targetId": "boss_subject_m",
+      "regionId": "redaction_lab",
+      "x": 3,
+      "y": 4,
+      "label": "추출 실험체 M"
+    },
+    {
+      "type": "Defeat",
+      "targetId": "boss_true_name_selene",
+      "regionId": "widow_moon_palace",
+      "x": 0,
+      "y": 4,
+      "label": "진명 · 셀레네"
+    },
+    {
+      "type": "Defeat",
+      "targetId": "boss_zero_warden",
+      "regionId": "blank_prison",
+      "x": 0,
+      "y": 5,
+      "label": "제0호 간수"
+    },
+    {
+      "type": "Reach",
+      "targetId": "area_abandoned_toy_store",
+      "regionId": "abandoned_toy_store",
+      "x": -8,
+      "y": 0,
+      "label": "버려진 장난감 창고"
+    },
+    {
+      "type": "Reach",
+      "targetId": "area_ash_border",
+      "regionId": "ash_border",
+      "x": -8,
+      "y": 0,
+      "label": "재의 국경"
+    },
+    {
+      "type": "Reach",
+      "targetId": "area_blank_prison",
+      "regionId": "blank_prison",
+      "x": 0,
+      "y": -7,
+      "label": "백지 감옥"
+    },
+    {
+      "type": "Reach",
+      "targetId": "area_bubble_cave",
+      "regionId": "bubble_cave",
+      "x": -8,
+      "y": 0,
+      "label": "숨 쉬는 거품 동굴"
+    },
+    {
+      "type": "Reach",
+      "targetId": "area_cinder_city",
+      "regionId": "cinder_city",
+      "x": -7,
+      "y": -1,
+      "label": "대학로 극단 거리"
+    },
+    {
+      "type": "Reach",
+      "targetId": "area_clockwork_alley",
+      "regionId": "clockwork_alley",
+      "x": -8,
+      "y": 0,
+      "label": "태엽 골목"
+    },
+    {
+      "type": "Reach",
+      "targetId": "area_curtain_pass",
+      "regionId": "curtain_pass",
+      "x": -8,
+      "y": 0,
+      "label": "찢어진 장막길"
+    },
+    {
+      "type": "Reach",
+      "targetId": "area_erased_station",
+      "regionId": "erased_station",
+      "x": -8,
+      "y": 0,
+      "label": "별노래 오페라 성도"
+    },
+    {
+      "type": "Reach",
+      "targetId": "area_final_curtain",
+      "regionId": "final_curtain",
+      "x": 0,
+      "y": -6,
+      "label": "마지막 장막"
+    },
+    {
+      "type": "Reach",
+      "targetId": "area_forbidden_stacks",
+      "regionId": "forbidden_stacks",
+      "x": 0,
+      "y": -7,
+      "label": "금단의 서가"
+    },
+    {
+      "type": "Reach",
+      "targetId": "area_forgotten_tent",
+      "regionId": "forgotten_tent",
+      "x": -8,
+      "y": 0,
+      "label": "잊힌 천막촌"
+    },
+    {
+      "type": "Reach",
+      "targetId": "area_frost_port",
+      "regionId": "frost_port",
+      "x": -8,
+      "y": 0,
+      "label": "물결막 수상극 항구"
+    },
+    {
+      "type": "Reach",
+      "targetId": "area_glass_coast",
+      "regionId": "glass_coast",
+      "x": -8,
+      "y": 0,
+      "label": "유리 해안"
+    },
+    {
+      "type": "Reach",
+      "targetId": "area_howl_village",
+      "regionId": "howl_village",
+      "x": -7,
+      "y": 0,
+      "label": "달가면 산촌"
+    },
+    {
+      "type": "Reach",
+      "targetId": "area_inverted_lobby",
+      "regionId": "inverted_lobby",
+      "x": 0,
+      "y": -7,
+      "label": "뒤집힌 로비"
+    },
+    {
+      "type": "Reach",
+      "targetId": "area_mirror_vault",
+      "regionId": "mirror_vault",
+      "x": -8,
+      "y": 0,
+      "label": "거울 문고"
+    },
+    {
+      "type": "Reach",
+      "targetId": "area_moonfang_forest",
+      "regionId": "moonfang_forest",
+      "x": -8,
+      "y": -2,
+      "label": "월아 숲"
+    },
+    {
+      "type": "Reach",
+      "targetId": "area_moonlit_meadow",
+      "regionId": "moonlit_meadow",
+      "x": -8,
+      "y": 0,
+      "label": "달빛 초원"
+    },
+    {
+      "type": "Reach",
+      "targetId": "area_name_islands",
+      "regionId": "name_islands",
+      "x": -8,
+      "y": 0,
+      "label": "이름의 군도"
+    },
+    {
+      "type": "Reach",
+      "targetId": "area_redaction_lab",
+      "regionId": "redaction_lab",
+      "x": -8,
+      "y": 0,
+      "label": "먹칠 연구소"
+    },
+    {
+      "type": "Reach",
+      "targetId": "area_rooftop_rehearsal",
+      "regionId": "rooftop_rehearsal",
+      "x": -8,
+      "y": 0,
+      "label": "옥상 연습장"
+    },
+    {
+      "type": "Reach",
+      "targetId": "area_sealed_mask_room",
+      "regionId": "sealed_mask_room",
+      "x": -8,
+      "y": 0,
+      "label": "봉인된 탈방"
+    },
+    {
+      "type": "Reach",
+      "targetId": "area_severed_workshop",
+      "regionId": "severed_workshop",
+      "x": -8,
+      "y": 0,
+      "label": "끊어진 공방"
+    },
+    {
+      "type": "Reach",
+      "targetId": "area_shadow_well",
+      "regionId": "shadow_well",
+      "x": -8,
+      "y": 0,
+      "label": "그림자를 삼킨 우물"
+    },
+    {
+      "type": "Reach",
+      "targetId": "area_silent_foyer",
+      "regionId": "silent_foyer",
+      "x": -8,
+      "y": 0,
+      "label": "노래 없는 회랑"
+    },
+    {
+      "type": "Reach",
+      "targetId": "area_thread_market",
+      "regionId": "thread_market",
+      "x": -8,
+      "y": 0,
+      "label": "실타래 인형극 공방촌"
+    },
+    {
+      "type": "Reach",
+      "targetId": "area_violet_marsh",
+      "regionId": "violet_marsh",
+      "x": -8,
+      "y": 0,
+      "label": "자줏빛 늪"
+    },
+    {
+      "type": "Reach",
+      "targetId": "area_white_archive",
+      "regionId": "white_archive",
+      "x": -7,
+      "y": 0,
+      "label": "등불막 그림자촌"
+    },
+    {
+      "type": "Talk",
+      "targetId": "npc_aria",
+      "regionId": "prologue_theater",
+      "x": 0,
+      "y": 0,
+      "label": "아리아"
+    },
+    {
+      "type": "Talk",
+      "targetId": "npc_ash_priest",
+      "regionId": "ember_catacombs",
+      "x": -2,
+      "y": 4,
+      "label": "잿빛 사제"
+    },
+    {
+      "type": "Talk",
+      "targetId": "npc_ash_scout",
+      "regionId": "ash_border",
+      "x": 1,
+      "y": 4,
+      "label": "재의 정찰병"
+    },
+    {
+      "type": "Talk",
+      "targetId": "npc_censor_surgeon",
+      "regionId": "redaction_lab",
+      "x": -1,
+      "y": 4,
+      "label": "봉합 검열관"
+    },
+    {
+      "type": "Talk",
+      "targetId": "npc_ember_archivist",
+      "regionId": "cinder_city",
+      "x": 2,
+      "y": 2,
+      "label": "재의 기록관"
+    },
+    {
+      "type": "Talk",
+      "targetId": "npc_glacier_ferryman",
+      "regionId": "frost_port",
+      "x": 1,
+      "y": 3,
+      "label": "빙하 뱃사공"
+    },
+    {
+      "type": "Talk",
+      "targetId": "npc_ink_conductor",
+      "regionId": "erased_station",
+      "x": 1,
+      "y": 4,
+      "label": "먹칠 역무원"
+    },
+    {
+      "type": "Talk",
+      "targetId": "npc_inverted_guide",
+      "regionId": "inverted_lobby",
+      "x": 0,
+      "y": 4,
+      "label": "거꾸로 안내원"
+    },
+    {
+      "type": "Talk",
+      "targetId": "npc_lantern_keeper",
+      "regionId": "moonlit_meadow",
+      "x": 1,
+      "y": 5,
+      "label": "등불지기 모엔"
+    },
+    {
+      "type": "Talk",
+      "targetId": "npc_marsh_guide",
+      "regionId": "violet_marsh",
+      "x": 1,
+      "y": 4,
+      "label": "늪의 안내자"
+    },
+    {
+      "type": "Talk",
+      "targetId": "npc_mirror_scribe",
+      "regionId": "mirror_vault",
+      "x": -2,
+      "y": 3,
+      "label": "거울 필경사"
+    },
+    {
+      "type": "Talk",
+      "targetId": "npc_moon_shaman",
+      "regionId": "howl_village",
+      "x": 1,
+      "y": 3,
+      "label": "달술사"
+    },
+    {
+      "type": "Talk",
+      "targetId": "npc_name_keeper",
+      "regionId": "name_islands",
+      "x": 1,
+      "y": 4,
+      "label": "문패 거북"
+    },
+    {
+      "type": "Talk",
+      "targetId": "npc_rival_director",
+      "regionId": "final_curtain",
+      "x": -5,
+      "y": 2,
+      "label": "또 다른 연출가"
+    },
+    {
+      "type": "Talk",
+      "targetId": "npc_second_dancer",
+      "regionId": "clockwork_alley",
+      "x": 1,
+      "y": 3,
+      "label": "초침 무희"
+    },
+    {
+      "type": "Talk",
+      "targetId": "npc_snow_scribe",
+      "regionId": "white_archive",
+      "x": 1,
+      "y": 3,
+      "label": "눈송이 서기"
+    },
+    {
+      "type": "Talk",
+      "targetId": "npc_stitched_knight",
+      "regionId": "severed_workshop",
+      "x": -1,
+      "y": 4,
+      "label": "봉합 기사"
+    },
+    {
+      "type": "Talk",
+      "targetId": "npc_thread_merchant",
+      "regionId": "thread_market",
+      "x": 1,
+      "y": 4,
+      "label": "실타래 상인"
+    },
+    {
+      "type": "Talk",
+      "targetId": "npc_wave_bard",
+      "regionId": "glass_coast",
+      "x": 1,
+      "y": 4,
+      "label": "파도 악사"
+    }
+  ]
+}

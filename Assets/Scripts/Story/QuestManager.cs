@@ -289,6 +289,7 @@ namespace ShadowTheater.Story
             if (progress == null || progress.completed) return;
 
             progress.completed = true;
+            if (SaveManager.Current.trackedQuestId == quest.questId) SaveManager.Current.trackedQuestId = null;
             if (!progress.rewardClaimed)
             {
                 SaveManager.AddGold(Mathf.Max(0, quest.rewardGold));
@@ -342,6 +343,9 @@ namespace ShadowTheater.Story
             } while (passChanged && --safety > 0);
 
             if (safety <= 0) Debug.LogError("[Quest] 진행 복구 중 퀘스트 연결 순환을 감지했습니다.");
+            if (!string.IsNullOrEmpty(save.trackedQuestId) &&
+                QuestTrackingPolicy.Active(QuestRepository.All, save.quests, save.trackedQuestId) == null)
+            { save.trackedQuestId = null; changed = true; }
             GlobalQuestChanged?.Invoke();
             if (changed && saveRepairs && SaveManager.Instance != null) SaveManager.Instance.Save(false);
         }
@@ -442,13 +446,26 @@ namespace ShadowTheater.Story
         private QuestDefinition FindTrackedQuest()
         {
             var save = SaveManager.Current;
-            if (save == null) return null;
-            foreach (var progress in save.quests)
-                if (!progress.completed && QuestRepository.TryGet(progress.questId, out var mainQuest) && !mainQuest.isSideQuest)
-                    return mainQuest;
-            foreach (var progress in save.quests)
-                if (!progress.completed && QuestRepository.TryGet(progress.questId, out var anyQuest)) return anyQuest;
-            return null;
+            return save == null ? null : QuestTrackingPolicy.Resolve(QuestRepository.All, save.quests, save.trackedQuestId);
+        }
+
+        public bool TryTrackQuest(string questId, out string message)
+        {
+            var save = SaveManager.Current;
+            bool automatic = string.IsNullOrEmpty(questId);
+            if (save == null || (!automatic && QuestTrackingPolicy.Active(QuestRepository.All, save.quests, questId) == null))
+            { message = "진행 중인 여정만 추적할 수 있습니다."; return false; }
+            string previous = save.trackedQuestId;
+            save.trackedQuestId = automatic ? null : questId;
+            if (SaveManager.Instance == null || !SaveManager.Instance.TrySave())
+            {
+                save.trackedQuestId = previous;
+                message = "추적 설정을 저장하지 못했습니다. 다시 시도해 주세요.";
+                return false;
+            }
+            message = automatic ? "메인 여정 우선 추적으로 돌아갑니다." : "이 여정을 화면에 고정해 추적합니다.";
+            GlobalQuestChanged?.Invoke();
+            return true;
         }
 
         private static QuestObjectiveProgressData GetOrCreateObjective(QuestProgressData progress, string objectiveId)

@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net8.0</TargetFramework><LangVersion>9.0</LangVersion><Nullable>disable</Nullable></PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../Assets/Scripts/Story/QuestTrackingPolicy.cs" Link="QuestTrackingPolicy.cs"/>
+    <Compile Include="../../Assets/Scripts/Story/QuestGuidanceService.cs" Link="QuestGuidanceService.cs"/>
+    <Compile Include="../../Assets/Scripts/Story/QuestRepository.cs" Link="QuestRepository.cs"/>
+    <Compile Include="../../Assets/Scripts/Story/QuestData.cs" Link="QuestData.cs"/>
+    <Compile Include="../../Assets/Scripts/Story/RegionRepository.cs" Link="RegionRepository.cs"/>
+    <Compile Include="../../Assets/Scripts/Story/RegionData.cs" Link="RegionData.cs"/>
+    <Compile Include="../../Assets/Scripts/Story/RegionProgress.cs" Link="RegionProgress.cs"/>
+    <Content Include="../../Assets/Resources/Data/QuestCatalog.json;../../Assets/Resources/Data/QuestNavigationCatalog.json;../../Assets/Resources/Data/RegionCatalog.json" Link="Data/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest"/>
+  </ItemGroup>
+</Project>

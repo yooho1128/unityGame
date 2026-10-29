@@ -70,6 +70,19 @@ namespace ShadowTheater.UI
             _atlas?.Open();
         }
 
+        public void OpenForTrackedQuest()
+        {
+            Open();
+            if (!IsOpen) return;
+            var guidance = QuestGuidanceService.For(QuestManager.Instance?.TrackedQuest);
+            if (guidance.destination != null)
+            {
+                Select(guidance.destination);
+                _atlas?.Focus(guidance.destination);
+            }
+            if (feedbackText != null) feedbackText.text = guidance.text;
+        }
+
         public void Close()
         {
             if (!IsOpen) return;

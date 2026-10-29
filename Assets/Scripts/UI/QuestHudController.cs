@@ -17,6 +17,7 @@ namespace ShadowTheater.UI
         private Image _progressFill;
         private Text _progressLabel;
         private bool _styled;
+        private float _refreshAt;
 
         private void OnEnable()
         {
@@ -31,9 +32,12 @@ namespace ShadowTheater.UI
         private void Update()
         {
             bool inBattle = GameFlowController.Instance != null && GameFlowController.Instance.IsInBattle;
-            if (inBattle == _wasInBattle) return;
-            _wasInBattle = inBattle;
-            Refresh();
+            if (inBattle != _wasInBattle || (!inBattle && Time.unscaledTime >= _refreshAt))
+            {
+                _wasInBattle = inBattle;
+                _refreshAt = Time.unscaledTime + .5f;
+                Refresh();
+            }
         }
 
         private void OnDisable()
@@ -66,26 +70,16 @@ namespace ShadowTheater.UI
                 bool done = current >= required;
                 if (done) completed++;
                 progress += Mathf.Clamp01((float)current / required);
-                if (builder.Length > 0) builder.AppendLine();
-                builder.Append(done ? "✓ " : "□ ");
-                builder.Append(L10n.Get($"quest.{quest.questId}.{objective.objectiveId}", L10n.Text(objective.description)));
-                if (required > 1) builder.Append($"  {current}/{required}");
-                if (!done && objective.TryGetType(out var type) && type == QuestObjectiveType.Reach)
-                {
-                    string id = objective.targetId ?? "";
-                    var destination = RegionRepository.Get(id.StartsWith("area_") ? id.Substring(5) : id)
-                        ?? RegionRepository.GetByScene(id);
-                    if (destination != null)
-                    {
-                        var route = RegionProgress.FindKnownRoute(destination);
-                        builder.AppendLine();
-                        builder.Append(route.Count > 1
-                            ? L10n.Format("quest.route_next", "↗ 다음 지역: {0} · 목적지까지 {1}구간",
-                                L10n.Text(route[1].displayName), route.Count - 1)
-                            : route.Count == 1 ? L10n.Get("quest.route_here", "◎ 목적지에 도착했습니다. 주변을 조사하세요.")
-                            : L10n.Get("quest.route_unknown", "◇ 아직 연결 경로를 발견하지 못했습니다. 월드맵의 인접 출구를 확인하세요."));
-                    }
-                }
+            }
+            var next = QuestTrackingPolicy.NextObjective(quest, manager.GetProgress(quest.questId));
+            if (next != null)
+            {
+                var item = manager.GetObjectiveProgress(quest.questId, next.objectiveId);
+                builder.Append("□ ");
+                builder.Append(L10n.Get($"quest.{quest.questId}.{next.objectiveId}", L10n.Text(next.description)));
+                if (next.requiredCount > 1) builder.Append($"  {item?.current ?? 0}/{next.requiredCount}");
+                builder.AppendLine();
+                builder.Append(QuestGuidanceService.For(quest).text);
             }
             if (objectiveText != null) objectiveText.text = builder.ToString();
             int objectiveCount = quest.objectives.Count;
@@ -139,7 +133,7 @@ namespace ShadowTheater.UI
                 objectiveText.color = new Color(.78f, .84f, .86f);
                 objectiveText.lineSpacing = 1.08f;
                 objectiveText.resizeTextForBestFit = true;
-                objectiveText.resizeTextMinSize = 20;
+                objectiveText.resizeTextMinSize = 16;
                 objectiveText.resizeTextMaxSize = 25;
                 Place(objectiveText.rectTransform, new Vector2(.055f, .19f), new Vector2(.94f, .57f));
             }

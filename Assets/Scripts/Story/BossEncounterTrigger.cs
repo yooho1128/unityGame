@@ -18,6 +18,7 @@ namespace ShadowTheater.Story
     {
         [Header("식별 / 전투")]
         [SerializeField] private string encounterId = "boss_moonlit_stage";
+        public string EncounterId => encounterId;
         [SerializeField] private List<ShadowData> enemyParty = new List<ShadowData>();
         [SerializeField] private Vector2Int levelRange = new Vector2Int(10, 12);
 

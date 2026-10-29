@@ -116,6 +116,7 @@ namespace ShadowTheater.EditorTools
             HealingSkillRegression.Validate(result.errors);
             ShowcaseRegression.Validate(result.errors);
             TrainingItemRegression.Validate(result.errors);
+            QuestNavigationRegression.Validate(result.errors);
             BattleDifficultyRegression.Validate(result.errors);
             RegionDifficultySimulator.ValidatePolicyRegression(result.errors);
             LocalizationTranslationImporter.ValidateRegression(result.errors);

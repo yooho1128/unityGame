@@ -21,6 +21,11 @@ namespace ShadowTheater.Field
         [SerializeField] private TraversalAbility requiredTraversalAbilities;
 
         private float _nextFeedbackAt;
+        public string DestinationScene => targetScene;
+        public bool CanGuideTravel => RegionProgress.MeetsTravelRequirement(targetScene, requiredFlag) &&
+            (string.IsNullOrEmpty(blockedFlag) || !SaveManager.HasFlag(blockedFlag)) &&
+            (requiredTraversalAbilities == TraversalAbility.None || TraversalAbilityService.TryResolve(requiredTraversalAbilities,
+                SaveManager.Current, ShadowTheater.Data.ShadowDatabase.Instance, out _, out _));
         public string DestinationName
         {
             get

@@ -12,7 +12,7 @@ namespace ShadowTheater.Save
     [Serializable]
     public class SaveData
     {
-        public const int CurrentVersion = 13;
+        public const int CurrentVersion = 14;
         public const int MaxPartySize = 6;
 
         public int version = CurrentVersion;
@@ -50,6 +50,7 @@ namespace ShadowTheater.Save
         public int bestPerformanceStreak;
         public int audienceRequestsCompleted; // 관객 주문 누적 달성
         public int starVariantsRecorded;      // 기록한 주연급 변주 그림자 수
+        public string trackedQuestId; // v14: explicit tracking preference, local to this save slot.
         public List<QuestProgressData> quests = new List<QuestProgressData>();
         public List<string> unlockedRegionIds = new List<string>();
         public List<string> visitedRegionIds = new List<string>();

@@ -99,20 +99,7 @@ namespace ShadowTheater.UI
 
         public static RegionData QuestDestination()
         {
-            var manager = QuestManager.Instance;
-            var quest = manager?.TrackedQuest;
-            if (quest == null) return null;
-            foreach (var objective in quest.objectives)
-            {
-                if ((manager.GetObjectiveProgress(quest.questId, objective.objectiveId)?.current ?? 0) >=
-                    Mathf.Max(1, objective.requiredCount)) continue;
-                if (!objective.TryGetType(out var type) || type != QuestObjectiveType.Reach) continue;
-                string id = objective.targetId ?? "";
-                var region = RegionRepository.Get(id.StartsWith("area_", StringComparison.Ordinal) ? id.Substring(5) : id)
-                    ?? RegionRepository.GetByScene(id);
-                if (region != null && IsKnown(region)) return region;
-            }
-            return null;
+            return QuestGuidanceService.DestinationFor(QuestManager.Instance?.TrackedQuest);
         }
 
         private static RegionData Current() => RegionRepository.GetByScene(SaveManager.Current?.mapId);
@@ -143,7 +130,7 @@ namespace ShadowTheater.UI
             select(null);
         }
 
-        private void Focus(RegionData region)
+        public void Focus(RegionData region)
         {
             if (region == null) { Draw(); return; }
             var location = Array.Find(data.locations, x => x.regionId == region.regionId);
