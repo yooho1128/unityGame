@@ -96,8 +96,7 @@ namespace ShadowTheater.UI
 
         public void TravelToSelected()
         {
-            if (_selected == null || !_selected.isSettlement ||
-                RegionProgress.GetState(_selected) != RegionMapState.Visited) return;
+            if (!JourneyHubPolicy.CanFastTravel(_selected)) return;
             if (!Application.CanStreamedLevelBeLoaded(_selected.sceneName))
             {
                 if (feedbackText != null) feedbackText.text = L10n.Get("map.scene_missing", "이 지역의 씬은 아직 제작 중입니다.");
@@ -105,7 +104,7 @@ namespace ShadowTheater.UI
             }
             var target = _selected;
             Close();
-            if (MapLoader.Instance == null || !MapLoader.Instance.TravelTo(target.sceneName, target.ArrivalCell,
+            if (MapLoader.Instance == null || !MapLoader.Instance.TravelTo(target.sceneName, JourneyHubPolicy.Arrival(target),
                     (FacingDir)Mathf.Clamp(target.arrivalFacing, 0, 3)))
             {
                 Open();
@@ -195,6 +194,9 @@ namespace ShadowTheater.UI
                     if(records.Count>0)summaryText.text+="\n탐험 기록 · "+string.Join(" · ",records);
                 }
             }
+            var hub=JourneyHubPolicy.Get(region);
+            if(detailed&&hub!=null&&summaryText!=null)
+                summaryText.text+="\n보급 거점 · "+hub.name+" · 상점/유료 휴식/귀환 지점";
             if (shadowsText != null) shadowsText.text = detailed
                 ? L10n.Get("map.shadows", "출현 그림자 · ") + Join(region.featuredShadows) : L10n.Get("map.shadows_unknown", "출현 그림자 · ???");
             if (bossText != null) bossText.text = detailed && !string.IsNullOrEmpty(region.bossShadowName)
@@ -203,11 +205,11 @@ namespace ShadowTheater.UI
                 : rumored ? new Color(.58f,.47f,.78f,1f) : new Color(.2f,.18f,.25f,1f);
             if (travelButton != null)
             {
-                bool canFastTravel = state == RegionMapState.Visited && region.isSettlement;
+                bool canFastTravel = JourneyHubPolicy.CanFastTravel(region);
                 travelButton.interactable = canFastTravel;
                 var label = travelButton.GetComponentInChildren<Text>();
                 if (label != null) label.text = state == RegionMapState.Current ? L10n.Get("map.current", "현재 위치")
-                    : canFastTravel ? L10n.Get("map.travel", "마을로 이동")
+                    : canFastTravel ? L10n.Get("map.travel_to_hub", "거점으로 이동")
                     : state == RegionMapState.Visited ? L10n.Get("map.field_only", "빠른 이동 불가")
                     : state == RegionMapState.Unlocked ? L10n.Get("map.explore", "직접 탐험 필요") : L10n.Get("common.locked", "잠김");
             }
@@ -215,8 +217,8 @@ namespace ShadowTheater.UI
                 ? L10n.Get("map.rumor_feedback", "정확한 위치는 아직 모릅니다. 인접 지역에서 단서를 찾아보세요.")
                 : state == RegionMapState.Unlocked
                 ? L10n.Get("map.first_visit", "출구를 통해 직접 방문하면 상세 정보가 기록됩니다.")
-                : state == RegionMapState.Visited && !region.isSettlement
-                    ? L10n.Get("map.settlement_only", "빠른 이동은 방문한 극단 마을에서만 이용할 수 있습니다.") : "";
+                : state == RegionMapState.Visited && !JourneyHubPolicy.HasServices(region)
+                    ? L10n.Get("map.hubs_only", "빠른 이동은 방문한 마을과 보급 거점에서 이용할 수 있습니다.") : "";
             if (feedbackText != null && !rumored && state != RegionMapState.Current && state != RegionMapState.Locked)
             {
                 var route = RegionProgress.FindKnownRoute(region);

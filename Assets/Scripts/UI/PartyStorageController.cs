@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using ShadowTheater.Data;
 using ShadowTheater.Field;
 using ShadowTheater.Save;
@@ -35,6 +36,7 @@ namespace ShadowTheater.UI
         private bool _lockedPlayer;
         private ShadowInstance _exchangeIncoming;
         private bool _refreshPending;
+        private readonly CollectionQuery _query=new CollectionQuery();
         public bool IsOpen { get; private set; }
 
         private void Awake()
@@ -42,11 +44,18 @@ namespace ShadowTheater.UI
             if (Instance != null && Instance != this) { Destroy(gameObject); return; }
             Instance = this; root?.SetActive(false);
             partyTemplate?.gameObject.SetActive(false); storageTemplate?.gameObject.SetActive(false);
+            if(root!=null&&storageCountText!=null)
+            {
+                var scroll=RuntimeUiControls.ScrollRoot(storageContent);
+                if(scroll!=null)scroll.anchorMax=new Vector2(scroll.anchorMax.x,.32f);
+                new CollectionToolbar(root.transform,storageCountText.font,_query,new Vector2(.05f,.325f),new Vector2(.95f,.37f),OnQueryChanged);
+            }
         }
         private void OnEnable()
         {
             L10n.Changed += RefreshIfOpen;
             SaveManager.PartyChanged += RefreshIfOpen;
+            SaveManager.CurrentChanged += OnSaveChanged;
         }
         private void RefreshIfOpen() { if (IsOpen) _refreshPending = true; }
         private void LateUpdate() { if (IsOpen && _refreshPending) Refresh(); }
@@ -55,6 +64,7 @@ namespace ShadowTheater.UI
         {
             L10n.Changed -= RefreshIfOpen;
             SaveManager.PartyChanged -= RefreshIfOpen;
+            SaveManager.CurrentChanged -= OnSaveChanged;
             if (IsOpen) Close();
         }
 
@@ -136,18 +146,31 @@ namespace ShadowTheater.UI
             var save = SaveManager.Current; if (save == null) return;
             if (_exchangeIncoming != null && !save.storage.Contains(_exchangeIncoming)) _exchangeIncoming = null;
             foreach (var instance in save.party) Spawn(partyTemplate, partyContent, instance);
-            foreach (var instance in save.storage) Spawn(storageTemplate, storageContent, instance);
+            var entries=save.storage.Select((instance,index)=>new ShadowSearchEntry
+            {key=instance.instanceId,index=index,name=instance.DisplayName,baseName=instance.Data.displayName,title=instance.Data.title,
+             element=(int)instance.Data.element,level=instance.level,seen=true,recorded=true});
+            var visible=_query.Apply(entries);
+            foreach (var entry in visible) Spawn(storageTemplate, storageContent, save.storage.Find(s=>s.instanceId==entry.key));
             UiListLayout.Rebuild(partyContent, partyPosition);
             UiListLayout.Rebuild(storageContent, storagePosition);
             if (partyCountText != null) partyCountText.text = L10n.Format("party.count", "파티 {0} / {1}", save.party.Count, SaveData.MaxPartySize);
-            if (storageCountText != null) storageCountText.text = L10n.Format("party.storage_count", "각본 서고 {0}", save.storage.Count);
+            if (storageCountText != null) storageCountText.text = $"각본 서고 {visible.Count} / {save.storage.Count}"+(visible.Count==0?" · 검색 결과 없음":"");
             if (_selected != null)
             {
                 _selectedInParty = save.party.Contains(_selected);
                 if (!_selectedInParty && !save.storage.Contains(_selected)) _selected = null;
+                if (!_selectedInParty && _selected!=null && !visible.Exists(e=>e.key==_selected.instanceId)) _selected=null;
             }
             RefreshSelection();
         }
+        private void OnQueryChanged()
+        {
+            _exchangeIncoming=null;
+            if(!_selectedInParty)_selected=null;
+            if(storageContent is RectTransform rect)rect.anchoredPosition=Vector2.zero;
+            RefreshIfOpen();
+        }
+        private void OnSaveChanged(){if(IsOpen)Close();_selected=_exchangeIncoming=null;}
 
         private void Spawn(PartyStorageEntryView template, Transform parent, ShadowInstance instance)
         {

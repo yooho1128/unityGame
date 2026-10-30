@@ -10,7 +10,7 @@ using UnityEngine.UI;
 
 namespace ShadowTheater.UI
 {
-    /// <summary>정착지에서만 열리는 공용 도구 상점. 거래 직후 안전 저장한다.</summary>
+    /// <summary>마을과 후반 보급 거점의 도구 상점. 거래 직후 안전 저장한다.</summary>
     public class SettlementShopController : MonoBehaviour
     {
         public static SettlementShopController Instance { get; private set; }
@@ -29,6 +29,9 @@ namespace ShadowTheater.UI
         private bool _lockedPlayer;
         private bool _refreshPending;
         private int _lastTransactionFrame = -1;
+        private readonly ItemListQuery _query=new ItemListQuery();
+        private ShopTradeDialog _trade;
+        private Text _emptyItems;
         public bool IsOpen { get; private set; }
 
         private void Awake()
@@ -37,6 +40,15 @@ namespace ShadowTheater.UI
             Instance = this;
             root?.SetActive(false);
             itemTemplate?.gameObject.SetActive(false);
+            var scroll=RuntimeUiControls.ScrollRoot(contentRoot);
+            if(scroll!=null&&goldText!=null)
+            {
+                scroll.anchorMax=new Vector2(scroll.anchorMax.x,.75f);
+                new ItemListToolbar(scroll.parent,goldText.font,_query,new Vector2(.055f,.765f),new Vector2(.945f,.83f),()=>
+                {if(contentRoot is RectTransform rect)rect.anchoredPosition=Vector2.zero;RefreshIfOpen();});
+                _emptyItems=RuntimeUiControls.Label(scroll,goldText.font,"조건에 맞는 도구가 없습니다",22);
+                _trade=new ShopTradeDialog(root.transform,goldText.font,ConfirmTrade);
+            }
             RefreshAvailability();
         }
 
@@ -78,7 +90,7 @@ namespace ShadowTheater.UI
 
         public void Open()
         {
-            if (IsOpen || SaveManager.Current == null || !IsSettlement() || !CanOpen()) return;
+            if (IsOpen || SaveManager.Current == null || !HasShop() || !CanOpen()) return;
             IsOpen = true;
             FieldUiModalState.Show(root);
             if (PlayerController.Instance != null)
@@ -96,6 +108,7 @@ namespace ShadowTheater.UI
         {
             if (!IsOpen) return;
             IsOpen = false;
+            _trade?.Close();
             root?.SetActive(false);
             ReleasePlayer();
         }
@@ -109,21 +122,29 @@ namespace ShadowTheater.UI
             GameFeedbackAudio.Play(success ? FeedbackCue.Heal : FeedbackCue.Denied);
             Transact(success, message);
         }
+        public void Back(){if(_trade?.IsOpen==true)_trade.Close();else Close();}
 
         private void Buy(ItemData item)
         {
-            if (!BeginTransaction()) return;
+            if (!IsOpen||!HasShop()||!CanOpen()) return;
             var region = RegionRepository.GetByScene(SaveManager.Current.mapId);
-            if (!TownServicePolicy.AllowsItem(region, item)) return;
-            bool success = SaveManager.TryBuyItem(item, out string message);
-            Transact(success, message);
+            if (!AllowsItem(region, item)) return;
+            _trade?.Show(item,true);
         }
 
         private void Sell(ItemData item)
         {
-            if (!BeginTransaction()) return;
-            bool success = SaveManager.TrySellItem(item, out string message);
-            Transact(success, message);
+            if(!IsOpen||!HasShop()||!CanOpen())return;
+            _trade?.Show(item,false);
+        }
+
+        private bool ConfirmTrade(ItemData item,int quantity,bool buy)
+        {
+            if(!BeginTransaction())return false;
+            var region=RegionRepository.GetByScene(SaveManager.Current.mapId);
+            if(buy&&!AllowsItem(region,item))return false;
+            string message;bool success=buy?SaveManager.TryBuyItem(item,quantity,out message):SaveManager.TrySellItem(item,quantity,out message);
+            Transact(success,message);return success;
         }
 
         private void Transact(bool success, string message)
@@ -149,12 +170,13 @@ namespace ShadowTheater.UI
             _refreshPending = false;
             Vector2 position = UiListLayout.Position(contentRoot);
             UiListLayout.Clear(_spawned);
-            if (SaveManager.Current == null || !IsSettlement()) { Close(); RefreshAvailability(); return; }
+            if (SaveManager.Current == null || !HasShop()) { Close(); RefreshAvailability(); return; }
             if (ShadowDatabase.Instance == null) return;
             RegionData region = RegionRepository.GetByScene(SaveManager.Current.mapId);
             if (regionText != null)
             {
-                string title = region != null ? L10n.Text(region.displayName) + " · 기억 상점" : "기억 상점";
+                var hub=JourneyHubPolicy.Get(region);
+                string title = hub!=null?hub.name+" · 보급":region != null ? L10n.Text(region.displayName) + " · 기억 상점" : "기억 상점";
                 string[] specialtyNames = TownServicePolicy.SpecialtyItemIds(region)
                     .Select(id => ShadowDatabase.Instance.GetItem(id)?.displayName)
                     .Where(x => !string.IsNullOrEmpty(x)).Select(L10n.Text).ToArray();
@@ -172,7 +194,7 @@ namespace ShadowTheater.UI
             }
             if (clearFeedback && feedbackText != null) feedbackText.text = string.Empty;
             foreach (ItemData item in ShadowDatabase.Instance.items
-                         .Where(x => TownServicePolicy.AllowsItem(region, x))
+                         .Where(x => AllowsItem(region, x)&&_query.Matches(x))
                          .OrderByDescending(x => TownServicePolicy.IsSpecialty(region, x.itemId))
                          .ThenBy(x => x.shopUnlockAct).ThenBy(x => x.buyPrice))
             {
@@ -181,6 +203,8 @@ namespace ShadowTheater.UI
                 _spawned.Add(view.gameObject);
             }
             UiListLayout.Rebuild(contentRoot, position);
+            if(_emptyItems!=null)_emptyItems.gameObject.SetActive(_spawned.Count==0);
+            _trade?.Refresh();
         }
 
         private bool CanOpen()
@@ -190,7 +214,7 @@ namespace ShadowTheater.UI
 
         private bool BeginTransaction()
         {
-            if (!IsOpen || !IsSettlement() || !CanOpen() || _lastTransactionFrame == Time.frameCount) return false;
+            if (!IsOpen || !HasShop() || !CanOpen() || _lastTransactionFrame == Time.frameCount) return false;
             _lastTransactionFrame = Time.frameCount;
             return true;
         }
@@ -198,15 +222,18 @@ namespace ShadowTheater.UI
         private void OnTownStageChanged(string regionId, int stage) => RefreshIfOpen();
         private void OnCurrentChanged() { if (IsOpen) Close(); RefreshAvailability(); }
 
-        private static bool IsSettlement()
+        private static bool AllowsItem(RegionData region, ItemData item) =>
+            TownServicePolicy.AllowsItem(region,item)||JourneyHubPolicy.AllowsItem(region,item);
+
+        private static bool HasShop()
         {
             if (SaveManager.Current == null) return false;
-            return RegionRepository.GetByScene(SaveManager.Current.mapId)?.isSettlement == true;
+            return JourneyHubPolicy.HasServices(RegionRepository.GetByScene(SaveManager.Current.mapId));
         }
 
         private void RefreshAvailability()
         {
-            if (openButton != null) openButton.gameObject.SetActive(IsSettlement());
+            if (openButton != null) openButton.gameObject.SetActive(HasShop());
         }
 
         private void RefreshIfOpen() { if (IsOpen) _refreshPending = true; else RefreshAvailability(); }

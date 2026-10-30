@@ -88,13 +88,13 @@ namespace ShadowTheater.UI
             if (FieldInventoryController.Instance != null && FieldInventoryController.Instance.IsOpen)
             { FieldInventoryController.Instance.Close(); return; }
             if (SettlementShopController.Instance != null && SettlementShopController.Instance.IsOpen)
-            { SettlementShopController.Instance.Close(); return; }
+            { SettlementShopController.Instance.Back(); return; }
             if (WorldMapController.Instance != null && WorldMapController.Instance.IsOpen)
             { WorldMapController.Instance.Close(); return; }
             if (PartyStorageController.Instance != null && PartyStorageController.Instance.IsOpen)
             { PartyStorageController.Instance.Close(); return; }
             if (ScriptBookController.Instance != null && ScriptBookController.Instance.IsOpen)
-            { ScriptBookController.Instance.Close(); return; }
+            { ScriptBookController.Instance.Back(); return; }
             Toggle();
         }
 

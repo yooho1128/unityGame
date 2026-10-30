@@ -47,6 +47,7 @@ namespace ShadowTheater.UI
         private int _lastActionFrame = -1;
         private EvolutionGuideView _evolutionGuide;
         private Button _guideButton;
+        private readonly CollectionQuery _query=new CollectionQuery();
 
         private void Awake()
         {
@@ -56,6 +57,12 @@ namespace ShadowTheater.UI
             if (entryTemplate != null) entryTemplate.gameObject.SetActive(false);
             EnsureLoreScroll();
             EnsureEvolutionGuide();
+            if(root!=null&&progressText!=null)
+            {
+                var scroll=RuntimeUiControls.ScrollRoot(contentRoot);
+                if(scroll!=null)scroll.anchorMax=new Vector2(scroll.anchorMax.x,.78f);
+                new CollectionToolbar(root.transform,progressText.font,_query,new Vector2(.055f,.79f),new Vector2(.945f,.835f),OnQueryChanged);
+            }
         }
 
         private void OnEnable()
@@ -90,9 +97,10 @@ namespace ShadowTheater.UI
         private void Update()
         {
 #if ENABLE_LEGACY_INPUT_MANAGER && (UNITY_EDITOR || UNITY_STANDALONE)
+            if(RuntimeUiControls.IsEditingText)return;
             if (Input.GetKeyDown(KeyCode.Tab)) Toggle();
-            if (IsOpen && (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.X)))
-            { if (_evolutionGuide?.IsOpen == true) _evolutionGuide.Close(); else Close(); }
+            if (IsOpen && (Input.GetKeyDown(KeyCode.X) ||
+                (FieldPauseMenuController.Instance==null&&Input.GetKeyDown(KeyCode.Escape)))) Back();
 #endif
         }
 
@@ -128,6 +136,7 @@ namespace ShadowTheater.UI
             if (root != null) root.SetActive(false);
             ReleasePlayer();
         }
+        public void Back(){if(_evolutionGuide?.IsOpen==true)_evolutionGuide.Close();else Close();}
 
         public void ShowAll() => SetFilter(ScriptBookFilter.All);
         public void ShowSeen() => SetFilter(ScriptBookFilter.Seen);
@@ -181,6 +190,8 @@ namespace ShadowTheater.UI
             if (database == null) { ShowEmptyDetail(); return; }
             int recorded = 0, seen = 0, total = 0;
             var ids = new HashSet<string>();
+            var candidates=new List<ShadowSearchEntry>();
+            var byId=new Dictionary<string,ShadowData>();
             ShadowData first = null, firstRecorded = null, firstSeen = null, selected = null;
             for (int i = 0; i < database.shadows.Count; i++)
             {
@@ -191,9 +202,17 @@ namespace ShadowTheater.UI
                 if (state != ScriptBookEntryState.Unknown) seen++;
                 if (state == ScriptBookEntryState.Recorded) recorded++;
                 if (!PassesFilter(state)) continue;
-
+                var owned=FindOwnedInstance(data.shadowId);
+                byId[data.shadowId]=data;
+                candidates.Add(new ShadowSearchEntry{key=data.shadowId,index=total-1,name=owned?.DisplayName??data.displayName,
+                    baseName=data.displayName,title=data.title,element=(int)data.element,level=owned?.level??0,
+                    seen=state!=ScriptBookEntryState.Unknown,recorded=state==ScriptBookEntryState.Recorded});
+            }
+            foreach(var entry in _query.Apply(candidates))
+            {
+                var data=byId[entry.key];var state=GetState(data.shadowId);
                 var view = Instantiate(entryTemplate, contentRoot);
-                view.Bind(data, total - 1, state, Select);
+                view.Bind(data, entry.index, state, Select);
                 _spawned.Add(view.gameObject);
                 if (first == null) first = data;
                 if (firstRecorded == null && state == ScriptBookEntryState.Recorded) firstRecorded = data;
@@ -218,6 +237,11 @@ namespace ShadowTheater.UI
             if (first != null) Select(selected ?? firstRecorded ?? firstSeen ?? first);
             else ShowEmptyDetail();
             UiListLayout.Rebuild(contentRoot, position);
+        }
+        private void OnQueryChanged()
+        {
+            if(contentRoot is RectTransform rect)rect.anchoredPosition=Vector2.zero;
+            RefreshIfOpen();
         }
 
         private void Select(ShadowData data)
@@ -284,13 +308,14 @@ namespace ShadowTheater.UI
         private void ShowEmptyDetail()
         {
             if (portrait != null) { portrait.sprite = null; portrait.enabled = false; }
-            if (nameText != null) nameText.text = L10n.Get("book.empty", "표시할 기록이 없습니다");
+            if (nameText != null) nameText.text = "조건에 맞는 그림자가 없습니다";
             if (titleText != null) titleText.text = string.Empty;
             if (typeText != null) typeText.text = string.Empty;
             if (statsText != null) statsText.text = string.Empty;
             if (loreText != null) loreText.text = L10n.Get("book.empty_hint", "다른 필터를 선택하거나 새로운 그림자를 만나 보세요.");
             _selectedData = null;
             _selectedInstance = null;
+            _evolutionGuide?.Close();
             RefreshAwakeningActions(false);
             if (_guideButton != null) _guideButton.interactable = false;
             if (accentGlow != null) accentGlow.color = new Color(.18f, .16f, .24f, 1f);

@@ -121,12 +121,14 @@ namespace ShadowTheater.Field
             save.facing = (int)facing;
             RegionProgress.MarkVisitedScene(sceneName);
             // 거점 지역은 어느 입구나 월드맵으로 도착해도 자동으로 새 부활 지점이 된다.
-            bool updateCheckpoint = setCheckpoint || RegionRepository.GetByScene(sceneName)?.isSettlement == true;
+            var destination=RegionRepository.GetByScene(sceneName);
+            bool updateCheckpoint = setCheckpoint || JourneyHubPolicy.HasServices(destination);
             if (updateCheckpoint)
             {
                 save.checkpointMapId = sceneName;
-                save.checkpointX = arrivalCell.x;
-                save.checkpointY = arrivalCell.y;
+                var checkpoint=JourneyHubPolicy.Get(destination)!=null?JourneyHubPolicy.Arrival(destination):arrivalCell;
+                save.checkpointX = checkpoint.x;
+                save.checkpointY = checkpoint.y;
             }
             // 이전 씬의 BeforeSave 위치 캡처가 목표 좌표를 덮지 않게 한다.
             bool saved = SaveManager.Instance.TrySave(false);

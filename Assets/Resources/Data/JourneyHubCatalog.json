@@ -1,0 +1,16 @@
+{
+  "entries": [
+    {
+      "regionId": "glass_coast",
+      "name": "유리등불 야영지",
+      "x": -7, "y": 3, "checkpointX": -7, "checkpointY": 2,
+      "itemIds": ["potion", "greater_potion", "tonic", "restoration_tea", "curtain_elixir", "focus_elixir", "ink", "silver_ink"]
+    },
+    {
+      "regionId": "inverted_lobby",
+      "name": "막간 보급 대기실",
+      "x": -7, "y": 3, "checkpointX": -7, "checkpointY": 2,
+      "itemIds": ["potion", "greater_potion", "tonic", "restoration_tea", "curtain_elixir", "focus_elixir", "ink", "silver_ink"]
+    }
+  ]
+}

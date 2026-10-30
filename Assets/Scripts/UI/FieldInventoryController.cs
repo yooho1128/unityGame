@@ -28,6 +28,8 @@ namespace ShadowTheater.UI
         private ShadowInstance _selectedTarget;
         private bool _lockedPlayer;
         private bool _refreshPending;
+        private readonly ItemListQuery _query=new ItemListQuery();
+        private Text _emptyItems;
         public bool IsOpen { get; private set; }
 
         private void Awake()
@@ -35,6 +37,15 @@ namespace ShadowTheater.UI
             if (Instance != null && Instance != this) { Destroy(gameObject); return; }
             Instance = this; root?.SetActive(false);
             itemTemplate?.gameObject.SetActive(false); targetTemplate?.gameObject.SetActive(false);
+            var scroll=RuntimeUiControls.ScrollRoot(itemContent);
+            if(scroll!=null&&goldText!=null)
+            {
+                scroll.anchorMax=new Vector2(scroll.anchorMax.x,.75f);
+                new ItemListToolbar(scroll.parent,goldText.font,_query,new Vector2(.025f,.77f),new Vector2(.975f,.875f),()=>
+                {if(itemContent is RectTransform rect)rect.anchoredPosition=Vector2.zero;_selectedItem=null;RefreshIfOpen();});
+                _emptyItems=RuntimeUiControls.Label(scroll,goldText.font,"조건에 맞는 도구가 없습니다",18);
+                _emptyItems.color=new Color(.25f,.28f,.34f);
+            }
         }
 
         private void OnEnable()
@@ -43,6 +54,7 @@ namespace ShadowTheater.UI
             SaveManager.PartyChanged += RefreshIfOpen;
             SaveManager.EconomyChanged += RefreshIfOpen;
             L10n.Changed += RefreshIfOpen;
+            SaveManager.CurrentChanged += OnSaveChanged;
         }
 
         private void OnDisable()
@@ -51,6 +63,7 @@ namespace ShadowTheater.UI
             SaveManager.PartyChanged -= RefreshIfOpen;
             SaveManager.EconomyChanged -= RefreshIfOpen;
             L10n.Changed -= RefreshIfOpen;
+            SaveManager.CurrentChanged -= OnSaveChanged;
             if (IsOpen) Close();
         }
 
@@ -103,13 +116,14 @@ namespace ShadowTheater.UI
             foreach (ItemStack stack in save.inventory)
             {
                 ItemData item = ShadowDatabase.Instance.GetItem(stack.itemId);
-                if (item == null || stack.count <= 0) continue;
+                if (item == null || stack.count <= 0 || !_query.Matches(item)) continue;
                 var view = Instantiate(itemTemplate, itemContent); view.Bind(item, stack.count, SelectItem); _spawned.Add(view.gameObject);
             }
             foreach (ShadowInstance target in save.party)
             {
                 var view = Instantiate(targetTemplate, targetContent); view.Bind(target, SelectTarget); _spawned.Add(view.gameObject);
             }
+            if(_emptyItems!=null)_emptyItems.gameObject.SetActive(!save.inventory.Exists(s=>s.count>0&&_query.Matches(ShadowDatabase.Instance.GetItem(s.itemId))));
             UiListLayout.Rebuild(itemContent, itemPosition); UiListLayout.Rebuild(targetContent, targetPosition);
             if (_selectedItem != null && SaveManager.GetItemCount(_selectedItem.itemId) <= 0) _selectedItem = null;
             if (_selectedTarget != null && !save.party.Contains(_selectedTarget)) _selectedTarget = null;
@@ -147,6 +161,7 @@ namespace ShadowTheater.UI
         }
 
         private void RefreshIfOpen() { if (IsOpen) _refreshPending = true; }
+        private void OnSaveChanged(){if(IsOpen)Close();_selectedItem=null;_selectedTarget=null;}
         private void LateUpdate() { if (IsOpen && _refreshPending) Refresh(); }
         private void ReleasePlayer() { if (!_lockedPlayer) return; PlayerController.Instance?.Unlock(); _lockedPlayer = false; }
         private static string InventoryDescription(ItemData item)

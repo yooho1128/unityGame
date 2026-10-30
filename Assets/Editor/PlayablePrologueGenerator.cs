@@ -909,6 +909,7 @@ namespace ShadowTheater.EditorTools
         private static void FinishFieldScene(FieldSceneContext context, string sceneName)
         {
             RegionData region=LoadRegionCatalog().regions.Find(x=>x.sceneName==sceneName);
+            JourneyHubStation.Ensure(context.fieldRoot,region);
             RegionFieldLayout.Apply(context.fieldRoot,region,(kind,tile)=>PersistLayoutTile(region.regionId,kind,tile));
             if(region!=null)CreateRegionalDiscoveryContent(context.fieldRoot,region);
             foreach (EncounterSymbol symbol in context.fieldRoot.GetComponentsInChildren<EncounterSymbol>(true))

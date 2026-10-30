@@ -74,6 +74,10 @@ def profile(r):
     if r['act'] >= 8 or any(k in rid for k in ['theater', 'tent', 'opera', 'stage', 'palace']): return 'Stage'
     return 'Wastes'
 
+# Service outposts preserve both the supply stand and the respawn/fast-travel cell.
+for hub in json.loads((DATA / 'JourneyHubCatalog.json').read_text())['entries']:
+    anchors[hub['regionId']].update([(hub['x'],hub['y']),(hub['checkpointX'],hub['checkpointY'])])
+
 entries = [dict(regionId=r['regionId'], profile=profile(r),
                 anchors=[dict(x=x, y=y) for x, y in sorted(anchors[r['regionId']])]) for r in regions]
 (DATA / 'RegionLayoutCatalog.json').write_text(json.dumps(dict(entries=entries), ensure_ascii=False, indent=2) + '\n')

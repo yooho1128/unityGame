@@ -29,6 +29,8 @@ namespace ShadowTheater.Field
             var definition=catalog?.entries?.FirstOrDefault(e=>e.regionId==region.regionId);
             if(definition==null)return;
             var anchors=new List<LayoutCell>();
+            var hub=JourneyHubPolicy.Get(region);
+            if(hub!=null)anchors.Add(new LayoutCell(hub.checkpointX,hub.checkpointY));
             // Preserve generated discovery/puzzle actors too; their exact cells can vary by content version.
             foreach(var collider in root.GetComponentsInChildren<Collider2D>(true))
             {

@@ -879,55 +879,54 @@ namespace ShadowTheater.Save
             InventoryChanged?.Invoke();
         }
 
-        public static bool CanBuyItem(ItemData item, out string message)
+        public static bool CanBuyItem(ItemData item, out string message) => CanBuyItem(item,1,out message);
+        public static bool CanBuyItem(ItemData item,int quantity,out string message) =>
+            QuoteTrade(item,quantity,true,out _,out message);
+        public static bool TryBuyItem(ItemData item,out string message) => TryBuyItem(item,1,out message);
+        public static bool TryBuyItem(ItemData item,int quantity,out string message)
         {
-            message = string.Empty;
-            if (Current == null || item == null || string.IsNullOrEmpty(item.itemId) || item.buyPrice < 0)
-            { message = L10n.Get("shop.invalid_buy", "구매할 수 없는 도구입니다."); return false; }
-            if (item.isKeyItem && GetItemCount(item.itemId) > 0)
-            { message = L10n.Get("shop.key_owned", "이미 보유한 핵심 도구입니다."); return false; }
-            if (GetItemCount(item.itemId) == int.MaxValue)
-            { message = L10n.Get("shop.stack_full", "이 도구를 더 보관할 수 없습니다."); return false; }
-            if (Current.gold < item.buyPrice) { message = L10n.Get("shop.gold_short", "금화가 부족합니다."); return false; }
-            return true;
+            if(!QuoteTrade(item,quantity,true,out var quote,out message))return false;
+            var stack=Current.inventory.Find(x=>x.itemId==item.itemId);
+            if(stack==null){stack=new ItemStack{itemId=item.itemId};Current.inventory.Add(stack);}
+            stack.count=quote.ownedAfter;Current.gold=quote.goldAfter;
+            InventoryChanged?.Invoke();EconomyChanged?.Invoke();
+            message=$"{L10n.Text(item.displayName)} x{quantity:N0} 구매 · {quote.total:N0} 금화";return true;
         }
-
-        public static bool TryBuyItem(ItemData item, out string message)
+        public static bool CanSellItem(ItemData item,out string message) => CanSellItem(item,1,out message);
+        public static bool CanSellItem(ItemData item,int quantity,out string message) =>
+            QuoteTrade(item,quantity,false,out _,out message);
+        public static bool TrySellItem(ItemData item,out string message) => TrySellItem(item,1,out message);
+        public static bool TrySellItem(ItemData item,int quantity,out string message)
         {
-            if (!CanBuyItem(item, out message)) return false;
-            var stack = Current.inventory.Find(x => x.itemId == item.itemId);
-            if (stack == null) { stack = new ItemStack { itemId = item.itemId }; Current.inventory.Add(stack); }
-            Current.gold -= item.buyPrice;
-            stack.count++;
-            InventoryChanged?.Invoke();
-            EconomyChanged?.Invoke();
-            message = L10n.Format("shop.buy_done", "{0}을(를) 구매했습니다.", L10n.Text(item.displayName));
-            return true;
+            if(!QuoteTrade(item,quantity,false,out var quote,out message))return false;
+            var stack=Current.inventory.Find(x=>x.itemId==item.itemId);
+            stack.count=quote.ownedAfter;if(stack.count==0)Current.inventory.Remove(stack);
+            Current.gold=quote.goldAfter;InventoryChanged?.Invoke();EconomyChanged?.Invoke();
+            message=$"{L10n.Text(item.displayName)} x{quantity:N0} 판매 · {quote.total:N0} 금화";return true;
         }
-
-        public static bool CanSellItem(ItemData item, out string message)
+        public static int MaximumTradeQuantity(ItemData item,bool buy) => Current==null||item==null?0:
+            ItemTradePolicy.Maximum(buy,buy?item.buyPrice:item.sellPrice,item.isKeyItem,GetItemCount(item.itemId),Current.gold);
+        private static bool QuoteTrade(ItemData item,int quantity,bool buy,out ItemTradeQuote quote,out string message)
         {
-            message = string.Empty;
-            if (Current == null || item == null || string.IsNullOrEmpty(item.itemId) || GetItemCount(item.itemId) <= 0)
-            { message = L10n.Get("shop.no_sell_item", "판매할 도구가 없습니다."); return false; }
-            if (item.isKeyItem) { message = L10n.Get("shop.key_no_sell", "핵심 도구는 판매할 수 없습니다."); return false; }
-            if (item.sellPrice <= 0) { message = L10n.Get("shop.unsellable", "판매할 수 없는 도구입니다."); return false; }
-            if (Current.gold > int.MaxValue - item.sellPrice)
-            { message = L10n.Get("shop.gold_full", "금화를 더 보관할 수 없습니다."); return false; }
-            return true;
-        }
-
-        public static bool TrySellItem(ItemData item, out string message)
-        {
-            if (!CanSellItem(item, out message)) return false;
-            var stack = Current.inventory.Find(x => x.itemId == item.itemId);
-            stack.count--;
-            if (stack.count == 0) Current.inventory.Remove(stack);
-            Current.gold += item.sellPrice;
-            InventoryChanged?.Invoke();
-            EconomyChanged?.Invoke();
-            message = L10n.Format("shop.sell_done", "{0}을(를) 판매했습니다.", L10n.Text(item.displayName));
-            return true;
+            quote=default;message=string.Empty;
+            if(Current==null||item==null||string.IsNullOrEmpty(item.itemId))
+            {message="거래할 도구를 선택하세요.";return false;}
+            if(ItemTradePolicy.TryQuote(buy,buy?item.buyPrice:item.sellPrice,item.isKeyItem,
+                GetItemCount(item.itemId),Current.gold,quantity,out quote,out TradeError error))return true;
+            switch(error)
+            {
+                case TradeError.InvalidQuantity:message="수량을 1 이상으로 입력하세요.";break;
+                case TradeError.KeyOwned:message=L10n.Get("shop.key_owned","이미 보유한 핵심 도구입니다.");break;
+                case TradeError.KeyQuantity:message="핵심 도구는 한 개만 구매할 수 있습니다.";break;
+                case TradeError.KeyCannotSell:message=L10n.Get("shop.key_no_sell","핵심 도구는 판매할 수 없습니다.");break;
+                case TradeError.InventoryFull:message=L10n.Get("shop.stack_full","이 도구를 더 보관할 수 없습니다.");break;
+                case TradeError.NotEnoughGold:message=L10n.Get("shop.gold_short","금화가 부족합니다.");break;
+                case TradeError.NotEnoughItems:message="판매할 도구 수량이 부족합니다.";break;
+                case TradeError.GoldFull:message=L10n.Get("shop.gold_full","금화를 더 보관할 수 없습니다.");break;
+                case TradeError.Unsellable:message=L10n.Get("shop.unsellable","판매할 수 없는 도구입니다.");break;
+                default:message="거래 정보를 확인할 수 없습니다.";break;
+            }
+            return false;
         }
 
         /// <summary>선택한 그림자에게 낭비가 가장 적은 필드 회복 도구 하나를 사용한다.</summary>

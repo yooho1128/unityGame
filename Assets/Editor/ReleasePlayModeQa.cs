@@ -160,6 +160,13 @@ namespace ShadowTheater.EditorTools
             save.gold = 1000;
             var stack = save.inventory.Find(x => x.itemId == item.itemId); stack.count = int.MaxValue;
             Require(!SaveManager.TryBuyItem(item, out _) && save.gold == 1000, "Stack cap does not charge buyer");
+            save.gold=10000;stack.count=3;
+            Require(SaveManager.TryBuyItem(item,5,out _)&&stack.count==8&&save.gold==10000-5*item.buyPrice,"Bulk purchase exact quantity and total");
+            gold=save.gold;owned=stack.count;
+            Require(!SaveManager.TrySellItem(item,owned+1,out _)&&stack.count==owned&&save.gold==gold,"Bulk sale failure preserves inventory/gold");
+            Require(!SaveManager.TryBuyItem(item,0,out _)&&stack.count==owned&&save.gold==gold,"Zero quantity has no effects");
+            Require(SaveManager.TrySellItem(item,2,out _)&&stack.count==owned-2&&save.gold==gold+2*item.sellPrice,"Bulk sale exact quantity and total");
+            save.gold=1000;
             stack.count = 2;
             SaveManager.SetFlag(TownServicePolicy.RumorCompletionFlag("prologue_theater"));
             save.party[0].currentHp = 1;
