@@ -1,0 +1,28 @@
+{
+  "entries": [
+    {
+      "id": "forbidden_index", "regionId": "forbidden_stacks", "title": "흩어진 목차 복원", "kind": "Sequence",
+      "clue": "금서의 첫 장은 파란 갈피, 마지막 장은 붉은 갈피다. 둘 사이에는 황금 갈피가 놓인다. 파란 → 황금 → 붉은 순서로 조사하자.",
+      "completionText": "목차가 제자리를 찾았다. 서고 양쪽의 책장 지름길이 열렸다.",
+      "board": {"x": -7, "y": 5}, "nodes": [{"x": -7, "y": -3}, {"x": 0, "y": 4}, {"x": 7, "y": -3}],
+      "nodeNames": ["파란 갈피", "붉은 갈피", "황금 갈피"], "sequence": [0, 2, 1],
+      "exits": [{"x": -8, "y": -6}, {"x": 8, "y": -6}]
+    },
+    {
+      "id": "clockwork_lights", "regionId": "clockwork_alley", "title": "태엽의 세 등불", "kind": "Toggle",
+      "clue": "왼 태엽은 ①②, 가운데 태엽은 ①②③, 오른 태엽은 ②③ 등불을 뒤집는다. 바깥 등불 ①③은 켜고 가운데 ②는 꺼라. 시작은 모두 꺼져 있다.",
+      "completionText": "바깥의 등불이 같은 박자로 켜졌다. 공방 양쪽의 정비 지름길이 열렸다.",
+      "board": {"x": -7, "y": 5}, "nodes": [{"x": -6, "y": -3}, {"x": 0, "y": 4}, {"x": 6, "y": -3}],
+      "nodeNames": ["① 왼 태엽", "② 가운데 태엽", "③ 오른 태엽"], "toggleMasks": [3, 7, 6], "goalMask": 5,
+      "exits": [{"x": -8, "y": -6}, {"x": 8, "y": -6}]
+    },
+    {
+      "id": "glass_reflections", "regionId": "glass_coast", "title": "해안의 세 반사경", "kind": "Mirrors",
+      "clue": "부두 반사경은 동쪽 →, 달 반사경은 서쪽 ←, 파도 반사경은 남쪽 ↓을 향해야 한다. 반사경을 조사하면 북→동→남→서 순서로 한 칸 돌아간다.",
+      "completionText": "세 빛이 물결 위에서 만났다. 해안 양쪽의 판자길 지름길이 열렸다.",
+      "board": {"x": -2, "y": 6}, "nodes": [{"x": -6, "y": -3}, {"x": 0, "y": 5}, {"x": 6, "y": -3}],
+      "nodeNames": ["부두 반사경", "달 반사경", "파도 반사경"], "rotations": [1, 3, 2],
+      "exits": [{"x": -8, "y": -6}, {"x": 8, "y": -6}]
+    }
+  ]
+}

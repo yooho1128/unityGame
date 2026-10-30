@@ -191,6 +191,8 @@ namespace ShadowTheater.UI
                     if(SaveManager.HasFlag("field_lever_"+region.regionId+"_complete"))records.Add("길 복구");
                     if(SaveManager.HasFlag("secret_passage_"+region.regionId))records.Add("비밀 통로");
                     if(SaveManager.HasFlag("interior_visited_"+region.regionId))records.Add("실내 방문");
+                    var regionalPuzzle=RegionalPuzzleCatalog.Get(region.regionId);
+                    if(regionalPuzzle!=null)records.Add(regionalPuzzle.title+(SaveManager.HasFlag(regionalPuzzle.CompletionFlag)?" 복원":" · 단서판 조사"));
                     if(records.Count>0)summaryText.text+="\n탐험 기록 · "+string.Join(" · ",records);
                 }
             }

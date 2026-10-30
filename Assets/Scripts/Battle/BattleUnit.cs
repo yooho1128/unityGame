@@ -29,6 +29,8 @@ namespace ShadowTheater.Battle
         public StatusState MajorStatus { get; private set; } // Freeze/Burn/Bleed 중 1개
         private readonly List<StatusState> _debuffs = new List<StatusState>();
         public IReadOnlyList<StatusState> Debuffs => _debuffs;
+        public long ReviewDamageTaken {get;private set;}
+        public long ReviewHealingReceived {get;private set;}
 
         public BattleUnit(ShadowInstance instance, BattleSide side,
             CompanionPassiveSnapshot companionPassive = default)
@@ -68,6 +70,7 @@ namespace ShadowTheater.Battle
         {
             int dealt = Mathf.Clamp(amount, 0, Hp);
             Instance.currentHp -= dealt;
+            ReviewDamageTaken=BattleReviewPolicy.Add(ReviewDamageTaken,dealt);
             return dealt;
         }
 
@@ -75,6 +78,7 @@ namespace ShadowTheater.Battle
         {
             int healed = Mathf.Clamp(amount, 0, MaxHp - Hp);
             Instance.currentHp += healed;
+            ReviewHealingReceived=BattleReviewPolicy.Add(ReviewHealingReceived,healed);
             return healed;
         }
 

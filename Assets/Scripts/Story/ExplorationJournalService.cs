@@ -1,6 +1,7 @@
 using System.Linq;
 using ShadowTheater.Save;
 using UnityEngine;
+using ShadowTheater.Field;
 
 namespace ShadowTheater.Story
 {
@@ -15,7 +16,8 @@ namespace ShadowTheater.Story
             int secrets=regions.Count(x=>(x.isDungeon||x.isHidden)&&SaveManager.HasFlag("secret_passage_"+x.regionId));
             int townTotal=regions.Count(x=>x.isSettlement),interiors=regions.Count(x=>x.isSettlement&&SaveManager.HasFlag("interior_visited_"+x.regionId));
             int affinity=regions.Where(x=>x.isSettlement).Sum(x=>Mathf.Max(0,SaveManager.GetFlag("resident_affinity_"+x.regionId)));
-            return $"탐험 수첩 · 명소 {landmarks}/{landmarkTotal} · 생태 {ecology}/{fieldTotal} · 복구 {puzzle}/{fieldTotal} · 실내 {interiors}/{townTotal} · 비밀길 {secrets} · 주민 호감 {affinity}";
+            int regional=RegionalPuzzleCatalog.All.Count(d=>SaveManager.HasFlag(d.CompletionFlag));
+            return $"탐험 수첩 · 명소 {landmarks}/{landmarkTotal} · 생태 {ecology}/{fieldTotal} · 복구 {puzzle}/{fieldTotal} · 지역 장치 {regional}/{RegionalPuzzleCatalog.All.Count} · 실내 {interiors}/{townTotal} · 비밀길 {secrets} · 주민 호감 {affinity}";
         }
     }
 }

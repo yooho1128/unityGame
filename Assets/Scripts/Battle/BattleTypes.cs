@@ -115,6 +115,7 @@ namespace ShadowTheater.Battle
     /// <summary>전투 결과 → 필드/세이브 쪽으로 넘겨줌</summary>
     public class BattleOutcome
     {
+        public BattleReviewEntry review;
         public BattleResult result;
         public string encounterId;
         public ShadowInstance capturedShadow;

@@ -77,6 +77,8 @@ def profile(r):
 # Service outposts preserve both the supply stand and the respawn/fast-travel cell.
 for hub in json.loads((DATA / 'JourneyHubCatalog.json').read_text())['entries']:
     anchors[hub['regionId']].update([(hub['x'],hub['y']),(hub['checkpointX'],hub['checkpointY'])])
+for puzzle in json.loads((DATA / 'RegionalPuzzleCatalog.json').read_text())['entries']:
+    anchors[puzzle['regionId']].update((p['x'],p['y']) for p in [puzzle['board']] + puzzle['nodes'] + puzzle['exits'])
 
 entries = [dict(regionId=r['regionId'], profile=profile(r),
                 anchors=[dict(x=x, y=y) for x, y in sorted(anchors[r['regionId']])]) for r in regions]

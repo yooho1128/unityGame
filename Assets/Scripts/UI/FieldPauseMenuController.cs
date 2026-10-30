@@ -33,6 +33,7 @@ namespace ShadowTheater.UI
         private bool _lockedPlayer;
         private bool _refreshing;
         private bool _returning;
+        private BattleReviewView _review;
         public bool IsOpen { get; private set; }
 
         private void Awake()
@@ -41,18 +42,29 @@ namespace ShadowTheater.UI
             Instance = this;
             root?.SetActive(false);
             titleConfirmRoot?.SetActive(false);
+            var card=root!=null?root.transform.Find("Card"):null;
+            if(card!=null&&goldText!=null)
+            {
+                var header=card.Find("AudioHeader") as RectTransform;
+                if(header!=null)header.anchorMax=new Vector2(.60f,header.anchorMax.y);
+                RuntimeUiControls.Button(card,goldText.font,"전투 복기",new Vector2(.68f,.625f),new Vector2(.93f,.68f),()=>
+                {if(IsOpen&&!_returning)_review.Open();});
+                _review=new BattleReviewView(root.transform,goldText.font);
+            }
         }
 
         private void OnEnable()
         {
             L10n.Changed += RefreshIfOpen;
             GameSettings.Changed += RefreshAudioIfOpen;
+            SaveManager.CurrentChanged += OnSaveChanged;
         }
 
         private void OnDisable()
         {
             L10n.Changed -= RefreshIfOpen;
             GameSettings.Changed -= RefreshAudioIfOpen;
+            SaveManager.CurrentChanged -= OnSaveChanged;
             ReleasePlayer();
         }
 
@@ -81,6 +93,7 @@ namespace ShadowTheater.UI
 
         private void HandleBack()
         {
+            if(IsOpen&&_review?.IsOpen==true){_review.Close();return;}
             if (QuestLogController.Instance != null && QuestLogController.Instance.IsOpen)
             { QuestLogController.Instance.Close(); return; }
             if (BossInvestigationJournalController.Instance != null && BossInvestigationJournalController.Instance.IsOpen)
@@ -122,12 +135,14 @@ namespace ShadowTheater.UI
 
         public void Close()
         {
+            _review?.Close();
             if (!IsOpen || _returning) return;
             IsOpen = false;
             titleConfirmRoot?.SetActive(false);
             root?.SetActive(false);
             ReleasePlayer();
         }
+        private void OnSaveChanged(){if(IsOpen)Close();}
 
         public void SaveNow()
         {

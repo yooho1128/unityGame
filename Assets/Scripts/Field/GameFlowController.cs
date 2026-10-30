@@ -227,6 +227,7 @@ namespace ShadowTheater.Field
                 yield break;
             }
 
+            BattleReviewService.Begin(battleManager.CurrentReview);
             yield return ScreenFader.Instance.FadeIn();
 
             // ── 전투 진행 ──
@@ -235,6 +236,7 @@ namespace ShadowTheater.Field
 
             // ── 결과 반영 (화면 전환 전에 데이터부터) ──
             ApplyOutcome(ctx, outcome);
+            BattleReviewCapture.AfterSettlement(ctx,outcome);
 
             // ── 복귀 ──
             yield return ScreenFader.Instance.FadeOut();

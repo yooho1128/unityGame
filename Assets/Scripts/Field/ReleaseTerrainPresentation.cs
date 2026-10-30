@@ -26,6 +26,7 @@ namespace ShadowTheater.Field
             {
                 var region=RegionRepository.GetByScene(scene.name);
                 JourneyHubStation.Ensure(root.transform,region);
+                RegionalPuzzleController.Ensure(root.transform,region);
                 RegionFieldLayout.Apply(root.transform, region);
                 foreach (var portal in root.GetComponentsInChildren<MapPortal>(true)) StylePortal(portal);
                 var maps = root.GetComponentsInChildren<Tilemap>(true);

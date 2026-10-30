@@ -44,6 +44,7 @@ namespace ShadowTheater.Battle
         public BattleState State { get; private set; } = BattleState.None;
         public BattleContext Context { get; private set; }
         public int Turn { get; private set; }
+        public BattleReviewEntry CurrentReview=>_outcome?.review;
 
         public IReadOnlyList<BattleUnit> PlayerUnits => _playerUnits;
         public IReadOnlyList<BattleUnit> EnemyUnits => _enemyUnits;
@@ -174,6 +175,7 @@ namespace ShadowTheater.Battle
             _pendingAction = null;
             _pendingForcedSwitch = -1;
             _outcome = new BattleOutcome { encounterId = context.encounterId };
+            _outcome.review=BattleReviewCapture.Begin(context,_playerUnits,_enemyUnits);
 
             _presenter.SetSpeed(context.timeScale);
             if (_routine != null) StopCoroutine(_routine);
@@ -372,6 +374,7 @@ namespace ShadowTheater.Battle
                     yield return _presenter.ShowMessage(_audience.FailedMessage);
             }
 
+            BattleReviewCapture.EndCombat(_outcome,Turn,_playerFaints,_playerUnits,_enemyUnits);
             yield return _presenter.PlayResult(_outcome);
             OnBattleEnded?.Invoke(_outcome);
             _routine = null;
