@@ -62,6 +62,12 @@ namespace ShadowTheater.Story
             var save = SaveManager.Current;
             var progress = save?.quests?.Find(p => p != null && p.questId == quest?.questId);
             var objective = QuestTrackingPolicy.NextObjective(quest, progress);
+            return ForObjective(objective);
+        }
+        // Explicit guide previews never create progress or complete a quest.
+        public static Guidance ForObjective(QuestObjectiveDefinition objective)
+        {
+            var save = SaveManager.Current;
             var g = new Guidance { objective = objective, text = "진행할 목표를 선택하세요." };
             if (objective == null || save == null) return g;
             bool hunt = objective.targetId == "*" && (objective.type == "Record" || objective.type == "Defeat");

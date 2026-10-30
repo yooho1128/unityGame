@@ -18,6 +18,17 @@
 최종막 콘텐츠 카탈로그는 `Assets/Resources/Data/Act8ContentCatalog.json`이다. 전용 그림자 13종과
 스킬 12개를 제공하고, 성장 카탈로그의 `legend_first_actor`, `legend_last_audience`도 지역 보스로 사용한다.
 
+## 선택을 되짚는 대화
+
+거꾸로 안내원은 7막의 이름 보존/공유/봉인을 다시 언급한다. 관리자는 잠깐 쉬겠다는 부탁을
+영원한 막간으로 바꾼 사연, 최초 배우는 첫 대사가 명령이 아닌 초대였다는 기억,
+마지막 관객은 지켜보기만 했던 책임을 말한다.
+
+마지막 연출가와 각본 밖의 그림자도 이름 선택에 다르게 질문한다.
+선택하지 못한 가능성을 용서나 복종을 요구하지 않고 기록한다는 응답으로 최종 대화를 잇는다.
+최종막 해금/완료 플래그는 모든 추가 대사가 끝난 뒤 기존 순서대로 기록하며,
+선택지의 수치와 엔딩 요구 조건은 유지한다. [여정 보강·검증 범위](ADVENTURE_COMPLETION.md).
+
 ## 완성 초상과 모션
 
 `Assets/Art/Final/Portraits`에는 `inverted_guide`, `silent_applause`, `outside_script_shadow`의 투명

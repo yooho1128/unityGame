@@ -159,7 +159,7 @@ namespace ShadowTheater.Story
         {
             if (form == null || !form.enabled)
             {
-                reason = $"이 그림자의 {actionName} 데이터가 아직 설정되지 않았습니다.";
+                reason = $"이 그림자는 {actionName} 단계가 없습니다.";
                 return false;
             }
             if (instance.level < form.requiredLevel)
@@ -169,7 +169,7 @@ namespace ShadowTheater.Story
             }
             if (!string.IsNullOrEmpty(form.requiredFlag) && !RequirementMet(form.requiredFlag))
             {
-                reason = "아직 되찾지 못한 개인 기억이 있습니다.";
+                reason = EvolutionGuidanceService.RequirementHint(form.requiredFlag);
                 return false;
             }
             reason = string.Empty;
@@ -183,8 +183,9 @@ namespace ShadowTheater.Story
             !string.IsNullOrEmpty(questId) && !string.IsNullOrEmpty(completionFlag) &&
             PersonalMemoryQuests.TryGetValue(completionFlag, out string registered) && registered == questId;
 
-        private static bool RequirementMet(string requiredFlag)
+        public static bool RequirementMet(string requiredFlag)
         {
+            if (string.IsNullOrEmpty(requiredFlag)) return true;
             if (SaveManager.HasFlag(requiredFlag)) return true;
             return StoryMilestoneAliases.TryGetValue(requiredFlag, out string sourceFlag) &&
                    SaveManager.HasFlag(sourceFlag);

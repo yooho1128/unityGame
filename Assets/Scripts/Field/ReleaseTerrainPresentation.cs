@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Tilemaps;
+using ShadowTheater.Story;
 
 namespace ShadowTheater.Field
 {
@@ -23,6 +24,7 @@ namespace ShadowTheater.Field
         {
             foreach (var root in scene.GetRootGameObjects())
             {
+                RegionFieldLayout.Apply(root.transform, RegionRepository.GetByScene(scene.name));
                 foreach (var portal in root.GetComponentsInChildren<MapPortal>(true)) StylePortal(portal);
                 var maps = root.GetComponentsInChildren<Tilemap>(true);
                 if (maps.Length == 0) continue;

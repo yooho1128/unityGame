@@ -1,0 +1,574 @@
+{
+  "entries": [
+    {
+      "flag": "blank_prison_names",
+      "routes": [
+        {
+          "kind": "Defeat",
+          "targetId": "boss_zero_warden",
+          "regionId": "blank_prison",
+          "label": "제0호 간수",
+          "instruction": "보스에게 승리하고 전투 후 대화를 끝까지 마칩니다."
+        }
+      ]
+    },
+    {
+      "flag": "boss_archive_dragon_story_complete",
+      "routes": [
+        {
+          "kind": "Defeat",
+          "targetId": "boss_archive_dragon",
+          "regionId": "blue_abyss",
+          "label": "무한서고의 용",
+          "instruction": "보스에게 승리하고 전투 후 대화를 끝까지 마칩니다."
+        }
+      ]
+    },
+    {
+      "flag": "boss_ash_king_story_complete",
+      "routes": [
+        {
+          "kind": "Defeat",
+          "targetId": "boss_ash_king",
+          "regionId": "crownless_throne",
+          "label": "재의 왕",
+          "instruction": "보스에게 승리하고 전투 후 대화를 끝까지 마칩니다."
+        }
+      ]
+    },
+    {
+      "flag": "boss_barracks_story_complete",
+      "routes": [
+        {
+          "kind": "Defeat",
+          "targetId": "boss_barracks_captain",
+          "regionId": "ruined_barracks",
+          "label": "무릎 꿇지 않는 대장",
+          "instruction": "보스에게 승리하고 전투 후 대화를 끝까지 마칩니다."
+        }
+      ]
+    },
+    {
+      "flag": "boss_bloodmane_story_complete",
+      "routes": [
+        {
+          "kind": "Defeat",
+          "targetId": "boss_bloodmane",
+          "regionId": "bloodmoon_ridge",
+          "label": "붉은 뿔의 추격자",
+          "instruction": "보스에게 승리하고 전투 후 대화를 끝까지 마칩니다."
+        }
+      ]
+    },
+    {
+      "flag": "boss_book_drake_story_complete",
+      "routes": [
+        {
+          "kind": "Defeat",
+          "targetId": "boss_book_drake",
+          "regionId": "forbidden_stacks",
+          "label": "책 먹는 용",
+          "instruction": "보스에게 승리하고 전투 후 대화를 끝까지 마칩니다."
+        }
+      ]
+    },
+    {
+      "flag": "boss_catacombs_story_complete",
+      "routes": [
+        {
+          "kind": "Defeat",
+          "targetId": "boss_headless_guard",
+          "regionId": "ember_catacombs",
+          "label": "목 없는 호위기사",
+          "instruction": "보스에게 승리하고 전투 후 대화를 끝까지 마칩니다."
+        }
+      ]
+    },
+    {
+      "flag": "boss_inverted_librarian_story_complete",
+      "routes": [
+        {
+          "kind": "Defeat",
+          "targetId": "boss_inverted_librarian",
+          "regionId": "mirror_vault",
+          "label": "반전된 사서",
+          "instruction": "보스에게 승리하고 전투 후 대화를 끝까지 마칩니다."
+        }
+      ]
+    },
+    {
+      "flag": "boss_last_puppeteer_story_complete",
+      "routes": [
+        {
+          "kind": "Defeat",
+          "targetId": "boss_last_puppeteer",
+          "regionId": "puppeteer_stage",
+          "label": "마지막 인형사",
+          "instruction": "보스에게 승리하고 전투 후 대화를 끝까지 마칩니다."
+        }
+      ]
+    },
+    {
+      "flag": "boss_moonlit_story_complete",
+      "routes": [
+        {
+          "kind": "Defeat",
+          "targetId": "boss_moonlit_stage",
+          "regionId": "moonlit_boss_stage",
+          "label": "달빛의 미망인",
+          "instruction": "보스에게 승리하고 전투 후 대화를 끝까지 마칩니다."
+        }
+      ]
+    },
+    {
+      "flag": "boss_night_beast_story_complete",
+      "routes": [
+        {
+          "kind": "Defeat",
+          "targetId": "boss_night_beast",
+          "regionId": "sleeping_beast_den",
+          "label": "밤을 삼킨 짐승",
+          "instruction": "보스에게 승리하고 전투 후 대화를 끝까지 마칩니다."
+        }
+      ]
+    },
+    {
+      "flag": "boss_nox_story_complete",
+      "routes": [
+        {
+          "kind": "Defeat",
+          "targetId": "boss_high_censor_nox",
+          "regionId": "black_archive",
+          "label": "대검열관 노크스",
+          "instruction": "보스에게 승리하고 전투 후 대화를 끝까지 마칩니다."
+        }
+      ]
+    },
+    {
+      "flag": "boss_primadonna_story_complete",
+      "routes": [
+        {
+          "kind": "Defeat",
+          "targetId": "boss_primadonna",
+          "regionId": "marionette_opera",
+          "label": "줄 위의 프리마돈나",
+          "instruction": "보스에게 승리하고 전투 후 대화를 끝까지 마칩니다."
+        }
+      ]
+    },
+    {
+      "flag": "clock_alley_released",
+      "routes": [
+        {
+          "kind": "Talk",
+          "targetId": "npc_second_dancer",
+          "regionId": "clockwork_alley",
+          "label": "초침 무희",
+          "instruction": "대화를 끝까지 마칩니다."
+        }
+      ]
+    },
+    {
+      "flag": "howl_village_truth",
+      "routes": [
+        {
+          "kind": "Talk",
+          "targetId": "npc_moon_shaman",
+          "regionId": "howl_village",
+          "label": "달술사",
+          "instruction": "대화를 끝까지 마칩니다."
+        }
+      ]
+    },
+    {
+      "flag": "legend_first_actor_found",
+      "routes": [
+        {
+          "kind": "Defeat",
+          "targetId": "boss_first_actor",
+          "regionId": "first_actor_room",
+          "label": "최초의 배우",
+          "instruction": "보스에게 승리하고 전투 후 대화를 끝까지 마칩니다."
+        }
+      ]
+    },
+    {
+      "flag": "legend_first_actor_truth",
+      "routes": [
+        {
+          "kind": "Defeat",
+          "targetId": "boss_first_actor",
+          "regionId": "first_actor_room",
+          "label": "최초의 배우",
+          "instruction": "보스에게 승리하고 전투 후 대화를 끝까지 마칩니다."
+        }
+      ]
+    },
+    {
+      "flag": "legend_last_audience_found",
+      "routes": [
+        {
+          "kind": "Defeat",
+          "targetId": "boss_last_audience",
+          "regionId": "cosmic_auditorium",
+          "label": "마지막 관객",
+          "instruction": "보스에게 승리하고 전투 후 대화를 끝까지 마칩니다."
+        }
+      ]
+    },
+    {
+      "flag": "legend_last_audience_truth",
+      "routes": [
+        {
+          "kind": "Defeat",
+          "targetId": "boss_last_audience",
+          "regionId": "cosmic_auditorium",
+          "label": "마지막 관객",
+          "instruction": "보스에게 승리하고 전투 후 대화를 끝까지 마칩니다."
+        }
+      ]
+    },
+    {
+      "flag": "memory_beast_restored",
+      "routes": [
+        {
+          "kind": "Quest",
+          "questId": "memory_beast_trail",
+          "personal": true,
+          "label": "달 아래의 귀환로",
+          "instruction": "여정의 모든 목표를 완료합니다."
+        },
+        {
+          "kind": "Talk",
+          "targetId": "npc_moon_shaman",
+          "regionId": "howl_village",
+          "label": "달술사",
+          "instruction": "대화를 끝까지 마칩니다."
+        }
+      ]
+    },
+    {
+      "flag": "memory_bell_knight_restored",
+      "routes": [
+        {
+          "kind": "Defeat",
+          "targetId": "boss_barracks_captain",
+          "regionId": "ruined_barracks",
+          "label": "무릎 꿇지 않는 대장",
+          "instruction": "보스에게 승리하고 전투 후 대화를 끝까지 마칩니다."
+        }
+      ]
+    },
+    {
+      "flag": "memory_catacombs_names",
+      "routes": [
+        {
+          "kind": "Talk",
+          "targetId": "npc_ash_priest",
+          "regionId": "ember_catacombs",
+          "label": "잿빛 사제",
+          "instruction": "대화를 끝까지 마칩니다."
+        }
+      ]
+    },
+    {
+      "flag": "memory_crow_restored",
+      "routes": [
+        {
+          "kind": "Quest",
+          "questId": "memory_crow_names",
+          "personal": true,
+          "label": "부리에 문 이름들",
+          "instruction": "여정의 모든 목표를 완료합니다."
+        },
+        {
+          "kind": "Defeat",
+          "targetId": "boss_moonlit_stage",
+          "regionId": "moonlit_boss_stage",
+          "label": "달빛의 미망인",
+          "instruction": "보스에게 승리하고 전투 후 대화를 끝까지 마칩니다."
+        }
+      ]
+    },
+    {
+      "flag": "memory_ferry_manifest",
+      "routes": [
+        {
+          "kind": "Talk",
+          "targetId": "npc_glacier_ferryman",
+          "regionId": "frost_port",
+          "label": "빙하 뱃사공",
+          "instruction": "대화를 끝까지 마칩니다."
+        }
+      ]
+    },
+    {
+      "flag": "memory_knight_restored",
+      "routes": [
+        {
+          "kind": "Quest",
+          "questId": "memory_knight_vow",
+          "personal": true,
+          "label": "꺼지지 않은 맹세",
+          "instruction": "여정의 모든 목표를 완료합니다."
+        },
+        {
+          "kind": "Defeat",
+          "targetId": "boss_moonlit_stage",
+          "regionId": "moonlit_boss_stage",
+          "label": "달빛의 미망인",
+          "instruction": "보스에게 승리하고 전투 후 대화를 끝까지 마칩니다."
+        }
+      ]
+    },
+    {
+      "flag": "memory_mage_restored",
+      "routes": [
+        {
+          "kind": "Quest",
+          "questId": "memory_mage_pages",
+          "personal": true,
+          "label": "금서에서 빠진 세 장",
+          "instruction": "여정의 모든 목표를 완료합니다."
+        },
+        {
+          "kind": "Talk",
+          "targetId": "npc_glacier_ferryman",
+          "regionId": "frost_port",
+          "label": "빙하 뱃사공",
+          "instruction": "대화를 끝까지 마칩니다."
+        }
+      ]
+    },
+    {
+      "flag": "memory_mask_restored",
+      "routes": [
+        {
+          "kind": "Quest",
+          "questId": "memory_mask_truth",
+          "personal": true,
+          "label": "가면이 비춘 얼굴",
+          "instruction": "여정의 모든 목표를 완료합니다."
+        },
+        {
+          "kind": "Talk",
+          "targetId": "npc_mirror_scribe",
+          "regionId": "mirror_vault",
+          "label": "거울 필경사",
+          "instruction": "대화를 끝까지 마칩니다.\n선택지: 「가능했던 모든 결말을 함께 보존한다.」 / 「당사자가 받아들일 수 있는 결말만 보여준다.」 / 「혼란을 막기 위해 현실의 결말만 남긴다.」"
+        }
+      ]
+    },
+    {
+      "flag": "memory_moonlit_truth",
+      "routes": [
+        {
+          "kind": "Defeat",
+          "targetId": "boss_true_name_selene",
+          "regionId": "widow_moon_palace",
+          "label": "진명 · 셀레네",
+          "instruction": "보스에게 승리하고 전투 후 대화를 끝까지 마칩니다."
+        }
+      ]
+    },
+    {
+      "flag": "memory_puppet_restored",
+      "routes": [
+        {
+          "kind": "Quest",
+          "questId": "memory_puppet_step",
+          "personal": true,
+          "label": "명령 없는 첫걸음",
+          "instruction": "여정의 모든 목표를 완료합니다."
+        },
+        {
+          "kind": "Talk",
+          "targetId": "npc_second_dancer",
+          "regionId": "clockwork_alley",
+          "label": "초침 무희",
+          "instruction": "대화를 끝까지 마칩니다."
+        }
+      ]
+    },
+    {
+      "flag": "mirror_truth_seen",
+      "routes": [
+        {
+          "kind": "Talk",
+          "targetId": "npc_mirror_scribe",
+          "regionId": "mirror_vault",
+          "label": "거울 필경사",
+          "instruction": "대화를 끝까지 마칩니다.\n선택지: 「가능했던 모든 결말을 함께 보존한다.」 / 「당사자가 받아들일 수 있는 결말만 보여준다.」 / 「혼란을 막기 위해 현실의 결말만 남긴다.」"
+        }
+      ]
+    },
+    {
+      "flag": "truth_ash_king_revealed",
+      "routes": [
+        {
+          "kind": "Defeat",
+          "targetId": "boss_headless_guard",
+          "regionId": "ember_catacombs",
+          "label": "목 없는 호위기사",
+          "instruction": "보스에게 승리하고 전투 후 대화를 끝까지 마칩니다."
+        }
+      ]
+    },
+    {
+      "flag": "truth_beast_revealed",
+      "routes": [
+        {
+          "kind": "Defeat",
+          "targetId": "boss_bloodmane",
+          "regionId": "bloodmoon_ridge",
+          "label": "붉은 뿔의 추격자",
+          "instruction": "보스에게 승리하고 전투 후 대화를 끝까지 마칩니다."
+        }
+      ]
+    },
+    {
+      "flag": "truth_crow_revealed",
+      "routes": [
+        {
+          "kind": "Defeat",
+          "targetId": "boss_bloodmane",
+          "regionId": "bloodmoon_ridge",
+          "label": "붉은 뿔의 추격자",
+          "instruction": "보스에게 승리하고 전투 후 대화를 끝까지 마칩니다."
+        }
+      ]
+    },
+    {
+      "flag": "truth_first_forbidden_book",
+      "routes": [
+        {
+          "kind": "Defeat",
+          "targetId": "boss_inverted_librarian",
+          "regionId": "mirror_vault",
+          "label": "반전된 사서",
+          "instruction": "보스에게 승리하고 전투 후 대화를 끝까지 마칩니다."
+        }
+      ]
+    },
+    {
+      "flag": "truth_first_howl",
+      "routes": [
+        {
+          "kind": "Defeat",
+          "targetId": "boss_bloodmane",
+          "regionId": "bloodmoon_ridge",
+          "label": "붉은 뿔의 추격자",
+          "instruction": "보스에게 승리하고 전투 후 대화를 끝까지 마칩니다."
+        }
+      ]
+    },
+    {
+      "flag": "truth_glacier_ferryman_revealed",
+      "routes": [
+        {
+          "kind": "Companion",
+          "eventId": "ferryman_tide_route",
+          "regionId": "tidal_boardwalk",
+          "label": "동행 기억",
+          "instruction": "필요한 그림자를 동행으로 지정하고 지역을 탐색합니다."
+        }
+      ]
+    },
+    {
+      "flag": "truth_ink_conductor_revealed",
+      "routes": [
+        {
+          "kind": "Companion",
+          "eventId": "conductor_silent_score",
+          "regionId": "silent_foyer",
+          "label": "동행 기억",
+          "instruction": "필요한 그림자를 동행으로 지정하고 지역을 탐색합니다."
+        }
+      ]
+    },
+    {
+      "flag": "truth_knight_revealed",
+      "routes": [
+        {
+          "kind": "Defeat",
+          "targetId": "boss_headless_guard",
+          "regionId": "ember_catacombs",
+          "label": "목 없는 호위기사",
+          "instruction": "보스에게 승리하고 전투 후 대화를 끝까지 마칩니다."
+        }
+      ]
+    },
+    {
+      "flag": "truth_mage_revealed",
+      "routes": [
+        {
+          "kind": "Defeat",
+          "targetId": "boss_inverted_librarian",
+          "regionId": "mirror_vault",
+          "label": "반전된 사서",
+          "instruction": "보스에게 승리하고 전투 후 대화를 끝까지 마칩니다."
+        }
+      ]
+    },
+    {
+      "flag": "truth_mask_revealed",
+      "routes": [
+        {
+          "kind": "Defeat",
+          "targetId": "boss_mute_judge",
+          "regionId": "silent_court",
+          "label": "무언의 재판장",
+          "instruction": "보스에게 승리하고 전투 후 대화를 끝까지 마칩니다."
+        }
+      ]
+    },
+    {
+      "flag": "truth_nox_family",
+      "routes": [
+        {
+          "kind": "Defeat",
+          "targetId": "boss_mute_judge",
+          "regionId": "silent_court",
+          "label": "무언의 재판장",
+          "instruction": "보스에게 승리하고 전투 후 대화를 끝까지 마칩니다."
+        }
+      ]
+    },
+    {
+      "flag": "truth_puppet_origin",
+      "routes": [
+        {
+          "kind": "Defeat",
+          "targetId": "boss_primadonna",
+          "regionId": "marionette_opera",
+          "label": "줄 위의 프리마돈나",
+          "instruction": "보스에게 승리하고 전투 후 대화를 끝까지 마칩니다."
+        }
+      ]
+    },
+    {
+      "flag": "truth_puppet_revealed",
+      "routes": [
+        {
+          "kind": "Defeat",
+          "targetId": "boss_primadonna",
+          "regionId": "marionette_opera",
+          "label": "줄 위의 프리마돈나",
+          "instruction": "보스에게 승리하고 전투 후 대화를 끝까지 마칩니다."
+        }
+      ]
+    },
+    {
+      "flag": "truth_ticketless_passenger_revealed",
+      "routes": [
+        {
+          "kind": "Companion",
+          "eventId": "passenger_erased_platform",
+          "regionId": "erased_station",
+          "label": "동행 기억",
+          "instruction": "필요한 그림자를 동행으로 지정하고 지역을 탐색합니다."
+        }
+      ]
+    }
+  ]
+}

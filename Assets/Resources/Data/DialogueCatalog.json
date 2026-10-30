@@ -202,30 +202,34 @@
     {
       "dialogueId": "ending_true_archive",
       "lines": [
-        { "speaker": "각본집", "text": "기억은 보존되었고, 누구도 타인의 장면을 강요하지 않았다.", "emotion": "hope" },
-        { "speaker": "아리아", "text": "새벽이 왔어요. 그림자들이 처음으로 자신의 이름을 직접 말하고 있어요.", "emotion": "joy" },
-        { "speaker": "막", "text": "진엔딩 ― 이름을 되찾은 극장", "emotion": "ending" }
+        {"speaker": "각본집", "text": "기억은 보존되었고, 누구도 타인의 장면을 강요하지 않았다.", "emotion": "hope"},
+        {"speaker": "아리아", "text": "새벽이 왔어요. 그림자들이 처음으로 자신의 이름을 직접 말하고 있어요.", "emotion": "joy"},
+        {"speaker": "문패 거북", "text": "기다리는 이름과 새 이름이 같은 길의 양쪽에 걸렸다. 문을 두드리는 소리는 서로 달랐다.", "emotion": "calm"},
+        {"speaker": "막", "text": "진엔딩 ― 이름을 되찾은 극장", "emotion": "ending"}
       ]
     },
     {
       "dialogueId": "ending_eternal_stage",
       "lines": [
-        { "speaker": "각본집", "text": "모든 기억은 완벽히 보존되었다. 기쁨도, 견딜 수 없는 비극도 영원히.", "emotion": "solemn" },
-        { "speaker": "막", "text": "엔딩 ― 끝나지 않는 공연", "emotion": "ending" }
+        {"speaker": "각본집", "text": "모든 기억은 완벽히 보존되었다. 기쁨도, 견딜 수 없는 비극도 영원히.", "emotion": "solemn"},
+        {"speaker": "최초의 배우", "text": "모든 문장은 남았다. 이제 다음 대사를 말할 수 있는 빈칸이 어디인지 배우들은 다시 묻는다.", "emotion": "calm"},
+        {"speaker": "막", "text": "엔딩 ― 끝나지 않는 공연", "emotion": "ending"}
       ]
     },
     {
       "dialogueId": "ending_merciful_dawn",
       "lines": [
-        { "speaker": "각본집", "text": "놓아주기로 선택한 기억은 빛이 되어 사라지고, 남은 이들은 가벼운 발로 새벽을 걸었다.", "emotion": "hope" },
-        { "speaker": "막", "text": "엔딩 ― 다정한 망각의 새벽", "emotion": "ending" }
+        {"speaker": "각본집", "text": "놓아주기로 선택한 기억은 빛이 되어 사라지고, 남은 이들은 가벼운 발로 새벽을 걸었다.", "emotion": "hope"},
+        {"speaker": "등대를 지키는 상주", "text": "돌아오는 배가 없는 날에는 종을 쉬게 했다. 불은 남겨 두었다. 누군가 스스로 돌아오기로 할 때를 위해.", "emotion": "calm"},
+        {"speaker": "막", "text": "엔딩 ― 다정한 망각의 새벽", "emotion": "ending"}
       ]
     },
     {
       "dialogueId": "ending_hollow_curtain",
       "lines": [
-        { "speaker": "검은 검열단", "text": "마침내 모든 소음이 사라졌다. 슬픔도, 이름도, 다시 시작할 이유도.", "emotion": "cold" },
-        { "speaker": "막", "text": "배드 엔딩 ― 텅 빈 막", "emotion": "ending" }
+        {"speaker": "검은 검열단", "text": "마침내 모든 소음이 사라졌다. 슬픔도, 이름도, 다시 시작할 이유도.", "emotion": "cold"},
+        {"speaker": "막", "text": "이름 없는 문패는 누구도 기다리지 않았다. 종은 멈췄고, 왜 울렸는지 묻는 목소리도 없었다.", "emotion": "calm"},
+        {"speaker": "막", "text": "배드 엔딩 ― 텅 빈 막", "emotion": "ending"}
       ]
     },
     {
@@ -400,34 +404,346 @@
     {"dialogueId":"boss_mute_judge_post","lines":[{"speaker":"무언의 재판장","text":"나는 모든 판결이 거짓임을 알면서 침묵했다. 그 침묵도 판결의 일부였구나.","emotion":"sad","setFlag":"truth_nox_family","setFlagValue":1}]},
     {"dialogueId":"boss_high_censor_nox_pre","lines":[{"speaker":"대검열관 노크스","text":"기억이 가족을 파괴했다. 이름이 비극을 되살렸다. 모두 지우면 누구도 다시 아프지 않는다!","emotion":"rage"},{"speaker":"극단주","text":"고통을 없애려 사람까지 지운 세계는 구원이 아니다. 네가 지운 이름 전부와 함께 이 막을 올리겠다.","emotion":"resolve"}]},
     {"dialogueId":"boss_high_censor_nox_post","lines":[{"speaker":"대검열관 노크스","text":"녹티스… 가족이 마지막으로 불러 준 이름이다. 그 이름마저 내가 먼저 지웠구나.","emotion":"sad"},{"speaker":"각본집","text":"제6막 『검은 검열단』이 기록되었습니다.","emotion":"mystery","setFlag":"act6_complete","setFlagValue":1}]},
-    {"dialogueId":"npc_wave_bard_intro","lines":[{"speaker":"파도 악사","text":"이 해안의 유리는 모두 누군가의 마지막 말이야. 밟아 부수지 말고 노래의 순서로 모아 줘.","emotion":"sad"},{"speaker":"파도 악사","text":"물에 잠긴 화랑의 화가는 멸망 전 마지막 풍경을 아직 완성하지 못했어.","emotion":"serious"}]},
-    {"dialogueId":"npc_wave_bard_repeat","lines":[{"speaker":"파도 악사","text":"부서진 목소리도 함께 놓으면 다시 한 사람의 문장이 돼.","emotion":"calm"}]},
-    {"dialogueId":"boss_drowned_painter_pre","lines":[{"speaker":"익사한 화가","text":"아직 마지막 하늘의 색이 부족하다! 화랑도 나도 가라앉을 수 없다!","emotion":"rage"},{"speaker":"극단주","text":"완성되지 않은 풍경도 그날의 진실이다. 붓을 놓아도 기록은 사라지지 않아.","emotion":"resolve"}]},
-    {"dialogueId":"boss_drowned_painter_post","lines":[{"speaker":"익사한 화가","text":"미완성이라는 여백까지… 마지막 세계의 일부였구나.","emotion":"relief"}]},
-    {"dialogueId":"npc_name_keeper_intro","lines":[{"speaker":"문패 거북","text":"주인을 찾지 못한 이름들이 섬이 되었어. 새로운 이에게 줄 수도, 그대로 기다리게 할 수도 있지.","emotion":"question"}],"choices":[{"text":"원래 주인이 돌아올 때까지 이름을 보존한다.","nextDialogueId":"name_choice_preserve","setFlag":"act7_names_preserved","setFlagValue":1,"flagChanges":[{"flag":"choice_memory","delta":1}]},{"text":"이름 없는 그림자가 원하면 새 이름으로 건넨다.","nextDialogueId":"name_choice_mercy","setFlag":"act7_names_shared","setFlagValue":1,"flagChanges":[{"flag":"choice_compassion","delta":1}]},{"text":"혼란을 막기 위해 주인 없는 이름을 봉인한다.","nextDialogueId":"name_choice_seal","setFlag":"act7_names_sealed","setFlagValue":1,"flagChanges":[{"flag":"choice_control","delta":1}]}]},
-    {"dialogueId":"name_choice_preserve","lines":[{"speaker":"문패 거북","text":"기다림도 기억의 방식이지. 섬이 가라앉지 않게 지키겠다.","emotion":"hope"}]},
-    {"dialogueId":"name_choice_mercy","lines":[{"speaker":"문패 거북","text":"이름은 소유물이 아니라 살아갈 약속일 수도 있겠구나.","emotion":"calm"}]},
-    {"dialogueId":"name_choice_seal","lines":[{"speaker":"문패 거북","text":"봉인된 이름도 누군가는 계속 기다린다는 사실을 기록해 줘.","emotion":"fear"}]},
-    {"dialogueId":"npc_name_keeper_repeat","lines":[{"speaker":"문패 거북","text":"애도의 등대로 가. 모든 이름을 위한 마지막 종이 기다린다.","emotion":"serious"}]},
-    {"dialogueId":"boss_mourning_keeper_pre","lines":[{"speaker":"등대를 지키는 상주","text":"장례가 끝나지 않았다. 이름이 남아 있는 한 종은 영원히 울려야 한다!","emotion":"rage"},{"speaker":"극단주","text":"애도는 잊는 일이 아니라 다시 살아갈 수 있도록 막을 내리는 일이다.","emotion":"resolve"}]},
-    {"dialogueId":"boss_mourning_keeper_post","lines":[{"speaker":"등대를 지키는 상주","text":"마지막 종은 망자를 위해서가 아니라 남은 이들의 귀환을 위해 울리겠다.","emotion":"relief"}]},
-    {"dialogueId":"boss_true_name_selene_pre","lines":[{"speaker":"진명 셀레네","text":"나는 모든 달빛의 미망인. 잃은 이름을 놓는 순간 그 사랑까지 사라진다!","emotion":"sad"},{"speaker":"극단주","text":"놓아주는 것은 지우는 일이 아니다. 사랑했던 장면과 함께 네 진명을 기록하겠다.","emotion":"resolve"}]},
-    {"dialogueId":"boss_true_name_selene_post","lines":[{"speaker":"셀레네","text":"애도는 붙잡는 사슬이 아니라 기억을 품고 다시 걷는 달빛이었구나.","emotion":"relief"},{"speaker":"각본집","text":"제7막 『기억의 바다』가 기록되었습니다.","emotion":"mystery","setFlag":"act7_complete","setFlagValue":1}]},
-    {"dialogueId":"npc_inverted_guide_intro","lines":[{"speaker":"거꾸로 안내원","text":"이곳에서는 입장이 곧 퇴장이고, 마지막 막이 첫 막입니다.","emotion":"mystery"},{"speaker":"거꾸로 안내원","text":"끝없는 무대 뒤의 관리자를 멈춰야 최초 배우의 방이 열립니다.","emotion":"serious"}]},
-    {"dialogueId":"npc_inverted_guide_repeat","lines":[{"speaker":"거꾸로 안내원","text":"오른쪽 문으로 나가면 이야기의 안쪽으로 들어가게 됩니다.","emotion":"calm"}]},
-    {"dialogueId":"boss_interlude_manager_pre","lines":[{"speaker":"막간의 관리자","text":"다음 장면은 멸망이다. 이 막간은 영원히 끝나선 안 된다!","emotion":"rage"},{"speaker":"극단주","text":"이야기를 멈추면 살아 있는 장면도 사라진다.","emotion":"resolve"}]},
-    {"dialogueId":"boss_interlude_manager_post","lines":[{"speaker":"막간의 관리자","text":"배우들이 스스로 다음 장면을 고를 수 있다는 걸 믿지 못했구나.","emotion":"relief"}]},
-    {"dialogueId":"boss_first_actor_pre","lines":[{"speaker":"최초의 배우","text":"나는 첫 대사를 말했고, 세계는 그 문장을 운명이라 오해했다.","emotion":"sad"},{"speaker":"극단주","text":"첫 문장은 초대였어. 다음 대사는 우리가 선택하겠다.","emotion":"resolve"}]},
-    {"dialogueId":"boss_first_actor_post","lines":[{"speaker":"최초의 배우","text":"각본집은 결말을 정하는 책이 아니다. 선택을 잊지 않기 위한 빈 무대다.","emotion":"hope"}]},
-    {"dialogueId":"boss_last_audience_pre","lines":[{"speaker":"마지막 관객","text":"모든 비극을 보고도 무대에 오르지 않았다. 관객에게도 죄가 있는가?","emotion":"question"},{"speaker":"극단주","text":"기억을 증언으로 바꾸는 순간 관객도 이야기의 일부가 된다.","emotion":"resolve"}]},
-    {"dialogueId":"boss_last_audience_post","lines":[{"speaker":"마지막 관객","text":"마지막에는 박수 대신 너희가 여기까지 왔다는 증언을 남기겠다.","emotion":"hope"}]},
-    {"dialogueId":"npc_rival_director_final","lines":[{"speaker":"또 다른 연출가","text":"이제 마지막 장면은 네 방식으로 보고 싶군.","emotion":"serious"}],"choices":[{"text":"모든 고통과 이름을 그대로 기록한다.","nextDialogueId":"rival_final_memory","setFlag":"final_rival_memory","setFlagValue":1,"flagChanges":[{"flag":"choice_memory","delta":1}]},{"text":"살아남은 이들이 새 이야기를 고르게 한다.","nextDialogueId":"rival_final_mercy","setFlag":"final_rival_mercy","setFlagValue":1,"flagChanges":[{"flag":"choice_compassion","delta":1}]},{"text":"비극이 반복되지 않도록 각본을 통제한다.","nextDialogueId":"rival_final_control","setFlag":"final_rival_control","setFlagValue":1,"flagChanges":[{"flag":"choice_control","delta":1}]}]},
-    {"dialogueId":"rival_final_memory","lines":[{"speaker":"또 다른 연출가","text":"내 잘못까지 지우지 말고 기록해라.","emotion":"calm"}]},
-    {"dialogueId":"rival_final_mercy","lines":[{"speaker":"또 다른 연출가","text":"정해진 배역 없이 사는 법을 나도 배워 보겠다.","emotion":"hope"}]},
-    {"dialogueId":"rival_final_control","lines":[{"speaker":"또 다른 연출가","text":"네 통제가 검열이 되지 않도록 반대편에서 지켜보겠다.","emotion":"serious"}]},
+    {
+      "dialogueId": "npc_wave_bard_intro",
+      "lines": [
+        {"speaker": "파도 악사", "text": "이 해안의 유리는 모두 누군가의 마지막 말이야. 밟아 부수지 말고 노래의 순서로 모아 줘.", "emotion": "sad"},
+        {"speaker": "파도 악사", "text": "물에 잠긴 화랑의 화가는 멸망 전 마지막 풍경을 아직 완성하지 못했어.", "emotion": "serious"},
+        {"speaker": "파도 악사", "text": "가장 날카로운 조각에도 목소리가 있어. 누군가는 돌아오겠다고 했고, 누군가는 먼저 가라고 했지.", "emotion": "calm"},
+        {"speaker": "극단주", "text": "전부 이어 붙이면 그 사람이 돌아오는 건가?", "emotion": "calm"},
+        {"speaker": "파도 악사", "text": "아니. 돌아오지 않는다는 사실까지 들을 수 있게 되는 거야. 화가에게도 그 말을 전해 줘.", "emotion": "calm"},
+        {"speaker": "파도 악사", "text": "화랑으로 가는 길은 이 해안의 동쪽이야. 길이 열렸는지는 기억의 여정에서 확인할 수 있어.", "emotion": "calm"}
+      ]
+    },
+    {
+      "dialogueId": "npc_wave_bard_repeat",
+      "lines": [
+        {"speaker": "파도 악사", "text": "부서진 목소리도 함께 놓으면 다시 한 사람의 문장이 돼.", "emotion": "calm"},
+        {"speaker": "파도 악사", "text": "기억을 지키겠다고 검열단 앞에서 말했지. 여기서는 다 듣지 못한 목소리도 함부로 완성하지 말아 줘.", "emotion": "calm", "requiredFlag": "belief_preserve_memory"},
+        {"speaker": "파도 악사", "text": "놓아줄 권리를 말했던 사람이구나. 이 파도에서도 누구의 목소리를 남길지는 그 주인에게 물어야 해.", "emotion": "calm", "requiredFlag": "belief_merciful_oblivion"},
+        {"speaker": "파도 악사", "text": "화랑에서 돌아온 뒤로 파도에 짧은 쉼표가 생겼어. 노래를 멈춰도 다음 사람이 이어 부를 수 있겠지.", "emotion": "calm", "requiredFlag": "boss_drowned_painter_story_complete"}
+      ]
+    },
+    {
+      "dialogueId": "boss_drowned_painter_pre",
+      "lines": [
+        {"speaker": "익사한 화가", "text": "아직 마지막 하늘의 색이 부족하다! 화랑도 나도 가라앉을 수 없다!", "emotion": "rage"},
+        {"speaker": "극단주", "text": "완성되지 않은 풍경도 그날의 진실이다. 붓을 놓아도 기록은 사라지지 않아.", "emotion": "resolve"},
+        {"speaker": "익사한 화가", "text": "저 문틀의 선을 봐라. 물이 들어올 때마다 아이들이 얼마나 자랐는지 새겨 두었지.", "emotion": "calm"},
+        {"speaker": "익사한 화가", "text": "마지막 그림에서 하늘을 지우면 그 선까지 지워질까 봐, 나는 같은 파도만 덧칠했다.", "emotion": "calm"},
+        {"speaker": "극단주", "text": "그림 밖에서 살아간 사람까지 한 장에 가둘 수는 없어. 그들이 남긴 여백도 함께 보자.", "emotion": "calm"}
+      ]
+    },
+    {
+      "dialogueId": "boss_drowned_painter_post",
+      "lines": [
+        {"speaker": "익사한 화가", "text": "미완성이라는 여백까지… 마지막 세계의 일부였구나.", "emotion": "relief"},
+        {"speaker": "익사한 화가", "text": "내가 끝내지 못한 건 그림이 아니라 이 문을 열고 나가는 일이었어.", "emotion": "calm"},
+        {"speaker": "극단주", "text": "어떤 색이 빠졌는지도 기록하겠다. 모르는 부분을 안다고 쓰지는 않을게.", "emotion": "calm"},
+        {"speaker": "익사한 화가", "text": "동쪽 이름들의 섬으로 가라. 주인을 잃은 문패들이 아직 서로를 부르고 있다.", "emotion": "calm"}
+      ]
+    },
+    {
+      "dialogueId": "npc_name_keeper_intro",
+      "lines": [
+        {"speaker": "문패 거북", "text": "주인을 찾지 못한 이름들이 섬이 되었어. 새로운 이에게 줄 수도, 그대로 기다리게 할 수도 있지.", "emotion": "question"},
+        {"speaker": "문패 거북", "text": "문패에는 이름뿐 아니라 문을 두드리던 손의 높이도 남아. 같은 이름을 쓴다고 같은 삶이 되지는 않지.", "emotion": "calm"},
+        {"speaker": "극단주", "text": "기다리는 이름도, 지금 이름이 필요한 그림자도 있는데 하나만 옳다고 할 수 있을까?", "emotion": "calm"},
+        {"speaker": "문패 거북", "text": "네가 고른 방법을 기록하겠다. 무엇을 택하든 남겨진 쪽의 목소리까지 사라졌다고 쓰지는 마.", "emotion": "calm"}
+      ],
+      "choices": [
+        {
+          "text": "원래 주인이 돌아올 때까지 이름을 보존한다.",
+          "nextDialogueId": "name_choice_preserve",
+          "setFlag": "act7_names_preserved",
+          "setFlagValue": 1,
+          "flagChanges": [
+            {
+              "flag": "choice_memory",
+              "delta": 1
+            }
+          ]
+        },
+        {
+          "text": "이름 없는 그림자가 원하면 새 이름으로 건넨다.",
+          "nextDialogueId": "name_choice_mercy",
+          "setFlag": "act7_names_shared",
+          "setFlagValue": 1,
+          "flagChanges": [
+            {
+              "flag": "choice_compassion",
+              "delta": 1
+            }
+          ]
+        },
+        {
+          "text": "혼란을 막기 위해 주인 없는 이름을 봉인한다.",
+          "nextDialogueId": "name_choice_seal",
+          "setFlag": "act7_names_sealed",
+          "setFlagValue": 1,
+          "flagChanges": [
+            {
+              "flag": "choice_control",
+              "delta": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "dialogueId": "name_choice_preserve",
+      "lines": [
+        {"speaker": "문패 거북", "text": "기다림도 기억의 방식이지. 섬이 가라앉지 않게 지키겠다.", "emotion": "hope"},
+        {"speaker": "극단주", "text": "기다리는 이름의 사연을 함께 남겨 줘. 주인이 오지 않아도 무엇을 기다렸는지는 알 수 있도록.", "emotion": "calm"},
+        {"speaker": "문패 거북", "text": "빈 문패가 필요한 그림자들에게는 새 나무를 깎아 주마. 기다림 때문에 오늘의 이름까지 빼앗을 수는 없겠지.", "emotion": "calm"},
+        {"speaker": "문패 거북", "text": "애도의 등대에 이 결정을 전해 줘. 종지기가 기다림을 끝없는 의무로 오해하지 않게.", "emotion": "calm"}
+      ]
+    },
+    {
+      "dialogueId": "name_choice_mercy",
+      "lines": [
+        {"speaker": "문패 거북", "text": "이름은 소유물이 아니라 살아갈 약속일 수도 있겠구나.", "emotion": "calm"},
+        {"speaker": "극단주", "text": "새 이름을 강요하지는 말아 줘. 받아들이는 그림자가 스스로 말할 수 있을 때 건네자.", "emotion": "calm"},
+        {"speaker": "문패 거북", "text": "문패 뒤에는 옛 주인의 이야기를 적겠다. 새 삶을 위해 지난 삶이 없었던 척할 필요는 없으니.", "emotion": "calm"},
+        {"speaker": "문패 거북", "text": "애도의 등대로 가. 종지기에게 이름이 이어지는 다른 방식도 있다고 전해 줘.", "emotion": "calm"}
+      ]
+    },
+    {
+      "dialogueId": "name_choice_seal",
+      "lines": [
+        {"speaker": "문패 거북", "text": "봉인된 이름도 누군가는 계속 기다린다는 사실을 기록해 줘.", "emotion": "fear"},
+        {"speaker": "극단주", "text": "봉인을 기록해 둬. 내가 내린 결정이라는 사실도, 반대했던 목소리도.", "emotion": "calm"},
+        {"speaker": "문패 거북", "text": "그렇다면 열쇠를 잃지 말아라. 안전을 위해 잠근 문이 영원히 열리지 않는 감옥이 되지 않도록.", "emotion": "calm"},
+        {"speaker": "문패 거북", "text": "애도의 등대에는 봉인되지 않은 종이 있다. 종지기가 누구를 위해 울리는지 들어 봐.", "emotion": "calm"}
+      ]
+    },
+    {
+      "dialogueId": "npc_name_keeper_repeat",
+      "lines": [
+        {"speaker": "문패 거북", "text": "애도의 등대로 가. 모든 이름을 위한 마지막 종이 기다린다.", "emotion": "serious"},
+        {"speaker": "문패 거북", "text": "보존한 문패 아래에 빈 나무를 더 달았어. 기다리는 이와 살아갈 이가 같은 길을 쓸 수 있게.", "emotion": "calm", "requiredFlag": "act7_names_preserved"},
+        {"speaker": "문패 거북", "text": "새 이름을 고른 그림자가 문패 뒤의 옛 이야기를 읽어 주고 갔어. 둘 다 자기 목소리로.", "emotion": "calm", "requiredFlag": "act7_names_shared"},
+        {"speaker": "문패 거북", "text": "봉인한 상자 옆에 네 결정과 반대 의견을 나란히 적었다. 열쇠는 여기 있으니 잊지 마.", "emotion": "calm", "requiredFlag": "act7_names_sealed"}
+      ]
+    },
+    {
+      "dialogueId": "boss_mourning_keeper_pre",
+      "lines": [
+        {"speaker": "등대를 지키는 상주", "text": "장례가 끝나지 않았다. 이름이 남아 있는 한 종은 영원히 울려야 한다!", "emotion": "rage"},
+        {"speaker": "극단주", "text": "애도는 잊는 일이 아니라 다시 살아갈 수 있도록 막을 내리는 일이다.", "emotion": "resolve"},
+        {"speaker": "등대를 지키는 상주", "text": "처음에는 돌아올 배를 위해 불을 켰다. 배가 끊긴 뒤에는 불을 끄는 내가 두려워졌지.", "emotion": "calm"},
+        {"speaker": "등대를 지키는 상주", "text": "네가 남겨 둔 이름들을 보았다. 기다림을 멈추면 그 약속은 누가 지키지?", "emotion": "calm", "requiredFlag": "act7_names_preserved"},
+        {"speaker": "등대를 지키는 상주", "text": "새 이름을 받은 그림자들이 지나갔다. 옛 이름을 부르는 내 종은 이제 필요 없는가?", "emotion": "calm", "requiredFlag": "act7_names_shared"},
+        {"speaker": "등대를 지키는 상주", "text": "문패를 봉인하고도 종은 울리라 하는가. 침묵을 정하는 손과 소리를 내는 손이 다른데.", "emotion": "calm", "requiredFlag": "act7_names_sealed"},
+        {"speaker": "극단주", "text": "종을 지우러 온 게 아니야. 네가 쉬어도 누군가 길을 잃지 않을 방법을 찾으러 왔다.", "emotion": "calm"}
+      ]
+    },
+    {
+      "dialogueId": "boss_mourning_keeper_post",
+      "lines": [
+        {"speaker": "등대를 지키는 상주", "text": "마지막 종은 망자를 위해서가 아니라 남은 이들의 귀환을 위해 울리겠다.", "emotion": "relief"},
+        {"speaker": "등대를 지키는 상주", "text": "종을 멈추니 파도 소리가 들리는군. 내가 깨우려던 이들은 오래전부터 이 소리를 듣고 있었을 텐데.", "emotion": "calm"},
+        {"speaker": "극단주", "text": "이제 돌아오는 사람에게 울려 줘. 쉬는 동안에는 네 이름도 여기 남겨 둘게.", "emotion": "calm"},
+        {"speaker": "등대를 지키는 상주", "text": "미망인의 월궁으로 가라. 셀레네는 내가 울린 종을 아직 장례의 끝으로 받아들이지 못했다.", "emotion": "calm"}
+      ]
+    },
+    {
+      "dialogueId": "boss_true_name_selene_pre",
+      "lines": [
+        {"speaker": "진명 셀레네", "text": "나는 모든 달빛의 미망인. 잃은 이름을 놓는 순간 그 사랑까지 사라진다!", "emotion": "sad"},
+        {"speaker": "극단주", "text": "놓아주는 것은 지우는 일이 아니다. 사랑했던 장면과 함께 네 진명을 기록하겠다.", "emotion": "resolve"},
+        {"speaker": "셀레네", "text": "누군가 내 이름을 처음 불렀던 밤을 지키려 했다. 그런데 지금은 그 목소리보다 사슬 소리가 더 크구나.", "emotion": "calm"},
+        {"speaker": "극단주", "text": "사랑했다는 사실과 영원히 묶여 있어야 한다는 명령은 다른 문장이야.", "emotion": "calm"},
+        {"speaker": "셀레네", "text": "그렇다면 내 이름을 마지막 한 장면으로 정하지 마라. 잃기 전의 나도, 잃은 뒤의 나도 함께 보아라.", "emotion": "calm"}
+      ]
+    },
+    {
+      "dialogueId": "boss_true_name_selene_post",
+      "lines": [
+        {"speaker": "셀레네", "text": "애도는 붙잡는 사슬이 아니라 기억을 품고 다시 걷는 달빛이었구나.", "emotion": "relief"},
+        {"speaker": "셀레네", "text": "나는 누군가의 미망인이기 전에 셀레네였지. 그 이름으로 다음 발걸음을 고르겠다.", "emotion": "calm"},
+        {"speaker": "극단주", "text": "비극도 남기되, 그것만이 네 전부라고 쓰지는 않겠다.", "emotion": "calm"},
+        {"speaker": "셀레네", "text": "뒤집힌 로비의 안내원을 찾아가라. 그곳부터는 네가 기록한 방식이 너에게 질문할 것이다.", "emotion": "calm"},
+        {"speaker": "각본집", "text": "제7막 『기억의 바다』가 기록되었습니다.", "emotion": "mystery", "setFlag": "act7_complete", "setFlagValue": 1}
+      ]
+    },
+    {
+      "dialogueId": "npc_inverted_guide_intro",
+      "lines": [
+        {"speaker": "거꾸로 안내원", "text": "이곳에서는 입장이 곧 퇴장이고, 마지막 막이 첫 막입니다.", "emotion": "mystery"},
+        {"speaker": "거꾸로 안내원", "text": "끝없는 무대 뒤의 관리자를 멈춰야 최초 배우의 방이 열립니다.", "emotion": "serious"},
+        {"speaker": "거꾸로 안내원", "text": "천장에 달린 발자국은 도망친 흔적이 아닙니다. 모두가 정해진 입구로 들어와 정해진 결말로 나가던 흔적이지요.", "emotion": "calm"},
+        {"speaker": "극단주", "text": "여기까지 온 길도 누군가 미리 정해 둔 건가?", "emotion": "calm"},
+        {"speaker": "거꾸로 안내원", "text": "문은 만들어져 있습니다. 하지만 누구의 손을 잡고 통과했는지까지 각본이 대신 쓰지는 못합니다.", "emotion": "calm"},
+        {"speaker": "거꾸로 안내원", "text": "먼저 동쪽의 끝없는 무대 뒤로 가십시오. 관리자의 막간이 끝나야 최초 배우의 분장실로 이어집니다.", "emotion": "calm"}
+      ]
+    },
+    {
+      "dialogueId": "npc_inverted_guide_repeat",
+      "lines": [
+        {"speaker": "거꾸로 안내원", "text": "오른쪽 문으로 나가면 이야기의 안쪽으로 들어가게 됩니다.", "emotion": "calm"},
+        {"speaker": "거꾸로 안내원", "text": "기다리는 이름을 보존하셨군요. 여기서는 보존한 장면을 언제 다시 볼지도 주인에게 물어 주십시오.", "emotion": "calm", "requiredFlag": "act7_names_preserved"},
+        {"speaker": "거꾸로 안내원", "text": "새 이름을 건넨 이야기가 먼저 도착했습니다. 이 무대에는 그 이름으로 들어오실 수 있습니다.", "emotion": "calm", "requiredFlag": "act7_names_shared"},
+        {"speaker": "거꾸로 안내원", "text": "문패 상자의 열쇠 소리가 들립니다. 마지막 문을 잠그기 전에 누가 밖에 남는지 확인하십시오.", "emotion": "calm", "requiredFlag": "act7_names_sealed"},
+        {"speaker": "거꾸로 안내원", "text": "관리자가 물러났습니다. 이제 멈춤도 명령이 아니라 배우들의 선택이 될 수 있겠지요.", "emotion": "calm", "requiredFlag": "boss_interlude_manager_story_complete"}
+      ]
+    },
+    {
+      "dialogueId": "boss_interlude_manager_pre",
+      "lines": [
+        {"speaker": "막간의 관리자", "text": "다음 장면은 멸망이다. 이 막간은 영원히 끝나선 안 된다!", "emotion": "rage"},
+        {"speaker": "극단주", "text": "이야기를 멈추면 살아 있는 장면도 사라진다.", "emotion": "resolve"},
+        {"speaker": "막간의 관리자", "text": "처음 종이 울렸을 때 배우 하나가 다음 장면에 나가기를 두려워했다. 잠깐만 기다려 달라고 했지.", "emotion": "calm"},
+        {"speaker": "막간의 관리자", "text": "나는 그 부탁을 영원으로 늘렸다. 이제 부탁한 배우조차 누구였는지 기억하지 못한다.", "emotion": "calm"},
+        {"speaker": "극단주", "text": "잠시 쉬겠다는 말이 다시 시작할 권리까지 버리겠다는 뜻은 아니었어.", "emotion": "calm"}
+      ]
+    },
+    {
+      "dialogueId": "boss_interlude_manager_post",
+      "lines": [
+        {"speaker": "막간의 관리자", "text": "배우들이 스스로 다음 장면을 고를 수 있다는 걸 믿지 못했구나.", "emotion": "relief"},
+        {"speaker": "막간의 관리자", "text": "내가 지킨 건 배우가 아니라 기다리게 하는 내 역할이었구나.", "emotion": "calm"},
+        {"speaker": "극단주", "text": "쉬고 싶은 배우를 재촉하지는 않을게. 나가고 싶은 배우의 길도 막지 말자.", "emotion": "calm"},
+        {"speaker": "막간의 관리자", "text": "최초 배우의 분장실은 동쪽이다. 그가 첫 대사를 왜 말했는지 직접 들어라.", "emotion": "calm"}
+      ]
+    },
+    {
+      "dialogueId": "boss_first_actor_pre",
+      "lines": [
+        {"speaker": "최초의 배우", "text": "나는 첫 대사를 말했고, 세계는 그 문장을 운명이라 오해했다.", "emotion": "sad"},
+        {"speaker": "극단주", "text": "첫 문장은 초대였어. 다음 대사는 우리가 선택하겠다.", "emotion": "resolve"},
+        {"speaker": "최초의 배우", "text": "나는 혼자라는 말 대신 여기 있다고 말했다. 누군가 대답하기를 바라며.", "emotion": "calm"},
+        {"speaker": "최초의 배우", "text": "대답은 돌아오지 않고 같은 문장이 반복되었다. 사람들은 그것을 세계의 규칙이라 불렀다.", "emotion": "calm"},
+        {"speaker": "극단주", "text": "우리가 되찾은 이름들은 똑같은 대사를 말하지 않았어. 네가 기다린 건 그 차이였겠지.", "emotion": "calm"}
+      ]
+    },
+    {
+      "dialogueId": "boss_first_actor_post",
+      "lines": [
+        {"speaker": "최초의 배우", "text": "각본집은 결말을 정하는 책이 아니다. 선택을 잊지 않기 위한 빈 무대다.", "emotion": "hope"},
+        {"speaker": "최초의 배우", "text": "첫 대사 뒤를 비워 둔 이유를 이제야 기억한다. 내 목소리보다 작은 대답도 들어오기 위해서였어.", "emotion": "calm"},
+        {"speaker": "극단주", "text": "빈칸을 실패라고 부르지 않겠다. 다른 목소리가 올 자리로 남겨 둘게.", "emotion": "calm"},
+        {"speaker": "최초의 배우", "text": "우주의 객석에 마지막 관객이 있다. 본 것을 말하지 못한 그에게도 대답할 자리를 주어라.", "emotion": "calm"}
+      ]
+    },
+    {
+      "dialogueId": "boss_last_audience_pre",
+      "lines": [
+        {"speaker": "마지막 관객", "text": "모든 비극을 보고도 무대에 오르지 않았다. 관객에게도 죄가 있는가?", "emotion": "question"},
+        {"speaker": "극단주", "text": "기억을 증언으로 바꾸는 순간 관객도 이야기의 일부가 된다.", "emotion": "resolve"},
+        {"speaker": "마지막 관객", "text": "박수를 치면 끝난 줄 알았다. 도움을 청하는 손도 연기의 일부라고 믿었지.", "emotion": "calm"},
+        {"speaker": "마지막 관객", "text": "이제 무대가 무너졌는데도 내 자리는 온전하다. 이 의자에서 일어나는 법을 잊었다.", "emotion": "calm"},
+        {"speaker": "극단주", "text": "우리를 대신해 결말을 고르지 않아도 돼. 무엇을 보았는지 네 목소리로 말해 줘.", "emotion": "calm"}
+      ]
+    },
+    {
+      "dialogueId": "boss_last_audience_post",
+      "lines": [
+        {"speaker": "마지막 관객", "text": "마지막에는 박수 대신 너희가 여기까지 왔다는 증언을 남기겠다.", "emotion": "hope"},
+        {"speaker": "마지막 관객", "text": "등불을 지키던 손, 문패를 기다리던 발자국, 쉬어도 된다는 말을 나는 보았다.", "emotion": "calm"},
+        {"speaker": "마지막 관객", "text": "누군가 이 여정을 승리한 전투 숫자로만 적으려 한다면, 그 사이의 목소리를 증언하겠다.", "emotion": "calm"},
+        {"speaker": "극단주", "text": "마지막 장막까지 함께 가자. 객석 밖에서도 네 자리는 사라지지 않아.", "emotion": "calm"}
+      ]
+    },
+    {
+      "dialogueId": "npc_rival_director_final",
+      "lines": [
+        {"speaker": "또 다른 연출가", "text": "이제 마지막 장면은 네 방식으로 보고 싶군.", "emotion": "serious"},
+        {"speaker": "또 다른 연출가", "text": "나는 모두를 살리겠다는 이유로 배역의 대사를 대신 고쳤다. 아무도 울지 않는 공연을 만들면 옳은 줄 알았지.", "emotion": "calm"},
+        {"speaker": "극단주", "text": "울지 못하게 된 배우가 내게 자기 이름부터 물었어. 그 질문을 지울 수는 없었다.", "emotion": "calm"},
+        {"speaker": "또 다른 연출가", "text": "너는 이름을 기다리게 했다. 마지막에도 기다림을 끝낼 권리를 남겨 둘 수 있겠나?", "emotion": "calm", "requiredFlag": "act7_names_preserved"},
+        {"speaker": "또 다른 연출가", "text": "너는 새 이름을 건넸다. 그 이름으로 너에게 반대하는 배우도 받아들이겠나?", "emotion": "calm", "requiredFlag": "act7_names_shared"},
+        {"speaker": "또 다른 연출가", "text": "너는 혼란을 막으려 이름을 봉인했다. 마지막에도 열쇠를 혼자 쥘 것인가?", "emotion": "calm", "requiredFlag": "act7_names_sealed"},
+        {"speaker": "또 다른 연출가", "text": "이제 고르는 말은 새 약속이다. 우리가 걸어온 모든 선택까지 없었던 일이 되지는 않는다.", "emotion": "calm"}
+      ],
+      "choices": [
+        {
+          "text": "모든 고통과 이름을 그대로 기록한다.",
+          "nextDialogueId": "rival_final_memory",
+          "setFlag": "final_rival_memory",
+          "setFlagValue": 1,
+          "flagChanges": [
+            {
+              "flag": "choice_memory",
+              "delta": 1
+            }
+          ]
+        },
+        {
+          "text": "살아남은 이들이 새 이야기를 고르게 한다.",
+          "nextDialogueId": "rival_final_mercy",
+          "setFlag": "final_rival_mercy",
+          "setFlagValue": 1,
+          "flagChanges": [
+            {
+              "flag": "choice_compassion",
+              "delta": 1
+            }
+          ]
+        },
+        {
+          "text": "비극이 반복되지 않도록 각본을 통제한다.",
+          "nextDialogueId": "rival_final_control",
+          "setFlag": "final_rival_control",
+          "setFlagValue": 1,
+          "flagChanges": [
+            {
+              "flag": "choice_control",
+              "delta": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "dialogueId": "rival_final_memory",
+      "lines": [
+        {"speaker": "또 다른 연출가", "text": "내 잘못까지 지우지 말고 기록해라.", "emotion": "calm"},
+        {"speaker": "극단주", "text": "다만 기록하는 내가 그 고통의 주인인 척하지는 않겠다. 읽지 않겠다는 선택도 곁에 적겠다.", "emotion": "calm"},
+        {"speaker": "또 다른 연출가", "text": "그 약속을 지켜라. 보존된 무대에도 퇴장할 문은 필요하니까.", "emotion": "calm"}
+      ]
+    },
+    {
+      "dialogueId": "rival_final_mercy",
+      "lines": [
+        {"speaker": "또 다른 연출가", "text": "정해진 배역 없이 사는 법을 나도 배워 보겠다.", "emotion": "hope"},
+        {"speaker": "극단주", "text": "내가 대신 잊어 주지는 않겠다. 붙잡을 기억과 놓을 기억을 각자가 말하게 하겠다.", "emotion": "calm"},
+        {"speaker": "또 다른 연출가", "text": "그렇다면 첫 장부터 모두 새로 쓰라고 재촉하지도 마라. 침묵하는 동안에도 이름은 남겨 두고.", "emotion": "calm"}
+      ]
+    },
+    {
+      "dialogueId": "rival_final_control",
+      "lines": [
+        {"speaker": "또 다른 연출가", "text": "네 통제가 검열이 되지 않도록 반대편에서 지켜보겠다.", "emotion": "serious"},
+        {"speaker": "극단주", "text": "두려워하는 배우가 있는 한 규칙이 필요하다고 생각한다. 그 규칙을 누가 바꿀 수 있을지도 기록하겠다.", "emotion": "calm"},
+        {"speaker": "또 다른 연출가", "text": "너에게 반대하는 목소리를 지우면 그 기록부터 거짓이 된다. 마지막까지 기억해라.", "emotion": "calm"}
+      ]
+    },
     {"dialogueId":"npc_rival_director_repeat","lines":[{"speaker":"또 다른 연출가","text":"각본 밖의 그림자는 우리가 선택하지 못한 모든 결말이다.","emotion":"resolve"}]},
-    {"dialogueId":"boss_final_shadow_pre","lines":[{"speaker":"각본 밖의 그림자","text":"어느 선택도 모든 비극을 구하지 못한다. 결말 자체를 없애겠다!","emotion":"rage"},{"speaker":"극단주","text":"완벽한 결말은 없어도 선택을 포기하지는 않는다.","emotion":"resolve"}]},
-    {"dialogueId":"boss_final_shadow_post","lines":[{"speaker":"각본 밖의 그림자","text":"선택되지 않은 나도 기록될 수 있는가?","emotion":"sad"},{"speaker":"극단주","text":"다른 회차의 가능성으로 남아 줘.","emotion":"hope","setFlag":"story_finale_unlocked","setFlagValue":1},{"speaker":"각본집","text":"최종막 그림자 극장이 기록되었습니다. 무대 위 각본집에서 마지막 연출을 선택하세요.","emotion":"mystery","setFlag":"act8_complete","setFlagValue":1}]},
+    {
+      "dialogueId": "boss_final_shadow_pre",
+      "lines": [
+        {"speaker": "각본 밖의 그림자", "text": "어느 선택도 모든 비극을 구하지 못한다. 결말 자체를 없애겠다!", "emotion": "rage"},
+        {"speaker": "극단주", "text": "완벽한 결말은 없어도 선택을 포기하지는 않는다.", "emotion": "resolve"},
+        {"speaker": "각본 밖의 그림자", "text": "네가 보존한 이름들 사이에서, 누구도 부르지 않은 이름이 나였다.", "emotion": "sad", "requiredFlag": "act7_names_preserved"},
+        {"speaker": "각본 밖의 그림자", "text": "새 이름을 고르는 이들을 보았다. 선택되지 않은 나는 어느 이름으로 문을 두드려야 하지?", "emotion": "question", "requiredFlag": "act7_names_shared"},
+        {"speaker": "각본 밖의 그림자", "text": "문패를 봉인한 상자 밖에 내가 남았다. 너는 안전해졌다고 했지만 내 목소리는 어디로 갔지?", "emotion": "sad", "requiredFlag": "act7_names_sealed"},
+        {"speaker": "극단주", "text": "모든 가능성을 한 번에 살았다고 거짓말하지는 않겠다. 하지만 선택하지 못했다는 이유로 네가 없었다고 쓰지는 않을게.", "emotion": "resolve"},
+        {"speaker": "각본 밖의 그림자", "text": "그 말까지 네가 정한 대사라면? 내 분노도 네 결말에 필요한 배역일 뿐이라면?", "emotion": "rage"},
+        {"speaker": "극단주", "text": "그렇다면 반대하는 목소리로 남아 줘. 나를 용서해야 기록되는 무대를 만들지는 않겠다.", "emotion": "resolve"}
+      ]
+    },
+    {
+      "dialogueId": "boss_final_shadow_post",
+      "lines": [
+        {"speaker": "각본 밖의 그림자", "text": "선택되지 않은 나도 기록될 수 있는가?", "emotion": "sad"},
+        {"speaker": "각본 밖의 그림자", "text": "내가 원했던 건 네가 된다는 약속이 아니었다. 네가 되지 못한 나도 여기에 있었다는 한 줄이었어.", "emotion": "relief"},
+        {"speaker": "극단주", "text": "그 줄 다음은 비워 두겠다. 오늘의 선택으로 끝나지 않은 네 목소리가 들어올 수 있게.", "emotion": "hope"},
+        {"speaker": "각본집", "text": "마지막 연출은 지금까지의 선택을 함께 읽습니다. 하나의 대답으로 지나온 여정이 지워지지는 않습니다.", "emotion": "mystery"},
+        {"speaker": "극단주", "text": "다른 회차의 가능성으로 남아 줘.", "emotion": "hope", "setFlag": "story_finale_unlocked", "setFlagValue": 1},
+        {"speaker": "각본집", "text": "최종막 그림자 극장이 기록되었습니다. 무대 위 각본집에서 마지막 연출을 선택하세요.", "emotion": "mystery", "setFlag": "act8_complete", "setFlagValue": 1}
+      ]
+    },
     {"dialogueId":"sign_ash_border","lines":[{"speaker":"그을린 표지판","text":"서쪽: 찢어진 장막길  ·  동쪽: 불씨 성도  ·  재폭풍 때는 무너진 벽 뒤로 대피할 것","emotion":"none"}]},
     {"dialogueId":"sign_cinder_city","lines":[{"speaker":"왕국 안내도","text":"북쪽: 무너진 병영  ·  동쪽: 불씨 지하묘  ·  중앙대로: 왕궁(폐쇄)","emotion":"none"}]},
     {"dialogueId":"companion_crow_wagon_song","lines":[{"speaker":"까마귀 그림자","text":"수레바퀴 자국 위를 낮게 돌며 오래전에 끊긴 행진곡을 흥얼거린다.","emotion":"mystery"},{"speaker":"극단주","text":"노래가 멈춘 자리의 흙이 유난히 따뜻하다. 누군가 천막을 거둔 흔적일까.","emotion":"calm"}]},
@@ -471,7 +787,24 @@
     {"dialogueId":"town_rumor_howl_resolved","lines":[{"speaker":"탈 깎는 노인","text":"봉인된 탈의 주인들을 기억하는 새 탈춤이 생겼네. 마을의 울음이 오랜만에 노랫가락으로 바뀌었어.","emotion":"hope"}]},
     {"dialogueId":"town_rumor_thread_resolved","lines":[{"speaker":"실감개 행상","text":"장난감 창고의 태엽을 고쳐 시장 시계와 맞췄어. 상인들이 길을 되찾아 준 답례로 휴식을 돕고 있지.","emotion":"hope"}]},
     {"dialogueId":"town_rumor_station_resolved","lines":[{"speaker":"막차의 안내원","text":"노래 없는 회랑에 귀가 열차 안내가 다시 울려. 표 없는 승객도 이제 이름으로 불리고 있어.","emotion":"relief"}]},
-    {"dialogueId":"ending_complete_repertory","lines":[{"speaker":"각본집","text":"서로 다른 회차의 결말들이 한 장도 지워지지 않은 채 스스로 페이지를 넘긴다.","emotion":"mystery"},{"speaker":"동행 그림자","text":"우리는 비극도, 구원도, 원한도 연기해 봤어. 이제 정해지지 않은 다음 장면을 우리 이름으로 고를게.","emotion":"hope"},{"speaker":"극단주","text":"막을 내리자. 끝내기 위해서가 아니라, 모두가 자기 발로 커튼콜에 오를 수 있도록.","emotion":"resolve"},{"speaker":"모든 배역","text":"우리의 이름은 결말 하나보다 크다.","emotion":"hope"}]},
-    {"dialogueId":"ending_solitary_curtain","lines":[{"speaker":"극단주","text":"다치지 않도록 내가 모두의 마지막 대사를 정하겠다.","emotion":"serious"},{"speaker":"동행 그림자","text":"우리를 지킨 건 알아. 하지만 내 대사를 내가 말할 기회도 함께 닫혔어.","emotion":"sad"},{"speaker":"각본집","text":"마을의 불은 남았으나 커튼콜에 오른 배역은 극단주 한 사람뿐이었다.","emotion":"mystery"}]}
+    {
+      "dialogueId": "ending_complete_repertory",
+      "lines": [
+        {"speaker": "각본집", "text": "서로 다른 회차의 결말들이 한 장도 지워지지 않은 채 스스로 페이지를 넘긴다.", "emotion": "mystery"},
+        {"speaker": "동행 그림자", "text": "우리는 비극도, 구원도, 원한도 연기해 봤어. 이제 정해지지 않은 다음 장면을 우리 이름으로 고를게.", "emotion": "hope"},
+        {"speaker": "극단주", "text": "막을 내리자. 끝내기 위해서가 아니라, 모두가 자기 발로 커튼콜에 오를 수 있도록.", "emotion": "resolve"},
+        {"speaker": "모든 배역", "text": "우리의 이름은 결말 하나보다 크다.", "emotion": "hope"},
+        {"speaker": "파도 악사", "text": "다른 회차의 노래가 겹쳐도 한 목소리로 고치지 않았다. 쉬는 이의 자리까지 함께 남겨 둔 합창이었다.", "emotion": "calm"}
+      ]
+    },
+    {
+      "dialogueId": "ending_solitary_curtain",
+      "lines": [
+        {"speaker": "극단주", "text": "다치지 않도록 내가 모두의 마지막 대사를 정하겠다.", "emotion": "serious"},
+        {"speaker": "동행 그림자", "text": "우리를 지킨 건 알아. 하지만 내 대사를 내가 말할 기회도 함께 닫혔어.", "emotion": "sad"},
+        {"speaker": "각본집", "text": "마을의 불은 남았으나 커튼콜에 오른 배역은 극단주 한 사람뿐이었다.", "emotion": "mystery"},
+        {"speaker": "문패 거북", "text": "상자에는 문패가 가득했지만 열쇠를 돌릴 손은 하나뿐이었다. 극단주는 그 무게를 오래 들고 서 있었다.", "emotion": "calm"}
+      ]
+    }
   ]
 }

@@ -909,10 +909,23 @@ namespace ShadowTheater.EditorTools
         private static void FinishFieldScene(FieldSceneContext context, string sceneName)
         {
             RegionData region=LoadRegionCatalog().regions.Find(x=>x.sceneName==sceneName);
+            RegionFieldLayout.Apply(context.fieldRoot,region,(kind,tile)=>PersistLayoutTile(region.regionId,kind,tile));
             if(region!=null)CreateRegionalDiscoveryContent(context.fieldRoot,region);
             foreach (EncounterSymbol symbol in context.fieldRoot.GetComponentsInChildren<EncounterSymbol>(true))
                 if (!symbol.IsFixed) Object.DestroyImmediate(symbol.gameObject);
             Save(context.scene, sceneName);
+        }
+
+        private static Tile PersistLayoutTile(string regionId,string kind,Tile tile)
+        {
+            string path="Assets/Data/Generated/RegionalLayout_"+regionId+"_"+kind+".asset";
+            var existing=AssetDatabase.LoadAssetAtPath<Tile>(path);
+            if(existing!=null)
+            {
+                EditorUtility.CopySerialized(tile,existing);Object.DestroyImmediate(tile);
+                EditorUtility.SetDirty(existing);return existing;
+            }
+            AssetDatabase.CreateAsset(tile,path);return tile;
         }
 
         private static PlayerController CreatePlayer(Transform parent, Vector2Int cell, Theme theme)

@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net8.0</TargetFramework><LangVersion>9.0</LangVersion><Nullable>disable</Nullable></PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../Assets/Scripts/Story/QuestTrackingPolicy.cs;../../Assets/Scripts/Story/QuestGuidanceService.cs;../../Assets/Scripts/Story/QuestRepository.cs;../../Assets/Scripts/Story/QuestData.cs;../../Assets/Scripts/Story/RegionRepository.cs;../../Assets/Scripts/Story/RegionData.cs;../../Assets/Scripts/Story/RegionProgress.cs;../../Assets/Scripts/Story/EvolutionGuidanceService.cs;../../Assets/Scripts/Story/MemoryAwakeningService.cs;../../Assets/Scripts/Story/CompanionEventData.cs;../../Assets/Scripts/Data/ShadowEnums.cs;../../Assets/Scripts/Field/RegionLayoutPolicy.cs"/>
+    <Content Include="../../Assets/Resources/Data/QuestCatalog.json;../../Assets/Resources/Data/QuestNavigationCatalog.json;../../Assets/Resources/Data/RegionCatalog.json;../../Assets/Resources/Data/EvolutionGuidanceCatalog.json;../../Assets/Resources/Data/CompanionEventCatalog.json;../../Assets/Resources/Data/RegionLayoutCatalog.json" Link="Data/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest"/>
+  </ItemGroup>
+</Project>

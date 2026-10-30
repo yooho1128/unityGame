@@ -45,6 +45,8 @@ namespace ShadowTheater.UI
         private bool _refreshPending;
         private ScrollRect _loreScroll;
         private int _lastActionFrame = -1;
+        private EvolutionGuideView _evolutionGuide;
+        private Button _guideButton;
 
         private void Awake()
         {
@@ -53,6 +55,7 @@ namespace ShadowTheater.UI
             if (root != null) root.SetActive(false);
             if (entryTemplate != null) entryTemplate.gameObject.SetActive(false);
             EnsureLoreScroll();
+            EnsureEvolutionGuide();
         }
 
         private void OnEnable()
@@ -88,7 +91,8 @@ namespace ShadowTheater.UI
         {
 #if ENABLE_LEGACY_INPUT_MANAGER && (UNITY_EDITOR || UNITY_STANDALONE)
             if (Input.GetKeyDown(KeyCode.Tab)) Toggle();
-            if (IsOpen && (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.X))) Close();
+            if (IsOpen && (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.X)))
+            { if (_evolutionGuide?.IsOpen == true) _evolutionGuide.Close(); else Close(); }
 #endif
         }
 
@@ -120,6 +124,7 @@ namespace ShadowTheater.UI
         {
             if (!IsOpen) return;
             IsOpen = false;
+            _evolutionGuide?.Close();
             if (root != null) root.SetActive(false);
             ReleasePlayer();
         }
@@ -253,6 +258,8 @@ namespace ShadowTheater.UI
                 ? BuildLore(data, _selectedInstance)
                 : (seen ? data.loreLocked : "이 그림자와 아직 조우하지 않았습니다.");
             RefreshAwakeningActions(recorded);
+            if (_guideButton != null) _guideButton.interactable = recorded && _selectedInstance != null;
+            _evolutionGuide?.Refresh();
             if (_loreScroll != null && loreText != null) UiListLayout.Rebuild(loreText.transform, lorePosition);
         }
 
@@ -285,6 +292,7 @@ namespace ShadowTheater.UI
             _selectedData = null;
             _selectedInstance = null;
             RefreshAwakeningActions(false);
+            if (_guideButton != null) _guideButton.interactable = false;
             if (accentGlow != null) accentGlow.color = new Color(.18f, .16f, .24f, 1f);
             if (_loreScroll != null && loreText != null) UiListLayout.Rebuild(loreText.transform, Vector2.zero);
         }
@@ -346,6 +354,26 @@ namespace ShadowTheater.UI
                     : $"구원: {salvationReason}  /  원한: {grudgeReason}";
             else awakeningFeedbackText.text = "진명을 되찾은 최종 형태입니다.";
             awakeningFeedbackText.color = new Color(0.72f, 0.68f, 0.82f, 1f);
+        }
+
+        private void EnsureEvolutionGuide()
+        {
+            if (root == null || stageText == null) return;
+            var detail = stageText.transform.parent;
+            stageText.rectTransform.anchorMax = new Vector2(.72f, stageText.rectTransform.anchorMax.y);
+            var go = new GameObject("EvolutionHelp", typeof(RectTransform), typeof(Image), typeof(Button));
+            go.transform.SetParent(detail, false);
+            var rect=(RectTransform)go.transform;rect.anchorMin=new Vector2(.73f,.54f);rect.anchorMax=new Vector2(.96f,.62f);
+            rect.offsetMin=rect.offsetMax=Vector2.zero;
+            _guideButton=go.GetComponent<Button>();_guideButton.targetGraphic=go.GetComponent<Image>();
+            var label=new GameObject("Label",typeof(RectTransform),typeof(Text));label.transform.SetParent(go.transform,false);
+            var text=label.GetComponent<Text>();text.font=stageText.font;text.fontSize=20;text.text="진화 안내";
+            text.alignment=TextAnchor.MiddleCenter;text.raycastTarget=false;
+            var labelRect=(RectTransform)label.transform;labelRect.anchorMin=Vector2.zero;labelRect.anchorMax=Vector2.one;
+            labelRect.offsetMin=labelRect.offsetMax=Vector2.zero;
+            TheatreUiStyle.Button(_guideButton);
+            _evolutionGuide=new EvolutionGuideView(root.transform,stageText.font,Close);
+            _guideButton.onClick.AddListener(()=>_evolutionGuide.Show(_selectedInstance));
         }
 
         private static ShadowInstance FindOwnedInstance(string shadowId)

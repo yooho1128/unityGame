@@ -71,10 +71,13 @@ namespace ShadowTheater.UI
         }
 
         public void OpenForTrackedQuest()
+            => OpenForObjective(QuestGuidanceService.For(QuestManager.Instance?.TrackedQuest).objective);
+
+        public void OpenForObjective(QuestObjectiveDefinition objective)
         {
             Open();
             if (!IsOpen) return;
-            var guidance = QuestGuidanceService.For(QuestManager.Instance?.TrackedQuest);
+            var guidance = QuestGuidanceService.ForObjective(objective);
             if (guidance.destination != null)
             {
                 Select(guidance.destination);
