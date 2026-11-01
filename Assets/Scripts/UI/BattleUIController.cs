@@ -54,11 +54,27 @@ namespace ShadowTheater.UI
         private float _speed = 1f;
         private bool _resultAcknowledged;
         private int _tutorialStep = -1;
+        private AudienceRequestBoard _requests;
         private const string BattleTutorialFlag = "tutorial_battle_complete";
 
         private void Awake()
         {
             if (manager == null) manager = GetComponent<BattleManager>();
+            var stage=transform.Find("SafeArea")??transform;
+            if(messageRoot==null&&messageText!=null)
+            {
+                var message=RuntimeUiControls.Rect(stage,"MessageCard",new Vector2(.25f,.20f),new Vector2(.75f,.28f));
+                messageText.rectTransform.SetParent(message,false);
+                RuntimeUiControls.Place(messageText.rectTransform,new Vector2(.025f,.05f),new Vector2(.975f,.95f));
+                messageText.resizeTextForBestFit=true;messageText.resizeTextMinSize=18;messageText.resizeTextMaxSize=28;
+                messageRoot=message.gameObject;
+            }
+            if(resultRoot==null&&messageText!=null)
+            {
+                var result=BattleStageStyle.CreateResult(stage,messageText.font,ConfirmResult);
+                resultRoot=result.root;resultGroup=result.group;resultCard=result.card;resultAccent=result.accent;
+                resultTitleText=result.title;resultSummaryText=result.summary;resultDetailsText=result.details;resultContinueText=result.continueText;
+            }
             if (optionTemplate != null) optionTemplate.gameObject.SetActive(false);
             if (resultRoot != null) resultRoot.SetActive(false);
             if (tutorialRoot != null) tutorialRoot.SetActive(false);
@@ -82,6 +98,11 @@ namespace ShadowTheater.UI
                 if (oldAuto != null) oldAuto.gameObject.SetActive(false);
                 else autoText.gameObject.SetActive(false);
             }
+            BattleStageStyle.LayoutUnits(playerPanel,enemyPanel,playerPartyStrip,enemyPartyStrip);
+            BattleStageStyle.Apply(transform,actionRoot,messageRoot,optionRoot,resultRoot);
+            if(turnText!=null&&manager!=null)
+                _requests=new AudienceRequestBoard(stage,turnText.font,manager,
+                    ()=>DesktopPlatformController.SelectFirstUsable(optionRoot!=null&&optionRoot.activeSelf?optionRoot:actionRoot));
             ShowActions(false);
         }
 
@@ -89,6 +110,7 @@ namespace ShadowTheater.UI
         {
             if (manager == null) return;
             manager.OnStateChanged += OnStateChanged;
+            manager.OnAudienceChanged += RefreshTurnLabel;
             manager.OnFpChanged += OnFpChanged;
             manager.OnMomentumChanged += OnMomentumChanged;
             manager.OnUnitChanged += OnUnitChanged;
@@ -97,12 +119,14 @@ namespace ShadowTheater.UI
 
         private void OnDisable()
         {
+            _requests?.Hide();
             _resultAcknowledged = true;
             if (resultRoot != null) resultRoot.SetActive(false);
             if (tutorialRoot != null) tutorialRoot.SetActive(false);
             _tutorialStep = -1;
             if (manager == null) return;
             manager.OnStateChanged -= OnStateChanged;
+            manager.OnAudienceChanged -= RefreshTurnLabel;
             manager.OnFpChanged -= OnFpChanged;
             manager.OnMomentumChanged -= OnMomentumChanged;
             manager.OnUnitChanged -= OnUnitChanged;
@@ -111,7 +135,13 @@ namespace ShadowTheater.UI
 
         private void Update()
         {
+            _requests?.Layout();
 #if ENABLE_LEGACY_INPUT_MANAGER && (UNITY_EDITOR || UNITY_STANDALONE)
+            if(_requests?.IsOpen==true)
+            {
+                if(Input.GetKeyDown(KeyCode.Escape)||Input.GetButtonDown("Cancel"))_requests.Close();
+                return;
+            }
             if (optionRoot != null && optionRoot.activeSelf &&
                 (Input.GetKeyDown(KeyCode.Escape) || Input.GetButtonDown("Cancel"))) BackToActions();
 #endif
@@ -275,7 +305,7 @@ namespace ShadowTheater.UI
 
         private void Submit(BattleAction action)
         {
-            if (manager == null) return;
+            if (manager == null||_requests?.IsOpen==true) return;
             if (!manager.SubmitAction(action, out string reason))
             {
                 GameFeedbackAudio.Play(FeedbackCue.Denied);
@@ -357,8 +387,9 @@ namespace ShadowTheater.UI
         private void RefreshTurnLabel()
         {
             if (turnText == null || manager == null) return;
-            string audience = manager.Audience.HudLabel;
-            turnText.text = string.IsNullOrEmpty(audience) ? $"TURN {manager.Turn}" : $"TURN {manager.Turn}\n{audience}";
+            string audience = _requests==null?manager.Audience.HudLabel:string.Empty;
+            turnText.text = string.IsNullOrEmpty(audience) ? $"TURN {manager.Turn:00}" : $"TURN {manager.Turn}\n{audience}";
+            _requests?.Refresh();
         }
 
         private void RefreshAll()
@@ -382,6 +413,7 @@ namespace ShadowTheater.UI
 
         private void RefreshLabels()
         {
+            _requests?.Refresh();
             if (fpText != null && manager.Context != null)
                 fpText.text = $"FP {manager.GetFp(BattleSide.Player)} / {manager.MaxFp}\n" +
                     L10n.Format("battle.momentum_label", "열연 {0} / {1}", manager.Momentum, manager.MaxMomentum);
@@ -540,6 +572,7 @@ namespace ShadowTheater.UI
             if (messageRoot != null) messageRoot.SetActive(false);
             _resultAcknowledged = false;
             resultRoot.SetActive(true);
+            BattleStageStyle.PresentResult(resultRoot,outcome);
             if (resultTitleText != null) resultTitleText.text = ResultLabel(outcome.result);
             if (resultSummaryText != null) resultSummaryText.text = L10n.Format("battle.result_rewards",
                 "EXP +{0}   ·   금화 +{1}", outcome.expGained, outcome.goldGained);

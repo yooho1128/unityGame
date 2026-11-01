@@ -39,6 +39,7 @@ namespace ShadowTheater.Battle
         public event Action<BattleUnit> OnUnitChanged;             // HP/상태 갱신 필요
         public event Action<BattleSide, BattleUnit> OnActiveChanged; // 교체/등장
         public event Action<BattleOutcome> OnBattleEnded;
+        public event Action OnAudienceChanged;
 
         // ── 상태 ──
         public BattleState State { get; private set; } = BattleState.None;
@@ -79,6 +80,22 @@ namespace ShadowTheater.Battle
         private string _lastDecisiveAction;
         private readonly AudienceRequest _audience = new AudienceRequest();
         public AudienceRequest Audience => _audience;
+        private AudienceRequestContext _audienceContext;
+        private AudienceRequestType[] _audienceChoices=Array.Empty<AudienceRequestType>();
+        private bool _audienceChoiceMade;
+        public IReadOnlyList<AudienceRequestType> AudienceChoices=>_audienceChoices;
+        public bool CanChooseAudienceRequest=>Turn==1&&CanChooseAction&&!_audienceChoiceMade&&
+            _audience.IsPending&&_audienceChoices.Length>0;
+        public int AudienceRewardGold=>Context==null?0:AudienceRequest.RewardGold(EnemyBaseGold(),Context.mode);
+
+        public bool TryChooseAudienceRequest(AudienceRequestType type)
+        {
+            if(!CanChooseAudienceRequest||Array.IndexOf(_audienceChoices,type)<0)return false;
+            _audience.Begin(type,_audienceContext);
+            _audienceChoiceMade=true;
+            OnAudienceChanged?.Invoke();
+            return true;
+        }
 
         private sealed class BattleContribution
         {
@@ -172,6 +189,8 @@ namespace ShadowTheater.Battle
             _contributions.Clear();
             _lastDecisiveAction = string.Empty;
             _audience.Reset();
+            _audienceChoices=Array.Empty<AudienceRequestType>();
+            _audienceChoiceMade=false;
             _pendingAction = null;
             _pendingForcedSwitch = -1;
             _outcome = new BattleOutcome { encounterId = context.encounterId };
@@ -1156,9 +1175,12 @@ namespace ShadowTheater.Battle
                 }
             }
             context.hasRepertoireOption = repertoire.Count >= AudienceRequest.RepertoireTarget;
-            AudienceRequestType type = AudienceRequest.Choose(context, UnityEngine.Random.value);
+            _audienceContext=context;
+            _audienceChoices=AudienceRequest.Choices(context,UnityEngine.Random.value);
+            AudienceRequestType type = _audienceChoices.Length>0?_audienceChoices[0]:AudienceRequestType.None;
             if (type == AudienceRequestType.None) yield break;
             _audience.Begin(type, context);
+            OnAudienceChanged?.Invoke();
             yield return _presenter.ShowMessage($"관객 주문 · {_audience.Title}\n{_audience.Description}");
         }
 

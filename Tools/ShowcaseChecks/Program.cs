@@ -23,6 +23,22 @@ static class Program
         Check(!selected.Contains(AudienceRequestType.WeaknessFinale), "no unattainable weakness");
         Check(!selected.Contains(AudienceRequestType.TensionScene), "no unattainable status");
         Check(!selected.Contains(AudienceRequestType.Repertoire), "no unattainable repertoire");
+        foreach(BattleMode mode in Enum.GetValues(typeof(BattleMode)))
+        for(int flags=0;flags<16;flags++)
+        foreach(float roll in new[]{0f,.125f,.51f,.999f,1f,-1f,float.NaN})
+        {
+            var offerContext=new AudienceRequestContext{mode=mode,enemyCount=2,canRecord=(flags&1)!=0,
+                hasWeaknessOption=(flags&2)!=0,hasStatusOption=(flags&4)!=0,hasRepertoireOption=(flags&8)!=0};
+            var choices=AudienceRequest.Choices(offerContext,roll);
+            Check(choices.Length==3&&new HashSet<AudienceRequestType>(choices).Count==3,"three distinct fixed offers");
+            Check(Array.TrueForAll(choices,t=>t!=AudienceRequestType.None&&
+                (t!=AudienceRequestType.RecordScene||offerContext.canRecord&&mode==BattleMode.Wild)&&
+                (t!=AudienceRequestType.WeaknessFinale||offerContext.hasWeaknessOption)&&
+                (t!=AudienceRequestType.TensionScene||offerContext.hasStatusOption)&&
+                (t!=AudienceRequestType.Repertoire||offerContext.hasRepertoireOption)),"only available goals offered");
+            Check(string.Join(",",choices)==string.Join(",",AudienceRequest.Choices(offerContext,roll)),"same seed never rerolls offers");
+            if(!float.IsNaN(roll))Check(choices[0]==AudienceRequest.Choose(offerContext,roll),"default preserves weighted request");
+        }
         foreach (BattleResult result in Enum.GetValues(typeof(BattleResult)))
         {
             var request = new AudienceRequest(); request.Begin(AudienceRequestType.RecordScene, context);

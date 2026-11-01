@@ -74,6 +74,24 @@ namespace ShadowTheater.Battle
 
         /// <summary>조건을 만족할 수 있는 주문만 가중치로 고른다. roll은 [0,1) 난수.</summary>
         public static AudienceRequestType Choose(AudienceRequestContext context, float roll)
+            => Pick(Pool(context), roll);
+
+        /// <summary>Three fixed, distinct offers per battle; reopening the board never rerolls them.</summary>
+        public static AudienceRequestType[] Choices(AudienceRequestContext context, float roll)
+        {
+            var pool=Pool(context);
+            var choices=new AudienceRequestType[Math.Min(3,pool.Count)];
+            roll=float.IsNaN(roll)?0f:Mathf.Clamp01(roll);
+            for(int i=0;i<choices.Length;i++)
+            {
+                choices[i]=Pick(pool,roll);
+                pool.RemoveAll(pair=>pair.Key==choices[i]);
+                roll=(roll+.381966f)%1f;
+            }
+            return choices;
+        }
+
+        private static List<KeyValuePair<AudienceRequestType,float>> Pool(AudienceRequestContext context)
         {
             var pool = new List<KeyValuePair<AudienceRequestType, float>>();
             void Add(AudienceRequestType type, float weight)
@@ -89,8 +107,12 @@ namespace ShadowTheater.Battle
             if (context.hasWeaknessOption) Add(AudienceRequestType.WeaknessFinale, 3f);
             if (context.hasStatusOption) Add(AudienceRequestType.TensionScene, 2f);
             if (context.hasRepertoireOption) Add(AudienceRequestType.Repertoire, 2f);
-            if (context.canRecord) Add(AudienceRequestType.RecordScene, 2.5f);
+            if (context.canRecord&&context.mode==BattleMode.Wild) Add(AudienceRequestType.RecordScene, 2.5f);
+            return pool;
+        }
 
+        private static AudienceRequestType Pick(List<KeyValuePair<AudienceRequestType,float>> pool,float roll)
+        {
             float total = 0f;
             foreach (var entry in pool) total += entry.Value;
             if (total <= 0f) return AudienceRequestType.None;
