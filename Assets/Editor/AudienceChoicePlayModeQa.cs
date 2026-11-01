@@ -115,6 +115,14 @@ namespace ShadowTheater.EditorTools
             var offers=manager.AudienceChoices.ToArray();var original=manager.Audience.Type;
             Require(offers.Distinct().Count()==3&&!manager.TryChooseAudienceRequest(AudienceRequestType.None),"Invalid choice rejected without consuming selection");
             int hp=manager.PlayerActive.Hp,fp=manager.GetFp(BattleSide.Player),gold=save.gold;
+            var pickup=PlayerController.Instance.GetComponent<FieldItemAcquisitionFeedback>();
+            if(pickup!=null)
+            {
+                Require(!pickup.isActiveAndEnabled&&Field<TextMesh>(pickup,"_label")!=null,"Field pickup feedback initialized but hidden during battle");
+                var fieldItem=ShadowDatabase.Instance.items.First(item=>item!=null&&!item.usableInBattle&&!item.isKeyItem);
+                SaveManager.AddItem(fieldItem.itemId,1);
+                Require(Field<Queue<string>>(pickup,"_messages").Count>0&&Field<Coroutine>(pickup,"_routine")==null,"Hidden field queues acquisition without starting a coroutine");
+            }
             Click(Field<Button>(board,"choose"));yield return null;
             Require(board.IsOpen,"HUD pointer opens request draft");
             Capture(ui.gameObject,board,new Vector2Int(1920,1080),"draft-wide.png");
@@ -150,6 +158,12 @@ namespace ShadowTheater.EditorTools
             Capture(ui.gameObject,board,new Vector2Int(1920,1080),"result-wide.png");
             Capture(ui.gameObject,board,new Vector2Int(1280,960),"result-4x3.png");
             Click(result.transform.Find("Card/Continue").GetComponent<Button>());
+            if(pickup!=null)
+            {
+                while(!pickup.isActiveAndEnabled)yield return null;
+                Require(Field<Coroutine>(pickup,"_routine")!=null&&Field<TextMesh>(pickup,"_label").text.Contains("+1"),"Queued acquisition resumes on field return");
+                Notes.Add("Hidden-player acquisition queues safely and resumes after battle PASS");
+            }
             while(flow.IsInBattle)yield return null;
             Require(!PlayerController.Instance.IsLocked,"Result click returns to field and releases movement");
             Notes.Add("Queued/second-turn lock, chosen result, actual result-continue click and field unlock PASS");

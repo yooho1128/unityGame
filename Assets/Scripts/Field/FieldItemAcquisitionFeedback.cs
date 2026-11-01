@@ -24,6 +24,13 @@ namespace ShadowTheater.Field
             _label.characterSize=.055f;_label.color=new Color(1f,.88f,.32f,0f);
             go.GetComponent<MeshRenderer>().sortingOrder=320;
         }
+        private void OnEnable()=>StartPending();
+        private void OnDisable()
+        {
+            if(_routine!=null)StopCoroutine(_routine);
+            _routine=null;
+            if(_label!=null)_label.text=string.Empty;
+        }
         private void OnDestroy()=>SaveManager.InventoryChanged-=OnInventoryChanged;
         private void Snapshot()
         {
@@ -41,7 +48,12 @@ namespace ShadowTheater.Field
                 string name=item!=null?L10n.Text(item.displayName):stack.itemId;
                 _messages.Enqueue($"{name}  +{gained}");
             }
-            Snapshot();if(_routine==null&&_label!=null)_routine=StartCoroutine(ShowQueue());
+            Snapshot();StartPending();
+        }
+        private void StartPending()
+        {
+            if(isActiveAndEnabled&&_routine==null&&_label!=null&&_messages.Count>0)
+                _routine=StartCoroutine(ShowQueue());
         }
         private IEnumerator ShowQueue()
         {
