@@ -12,7 +12,7 @@ namespace ShadowTheater.UI
     public sealed class BattleReviewView
     {
         private readonly GameObject root;
-        private readonly Text body,page;
+        private readonly Text body,page,summary;
         private readonly Button previous,next;
         private int index;
         public bool IsOpen=>root.activeSelf;
@@ -22,7 +22,8 @@ namespace ShadowTheater.UI
             TheatreUiStyle.Panel(rect.gameObject.AddComponent<Image>(),TheatreUiStyle.Midnight);
             var title=RuntimeUiControls.Label(rect,font,"전투 복기",32);Place(title,new Vector2(.05f,.9f),new Vector2(.70f,.98f));
             RuntimeUiControls.Button(rect,font,"닫기",new Vector2(.80f,.91f),new Vector2(.95f,.98f),Close);
-            var viewport=RuntimeUiControls.Rect(rect,"Viewport",new Vector2(.055f,.20f),new Vector2(.945f,.89f));
+            summary=RuntimeUiControls.Label(rect,font,"",20);Place(summary,new Vector2(.055f,.78f),new Vector2(.945f,.895f));
+            var viewport=RuntimeUiControls.Rect(rect,"Viewport",new Vector2(.055f,.20f),new Vector2(.945f,.77f));
             viewport.gameObject.AddComponent<Image>().color=new Color(0,0,0,.03f);viewport.gameObject.AddComponent<RectMask2D>();
             body=RuntimeUiControls.Label(viewport,font,"",22);body.alignment=TextAnchor.UpperLeft;body.verticalOverflow=VerticalWrapMode.Overflow;
             body.rectTransform.anchorMin=new Vector2(0,1);body.rectTransform.anchorMax=Vector2.one;body.rectTransform.pivot=new Vector2(.5f,1);
@@ -42,8 +43,12 @@ namespace ShadowTheater.UI
         private void Refresh()
         {
             var entries=BattleReviewService.Entries;index=Mathf.Clamp(index,0,Mathf.Max(0,entries.Count-1));
+            var totals=BattleReviewPolicy.Summarize(entries);
+            string rate=totals.Decided==0?"—":$"{totals.WinRate:0.#}%";
+            string turns=totals.Completed==0?"—":$"{totals.AverageTurns:0.#}턴";
+            summary.text=$"승리 {totals.victories} · 기록 {totals.captured} · 패배 {totals.defeats} · 도주 {totals.escaped}\n승률 {rate} · 완료 평균 {turns} · 중단 {totals.interrupted} · 진행 {totals.inProgress}";
             previous.interactable=index>0;next.interactable=index+1<entries.Count;page.text=$"{(entries.Count==0?0:index+1)} / {entries.Count} · 최근 {BattleReviewPolicy.Capacity}전";
-            if(entries.Count==0){body.text="아직 전투 기록이 없습니다.\n새 전투를 마치면 당시 파티·적·회복·보상을 여기에서 확인할 수 있습니다.\n"+BattleReviewService.Status;return;}
+            if(entries.Count==0){body.text="아직 전투 기록이 없습니다.\n새 전투를 마치면 당시 파티·적·회복·보상을 여기에서 확인할 수 있습니다.\n"+BattleReviewService.Status;UiListLayout.Rebuild(body.transform,Vector2.zero);return;}
             var e=entries[index];var b=new StringBuilder();var region=RegionRepository.Get(e.regionId);
             b.AppendLine((region!=null?region.displayName:"지역 미상")+" · "+BattleReviewPolicy.ResultName(e.result));
             if(DateTimeOffset.TryParse(e.startedUtc,out var time))b.AppendLine(time.ToLocalTime().ToString("yyyy-MM-dd HH:mm"));
@@ -54,6 +59,7 @@ namespace ShadowTheater.UI
             Units(b,"당시 파티",e.players);Units(b,"상대",e.enemies);
             var used=e.items.Where(i=>i.before>i.after).ToList();b.AppendLine("\n소비 도구 · "+(used.Count==0?"없음":string.Join(" · ",used.Select(i=>(string.IsNullOrEmpty(i.name)?i.itemId:i.name)+" x"+(i.before-i.after)))));
             b.AppendLine("\n회복량은 기술·아이템·보스 페이즈를 포함하며 레벨업 회복은 제외합니다. 중단된 전투는 승패 집계에서 제외합니다.");
+            b.AppendLine("승률은 승리·각본 기록·패배만, 평균 턴은 도주를 포함한 완료 전투만 집계합니다.");
             if(!string.IsNullOrEmpty(BattleReviewService.Status))b.AppendLine(BattleReviewService.Status);
             body.text=b.ToString();UiListLayout.Rebuild(body.transform,Vector2.zero);
         }

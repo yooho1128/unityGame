@@ -99,6 +99,19 @@ class Program
         Check(BattleReviewPolicy.Add(long.MaxValue-2,5)==long.MaxValue,"diagnostic total saturates safely");
         Check(BattleReviewPolicy.Experience(3,7,120,l=>20+5*l*l)==72,"actual cumulative XP boundary example");
 
+        var samples=new[]{Entry("Victory"),Entry("Captured"),Entry("Defeat"),Entry("Escaped"),Entry("Interrupted"),Entry()};
+        int[] turns={4,8,12,16,1000,2000};
+        for(int i=0;i<samples.Length;i++)samples[i].turns=turns[i];
+        var summary=BattleReviewPolicy.Summarize(samples);
+        Check(summary.victories==1&&summary.captured==1&&summary.defeats==1&&summary.escaped==1&&summary.interrupted==1&&summary.inProgress==1,"summary counts each result independently");
+        Check(summary.Decided==3&&summary.Completed==4&&Math.Abs(summary.WinRate-200.0/3)<.0001,"capture counts as success; escape and unfinished excluded from win rate");
+        Check(summary.totalTurns==40&&summary.AverageTurns==10,"average excludes unfinished and interrupted turns");
+        summary=BattleReviewPolicy.Summarize(new[]{Entry(),Entry("Interrupted"),null});
+        Check(summary.WinRate==0&&summary.AverageTurns==0&&summary.Completed==0,"no completed battles has no fabricated average");
+        Check(BattleReviewPolicy.Summarize(null).Completed==0,"empty summary is safe");
+        samples=new[]{Entry("Victory"),Entry("Defeat")};foreach(var sample in samples)sample.turns=int.MaxValue;
+        Check(BattleReviewPolicy.Summarize(samples).totalTurns==2L*int.MaxValue,"summary turn totals use wide arithmetic");
+
         string directory=Path.Combine(Path.GetTempPath(),"ShadowReviewChecks_"+Guid.NewGuid().ToString("N"));
         Application.persistentDataPath=directory;SaveManager.Current=new SaveData{saveGuid=saveId,gold=123,hp=24};ResetService();
         try
@@ -115,6 +128,19 @@ class Program
             Check(BattleReviewService.Entries.Any(e=>e.result=="Interrupted"),"app restart marks unfinished review interrupted");
             File.WriteAllText(path,"{broken");ResetService();Check(BattleReviewService.Entries.Count==1,"valid backup recovers corrupt primary");
             Check(BattleReviewService.Begin(Entry())&&Directory.GetFiles(Path.GetDirectoryName(path),"*.invalid_*").Length==1,"corrupt primary retained before next write");
+            var retry=Entry();Check(BattleReviewService.Begin(retry),"retry fixture pending persisted");
+            string pendingBytes=File.ReadAllText(path);retry.result="Victory";
+            using(var blocked=new FileStream(path+".tmp",FileMode.OpenOrCreate,FileAccess.ReadWrite,FileShare.None))
+            {
+                Check(!BattleReviewService.Complete(retry)&&!string.IsNullOrEmpty(BattleReviewService.Status),"locked temporary file reports completion failure");
+                Check(BattleReviewService.Entries.Single(e=>e.id==retry.id).result=="InProgress"&&File.ReadAllText(path)==pendingBytes,"failed completion preserves cache and primary");
+            }
+            Check(BattleReviewService.Complete(retry)&&string.IsNullOrEmpty(BattleReviewService.Status),"same completion retries after I/O recovers");
+            ResetService();Check(BattleReviewService.Entries.Single(e=>e.id==retry.id).result=="Victory","retried completion survives restart");
+            var retryBegin=Entry();int retained=BattleReviewService.Entries.Count;
+            using(var blocked=new FileStream(path+".tmp",FileMode.OpenOrCreate,FileAccess.ReadWrite,FileShare.None))
+                Check(!BattleReviewService.Begin(retryBegin)&&BattleReviewService.Entries.Count==retained&&!BattleReviewService.Entries.Any(e=>e.id==retryBegin.id),"failed begin neither inserts nor evicts cached history");
+            Check(BattleReviewService.Begin(retryBegin),"failed begin can be retried");
             SaveManager.Current.saveGuid="../../outside";Check(BattleReviewService.Entries.Count==0&&!BattleReviewService.Begin(Entry()),"unsafe guid cannot select a path");
             string blocker=Path.Combine(directory,"blocker");File.WriteAllText(blocker,"occupied");Application.persistentDataPath=blocker;
             SaveManager.Current=new SaveData{saveGuid=saveId,gold=123,hp=24};ResetService();

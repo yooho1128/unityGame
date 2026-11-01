@@ -48,16 +48,19 @@ namespace ShadowTheater.Battle
                 var current=Ensure();if(current==null||entry==null||SaveKey(entry.saveGuid)!=key)return false;
                 // The combat producer continues updating its DTO. Keep the pending history immutable.
                 var copy=JsonUtility.FromJson<BattleReviewEntry>(JsonUtility.ToJson(entry));copy.saveGuid=key;
-                if(!BattleReviewPolicy.Upsert(current,copy))return false;
+                // Publish to the cache only after the file commit succeeds. Otherwise a failed
+                // completion becomes a duplicate and cannot be retried in this session.
+                var pending=JsonUtility.FromJson<BattleReviewLog>(JsonUtility.ToJson(current));
+                if(!BattleReviewPolicy.Upsert(pending,copy))return false;
                 string path=PathFor(key);Directory.CreateDirectory(Path.GetDirectoryName(path));
-                File.WriteAllText(path+".tmp",JsonUtility.ToJson(current,true));
+                File.WriteAllText(path+".tmp",JsonUtility.ToJson(pending,true));
                 if(File.Exists(path))
                 {
                     if(Read(path,key)!=null)
                     {if(File.Exists(path+".bak"))File.Delete(path+".bak");File.Move(path,path+".bak");}
                     else File.Move(path,path+".invalid_"+Guid.NewGuid().ToString("N"));
                 }
-                File.Move(path+".tmp",path);Status="";return true;
+                File.Move(path+".tmp",path);log=pending;Status="";return true;
             }
             catch(Exception e){Status="전투 기록 파일을 저장하지 못했습니다. 게임 진행은 유지됩니다.";Debug.LogWarning("[BattleReview] "+e.Message);return false;}
         }

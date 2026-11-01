@@ -22,10 +22,39 @@ namespace ShadowTheater.Battle
     }
     [Serializable] public sealed class BattleReviewLog
     {public int version;public string saveGuid;public List<BattleReviewEntry> entries=new List<BattleReviewEntry>();}
+    public sealed class BattleReviewSummary
+    {
+        public int victories,captured,defeats,escaped,interrupted,inProgress;
+        public long totalTurns;
+        public int Decided=>victories+captured+defeats;
+        public int Completed=>Decided+escaped;
+        public double WinRate=>Decided==0?0:100.0*(victories+captured)/Decided;
+        public double AverageTurns=>Completed==0?0:(double)totalTurns/Completed;
+    }
     public static class BattleReviewPolicy
     {
         public const int Version=1,Capacity=20;
         public static bool IsFinished(string result)=>result=="Victory"||result=="Defeat"||result=="Captured"||result=="Escaped";
+        public static BattleReviewSummary Summarize(IEnumerable<BattleReviewEntry> entries)
+        {
+            var summary=new BattleReviewSummary();
+            if(entries==null)return summary;
+            foreach(var entry in entries)
+            {
+                if(entry==null)continue;
+                switch(entry.result)
+                {
+                    case "Victory":summary.victories++;break;
+                    case "Captured":summary.captured++;break;
+                    case "Defeat":summary.defeats++;break;
+                    case "Escaped":summary.escaped++;break;
+                    case "Interrupted":summary.interrupted++;break;
+                    case "InProgress":summary.inProgress++;break;
+                }
+                if(IsFinished(entry.result))summary.totalTurns=Add(summary.totalTurns,entry.turns);
+            }
+            return summary;
+        }
         public static bool IsValid(BattleReviewEntry entry,string saveGuid)
         {
             if(entry==null||!Guid.TryParse(saveGuid,out _)||entry.saveGuid!=saveGuid||!Guid.TryParse(entry.id,out _)||!Guid.TryParse(entry.sessionId,out _)||
