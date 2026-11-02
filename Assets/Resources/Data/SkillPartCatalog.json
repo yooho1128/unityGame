@@ -1,0 +1,2053 @@
+{
+  "version": 1,
+  "parts": [
+    {
+      "id": "blade_crescent",
+      "sheet": "Art/SkillParts/VfxWeapons",
+      "category": "Weapons",
+      "column": 0,
+      "row": 0,
+      "description": "broad sweeping crescent blade trail",
+      "rect": {
+        "x": 11,
+        "y": 780,
+        "width": 184,
+        "height": 181
+      },
+      "sha256": "deca9a72bd66c9b30a0e5694ff40132b7eddf6561515e208519f0131486ba705",
+      "visiblePixels": 16917
+    },
+    {
+      "id": "needle_streak",
+      "sheet": "Art/SkillParts/VfxWeapons",
+      "category": "Weapons",
+      "column": 1,
+      "row": 0,
+      "description": "thin needle-like thrust streak",
+      "rect": {
+        "x": 200,
+        "y": 805,
+        "width": 192,
+        "height": 123
+      },
+      "sha256": "2b1a9b961bb580ac2ac35ab5a5aa806f89473f4847db321d424435666caa2578",
+      "visiblePixels": 8469
+    },
+    {
+      "id": "claw_triple",
+      "sheet": "Art/SkillParts/VfxWeapons",
+      "category": "Weapons",
+      "column": 2,
+      "row": 0,
+      "description": "three parallel claw gouges",
+      "rect": {
+        "x": 407,
+        "y": 776,
+        "width": 163,
+        "height": 184
+      },
+      "sha256": "6104ccc0be3b758cce890049ce1f647dbc540bc810433b70f0987ae0d5249873",
+      "visiblePixels": 15815
+    },
+    {
+      "id": "scissor_cross",
+      "sheet": "Art/SkillParts/VfxWeapons",
+      "category": "Weapons",
+      "column": 3,
+      "row": 0,
+      "description": "crossed scissor cuts",
+      "rect": {
+        "x": 579,
+        "y": 781,
+        "width": 186,
+        "height": 178
+      },
+      "sha256": "8659ce8cc21d5df3a56613d8d524a10ecc1b2346012cd91345a59c4220eb8e85",
+      "visiblePixels": 19155
+    },
+    {
+      "id": "fang_upper",
+      "sheet": "Art/SkillParts/VfxWeapons",
+      "category": "Weapons",
+      "column": 4,
+      "row": 0,
+      "description": "jagged fang bite upper jaw",
+      "rect": {
+        "x": 778,
+        "y": 781,
+        "width": 170,
+        "height": 176
+      },
+      "sha256": "e2d253f7b26dc71bfb5b24fc9c038e0620da3fca574e856f50c26b51a67eca58",
+      "visiblePixels": 13577
+    },
+    {
+      "id": "fang_lower",
+      "sheet": "Art/SkillParts/VfxWeapons",
+      "category": "Weapons",
+      "column": 5,
+      "row": 0,
+      "description": "jagged fang bite lower jaw",
+      "rect": {
+        "x": 972,
+        "y": 782,
+        "width": 167,
+        "height": 124
+      },
+      "sha256": "ef039a024c9f12b8fbd1f2b5d2763c812410d64819cc3c55dbacc595b3715340",
+      "visiblePixels": 12126
+    },
+    {
+      "id": "spear_wake",
+      "sheet": "Art/SkillParts/VfxWeapons",
+      "category": "Weapons",
+      "column": 6,
+      "row": 0,
+      "description": "piercing spearhead with split wake",
+      "rect": {
+        "x": 1161,
+        "y": 784,
+        "width": 168,
+        "height": 165
+      },
+      "sha256": "1c7e6f11c1aeba0efc3062d114c287d50abb5205da82fa81652141ee97e588a7",
+      "visiblePixels": 12261
+    },
+    {
+      "id": "arrow_volley",
+      "sheet": "Art/SkillParts/VfxWeapons",
+      "category": "Weapons",
+      "column": 7,
+      "row": 0,
+      "description": "cluster of three arrow streaks",
+      "rect": {
+        "x": 1349,
+        "y": 783,
+        "width": 179,
+        "height": 164
+      },
+      "sha256": "db131e983283d8e6f22fdcc4ef457732ac0f94b9a6667cbbe0936d60dda1b37d",
+      "visiblePixels": 14076
+    },
+    {
+      "id": "sickle_arc",
+      "sheet": "Art/SkillParts/VfxWeapons",
+      "category": "Weapons",
+      "column": 0,
+      "row": 1,
+      "description": "curved sickle slash with sparks",
+      "rect": {
+        "x": 14,
+        "y": 530,
+        "width": 183,
+        "height": 193
+      },
+      "sha256": "08611670988c0b469dd1b6d00fa653acd26604e09f6ac339d095ac2f7f8a6ca7",
+      "visiblePixels": 23059
+    },
+    {
+      "id": "guillotine_drop",
+      "sheet": "Art/SkillParts/VfxWeapons",
+      "category": "Weapons",
+      "column": 1,
+      "row": 1,
+      "description": "heavy guillotine descending cut",
+      "rect": {
+        "x": 208,
+        "y": 526,
+        "width": 180,
+        "height": 222
+      },
+      "sha256": "3c69dff9ccb37f057c76de9b863a79038245ac71b56351cfef92f3f55aa38346",
+      "visiblePixels": 22979
+    },
+    {
+      "id": "blade_fan",
+      "sheet": "Art/SkillParts/VfxWeapons",
+      "category": "Weapons",
+      "column": 2,
+      "row": 1,
+      "description": "fan of five blade arcs",
+      "rect": {
+        "x": 394,
+        "y": 546,
+        "width": 181,
+        "height": 178
+      },
+      "sha256": "1d93cb257b2b533d928ce6d48f3c26be498a5b979b94409b32397c3fe9256bf6",
+      "visiblePixels": 22797
+    },
+    {
+      "id": "saw_arc",
+      "sheet": "Art/SkillParts/VfxWeapons",
+      "category": "Weapons",
+      "column": 3,
+      "row": 1,
+      "description": "serrated saw-tooth swing",
+      "rect": {
+        "x": 580,
+        "y": 529,
+        "width": 176,
+        "height": 192
+      },
+      "sha256": "ef6ef500f6c1c3af0975dd66f0f3880e9651fee306e5426884e4ef3e824c9cdf",
+      "visiblePixels": 20224
+    },
+    {
+      "id": "gear_shatter",
+      "sheet": "Art/SkillParts/VfxWeapons",
+      "category": "Weapons",
+      "column": 4,
+      "row": 1,
+      "description": "rotating gear with fractured teeth",
+      "rect": {
+        "x": 777,
+        "y": 533,
+        "width": 180,
+        "height": 188
+      },
+      "sha256": "6dcc6c97f9abb8fbb929a976b28e7712055a110b1cdbb6067af6569ed4004a90",
+      "visiblePixels": 25712
+    },
+    {
+      "id": "twin_blade",
+      "sheet": "Art/SkillParts/VfxWeapons",
+      "category": "Weapons",
+      "column": 5,
+      "row": 1,
+      "description": "double-headed throwing blade",
+      "rect": {
+        "x": 962,
+        "y": 544,
+        "width": 185,
+        "height": 164
+      },
+      "sha256": "284a9d7cd91cbf50e73c8f7ec41fd35d65f630bf15a66d2f34c31ee1dfd63a54",
+      "visiblePixels": 18481
+    },
+    {
+      "id": "armor_shards",
+      "sheet": "Art/SkillParts/VfxWeapons",
+      "category": "Weapons",
+      "column": 6,
+      "row": 1,
+      "description": "shattered armor plate fragments",
+      "rect": {
+        "x": 1160,
+        "y": 528,
+        "width": 178,
+        "height": 195
+      },
+      "sha256": "51d49c639d138b374d42c2666e9f4388d51e96bac379a920aaaff8b56da25cd2",
+      "visiblePixels": 25512
+    },
+    {
+      "id": "impact_star",
+      "sheet": "Art/SkillParts/VfxWeapons",
+      "category": "Weapons",
+      "column": 7,
+      "row": 1,
+      "description": "six-armed impact starburst",
+      "rect": {
+        "x": 1343,
+        "y": 524,
+        "width": 184,
+        "height": 213
+      },
+      "sha256": "db503df416b1fe18044a75cadde9601468183eb78756690e5a8157538f8be6d4",
+      "visiblePixels": 22983
+    },
+    {
+      "id": "sonic_rings",
+      "sheet": "Art/SkillParts/VfxWeapons",
+      "category": "Weapons",
+      "column": 0,
+      "row": 2,
+      "description": "concentric sonic impact rings",
+      "rect": {
+        "x": 3,
+        "y": 286,
+        "width": 194,
+        "height": 211
+      },
+      "sha256": "3bb6061e24e4ce99c3c7f036701427345de51b32b5787c93394ff53760af7128",
+      "visiblePixels": 26098
+    },
+    {
+      "id": "shock_wedge",
+      "sheet": "Art/SkillParts/VfxWeapons",
+      "category": "Weapons",
+      "column": 1,
+      "row": 2,
+      "description": "diagonal shockwave wedge",
+      "rect": {
+        "x": 197,
+        "y": 290,
+        "width": 191,
+        "height": 206
+      },
+      "sha256": "0de7a01207370581aec08dd92d198862f3fe0a3a0261c82ce51837f8e8dc89cd",
+      "visiblePixels": 22691
+    },
+    {
+      "id": "ground_crack",
+      "sheet": "Art/SkillParts/VfxWeapons",
+      "category": "Weapons",
+      "column": 2,
+      "row": 2,
+      "description": "ground fissure branching cracks",
+      "rect": {
+        "x": 392,
+        "y": 289,
+        "width": 183,
+        "height": 170
+      },
+      "sha256": "f0580e0be8a7172c42a2d7b2e0f1f8b45d6cca0ff35478dbeed57be410881f75",
+      "visiblePixels": 10063
+    },
+    {
+      "id": "stone_spires",
+      "sheet": "Art/SkillParts/VfxWeapons",
+      "category": "Weapons",
+      "column": 3,
+      "row": 2,
+      "description": "rising jagged stone spikes",
+      "rect": {
+        "x": 575,
+        "y": 288,
+        "width": 196,
+        "height": 209
+      },
+      "sha256": "ed6523b17f627cd56b43e202fe1ff2f4d2d93cb863fff27a526e1377be33074d",
+      "visiblePixels": 22257
+    },
+    {
+      "id": "drill_cone",
+      "sheet": "Art/SkillParts/VfxWeapons",
+      "category": "Weapons",
+      "column": 4,
+      "row": 2,
+      "description": "spiralling drill cone",
+      "rect": {
+        "x": 783,
+        "y": 286,
+        "width": 161,
+        "height": 208
+      },
+      "sha256": "6b0c7b0279f2a382bad27233ad4fd53a7ebde792c18a0c172521eae88b035911",
+      "visiblePixels": 17479
+    },
+    {
+      "id": "glass_shards",
+      "sheet": "Art/SkillParts/VfxWeapons",
+      "category": "Weapons",
+      "column": 5,
+      "row": 2,
+      "description": "exploding glass shards",
+      "rect": {
+        "x": 963,
+        "y": 286,
+        "width": 183,
+        "height": 211
+      },
+      "sha256": "3e98f7e2b8c8c0ab8ccbf5c4630ca1c45376e9b9d696581260913902959eaa49",
+      "visiblePixels": 24517
+    },
+    {
+      "id": "dash_ribbon",
+      "sheet": "Art/SkillParts/VfxWeapons",
+      "category": "Weapons",
+      "column": 6,
+      "row": 2,
+      "description": "ribbon-shaped swift dash afterimage",
+      "rect": {
+        "x": 1151,
+        "y": 289,
+        "width": 187,
+        "height": 190
+      },
+      "sha256": "ffa3eae56a660f779a1d031320b13caed7b0bf3a938c159897ef7c60eb6eefcc",
+      "visiblePixels": 22791
+    },
+    {
+      "id": "meteor_streak",
+      "sheet": "Art/SkillParts/VfxWeapons",
+      "category": "Weapons",
+      "column": 7,
+      "row": 2,
+      "description": "sharp falling meteor streak",
+      "rect": {
+        "x": 1338,
+        "y": 292,
+        "width": 177,
+        "height": 204
+      },
+      "sha256": "976e732ef1a132ea567c01c51db6eecd8c663d746fa701b8ace858453bfa1bde",
+      "visiblePixels": 16443
+    },
+    {
+      "id": "antler_strike",
+      "sheet": "Art/SkillParts/VfxWeapons",
+      "category": "Weapons",
+      "column": 0,
+      "row": 3,
+      "description": "horned spectral antler strike",
+      "rect": {
+        "x": 15,
+        "y": 44,
+        "width": 182,
+        "height": 219
+      },
+      "sha256": "ae2ed5afb946a6bdd7c40d035852537a4a112dd77ab7d9fc8e7f919ca2dcec1c",
+      "visiblePixels": 23656
+    },
+    {
+      "id": "barbed_chain",
+      "sheet": "Art/SkillParts/VfxWeapons",
+      "category": "Weapons",
+      "column": 1,
+      "row": 3,
+      "description": "barbed chain link curve",
+      "rect": {
+        "x": 197,
+        "y": 47,
+        "width": 189,
+        "height": 202
+      },
+      "sha256": "c521b30fe0911fd0122d8d56acb577be5732e01f09b65f54f9bbe77f05e51477",
+      "visiblePixels": 16161
+    },
+    {
+      "id": "broken_shackle",
+      "sheet": "Art/SkillParts/VfxWeapons",
+      "category": "Weapons",
+      "column": 2,
+      "row": 3,
+      "description": "heavy broken shackle and chain",
+      "rect": {
+        "x": 394,
+        "y": 38,
+        "width": 181,
+        "height": 181
+      },
+      "sha256": "8fcb44902ed82f2bd3926ba91c047d55add0357c941ad3d6f8d148134e1dde15",
+      "visiblePixels": 14185
+    },
+    {
+      "id": "banner_spear",
+      "sheet": "Art/SkillParts/VfxWeapons",
+      "category": "Weapons",
+      "column": 3,
+      "row": 3,
+      "description": "spear banner with torn streaming pennant",
+      "rect": {
+        "x": 590,
+        "y": 32,
+        "width": 178,
+        "height": 240
+      },
+      "sha256": "82db6bbcd005e6e94e11bf4e4dbb9dcee284666ccbafea0f9fe8e69942b179fc",
+      "visiblePixels": 17665
+    },
+    {
+      "id": "spark_spray",
+      "sheet": "Art/SkillParts/VfxWeapons",
+      "category": "Weapons",
+      "column": 4,
+      "row": 3,
+      "description": "outward flying sparks spray",
+      "rect": {
+        "x": 773,
+        "y": 45,
+        "width": 184,
+        "height": 197
+      },
+      "sha256": "c673352c97fe78346664283260cdc34219fbb4227e1cfe6fac01a412f0f27017",
+      "visiblePixels": 24637
+    },
+    {
+      "id": "contact_spark",
+      "sheet": "Art/SkillParts/VfxWeapons",
+      "category": "Weapons",
+      "column": 5,
+      "row": 3,
+      "description": "dense close-contact hit spark",
+      "rect": {
+        "x": 960,
+        "y": 30,
+        "width": 187,
+        "height": 216
+      },
+      "sha256": "2be7e94e41ade5dbb46919107146a85aece7569fe65753997612c23c56c5a3a1",
+      "visiblePixels": 23788
+    },
+    {
+      "id": "torn_fabric",
+      "sheet": "Art/SkillParts/VfxWeapons",
+      "category": "Weapons",
+      "column": 6,
+      "row": 3,
+      "description": "curled torn fabric edge",
+      "rect": {
+        "x": 1151,
+        "y": 41,
+        "width": 187,
+        "height": 200
+      },
+      "sha256": "5d9e8acf4e4ca61bc9e54b4ab898fb625b12219b9da599813be471b49b993e79",
+      "visiblePixels": 20932
+    },
+    {
+      "id": "split_shockwave",
+      "sheet": "Art/SkillParts/VfxWeapons",
+      "category": "Weapons",
+      "column": 7,
+      "row": 3,
+      "description": "split circular impact shockwave",
+      "rect": {
+        "x": 1338,
+        "y": 42,
+        "width": 192,
+        "height": 200
+      },
+      "sha256": "85ef2c32b236115b9c01637c4a66aae5bb6994b37d9d28897e955fe32664ba64",
+      "visiblePixels": 25245
+    },
+    {
+      "id": "fire_tongue",
+      "sheet": "Art/SkillParts/VfxElements",
+      "category": "Elements",
+      "column": 0,
+      "row": 0,
+      "description": "tall curling fire tongue",
+      "rect": {
+        "x": 23,
+        "y": 750,
+        "width": 142,
+        "height": 250
+      },
+      "sha256": "e1c880a752575508f8cad785560e38cddc9b7352d283f8e7bb447bf874087ba4",
+      "visiblePixels": 21643
+    },
+    {
+      "id": "fireball",
+      "sheet": "Art/SkillParts/VfxElements",
+      "category": "Elements",
+      "column": 1,
+      "row": 0,
+      "description": "round turbulent fireball",
+      "rect": {
+        "x": 199,
+        "y": 764,
+        "width": 183,
+        "height": 215
+      },
+      "sha256": "7f6ab0e017291e64634d7cc75708aaadd7b3d1b32ce227a73a9fb8d76d0e9738",
+      "visiblePixels": 26452
+    },
+    {
+      "id": "fire_pillar",
+      "sheet": "Art/SkillParts/VfxElements",
+      "category": "Elements",
+      "column": 2,
+      "row": 0,
+      "description": "rising flame pillar base",
+      "rect": {
+        "x": 386,
+        "y": 756,
+        "width": 189,
+        "height": 243
+      },
+      "sha256": "a289d94848752a00024ed54dc51729fb5c2087ecbb80943e3c49801a89cc8048",
+      "visiblePixels": 22565
+    },
+    {
+      "id": "flame_plume",
+      "sheet": "Art/SkillParts/VfxElements",
+      "category": "Elements",
+      "column": 3,
+      "row": 0,
+      "description": "fan-shaped roaring flame plume",
+      "rect": {
+        "x": 575,
+        "y": 752,
+        "width": 193,
+        "height": 245
+      },
+      "sha256": "326098482e22112cd1588836c461ea11df7f34217863946e867ae36ddd2c05dc",
+      "visiblePixels": 30384
+    },
+    {
+      "id": "flame_crown",
+      "sheet": "Art/SkillParts/VfxElements",
+      "category": "Elements",
+      "column": 4,
+      "row": 0,
+      "description": "five-point burning crown",
+      "rect": {
+        "x": 768,
+        "y": 765,
+        "width": 192,
+        "height": 214
+      },
+      "sha256": "91b992db506a9cb668731c9b6a3994f4c5bed10f80f0ff3b7ee4d282bf06c3ac",
+      "visiblePixels": 22654
+    },
+    {
+      "id": "ember_cluster",
+      "sheet": "Art/SkillParts/VfxElements",
+      "category": "Elements",
+      "column": 5,
+      "row": 0,
+      "description": "scattered glowing ember cluster",
+      "rect": {
+        "x": 972,
+        "y": 763,
+        "width": 162,
+        "height": 207
+      },
+      "sha256": "db2fdbdd3de067f4a4ab2c2bf6578eecce3998c9a080a6d0c511fa97831455de",
+      "visiblePixels": 24065
+    },
+    {
+      "id": "smoke_curl",
+      "sheet": "Art/SkillParts/VfxElements",
+      "category": "Elements",
+      "column": 6,
+      "row": 0,
+      "description": "coiling smoke curl",
+      "rect": {
+        "x": 1177,
+        "y": 750,
+        "width": 132,
+        "height": 252
+      },
+      "sha256": "dea949e86476bd9a0632d438429895679b51b097581ad364133b2eeb0cc42dd0",
+      "visiblePixels": 21889
+    },
+    {
+      "id": "fire_explosion",
+      "sheet": "Art/SkillParts/VfxElements",
+      "category": "Elements",
+      "column": 7,
+      "row": 0,
+      "description": "radiating fire explosion petals",
+      "rect": {
+        "x": 1335,
+        "y": 762,
+        "width": 196,
+        "height": 221
+      },
+      "sha256": "45a9f2a03687e5ef0a817b3d7a7afe31ac06dc11951d65aa3b5ecaf1df87ca6c",
+      "visiblePixels": 29885
+    },
+    {
+      "id": "ice_spear",
+      "sheet": "Art/SkillParts/VfxElements",
+      "category": "Elements",
+      "column": 0,
+      "row": 1,
+      "description": "long faceted ice spear",
+      "rect": {
+        "x": 24,
+        "y": 507,
+        "width": 151,
+        "height": 243
+      },
+      "sha256": "8da750b71e9728d70278fb3a87bc8496125aa10cf4499499d09ac791ee152992",
+      "visiblePixels": 8945
+    },
+    {
+      "id": "frost_snowflake",
+      "sheet": "Art/SkillParts/VfxElements",
+      "category": "Elements",
+      "column": 1,
+      "row": 1,
+      "description": "branching frost snowflake",
+      "rect": {
+        "x": 201,
+        "y": 524,
+        "width": 182,
+        "height": 211
+      },
+      "sha256": "abfd7f65958aa2cd79fce8899dcf2b00ffe2b46ab4a0be6487ba5610ac7c828b",
+      "visiblePixels": 22339
+    },
+    {
+      "id": "crystal_cluster",
+      "sheet": "Art/SkillParts/VfxElements",
+      "category": "Elements",
+      "column": 2,
+      "row": 1,
+      "description": "six-pronged crystal cluster",
+      "rect": {
+        "x": 392,
+        "y": 515,
+        "width": 179,
+        "height": 214
+      },
+      "sha256": "d36d5b41a19339b577df196f11c4e3320de650a2596334a3ac4125e48719572a",
+      "visiblePixels": 23966
+    },
+    {
+      "id": "frozen_shell",
+      "sheet": "Art/SkillParts/VfxElements",
+      "category": "Elements",
+      "column": 3,
+      "row": 1,
+      "description": "cracking frozen oval shell",
+      "rect": {
+        "x": 581,
+        "y": 527,
+        "width": 183,
+        "height": 200
+      },
+      "sha256": "e91bfe71068df890aab547f31418ee85bfd00c70d1d8df2e5b31375f8a53c292",
+      "visiblePixels": 25832
+    },
+    {
+      "id": "frost_mist",
+      "sheet": "Art/SkillParts/VfxElements",
+      "category": "Elements",
+      "column": 4,
+      "row": 1,
+      "description": "icy breath mist cone",
+      "rect": {
+        "x": 768,
+        "y": 534,
+        "width": 192,
+        "height": 178
+      },
+      "sha256": "8063bd6c4acbb37e7ea625bf655df970668d29130797b01c9d8d3ff10a12519c",
+      "visiblePixels": 22855
+    },
+    {
+      "id": "ice_shards",
+      "sheet": "Art/SkillParts/VfxElements",
+      "category": "Elements",
+      "column": 5,
+      "row": 1,
+      "description": "shattered ice shard spray",
+      "rect": {
+        "x": 960,
+        "y": 516,
+        "width": 185,
+        "height": 221
+      },
+      "sha256": "3bb8bb539c9d3ec46befe5505b468e7e8c06f6ebdb24483f5ab555281ac5d845",
+      "visiblePixels": 28613
+    },
+    {
+      "id": "frost_vortex",
+      "sheet": "Art/SkillParts/VfxElements",
+      "category": "Elements",
+      "column": 6,
+      "row": 1,
+      "description": "frost spiral vortex",
+      "rect": {
+        "x": 1150,
+        "y": 513,
+        "width": 185,
+        "height": 219
+      },
+      "sha256": "ff26b9b55f62ebfb5c7099685cc6494b9055f8911a91f301997170e6a7779cef",
+      "visiblePixels": 32179
+    },
+    {
+      "id": "icicle_crown",
+      "sheet": "Art/SkillParts/VfxElements",
+      "category": "Elements",
+      "column": 7,
+      "row": 1,
+      "description": "crown of icicle spears",
+      "rect": {
+        "x": 1339,
+        "y": 517,
+        "width": 186,
+        "height": 211
+      },
+      "sha256": "cab91b9d3d81a619d35658be30aaed1613ce105197dd338d5d7e5da4ff68fb73",
+      "visiblePixels": 23422
+    },
+    {
+      "id": "wave_crest",
+      "sheet": "Art/SkillParts/VfxElements",
+      "category": "Elements",
+      "column": 0,
+      "row": 2,
+      "description": "curling cresting water wave",
+      "rect": {
+        "x": 8,
+        "y": 284,
+        "width": 189,
+        "height": 216
+      },
+      "sha256": "424b325e30126fa9ebb11ed65bf70b670145fcaae70e7050c0b246f933002b4a",
+      "visiblePixels": 31417
+    },
+    {
+      "id": "water_drop",
+      "sheet": "Art/SkillParts/VfxElements",
+      "category": "Elements",
+      "column": 1,
+      "row": 2,
+      "description": "single stretched water droplet",
+      "rect": {
+        "x": 255,
+        "y": 284,
+        "width": 75,
+        "height": 212
+      },
+      "sha256": "093a288341c877e0aab33348cc0a770608adb3bf52b465644dfa9a15e3bc0c69",
+      "visiblePixels": 8491
+    },
+    {
+      "id": "splash_crown",
+      "sheet": "Art/SkillParts/VfxElements",
+      "category": "Elements",
+      "column": 2,
+      "row": 2,
+      "description": "splash crown with falling beads",
+      "rect": {
+        "x": 384,
+        "y": 282,
+        "width": 191,
+        "height": 206
+      },
+      "sha256": "4da673fb0d88b991569a20f2fc79e49474c98c819296e0613ad87e06ff8786e7",
+      "visiblePixels": 23839
+    },
+    {
+      "id": "whirlpool",
+      "sheet": "Art/SkillParts/VfxElements",
+      "category": "Elements",
+      "column": 3,
+      "row": 2,
+      "description": "circular whirlpool foam",
+      "rect": {
+        "x": 575,
+        "y": 284,
+        "width": 193,
+        "height": 211
+      },
+      "sha256": "ef9daa5015dd5cab51e1bf569a27200596f9223d745307debeb7a0dbe513b964",
+      "visiblePixels": 31980
+    },
+    {
+      "id": "undertow",
+      "sheet": "Art/SkillParts/VfxElements",
+      "category": "Elements",
+      "column": 4,
+      "row": 2,
+      "description": "flowing undertow ribbon",
+      "rect": {
+        "x": 771,
+        "y": 289,
+        "width": 189,
+        "height": 200
+      },
+      "sha256": "8aea0727e55b25cbafbb71ce4c719fea6728395aa0af8b4b610daf85c6beaeea",
+      "visiblePixels": 23954
+    },
+    {
+      "id": "water_ripples",
+      "sheet": "Art/SkillParts/VfxElements",
+      "category": "Elements",
+      "column": 5,
+      "row": 2,
+      "description": "three expanding ripple arcs",
+      "rect": {
+        "x": 960,
+        "y": 286,
+        "width": 190,
+        "height": 200
+      },
+      "sha256": "dbbcb341a1d83274a5f2eb0a4cf9d63667bfb495b46f960383bdcba3b29f6940",
+      "visiblePixels": 19946
+    },
+    {
+      "id": "wind_funnel",
+      "sheet": "Art/SkillParts/VfxElements",
+      "category": "Elements",
+      "column": 6,
+      "row": 2,
+      "description": "spiral wind funnel",
+      "rect": {
+        "x": 1150,
+        "y": 274,
+        "width": 178,
+        "height": 233
+      },
+      "sha256": "29fd05dbf9aa8d33e506f6dc415abe25b3c6f1b35ed594dc385fe4a2d89116a1",
+      "visiblePixels": 27850
+    },
+    {
+      "id": "gust_ribbon",
+      "sheet": "Art/SkillParts/VfxElements",
+      "category": "Elements",
+      "column": 7,
+      "row": 2,
+      "description": "sweeping gust ribbon",
+      "rect": {
+        "x": 1340,
+        "y": 285,
+        "width": 185,
+        "height": 213
+      },
+      "sha256": "92ba6ed9905a47c401a3f6899f0d21ceeb49713de9ab0fd995460a5e787fb7f7",
+      "visiblePixels": 28657
+    },
+    {
+      "id": "lightning_bolt",
+      "sheet": "Art/SkillParts/VfxElements",
+      "category": "Elements",
+      "column": 0,
+      "row": 3,
+      "description": "forked lightning bolt",
+      "rect": {
+        "x": 12,
+        "y": 16,
+        "width": 182,
+        "height": 256
+      },
+      "sha256": "40ff533acd1011ef3ce8a01a95148d7243233bd44c5500b1e78e42a23581b9aa",
+      "visiblePixels": 23434
+    },
+    {
+      "id": "electric_arc",
+      "sheet": "Art/SkillParts/VfxElements",
+      "category": "Elements",
+      "column": 1,
+      "row": 3,
+      "description": "branching electric arc",
+      "rect": {
+        "x": 198,
+        "y": 24,
+        "width": 186,
+        "height": 246
+      },
+      "sha256": "f5ad6e48e1256997961165d6b6d47a3e90fcac43defdc4d8fdcaef2949efa5e0",
+      "visiblePixels": 30844
+    },
+    {
+      "id": "electric_orb",
+      "sheet": "Art/SkillParts/VfxElements",
+      "category": "Elements",
+      "column": 2,
+      "row": 3,
+      "description": "electrical orb with sparks",
+      "rect": {
+        "x": 390,
+        "y": 41,
+        "width": 185,
+        "height": 216
+      },
+      "sha256": "88e7045fe840eecba2e80804be741813ec7d3ad3dcb001295eef8c8ec965aa3f",
+      "visiblePixels": 27762
+    },
+    {
+      "id": "electric_cage",
+      "sheet": "Art/SkillParts/VfxElements",
+      "category": "Elements",
+      "column": 3,
+      "row": 3,
+      "description": "zigzag shock cage",
+      "rect": {
+        "x": 577,
+        "y": 21,
+        "width": 188,
+        "height": 239
+      },
+      "sha256": "0245d920dc0c4710781d445148058aa10f189a752c942f4c723c775e3a01b5d6",
+      "visiblePixels": 30844
+    },
+    {
+      "id": "thorn_vines",
+      "sheet": "Art/SkillParts/VfxElements",
+      "category": "Elements",
+      "column": 4,
+      "row": 3,
+      "description": "interlaced thorn vines",
+      "rect": {
+        "x": 775,
+        "y": 33,
+        "width": 180,
+        "height": 229
+      },
+      "sha256": "56f905d96737b9ca3553cb6bf8dc4b46226154a3d970e5cda670943916599eff",
+      "visiblePixels": 22720
+    },
+    {
+      "id": "leaf_burst",
+      "sheet": "Art/SkillParts/VfxElements",
+      "category": "Elements",
+      "column": 5,
+      "row": 3,
+      "description": "burst of pointed leaves",
+      "rect": {
+        "x": 969,
+        "y": 32,
+        "width": 168,
+        "height": 227
+      },
+      "sha256": "4911edde846f427476d1ea7b76165c47a2a93fb174e43899d4687133d00161a5",
+      "visiblePixels": 26441
+    },
+    {
+      "id": "seed_blossom",
+      "sheet": "Art/SkillParts/VfxElements",
+      "category": "Elements",
+      "column": 6,
+      "row": 3,
+      "description": "lotus-like seed blossom",
+      "rect": {
+        "x": 1150,
+        "y": 38,
+        "width": 185,
+        "height": 214
+      },
+      "sha256": "4497694e2a3d6d089d17ecffbeb7fb1cf7d894d546a5270d03f379eb333c698f",
+      "visiblePixels": 27264
+    },
+    {
+      "id": "root_spiral",
+      "sheet": "Art/SkillParts/VfxElements",
+      "category": "Elements",
+      "column": 7,
+      "row": 3,
+      "description": "root spiral with small branching roots",
+      "rect": {
+        "x": 1337,
+        "y": 25,
+        "width": 182,
+        "height": 241
+      },
+      "sha256": "663988675a07dfb4805409d43a05ac85310acc31ed2f62ced94a603a5ae5337e",
+      "visiblePixels": 21914
+    },
+    {
+      "id": "moon_blade",
+      "sheet": "Art/SkillParts/VfxTheatre",
+      "category": "Theatre",
+      "column": 0,
+      "row": 0,
+      "description": "crescent moon blade",
+      "rect": {
+        "x": 29,
+        "y": 750,
+        "width": 182,
+        "height": 208
+      },
+      "sha256": "4446cba3b4ed4c82fbadfbb79cf54d2aff4aac1132590dafe9bb3a8f545a250c",
+      "visiblePixels": 18642
+    },
+    {
+      "id": "lunar_halo",
+      "sheet": "Art/SkillParts/VfxTheatre",
+      "category": "Theatre",
+      "column": 1,
+      "row": 0,
+      "description": "thin lunar halo with broken rim",
+      "rect": {
+        "x": 211,
+        "y": 762,
+        "width": 172,
+        "height": 191
+      },
+      "sha256": "8becce8d292fadcf3de0b56ade296abc1f4c04febac8d8a842c8e2f6ffb9b8b4",
+      "visiblePixels": 13822
+    },
+    {
+      "id": "eclipse_corona",
+      "sheet": "Art/SkillParts/VfxTheatre",
+      "category": "Theatre",
+      "column": 2,
+      "row": 0,
+      "description": "dark eclipse with luminous corona",
+      "rect": {
+        "x": 397,
+        "y": 756,
+        "width": 187,
+        "height": 205
+      },
+      "sha256": "6cb01ab72ad0975ca415a395ea058e37e75e08034614dfaec178e5326d2e8f0d",
+      "visiblePixels": 28090
+    },
+    {
+      "id": "moon_shards",
+      "sheet": "Art/SkillParts/VfxTheatre",
+      "category": "Theatre",
+      "column": 3,
+      "row": 0,
+      "description": "falling moon shard cluster",
+      "rect": {
+        "x": 584,
+        "y": 739,
+        "width": 157,
+        "height": 228
+      },
+      "sha256": "b1be2580f287b745e7912e0e655ff24b3af2657324b0bd2742ab058fb150f2a5",
+      "visiblePixels": 17559
+    },
+    {
+      "id": "petal_spiral",
+      "sheet": "Art/SkillParts/VfxTheatre",
+      "category": "Theatre",
+      "column": 4,
+      "row": 0,
+      "description": "spiral of five individual petals",
+      "rect": {
+        "x": 777,
+        "y": 765,
+        "width": 185,
+        "height": 189
+      },
+      "sha256": "80b7ac0b2b33f09ac8fc25a66b83d620225818eb2386ff21c22963398fd2b66e",
+      "visiblePixels": 18867
+    },
+    {
+      "id": "petal_single",
+      "sheet": "Art/SkillParts/VfxTheatre",
+      "category": "Theatre",
+      "column": 5,
+      "row": 0,
+      "description": "single curled long petal",
+      "rect": {
+        "x": 979,
+        "y": 749,
+        "width": 144,
+        "height": 206
+      },
+      "sha256": "43d71bff73eb98056ea59ea7c309cca088f70469ea2694ba1c93e30dc433e9ad",
+      "visiblePixels": 15020
+    },
+    {
+      "id": "spectral_blossom",
+      "sheet": "Art/SkillParts/VfxTheatre",
+      "category": "Theatre",
+      "column": 6,
+      "row": 0,
+      "description": "full radial spectral blossom",
+      "rect": {
+        "x": 1139,
+        "y": 762,
+        "width": 200,
+        "height": 196
+      },
+      "sha256": "0115da10196fab850160f2bc282119102bb1becc110335815d33dbf3d8d16ad8",
+      "visiblePixels": 27771
+    },
+    {
+      "id": "veil_ribbon",
+      "sheet": "Art/SkillParts/VfxTheatre",
+      "category": "Theatre",
+      "column": 7,
+      "row": 0,
+      "description": "swirling funeral veil ribbon",
+      "rect": {
+        "x": 1355,
+        "y": 739,
+        "width": 160,
+        "height": 223
+      },
+      "sha256": "025b9ee5568b7dc52c34f2c4363193c82f453bdd58f5bc24de015f288820cd6b",
+      "visiblePixels": 25034
+    },
+    {
+      "id": "taut_string",
+      "sheet": "Art/SkillParts/VfxTheatre",
+      "category": "Theatre",
+      "column": 0,
+      "row": 1,
+      "description": "long taut puppet string with knots",
+      "rect": {
+        "x": 71,
+        "y": 495,
+        "width": 140,
+        "height": 242
+      },
+      "sha256": "1ebe77c0213d4e4dd5488ab81baf6c68694cf1bdaf0ee5f8e128707f45afd2ef",
+      "visiblePixels": 10278
+    },
+    {
+      "id": "severed_thread",
+      "sheet": "Art/SkillParts/VfxTheatre",
+      "category": "Theatre",
+      "column": 1,
+      "row": 1,
+      "description": "severed thread recoiling ends",
+      "rect": {
+        "x": 211,
+        "y": 506,
+        "width": 172,
+        "height": 219
+      },
+      "sha256": "dba854acaa278940ab0b1f75afa48cbcbd7cafcc558e3f23c6324d8a8872cfdc",
+      "visiblePixels": 9832
+    },
+    {
+      "id": "needle_thread",
+      "sheet": "Art/SkillParts/VfxTheatre",
+      "category": "Theatre",
+      "column": 2,
+      "row": 1,
+      "description": "needle carrying a loop of thread",
+      "rect": {
+        "x": 383,
+        "y": 501,
+        "width": 180,
+        "height": 227
+      },
+      "sha256": "46a1846e57fc49531591237295f7cabb21ab3f16e7349078f5d2427b9c52f7ef",
+      "visiblePixels": 12323
+    },
+    {
+      "id": "cross_stitches",
+      "sheet": "Art/SkillParts/VfxTheatre",
+      "category": "Theatre",
+      "column": 3,
+      "row": 1,
+      "description": "three crossed surgical stitches",
+      "rect": {
+        "x": 603,
+        "y": 516,
+        "width": 152,
+        "height": 189
+      },
+      "sha256": "3a3b7edcccd751eeeebb9c15bd58bffb8a7d7f603ed057db519e579d32d5d25d",
+      "visiblePixels": 14011
+    },
+    {
+      "id": "string_web",
+      "sheet": "Art/SkillParts/VfxTheatre",
+      "category": "Theatre",
+      "column": 4,
+      "row": 1,
+      "description": "tangled string web",
+      "rect": {
+        "x": 774,
+        "y": 517,
+        "width": 177,
+        "height": 193
+      },
+      "sha256": "f96273b927c7d1ec60c66c98bb7e6d622ac777541074bf2c01ccb1430b5bb5af",
+      "visiblePixels": 24348
+    },
+    {
+      "id": "puppet_control",
+      "sheet": "Art/SkillParts/VfxTheatre",
+      "category": "Theatre",
+      "column": 5,
+      "row": 1,
+      "description": "hanging marionette control cross",
+      "rect": {
+        "x": 976,
+        "y": 498,
+        "width": 150,
+        "height": 220
+      },
+      "sha256": "14802c771fb5697d32a65f4cebbb7897167fd504e7ad92be7fcdda5a9150056f",
+      "visiblePixels": 14301
+    },
+    {
+      "id": "thread_spool",
+      "sheet": "Art/SkillParts/VfxTheatre",
+      "category": "Theatre",
+      "column": 6,
+      "row": 1,
+      "description": "unravelling spool of thread",
+      "rect": {
+        "x": 1154,
+        "y": 500,
+        "width": 164,
+        "height": 231
+      },
+      "sha256": "cd6724f205b47eac0c5feb3f205fa4a01fa2979959a11049ebaa9aae96231b8a",
+      "visiblePixels": 24535
+    },
+    {
+      "id": "wire_cage",
+      "sheet": "Art/SkillParts/VfxTheatre",
+      "category": "Theatre",
+      "column": 7,
+      "row": 1,
+      "description": "wire mesh cage silhouette",
+      "rect": {
+        "x": 1361,
+        "y": 495,
+        "width": 144,
+        "height": 232
+      },
+      "sha256": "76131fe3238ba29e1637cd4bb0f09709b5c1ee07bdd29e2d657dcf442fe9eaa4",
+      "visiblePixels": 24159
+    },
+    {
+      "id": "open_book",
+      "sheet": "Art/SkillParts/VfxTheatre",
+      "category": "Theatre",
+      "column": 0,
+      "row": 2,
+      "description": "open spectral book with floating page",
+      "rect": {
+        "x": 15,
+        "y": 285,
+        "width": 196,
+        "height": 210
+      },
+      "sha256": "1fe7b4ba0846abcd1ed4d885941c306f189024e485ed26e4327b6ec0d47a647e",
+      "visiblePixels": 28350
+    },
+    {
+      "id": "torn_page",
+      "sheet": "Art/SkillParts/VfxTheatre",
+      "category": "Theatre",
+      "column": 1,
+      "row": 2,
+      "description": "single torn curling page",
+      "rect": {
+        "x": 211,
+        "y": 271,
+        "width": 172,
+        "height": 224
+      },
+      "sha256": "d89c740479cbe5c309913be1adb2516bf95795f11ae83a259b5a59a17b7525ef",
+      "visiblePixels": 20806
+    },
+    {
+      "id": "rune_row",
+      "sheet": "Art/SkillParts/VfxTheatre",
+      "category": "Theatre",
+      "column": 2,
+      "row": 2,
+      "description": "row of glowing invented runic marks",
+      "rect": {
+        "x": 397,
+        "y": 315,
+        "width": 187,
+        "height": 132
+      },
+      "sha256": "5e717fc77ca2e125be87438538f765635de4ca3c4092d5d05a7a17cd7f07482e",
+      "visiblePixels": 15051
+    },
+    {
+      "id": "arcane_seal",
+      "sheet": "Art/SkillParts/VfxTheatre",
+      "category": "Theatre",
+      "column": 3,
+      "row": 2,
+      "description": "circular intricate magical seal",
+      "rect": {
+        "x": 584,
+        "y": 275,
+        "width": 187,
+        "height": 220
+      },
+      "sha256": "b062cd1cf18ac45c0e15e27c4042b9e0f1e6cc2ee8eb7986d9346d6142de30c2",
+      "visiblePixels": 24334
+    },
+    {
+      "id": "ink_splash",
+      "sheet": "Art/SkillParts/VfxTheatre",
+      "category": "Theatre",
+      "column": 4,
+      "row": 2,
+      "description": "large ink splash with dripping fringe",
+      "rect": {
+        "x": 777,
+        "y": 272,
+        "width": 185,
+        "height": 223
+      },
+      "sha256": "2bc24aa58cc5387002260ae0e24448ccbbfc2d68d0c57ad4b61ef27a9224487b",
+      "visiblePixels": 18251
+    },
+    {
+      "id": "ink_stroke",
+      "sheet": "Art/SkillParts/VfxTheatre",
+      "category": "Theatre",
+      "column": 5,
+      "row": 2,
+      "description": "long calligraphic ink brush stroke",
+      "rect": {
+        "x": 962,
+        "y": 297,
+        "width": 177,
+        "height": 178
+      },
+      "sha256": "9b0500a3c390bdebb60af2a249915ae0b512d3c98f5495b10627ad6739d97d98",
+      "visiblePixels": 12112
+    },
+    {
+      "id": "ink_vortex",
+      "sheet": "Art/SkillParts/VfxTheatre",
+      "category": "Theatre",
+      "column": 6,
+      "row": 2,
+      "description": "ink vortex with broken paper fragments",
+      "rect": {
+        "x": 1139,
+        "y": 263,
+        "width": 213,
+        "height": 230
+      },
+      "sha256": "5e90d875f5daf633c3173d08ab4a6995b78967e31caefc6b2244fd3b7a6b9146",
+      "visiblePixels": 31695
+    },
+    {
+      "id": "erasure_tear",
+      "sheet": "Art/SkillParts/VfxTheatre",
+      "category": "Theatre",
+      "column": 7,
+      "row": 2,
+      "description": "erasure tear through empty space",
+      "rect": {
+        "x": 1362,
+        "y": 263,
+        "width": 145,
+        "height": 230
+      },
+      "sha256": "dc42767b4c72563d74aace53f59784bb6ca3a4781ed1d5a612c6ddc9a3707863",
+      "visiblePixels": 19870
+    },
+    {
+      "id": "weeping_mask",
+      "sheet": "Art/SkillParts/VfxTheatre",
+      "category": "Theatre",
+      "column": 0,
+      "row": 3,
+      "description": "weeping theatrical half mask",
+      "rect": {
+        "x": 32,
+        "y": 32,
+        "width": 179,
+        "height": 226
+      },
+      "sha256": "0bc49fbaf521550a7ef836bf92656b7c18b9fb8b98ab2bcc99aa124a49284336",
+      "visiblePixels": 22410
+    },
+    {
+      "id": "smiling_mask",
+      "sheet": "Art/SkillParts/VfxTheatre",
+      "category": "Theatre",
+      "column": 1,
+      "row": 3,
+      "description": "smiling theatrical mask",
+      "rect": {
+        "x": 211,
+        "y": 31,
+        "width": 160,
+        "height": 228
+      },
+      "sha256": "722b34160f6ccc25b1490f2837e711df188ab25a94032937b88f01d38a688e3c",
+      "visiblePixels": 26333
+    },
+    {
+      "id": "mask_shards",
+      "sheet": "Art/SkillParts/VfxTheatre",
+      "category": "Theatre",
+      "column": 2,
+      "row": 3,
+      "description": "broken mask fragments",
+      "rect": {
+        "x": 383,
+        "y": 33,
+        "width": 192,
+        "height": 228
+      },
+      "sha256": "24900cca586a162c1d1137df466aada33ae6d6cf8e88a8707c3d02f2726aac0c",
+      "visiblePixels": 30829
+    },
+    {
+      "id": "curtain_fold",
+      "sheet": "Art/SkillParts/VfxTheatre",
+      "category": "Theatre",
+      "column": 3,
+      "row": 3,
+      "description": "descending stage curtain fold",
+      "rect": {
+        "x": 584,
+        "y": 21,
+        "width": 186,
+        "height": 242
+      },
+      "sha256": "1871970ed7ece9b2851132c6cb11eddf6900099e3eadac1fc93f58b84f0e90c1",
+      "visiblePixels": 31259
+    },
+    {
+      "id": "cracked_clock",
+      "sheet": "Art/SkillParts/VfxTheatre",
+      "category": "Theatre",
+      "column": 4,
+      "row": 3,
+      "description": "cracked clock face without text",
+      "rect": {
+        "x": 771,
+        "y": 37,
+        "width": 191,
+        "height": 219
+      },
+      "sha256": "a2332dc4491b7c670047b46083f6cb1af84602edffd62e274969af05a5eb9a4d",
+      "visiblePixels": 30640
+    },
+    {
+      "id": "feather_curl",
+      "sheet": "Art/SkillParts/VfxTheatre",
+      "category": "Theatre",
+      "column": 5,
+      "row": 3,
+      "description": "curled spectral feather",
+      "rect": {
+        "x": 966,
+        "y": 38,
+        "width": 173,
+        "height": 224
+      },
+      "sha256": "dfd0ebd2b9a4724e29ebce29dbe1755f6346d7876ceb2f965c2a0759f9d94cbb",
+      "visiblePixels": 24931
+    },
+    {
+      "id": "bird_wing",
+      "sheet": "Art/SkillParts/VfxTheatre",
+      "category": "Theatre",
+      "column": 6,
+      "row": 3,
+      "description": "spread spectral bird wing",
+      "rect": {
+        "x": 1139,
+        "y": 33,
+        "width": 213,
+        "height": 230
+      },
+      "sha256": "2ad825b80e745dcf59bfe8ae8bb7f46b0f7db4bf2ae0712320ede925205408cc",
+      "visiblePixels": 32553
+    },
+    {
+      "id": "resonant_bell",
+      "sheet": "Art/SkillParts/VfxTheatre",
+      "category": "Theatre",
+      "column": 7,
+      "row": 3,
+      "description": "bell silhouette with radiating sound arcs",
+      "rect": {
+        "x": 1352,
+        "y": 39,
+        "width": 171,
+        "height": 224
+      },
+      "sha256": "144fb1e330575d89fdff57728e3cc4cfa7178f92158bea9bd249ed4049df52fa",
+      "visiblePixels": 26579
+    },
+    {
+      "id": "guardian_shield",
+      "sheet": "Art/SkillParts/VfxSanctuary",
+      "category": "Sanctuary",
+      "column": 0,
+      "row": 0,
+      "description": "arched radiant guardian shield",
+      "rect": {
+        "x": 18,
+        "y": 758,
+        "width": 167,
+        "height": 221
+      },
+      "sha256": "bbaa47666becffc34d90165e4e4790b38901d0c051377ece302a5cab92e8876b",
+      "visiblePixels": 25316
+    },
+    {
+      "id": "ward_crystal",
+      "sheet": "Art/SkillParts/VfxSanctuary",
+      "category": "Sanctuary",
+      "column": 1,
+      "row": 0,
+      "description": "six-sided protective ward crystal",
+      "rect": {
+        "x": 205,
+        "y": 758,
+        "width": 178,
+        "height": 214
+      },
+      "sha256": "b6d7bb1d62baaa3796301ee60b1bb706d384fba8f7da9a23854fac6f920f888e",
+      "visiblePixels": 17440
+    },
+    {
+      "id": "healing_ribbons",
+      "sheet": "Art/SkillParts/VfxSanctuary",
+      "category": "Sanctuary",
+      "column": 2,
+      "row": 0,
+      "description": "pair of ascending healing ribbons",
+      "rect": {
+        "x": 424,
+        "y": 760,
+        "width": 133,
+        "height": 220
+      },
+      "sha256": "b37ba7ed5f984e937861966a98a8bc97b4b36af9d26acc34dcc2f2f2699af72e",
+      "visiblePixels": 18239
+    },
+    {
+      "id": "healing_stars",
+      "sheet": "Art/SkillParts/VfxSanctuary",
+      "category": "Sanctuary",
+      "column": 3,
+      "row": 0,
+      "description": "small restorative star cluster",
+      "rect": {
+        "x": 616,
+        "y": 762,
+        "width": 137,
+        "height": 202
+      },
+      "sha256": "bf7926ebd400f9cb35a78d1db07a02999c84f90370db87887c3709d81d76e47b",
+      "visiblePixels": 9788
+    },
+    {
+      "id": "light_teardrop",
+      "sheet": "Art/SkillParts/VfxSanctuary",
+      "category": "Sanctuary",
+      "column": 4,
+      "row": 0,
+      "description": "gentle luminous teardrop",
+      "rect": {
+        "x": 786,
+        "y": 764,
+        "width": 144,
+        "height": 205
+      },
+      "sha256": "31c67257333da66efd785087a3dfef40b00cd352caf09d407b9b878306e44e54",
+      "visiblePixels": 15602
+    },
+    {
+      "id": "laurel_wreath",
+      "sheet": "Art/SkillParts/VfxSanctuary",
+      "category": "Sanctuary",
+      "column": 5,
+      "row": 0,
+      "description": "laurel wreath of luminous leaves",
+      "rect": {
+        "x": 960,
+        "y": 763,
+        "width": 184,
+        "height": 196
+      },
+      "sha256": "2b16eb6343e046019db58cd655ed95c64d82a9f0adf729ffad0c8d2f8e6db083",
+      "visiblePixels": 14864
+    },
+    {
+      "id": "cupped_hands",
+      "sheet": "Art/SkillParts/VfxSanctuary",
+      "category": "Sanctuary",
+      "column": 6,
+      "row": 0,
+      "description": "spectral hands cupping a light",
+      "rect": {
+        "x": 1165,
+        "y": 762,
+        "width": 164,
+        "height": 196
+      },
+      "sha256": "249309ef1a88387cad844a88b9c0865cfef35fc089f4b41026a4b2886320f3b8",
+      "visiblePixels": 21833
+    },
+    {
+      "id": "lotus_base",
+      "sheet": "Art/SkillParts/VfxSanctuary",
+      "category": "Sanctuary",
+      "column": 7,
+      "row": 0,
+      "description": "lotus sanctuary base",
+      "rect": {
+        "x": 1342,
+        "y": 758,
+        "width": 182,
+        "height": 199
+      },
+      "sha256": "3b30782d72ef3efb2139a48a52600d06f10042729b4b383e4466963dba68a6ad",
+      "visiblePixels": 19319
+    },
+    {
+      "id": "sacred_beam",
+      "sheet": "Art/SkillParts/VfxSanctuary",
+      "category": "Sanctuary",
+      "column": 0,
+      "row": 1,
+      "description": "pillar of descending sacred light",
+      "rect": {
+        "x": 9,
+        "y": 507,
+        "width": 185,
+        "height": 230
+      },
+      "sha256": "dbb010ec904ca28d4efee9c7c6cc4aee5c975a6b0e62ceff038c87040b8ae53a",
+      "visiblePixels": 23643
+    },
+    {
+      "id": "halo_rays",
+      "sheet": "Art/SkillParts/VfxSanctuary",
+      "category": "Sanctuary",
+      "column": 1,
+      "row": 1,
+      "description": "halo with descending rays",
+      "rect": {
+        "x": 210,
+        "y": 507,
+        "width": 174,
+        "height": 230
+      },
+      "sha256": "97c5eeff2334483c2cde6b69034600495fd19f3dfc8c1ee8505c5a5367db6971",
+      "visiblePixels": 22805
+    },
+    {
+      "id": "life_tree",
+      "sheet": "Art/SkillParts/VfxSanctuary",
+      "category": "Sanctuary",
+      "column": 2,
+      "row": 1,
+      "description": "branching tree of life sigil",
+      "rect": {
+        "x": 393,
+        "y": 500,
+        "width": 188,
+        "height": 238
+      },
+      "sha256": "74866bce6dd2d3e2372fd2b156d70a32d070fa52538f46181b16c6438281bb7f",
+      "visiblePixels": 21186
+    },
+    {
+      "id": "mending_heart",
+      "sheet": "Art/SkillParts/VfxSanctuary",
+      "category": "Sanctuary",
+      "column": 3,
+      "row": 1,
+      "description": "rejoining cracked crystal heart",
+      "rect": {
+        "x": 581,
+        "y": 520,
+        "width": 190,
+        "height": 204
+      },
+      "sha256": "91835d9fab70068efeac266ef0a0035a3d2a9c24a8fa4f02670c31fd83645c03",
+      "visiblePixels": 17635
+    },
+    {
+      "id": "healing_patch",
+      "sheet": "Art/SkillParts/VfxSanctuary",
+      "category": "Sanctuary",
+      "column": 4,
+      "row": 1,
+      "description": "needlework healing patch",
+      "rect": {
+        "x": 790,
+        "y": 514,
+        "width": 156,
+        "height": 196
+      },
+      "sha256": "7819c1831da9e9d760ef601e9209bd1a3d83313e9140e3118ca6a5346c32de99",
+      "visiblePixels": 14125
+    },
+    {
+      "id": "page_sanctuary",
+      "sheet": "Art/SkillParts/VfxSanctuary",
+      "category": "Sanctuary",
+      "column": 5,
+      "row": 1,
+      "description": "floating book-page sanctuary arch",
+      "rect": {
+        "x": 960,
+        "y": 519,
+        "width": 186,
+        "height": 195
+      },
+      "sha256": "6308c288f888da98ecc2fc127c82512f6574e58773b682db87c852786909731a",
+      "visiblePixels": 17586
+    },
+    {
+      "id": "hearth_flame",
+      "sheet": "Art/SkillParts/VfxSanctuary",
+      "category": "Sanctuary",
+      "column": 6,
+      "row": 1,
+      "description": "warm spectral hearth flame",
+      "rect": {
+        "x": 1167,
+        "y": 506,
+        "width": 160,
+        "height": 226
+      },
+      "sha256": "0a539d8a0e31c65a768caa3d68afaf5f84044e49de2eee1c06f34524b252b798",
+      "visiblePixels": 20231
+    },
+    {
+      "id": "resonance_curl",
+      "sheet": "Art/SkillParts/VfxSanctuary",
+      "category": "Sanctuary",
+      "column": 7,
+      "row": 1,
+      "description": "soft musical note-like resonant curl without text",
+      "rect": {
+        "x": 1346,
+        "y": 513,
+        "width": 170,
+        "height": 208
+      },
+      "sha256": "1a8fffb870e7ab0046b6b96754d0a0453b66667be6ffb9f918b84a2c0507f930",
+      "visiblePixels": 21019
+    },
+    {
+      "id": "constellation",
+      "sheet": "Art/SkillParts/VfxSanctuary",
+      "category": "Sanctuary",
+      "column": 0,
+      "row": 2,
+      "description": "seven stars connected as a constellation",
+      "rect": {
+        "x": 13,
+        "y": 289,
+        "width": 174,
+        "height": 181
+      },
+      "sha256": "8789d2d917f4499fead39e034dc48437f7bf60a125eb524b2e200e7a45f8b218",
+      "visiblePixels": 15994
+    },
+    {
+      "id": "galaxy_disc",
+      "sheet": "Art/SkillParts/VfxSanctuary",
+      "category": "Sanctuary",
+      "column": 1,
+      "row": 2,
+      "description": "spiral galaxy energy disc",
+      "rect": {
+        "x": 196,
+        "y": 282,
+        "width": 194,
+        "height": 191
+      },
+      "sha256": "025d609116aa65768f1f13d2226b0c55c322cd6ba83f05a72e50d05778075a28",
+      "visiblePixels": 26254
+    },
+    {
+      "id": "watching_eye",
+      "sheet": "Art/SkillParts/VfxSanctuary",
+      "category": "Sanctuary",
+      "column": 2,
+      "row": 2,
+      "description": "radiant watching eye",
+      "rect": {
+        "x": 396,
+        "y": 268,
+        "width": 185,
+        "height": 218
+      },
+      "sha256": "66aca0e469dc010ef24b469312e06fe94565972c318fba9c84e9b124d8d4b18e",
+      "visiblePixels": 12690
+    },
+    {
+      "id": "audience_cluster",
+      "sheet": "Art/SkillParts/VfxSanctuary",
+      "category": "Sanctuary",
+      "column": 3,
+      "row": 2,
+      "description": "spectral audience silhouette cluster",
+      "rect": {
+        "x": 581,
+        "y": 279,
+        "width": 190,
+        "height": 189
+      },
+      "sha256": "df78b88409eefe3aeacf8671a346675ddc4a08e83190be1bca7021a6987a53f2",
+      "visiblePixels": 22761
+    },
+    {
+      "id": "grand_crown",
+      "sheet": "Art/SkillParts/VfxSanctuary",
+      "category": "Sanctuary",
+      "column": 4,
+      "row": 2,
+      "description": "grand ornamental crown with broken tip",
+      "rect": {
+        "x": 771,
+        "y": 280,
+        "width": 182,
+        "height": 192
+      },
+      "sha256": "ed7170afa6460c6d21b4605d6639129b6cf54ee53cbedb73bed646c3a0f5a757",
+      "visiblePixels": 16434
+    },
+    {
+      "id": "beast_head",
+      "sheet": "Art/SkillParts/VfxSanctuary",
+      "category": "Sanctuary",
+      "column": 5,
+      "row": 2,
+      "description": "spectral beast head silhouette",
+      "rect": {
+        "x": 963,
+        "y": 271,
+        "width": 182,
+        "height": 209
+      },
+      "sha256": "890b10a8dd6c7ffc78d7092c7a1bdffd75703d3a34f75661a342431e8f5701c5",
+      "visiblePixels": 25193
+    },
+    {
+      "id": "great_bird",
+      "sheet": "Art/SkillParts/VfxSanctuary",
+      "category": "Sanctuary",
+      "column": 6,
+      "row": 2,
+      "description": "enormous feathered bird outline",
+      "rect": {
+        "x": 1146,
+        "y": 267,
+        "width": 196,
+        "height": 229
+      },
+      "sha256": "65db8408000fda70728676d29c74a27e284a33f87ca11513c48b6bec3f04c28f",
+      "visiblePixels": 25050
+    },
+    {
+      "id": "lunar_bride",
+      "sheet": "Art/SkillParts/VfxSanctuary",
+      "category": "Sanctuary",
+      "column": 7,
+      "row": 2,
+      "description": "blooming lunar bride veil",
+      "rect": {
+        "x": 1342,
+        "y": 261,
+        "width": 179,
+        "height": 219
+      },
+      "sha256": "bc350684d1c21f3c038e77639dc12dd17806559052dc6131731b3def063b394f",
+      "visiblePixels": 23363
+    },
+    {
+      "id": "puppet_hand",
+      "sheet": "Art/SkillParts/VfxSanctuary",
+      "category": "Sanctuary",
+      "column": 0,
+      "row": 3,
+      "description": "giant puppet hand with dangling threads",
+      "rect": {
+        "x": 17,
+        "y": 23,
+        "width": 176,
+        "height": 231
+      },
+      "sha256": "f69ce4df1c883efa5383da924ec19f448cfb858e80ebf0e5f6b701ff7644d901",
+      "visiblePixels": 13615
+    },
+    {
+      "id": "proscenium",
+      "sheet": "Art/SkillParts/VfxSanctuary",
+      "category": "Sanctuary",
+      "column": 1,
+      "row": 3,
+      "description": "theatre proscenium arch",
+      "rect": {
+        "x": 205,
+        "y": 30,
+        "width": 185,
+        "height": 223
+      },
+      "sha256": "7404c48e481e0b76fcb8139510057f1b48c2869b9c887e472d4dc7e9b4a98dd2",
+      "visiblePixels": 28432
+    },
+    {
+      "id": "cosmic_gate",
+      "sheet": "Art/SkillParts/VfxSanctuary",
+      "category": "Sanctuary",
+      "column": 2,
+      "row": 3,
+      "description": "ruptured cosmic gateway",
+      "rect": {
+        "x": 397,
+        "y": 31,
+        "width": 182,
+        "height": 220
+      },
+      "sha256": "ae117e02bb574e106ddc77bf77cb17e82b124115b2585eb2de827037601db717",
+      "visiblePixels": 26197
+    },
+    {
+      "id": "void_maw",
+      "sheet": "Art/SkillParts/VfxSanctuary",
+      "category": "Sanctuary",
+      "column": 3,
+      "row": 3,
+      "description": "circular devouring maw of sharp void teeth",
+      "rect": {
+        "x": 583,
+        "y": 40,
+        "width": 188,
+        "height": 201
+      },
+      "sha256": "9fc4b527f744c99becaa523e8f5f0f6e547f203c7f9dd891d7b9433a9e9d818d",
+      "visiblePixels": 28149
+    },
+    {
+      "id": "sun_crest",
+      "sheet": "Art/SkillParts/VfxSanctuary",
+      "category": "Sanctuary",
+      "column": 4,
+      "row": 3,
+      "description": "radiating golden sun-like crest in silver-white",
+      "rect": {
+        "x": 771,
+        "y": 29,
+        "width": 189,
+        "height": 228
+      },
+      "sha256": "ea1bd846da0e488f6cf8460d08640aca0f89cf074e51a576bc93655bf516c3c2",
+      "visiblePixels": 14146
+    },
+    {
+      "id": "mirror_fan",
+      "sheet": "Art/SkillParts/VfxSanctuary",
+      "category": "Sanctuary",
+      "column": 5,
+      "row": 3,
+      "description": "prismatic mirror fragment fan",
+      "rect": {
+        "x": 964,
+        "y": 38,
+        "width": 174,
+        "height": 204
+      },
+      "sha256": "876b639bdb44b26dd761f91c3f95909a148f6802782e2895a8af3144c6681e37",
+      "visiblePixels": 20924
+    },
+    {
+      "id": "final_sigil",
+      "sheet": "Art/SkillParts/VfxSanctuary",
+      "category": "Sanctuary",
+      "column": 6,
+      "row": 3,
+      "description": "expanding ornate final-act sigil",
+      "rect": {
+        "x": 1151,
+        "y": 25,
+        "width": 191,
+        "height": 232
+      },
+      "sha256": "fe0ab9b7da0c330cf2cb9b454f498b4d2c267ff179cd0936bc6650a32bb9c43b",
+      "visiblePixels": 27087
+    },
+    {
+      "id": "comet_burst",
+      "sheet": "Art/SkillParts/VfxSanctuary",
+      "category": "Sanctuary",
+      "column": 7,
+      "row": 3,
+      "description": "large burst of upward comet tails",
+      "rect": {
+        "x": 1342,
+        "y": 29,
+        "width": 186,
+        "height": 222
+      },
+      "sha256": "465d67b12a45f7206b0f4cbebb4086720e226d017febac6fd295400053718205",
+      "visiblePixels": 27916
+    }
+  ]
+}

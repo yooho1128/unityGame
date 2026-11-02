@@ -28,6 +28,7 @@ namespace ShadowTheater.UI
             }
             if (hpFill != null)
             {
+                BattleStageStyle.ConfigureHealthFill(hpFill);
                 hpFill.enabled = occupied;
                 hpFill.fillAmount = occupied ? unit.HpRatio : 0f;
                 hpFill.color = unit == null || unit.IsFainted ? new Color(.35f, .32f, .4f)

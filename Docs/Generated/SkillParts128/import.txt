@@ -1,0 +1,1 @@
+128 distinct painted sprites imported; 4 shared textures; source alpha preserved.

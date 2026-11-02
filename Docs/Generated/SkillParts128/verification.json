@@ -1,0 +1,42 @@
+{
+  "baselineFiles": 5564,
+  "unrelatedChanges": [],
+  "matchingCSharpSources": 293,
+  "newPaintedSprites": 128,
+  "dressedSkills": 199,
+  "distinctRenderedSequences": 199,
+  "comparedFrameSamplesPerSkill": 3,
+  "exercisedDrawnParts": 128,
+  "sourceAtlases": [
+    {
+      "file": "Assets/Resources/Art/SkillParts/VfxElements.png",
+      "bytes": 2876249,
+      "sha256": "1339984032694306c6dcb5c3f274db5fc9878a1dc0019c6dcfc7adae58e755de",
+      "sprites": 32
+    },
+    {
+      "file": "Assets/Resources/Art/SkillParts/VfxSanctuary.png",
+      "bytes": 2743116,
+      "sha256": "e41f0303c6e733576020d69e575cc34b2ccbdf29d20e1eda17d27f40b48bbeb5",
+      "sprites": 32
+    },
+    {
+      "file": "Assets/Resources/Art/SkillParts/VfxTheatre.png",
+      "bytes": 2746858,
+      "sha256": "2419cd7f0f0c5ec2e7c473f0b38de15e0f1e63158e29db308f9c6ff7fa07a99c",
+      "sprites": 32
+    },
+    {
+      "file": "Assets/Resources/Art/SkillParts/VfxWeapons.png",
+      "bytes": 2700073,
+      "sha256": "1b1eba4354774fdbf5c7fceb350b4be2211ffa7e74a37b9d5e92a5876524ab72",
+      "sprites": 32
+    }
+  ],
+  "unityCompile": "PASS",
+  "editorPlayModeSeconds": 12,
+  "runtimeErrors": 0,
+  "waveformsChecked": 398,
+  "visualRoleComparisons": 18,
+  "playerBuildRequested": false
+}

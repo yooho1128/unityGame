@@ -15,49 +15,20 @@ namespace ShadowTheater.UI
         [SerializeField] private BattleSfxPlayer sfxPlayer;
         [SerializeField] private Camera battleCamera;
 
+        private void Awake() => SkillPartLibrary.Preload();
+
         public IEnumerator Play(BattleUnitPanel attacker, BattleUnitPanel defender, SkillData skill,
                                 HitResult hit, float playbackSpeed, System.Action onImpact = null)
         {
             if (attacker == null || skill == null) yield break;
             float speed = Mathf.Max(0.1f, playbackSpeed);
+            var profile=SkillPresentationProfile.For(skill);
             if (sfxPlayer == null) sfxPlayer = GetComponent<BattleSfxPlayer>();
             if (battleCamera == null || !battleCamera.isActiveAndEnabled) battleCamera = Camera.main;
             if (sfxPlayer != null) sfxPlayer.PlaySkill(skill);
             if (!skill.isUltimate)
             {
-                if (skill.target != SkillTarget.Self)
-                {
-                    using (var attack = new BattleAttackPresentation(CreateLayer("AttackSequence"), attacker, defender, skill, hit.missed, onImpact))
-                    {
-                        float duration = .64f / speed;
-                        bool impactPlayed = false;
-                        for (float elapsed = 0f; elapsed < duration; elapsed += Time.unscaledDeltaTime)
-                        {
-                            float progress = elapsed / duration;
-                            attack.Sample(progress);
-                            if (!impactPlayed && progress >= BattleAttackPresentation.ImpactProgress && !hit.missed)
-                            {
-                                impactPlayed = true;
-                                if (sfxPlayer != null) sfxPlayer.PlayImpact(skill);
-                                GameSettings.TryVibrate();
-                                yield return HitStop(skill.hitStopDuration / Mathf.Sqrt(speed));
-                            }
-                            yield return null;
-                        }
-                        attack.Sample(1f);
-                    }
-                    yield break;
-                }
-                yield return Pulse(attacker, skill, 0.18f / speed, speed);
-                onImpact?.Invoke();
-                if (skill.target == SkillTarget.Self || !hit.missed)
-                {
-                    RectTransform standardLayer = CreateLayer($"Skill_{skill.skillId}");
-                    Vector2 effectCenter = EffectCenter(standardLayer, attacker.Portrait != null ? attacker.Portrait.rectTransform : attacker.MotionRoot);
-                    BuildStandardMotif(standardLayer, skill, effectCenter);
-                    yield return AnimateStandardMotif(standardLayer, skill, effectCenter, .14f / speed);
-                    Object.Destroy(standardLayer.gameObject);
-                }
+                yield return SignatureAttack(attacker, defender, skill, hit, speed, onImpact);
                 yield break;
             }
 
@@ -72,27 +43,31 @@ namespace ShadowTheater.UI
             Vector3 originalScale = attacker.MotionRoot.localScale;
             Vector3 originalPosition = attacker.MotionRoot.localPosition;
             Color originalPortrait = attacker.Portrait != null ? attacker.Portrait.color : Color.black;
-            UltimateFxAssetPlayer assetFx = CreateAssetFx(layer, skill);
-            if (assetFx == null) BuildMotif(layer, skill);
+            bool painted=profile.choreography.art.IsComplete;
+            UltimateFxAssetPlayer assetFx = painted?null:CreateAssetFx(layer, skill);
+            if (!painted && assetFx == null) BuildMotif(layer, skill);
 
             float t = 0f;
-            float intro = 0.28f / speed;
+            float intro=(profile.IsRecovery? .48f:.4f)/speed;
+            Vector2 tableauSource=EffectCenter(layer,attacker.Portrait!=null?attacker.Portrait.rectTransform:attacker.MotionRoot);
+            Vector2 tableauTarget=skill.target==SkillTarget.Self || defender==null?tableauSource:
+                EffectCenter(layer,defender.Portrait!=null?defender.Portrait.rectTransform:defender.MotionRoot);
+            using(var tableau=new SkillSignatureFx(layer,profile,tableauSource,tableauTarget,hit.missed,skill.target==SkillTarget.Self))
             while (t < intro)
             {
                 t += Time.unscaledDeltaTime;
                 float p = Mathf.Clamp01(t / intro);
+                tableau.SamplePrelude(p);
                 dim.color = new Color(0.01f, 0.005f, 0.03f, Mathf.Lerp(0f, 0.82f, p));
                 title.rectTransform.localScale = Vector3.Lerp(new Vector3(1.35f, 0.15f, 1f), Vector3.one, EaseOut(p));
                 attacker.MotionRoot.localScale = Vector3.Lerp(originalScale, originalScale * 1.18f, EaseOut(p));
                 if (attacker.Portrait != null)
                     attacker.Portrait.color = Color.Lerp(originalPortrait, skill.primaryFxColor, p * 0.7f);
-                if (assetFx != null) assetFx.SetProgress(p); else AnimateMotif(layer, p, skill);
+                if (assetFx != null) assetFx.SetProgress(p); else if(!painted) AnimateMotif(layer, p, skill);
                 yield return null;
             }
 
-            if (skill.target == SkillTarget.Self)
-            { yield return Pulse(attacker, skill, 0.24f / speed, speed); onImpact?.Invoke(); }
-            else yield return Lunge(attacker, defender, skill, hit, 0.24f / speed, skill.cameraShake + 0.5f, speed, onImpact);
+            yield return SignatureAttack(attacker, defender, skill, hit, speed, onImpact);
 
             t = 0f;
             float burst = 0.22f / speed;
@@ -102,12 +77,12 @@ namespace ShadowTheater.UI
             {
                 t += Time.unscaledDeltaTime;
                 float p = Mathf.Clamp01(t / burst);
-                flash.color = WithAlpha(skill.secondaryFxColor, Mathf.Sin(p * Mathf.PI) * 0.88f);
+                flash.color = WithAlpha(skill.secondaryFxColor, !hit.missed ? Mathf.Sin(p * Mathf.PI) * .24f : 0f);
                 title.color = Color.Lerp(skill.primaryFxColor, Color.white, Mathf.Sin(p * Mathf.PI));
-                if (assetFx != null) assetFx.SetProgress(1f - p * .18f); else AnimateMotif(layer, 1f + p, skill);
-                if (stageRoot != null)
+                if (assetFx != null) assetFx.SetProgress(1f - p * .18f); else if(!painted) AnimateMotif(layer, 1f + p, skill);
+                if (stageRoot != null && skill.DealsDamage && !hit.missed)
                     stageRoot.anchoredPosition = stagePosition + Random.insideUnitCircle * (skill.cameraShake * 8f * (1f - p));
-                if (battleCamera != null)
+                if (battleCamera != null && skill.DealsDamage && !hit.missed)
                     battleCamera.transform.localPosition = cameraPosition + (Vector3)(Random.insideUnitCircle * (skill.cameraShake * 0.1f * (1f - p)));
                 yield return null;
             }
@@ -118,6 +93,35 @@ namespace ShadowTheater.UI
             if (stageRoot != null) stageRoot.anchoredPosition = stagePosition;
             if (battleCamera != null) battleCamera.transform.localPosition = cameraPosition;
             Object.Destroy(layer.gameObject);
+        }
+
+        private IEnumerator SignatureAttack(BattleUnitPanel attacker, BattleUnitPanel defender, SkillData skill,
+            HitResult hit, float speed, System.Action onImpact)
+        {
+            bool impactPlayed = false;
+            System.Action present = () =>
+            {
+                onImpact?.Invoke();
+                if (hit.missed && skill.target != SkillTarget.Self) return;
+                impactPlayed = true;
+                if (sfxPlayer != null) sfxPlayer.PlayImpact(skill);
+                if (skill.DealsDamage) GameSettings.TryVibrate();
+            };
+            using (var attack = new BattleAttackPresentation(CreateLayer("AttackSequence"), attacker, defender, skill, hit.missed, present))
+            {
+                float duration = SkillPresentationProfile.For(skill).duration / speed;
+                for (float elapsed = 0f; elapsed < duration; elapsed += Time.unscaledDeltaTime)
+                {
+                    attack.Sample(elapsed / duration);
+                    if (impactPlayed)
+                    {
+                        impactPlayed = false;
+                        if (skill.DealsDamage) yield return HitStop(skill.hitStopDuration / Mathf.Sqrt(speed));
+                    }
+                    yield return null;
+                }
+                attack.Sample(1f);
+            }
         }
 
         public IEnumerator PlayBossPhase(BattleUnitPanel bossPanel, BattleUnit boss,
@@ -219,81 +223,6 @@ namespace ShadowTheater.UI
             }
         }
 
-        private IEnumerator Pulse(BattleUnitPanel panel, SkillData skill, float duration, float speed)
-        {
-            Vector3 start = panel.MotionRoot.localScale;
-            float t = 0f;
-            bool impacted = false;
-            while (t < duration)
-            {
-                t += Time.unscaledDeltaTime;
-                float p = Mathf.Clamp01(t / duration);
-                panel.MotionRoot.localScale = start * (1f + Mathf.Sin(p * Mathf.PI) * 0.16f);
-                if (!impacted && p >= 0.5f)
-                {
-                    impacted = true;
-                    if (sfxPlayer != null) sfxPlayer.PlayImpact(skill);
-                    yield return HitStop(skill.hitStopDuration / Mathf.Sqrt(speed));
-                }
-                yield return null;
-            }
-            panel.MotionRoot.localScale = start;
-        }
-
-        private IEnumerator Lunge(BattleUnitPanel attacker, BattleUnitPanel defender, SkillData skill, HitResult hit,
-                                  float duration, float shakePower, float speed, System.Action onImpact = null)
-        {
-            RectTransform a = attacker.MotionRoot;
-            Vector3 start = a.localPosition;
-            Vector3 startScale = a.localScale;
-            Quaternion startRotation = a.localRotation;
-            Vector3 cameraPosition = battleCamera != null ? battleCamera.transform.localPosition : Vector3.zero;
-            Vector3 target = defender != null
-                ? start + (defender.MotionRoot.position - a.position) * 0.14f
-                : start + Vector3.right * 70f;
-            if (attacker.MotionRole == ShadowRole.SpeedUtility) target = start + (target - start) * 1.35f;
-            float half = Mathf.Max(0.03f, duration * 0.5f);
-            float t = 0f;
-            bool impacted = false;
-            while (t < duration)
-            {
-                t += Time.unscaledDeltaTime;
-                float p = Mathf.Clamp01(t / half);
-                a.localPosition = t < half ? Vector3.Lerp(start, target, EaseOut(p)) : Vector3.Lerp(target, start, EaseOut((t - half) / half));
-                float motion = Mathf.Sin(Mathf.Clamp01(t / duration) * Mathf.PI);
-                if (attacker.MotionRole == ShadowRole.MagicNuker || attacker.MotionRole == ShadowRole.Support)
-                    a.localPosition += Vector3.up * (motion * 34f);
-                float stretch = attacker.MotionRole == ShadowRole.SpeedUtility ? .18f : .1f;
-                a.localScale = Vector3.Scale(startScale, new Vector3(1f + motion * stretch, 1f - motion * stretch * .35f, 1f));
-                float tilt = attacker.MotionRole == ShadowRole.SpeedUtility ? -10f :
-                    attacker.MotionRole == ShadowRole.MagicNuker || attacker.MotionRole == ShadowRole.Support ? 4f : -3f;
-                a.localRotation = startRotation * Quaternion.Euler(0f, 0f, motion * tilt);
-                if (t >= half && !impacted)
-                {
-                    impacted = true;
-                    onImpact?.Invoke();
-                    if (!hit.missed)
-                    {
-                        if (sfxPlayer != null) sfxPlayer.PlayImpact(skill);
-                        GameSettings.TryVibrate();
-                        yield return HitStop(skill.hitStopDuration / Mathf.Sqrt(speed));
-                    }
-                }
-                if (t >= half && !hit.missed && defender != null)
-                {
-                    defender.MotionRoot.localPosition += (Vector3)Random.insideUnitCircle * (shakePower * 4f);
-                    if (battleCamera != null)
-                        battleCamera.transform.localPosition = cameraPosition + (Vector3)(Random.insideUnitCircle * shakePower * 0.035f);
-                }
-                yield return null;
-            }
-            a.localPosition = start;
-            a.localScale = startScale;
-            a.localRotation = startRotation;
-            if (defender != null) defender.ResetMotion();
-            if (battleCamera != null) battleCamera.transform.localPosition = cameraPosition;
-        }
-
         private void BuildMotif(RectTransform layer, SkillData skill)
         {
             int count = Mathf.Clamp(skill.ultimateBurstCount, 6, 36);
@@ -311,57 +240,6 @@ namespace ShadowTheater.UI
             }
         }
 
-        private static void BuildStandardMotif(RectTransform layer, SkillData skill, Vector2 center)
-        {
-            Color primary = StandardColor(skill.element);
-            Color secondary = skill.target == SkillTarget.Self
-                ? new Color(.45f, 1f, .72f, .9f)
-                : Color.Lerp(primary, Color.white, .45f);
-            int count = skill.damageType == DamageType.Magical ? 16 : 12;
-            for (int i = 0; i < count; i++)
-            {
-                float angle = (360f / count) * i + (skill.element == ShadowElement.Shade ? i * 11f : 0f);
-                Image shard = AddImage($"Burst_{i:00}", layer, new Vector2(.5f, .5f), new Vector2(.5f, .5f),
-                    i % 2 == 0 ? primary : secondary);
-                RectTransform rect = shard.rectTransform;
-                shard.sprite = BattleFxSpriteLibrary.ForSkill(skill);
-                float length = skill.damageType == DamageType.Physical ? 58f + i % 4 * 14f : 34f + i % 5 * 10f;
-                rect.sizeDelta = skill.element == ShadowElement.Frost
-                    ? new Vector2(7f + i % 3 * 3f, length * 1.3f)
-                    : skill.target == SkillTarget.Self
-                        ? new Vector2(18f + i % 3 * 6f, 18f + i % 3 * 6f)
-                        : new Vector2(8f + i % 3 * 4f, length);
-                rect.anchoredPosition = center;
-                rect.localRotation = Quaternion.Euler(0f, 0f, angle - 90f);
-                rect.localScale = Vector3.zero;
-                shard.raycastTarget = false;
-            }
-        }
-
-        private static IEnumerator AnimateStandardMotif(RectTransform layer, SkillData skill, Vector2 center, float duration)
-        {
-            float elapsed = 0f;
-            int count = Mathf.Max(1, layer.childCount);
-            while (elapsed < duration)
-            {
-                elapsed += Time.unscaledDeltaTime;
-                float p = Mathf.Clamp01(elapsed / duration);
-                float radius = Mathf.Lerp(8f, skill.target == SkillTarget.Self ? 92f : 138f, EaseOut(p));
-                for (int i = 0; i < layer.childCount; i++)
-                {
-                    var rect = layer.GetChild(i) as RectTransform;
-                    if (rect == null) continue;
-                    float angle = ((360f / count) * i + (skill.element == ShadowElement.Shade ? i * 11f : 0f)) * Mathf.Deg2Rad;
-                    rect.anchoredPosition = center + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius;
-                    float scale = Mathf.Sin(p * Mathf.PI) * (skill.statusEffect == StatusEffectType.None ? 1f : 1.18f);
-                    rect.localScale = Vector3.one * scale;
-                    Image image = rect.GetComponent<Image>();
-                    if (image != null) image.color = WithAlpha(image.color, 1f - p * .75f);
-                }
-                yield return null;
-            }
-        }
-
         private static Vector2 EffectCenter(RectTransform layer, RectTransform target)
         {
             if (layer == null || target == null) return Vector2.zero;
@@ -371,8 +249,6 @@ namespace ShadowTheater.UI
             return RectTransformUtility.ScreenPointToLocalPointInRectangle(layer, screen, camera, out Vector2 local)
                 ? local : Vector2.zero;
         }
-
-        private static Color StandardColor(ShadowElement element) => ElementChart.ColorFor(element);
 
         private static void AnimateMotif(RectTransform layer, float progress, SkillData skill)
         {

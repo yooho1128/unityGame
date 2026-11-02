@@ -60,6 +60,7 @@ namespace ShadowTheater.UI
 
         private void Awake()
         {
+            BattleStageStyle.ConfigureHealthFill(hpFill);
             if (hpText != null)
             {
                 var rect = hpText.rectTransform;

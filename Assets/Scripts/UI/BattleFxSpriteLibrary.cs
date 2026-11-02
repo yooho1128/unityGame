@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace ShadowTheater.UI
 {
-    public enum BattleFxGlyph { Flame, Crystal, Crescent, Feather, Petal, Slash, Ring, Star, Rune, Thread, ContactShadow, Solid }
+    public enum BattleFxGlyph { Flame, Crystal, Crescent, Feather, Petal, Slash, Ring, Star, Rune, Thread, ContactShadow, Solid, Disc, Shield, Bell, Mask, Crown }
 
     /// <summary>속성별 이펙트 마스크를 공유하여 사각형 파편 대신 읽기 쉬운 실루엣을 사용한다.</summary>
     public static class BattleFxSpriteLibrary
@@ -12,9 +12,9 @@ namespace ShadowTheater.UI
         private static readonly Dictionary<BattleFxGlyph, Sprite> Fallback = new Dictionary<BattleFxGlyph, Sprite>();
         public static Sprite Get(BattleFxGlyph glyph)
         {
+            if (Fallback.TryGetValue(glyph, out Sprite cached) && cached != null) return cached;
             Sprite asset = Resources.Load<Sprite>("Art/FX/" + glyph);
-            if (asset != null) return asset;
-            if (Fallback.TryGetValue(glyph, out Sprite cached)) return cached;
+            if (asset != null) { Fallback[glyph] = asset; return asset; }
             var texture = new Texture2D(64, 64, TextureFormat.RGBA32, false) { name = glyph.ToString(), filterMode = FilterMode.Bilinear };
             texture.SetPixels32(Pixels(glyph)); texture.Apply(false, true);
             var sprite = Sprite.Create(texture, new Rect(0, 0, 64, 64), new Vector2(.5f, .5f), 64);
@@ -22,10 +22,7 @@ namespace ShadowTheater.UI
             return sprite;
         }
 
-        public static Sprite ForSkill(SkillData skill) => Get(skill.target == SkillTarget.Self ? BattleFxGlyph.Ring :
-            skill.element == ShadowElement.Flame ? BattleFxGlyph.Flame : skill.element == ShadowElement.Frost ? BattleFxGlyph.Crystal :
-            skill.element == ShadowElement.Shade ? BattleFxGlyph.Crescent :
-            skill.damageType == DamageType.Physical ? BattleFxGlyph.Slash : BattleFxGlyph.Star);
+        public static Sprite ForSkill(SkillData skill) => Get(SkillPresentationProfile.For(skill).glyph);
 
         public static Sprite ForStyle(UltimateFxStyle style) => Get(
             style == UltimateFxStyle.FlameCrown ? BattleFxGlyph.Flame :
@@ -46,6 +43,23 @@ namespace ShadowTheater.UI
                 float r = Mathf.Sqrt(u * u + v * v), a = 0;
                 switch (glyph)
                 {
+                    case BattleFxGlyph.Disc: a=Mathf.Clamp01((.88f-r)*16);break;
+                    case BattleFxGlyph.Shield:
+                        float width=.72f*Mathf.Clamp01((v+.95f)/.85f);
+                        a=Mathf.Clamp01((width-Mathf.Abs(u))*15)*Mathf.Clamp01((.78f-v)*15);
+                        a*=Mathf.Clamp01((Mathf.Abs(u)-width+.12f)*24)+Mathf.Clamp01((v-.62f)*30);break;
+                    case BattleFxGlyph.Bell:
+                        float bellWidth=.3f+Mathf.Clamp01(.65f-v)*.38f;
+                        a=Mathf.Clamp01((bellWidth-Mathf.Abs(u))*18)*Mathf.Clamp01((.78f-v)*15)*Mathf.Clamp01((v+.65f)*18);
+                        a*=Mathf.Clamp01((Mathf.Abs(u)-bellWidth+.1f)*25)+Mathf.Clamp01((-.48f-v)*25);
+                        a=Mathf.Max(a,Mathf.Clamp01((.13f-Mathf.Sqrt(u*u+(v+.78f)*(v+.78f)))*30));break;
+                    case BattleFxGlyph.Mask:
+                        a=Mathf.Clamp01((.85f-u*u*1.5f-v*v)*12);
+                        if(Mathf.Abs(v-.18f)<.12f && Mathf.Abs(Mathf.Abs(u)-.28f)<.15f)a=0;
+                        if(Mathf.Abs(v+.37f)<.07f && Mathf.Abs(u)<.26f)a=0;break;
+                    case BattleFxGlyph.Crown:
+                        float top=.15f+.58f*Mathf.Pow(Mathf.Cos(u*Mathf.PI*3),2);
+                        a=Mathf.Clamp01((.85f-Mathf.Abs(u))*20)*Mathf.Clamp01((top-v)*20)*Mathf.Clamp01((v+.65f)*20);break;
                     case BattleFxGlyph.Solid: a = 1; break;
                     case BattleFxGlyph.Flame:
                         a = 1 - Mathf.Abs(u + Mathf.Sin(v * 5) * .13f) / Mathf.Max(.02f, (1 - v) * .32f);

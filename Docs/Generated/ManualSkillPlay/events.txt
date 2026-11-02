@@ -1,0 +1,189 @@
+Manual UI skill session; setup only, no scripted combat input.
+2026-11-02T04:11:59.3772415Z Isolated save initialized; normal field booted.
+2026-11-02T04:12:01.3835139Z Prepared group 0; normal BattleFlow started; 5 starting FP, wounded actors, durable weak opponent. No action submitted.
+2026-11-02T04:13:48.0732685Z READY turn=1 after= playerHp=304 enemyHp=30000 fp=5
+2026-11-02T04:21:28.0248265Z Isolated save initialized; normal field booted.
+2026-11-02T04:21:30.0279233Z Prepared group 0; normal BattleFlow started; 5 starting FP, wounded actors, durable weak opponent. No action submitted.
+2026-11-02T04:21:32.3223696Z READY turn=1 after= playerHp=304 enemyHp=30000 fp=5
+2026-11-02T04:22:34.1688936Z Isolated save initialized; normal field booted.
+2026-11-02T04:22:36.1747524Z Prepared group 0; normal BattleFlow started; 5 starting FP, wounded actors, durable weak opponent. No action submitted.
+2026-11-02T04:22:38.4804222Z READY turn=1 after= playerHp=304 enemyHp=30000 fp=5
+2026-11-02T04:23:02.3219015Z INPUT Skill skill=guardian_oath turn=1 playerHp=304 enemyHp=30000 fp=5
+2026-11-02T04:23:02.3346903Z FP Player=2
+2026-11-02T04:23:02.4207782Z CAPTURE D:/codex-validation/manual-skill-play-20261102/captures/guardian_oath-1.png
+2026-11-02T04:23:06.7726437Z FP Player=3
+2026-11-02T04:23:06.7764711Z READY turn=2 after=guardian_oath playerHp=645 enemyHp=30000 fp=3
+2026-11-02T04:23:29.2717418Z INPUT Skill skill=ember_strike turn=2 playerHp=645 enemyHp=30000 fp=3
+2026-11-02T04:23:29.2773079Z FP Player=1
+2026-11-02T04:23:29.6651115Z CAPTURE D:/codex-validation/manual-skill-play-20261102/captures/ember_strike-2.png
+2026-11-02T04:23:33.0149896Z FP Player=2
+2026-11-02T04:23:33.5682315Z READY turn=3 after=ember_strike playerHp=644 enemyHp=27797 fp=2
+2026-11-02T04:23:56.6130752Z INPUT Attack skill=slash turn=3 playerHp=644 enemyHp=27797 fp=2
+2026-11-02T04:23:56.6191470Z FP Player=3
+2026-11-02T04:23:56.8943273Z CAPTURE D:/codex-validation/manual-skill-play-20261102/captures/slash-3.png
+2026-11-02T04:24:00.1195137Z FP Player=4
+2026-11-02T04:24:00.1240677Z READY turn=4 after=slash playerHp=643 enemyHp=25726 fp=4
+2026-11-02T04:24:29.4946832Z INPUT Skill skill=fallen_crown turn=4 playerHp=643 enemyHp=25726 fp=4
+2026-11-02T04:24:29.5079169Z FP Player=0
+2026-11-02T04:24:29.5079169Z FP Player=1
+2026-11-02T04:24:29.7381238Z CAPTURE D:/codex-validation/manual-skill-play-20261102/captures/fallen_crown-4.png
+2026-11-02T04:24:34.8580785Z FP Player=2
+2026-11-02T04:24:34.8640188Z READY turn=5 after=fallen_crown playerHp=642 enemyHp=22877 fp=2
+2026-11-02T04:25:01.5176200Z INPUT Switch skill= turn=5 playerHp=642 enemyHp=22877 fp=2
+2026-11-02T04:25:01.8038045Z ACTIVE Player 끊어진 인형 hp=241/603
+2026-11-02T04:25:02.6963963Z FP Player=3
+2026-11-02T04:25:02.9752442Z READY turn=6 after= playerHp=240 enemyHp=22877 fp=3
+2026-11-02T04:25:40.1079141Z INPUT Skill skill=cut_string turn=6 playerHp=240 enemyHp=22877 fp=3
+2026-11-02T04:25:40.1175887Z FP Player=1
+2026-11-02T04:25:40.3220633Z CAPTURE D:/codex-validation/manual-skill-play-20261102/captures/cut_string-6.png
+2026-11-02T04:25:41.7786278Z FP Player=2
+2026-11-02T04:25:41.7852955Z READY turn=7 after=cut_string playerHp=239 enemyHp=22691 fp=2
+2026-11-02T04:26:14.1182290Z INPUT Skill skill=stitch turn=7 playerHp=239 enemyHp=22691 fp=2
+2026-11-02T04:26:14.1263916Z FP Player=0
+2026-11-02T04:26:14.1788458Z CAPTURE D:/codex-validation/manual-skill-play-20261102/captures/stitch-7.png
+2026-11-02T04:26:16.1221436Z FP Player=1
+2026-11-02T04:26:16.1267196Z READY turn=8 after=stitch playerHp=449 enemyHp=22691 fp=1
+2026-11-02T04:26:36.8295699Z INPUT Attack skill=slash turn=8 playerHp=449 enemyHp=22691 fp=1
+2026-11-02T04:26:36.8454040Z FP Player=2
+2026-11-02T04:26:36.9414311Z CAPTURE D:/codex-validation/manual-skill-play-20261102/captures/slash-8.png
+2026-11-02T04:26:37.7615872Z FP Player=3
+2026-11-02T04:26:37.9471571Z READY turn=9 after=slash playerHp=448 enemyHp=22550 fp=3
+2026-11-02T04:27:02.9932335Z INPUT Attack skill=slash turn=9 playerHp=448 enemyHp=22550 fp=3
+2026-11-02T04:27:03.0018513Z FP Player=4
+2026-11-02T04:27:03.0033653Z FP Player=5
+2026-11-02T04:27:03.0963849Z CAPTURE D:/codex-validation/manual-skill-play-20261102/captures/slash-9.png
+2026-11-02T04:27:04.0577774Z READY turn=10 after=slash playerHp=447 enemyHp=22374 fp=5
+2026-11-02T04:27:34.5996802Z INPUT Skill skill=puppet_string_reversal turn=10 playerHp=447 enemyHp=22374 fp=5
+2026-11-02T04:27:34.6062409Z FP Player=1
+2026-11-02T04:27:34.6911946Z CAPTURE D:/codex-validation/manual-skill-play-20261102/captures/puppet_string_reversal-10.png
+2026-11-02T04:27:36.1183717Z FP Player=2
+2026-11-02T04:27:36.1214015Z READY turn=11 after=puppet_string_reversal playerHp=446 enemyHp=21767 fp=2
+2026-11-02T04:28:20.5157262Z INPUT Switch skill= turn=11 playerHp=446 enemyHp=21767 fp=2
+2026-11-02T04:28:20.7086128Z ACTIVE Player 서리 사서 hp=248/621
+2026-11-02T04:28:21.3102074Z FP Player=3
+2026-11-02T04:28:21.4983989Z READY turn=12 after= playerHp=247 enemyHp=21767 fp=3
+2026-11-02T04:28:33.1620698Z INPUT Attack skill=inkshot turn=12 playerHp=247 enemyHp=21767 fp=3
+2026-11-02T04:28:33.1682669Z FP Player=4
+2026-11-02T04:28:33.1682669Z FP Player=5
+2026-11-02T04:28:33.2494984Z CAPTURE D:/codex-validation/manual-skill-play-20261102/captures/inkshot-12.png
+2026-11-02T04:28:34.4054103Z READY turn=13 after=inkshot playerHp=246 enemyHp=21507 fp=5
+2026-11-02T04:29:06.4444704Z INPUT Skill skill=zero_prophecy turn=13 playerHp=246 enemyHp=21507 fp=5
+2026-11-02T04:29:06.4525785Z FP Player=1
+2026-11-02T04:29:06.5280408Z CAPTURE D:/codex-validation/manual-skill-play-20261102/captures/zero_prophecy-13.png
+2026-11-02T04:29:07.8753179Z FP Player=2
+2026-11-02T04:29:07.8805335Z READY turn=14 after=zero_prophecy playerHp=246 enemyHp=20500 fp=2
+2026-11-02T04:29:47.6777582Z INPUT Skill skill=frost_sigil turn=14 playerHp=246 enemyHp=20500 fp=2
+2026-11-02T04:29:47.6838224Z FP Player=0
+2026-11-02T04:29:47.6853979Z FP Player=1
+2026-11-02T04:29:47.8184604Z CAPTURE D:/codex-validation/manual-skill-play-20261102/captures/frost_sigil-14.png
+2026-11-02T04:29:48.7978891Z FP Player=2
+2026-11-02T04:29:48.9861043Z READY turn=15 after=frost_sigil playerHp=246 enemyHp=20095 fp=2
+2026-11-02T04:30:01.5524326Z INPUT Attack skill=inkshot turn=15 playerHp=246 enemyHp=20095 fp=2
+2026-11-02T04:30:01.5579808Z FP Player=3
+2026-11-02T04:30:01.6384730Z CAPTURE D:/codex-validation/manual-skill-play-20261102/captures/inkshot-15.png
+2026-11-02T04:30:02.4270842Z FP Player=4
+2026-11-02T04:30:02.4306942Z READY turn=16 after=inkshot playerHp=245 enemyHp=19885 fp=4
+2026-11-02T04:30:27.9179019Z INPUT Skill skill=memory_sanctuary turn=16 playerHp=245 enemyHp=19885 fp=4
+2026-11-02T04:30:27.9255608Z FP Player=1
+2026-11-02T04:30:27.9683727Z CAPTURE D:/codex-validation/manual-skill-play-20261102/captures/memory_sanctuary-16.png
+2026-11-02T04:30:29.4928417Z FP Player=2
+2026-11-02T04:30:29.4984870Z READY turn=17 after=memory_sanctuary playerHp=554 enemyHp=19885 fp=2
+2026-11-02T04:31:44.2522154Z INPUT Switch skill= turn=17 playerHp=554 enemyHp=19885 fp=2
+2026-11-02T04:31:44.4440525Z ACTIVE Player 밤의 방랑자 hp=274/685
+2026-11-02T04:31:45.0315658Z FP Player=3
+2026-11-02T04:31:45.0342470Z FP Player=4
+2026-11-02T04:31:45.2193938Z READY turn=18 after= playerHp=274 enemyHp=19885 fp=4
+2026-11-02T04:32:02.1080239Z INPUT Attack skill=claw turn=18 playerHp=274 enemyHp=19885 fp=4
+2026-11-02T04:32:02.1161596Z FP Player=5
+2026-11-02T04:32:02.2193067Z CAPTURE D:/codex-validation/manual-skill-play-20261102/captures/claw-18.png
+2026-11-02T04:32:03.2283308Z READY turn=19 after=claw playerHp=273 enemyHp=19579 fp=5
+2026-11-02T04:32:29.3515513Z INPUT Skill skill=blood_fang turn=19 playerHp=273 enemyHp=19579 fp=5
+2026-11-02T04:32:29.3583259Z FP Player=1
+2026-11-02T04:32:29.4341144Z CAPTURE D:/codex-validation/manual-skill-play-20261102/captures/blood_fang-19.png
+2026-11-02T04:32:30.9781781Z FP Player=2
+2026-11-02T04:32:30.9827117Z READY turn=20 after=blood_fang playerHp=273 enemyHp=17903 fp=2
+2026-11-02T04:32:57.0839074Z INPUT Attack skill=claw turn=20 playerHp=273 enemyHp=17903 fp=2
+2026-11-02T04:32:57.0899772Z FP Player=3
+2026-11-02T04:32:57.0914919Z FP Player=4
+2026-11-02T04:32:57.1960806Z CAPTURE D:/codex-validation/manual-skill-play-20261102/captures/claw-20.png
+2026-11-02T04:32:58.3470329Z FP Player=5
+2026-11-02T04:32:58.5343701Z READY turn=21 after=claw playerHp=272 enemyHp=15089 fp=5
+2026-11-02T04:33:30.0942257Z INPUT Skill skill=homeward_howl turn=21 playerHp=272 enemyHp=15089 fp=5
+2026-11-02T04:33:30.1012893Z FP Player=2
+2026-11-02T04:33:30.1282210Z CAPTURE D:/codex-validation/manual-skill-play-20261102/captures/homeward_howl-21.png
+2026-11-02T04:33:31.9464842Z FP Player=3
+2026-11-02T04:33:31.9535989Z READY turn=22 after=homeward_howl playerHp=545 enemyHp=11339 fp=3
+2026-11-02T04:34:16.8099068Z INPUT Switch skill= turn=22 playerHp=545 enemyHp=11339 fp=3
+2026-11-02T04:34:17.0008564Z ACTIVE Player 재까마귀 hp=212/530
+2026-11-02T04:34:17.6017613Z FP Player=4
+2026-11-02T04:34:17.6058638Z READY turn=23 after= playerHp=211 enemyHp=11339 fp=4
+2026-11-02T04:34:32.8504314Z INPUT Attack skill=peck turn=23 playerHp=211 enemyHp=11339 fp=4
+2026-11-02T04:34:32.8560140Z FP Player=5
+2026-11-02T04:34:32.9437176Z CAPTURE D:/codex-validation/manual-skill-play-20261102/captures/peck-23.png
+2026-11-02T04:34:33.9176685Z READY turn=24 after=peck playerHp=210 enemyHp=11194 fp=5
+2026-11-02T04:35:06.7977331Z INPUT Skill skill=crow_dawn_beacon turn=24 playerHp=210 enemyHp=11194 fp=5
+2026-11-02T04:35:06.8070183Z FP Player=1
+2026-11-02T04:35:06.8070183Z FP Player=2
+2026-11-02T04:35:06.8834925Z CAPTURE D:/codex-validation/manual-skill-play-20261102/captures/crow_dawn_beacon-24.png
+2026-11-02T04:35:08.4407520Z FP Player=3
+2026-11-02T04:35:08.4453525Z READY turn=25 after=crow_dawn_beacon playerHp=210 enemyHp=10479 fp=3
+2026-11-02T04:35:39.2642380Z INPUT Attack skill=peck turn=25 playerHp=210 enemyHp=10479 fp=3
+2026-11-02T04:35:39.2702972Z FP Player=4
+2026-11-02T04:35:39.3520939Z CAPTURE D:/codex-validation/manual-skill-play-20261102/captures/peck-25.png
+2026-11-02T04:35:40.1320265Z FP Player=5
+2026-11-02T04:35:40.1380988Z READY turn=26 after=peck playerHp=209 enemyHp=10338 fp=5
+2026-11-02T04:36:13.3068933Z INPUT Skill skill=crow_sky_cremation turn=26 playerHp=209 enemyHp=10338 fp=5
+2026-11-02T04:36:13.3165499Z FP Player=1
+2026-11-02T04:36:13.3916468Z CAPTURE D:/codex-validation/manual-skill-play-20261102/captures/crow_sky_cremation-26.png
+2026-11-02T04:36:15.1716770Z FP Player=2
+2026-11-02T04:36:15.3586818Z READY turn=27 after=crow_sky_cremation playerHp=208 enemyHp=7947 fp=2
+2026-11-02T04:37:02.4769852Z INPUT Switch skill= turn=27 playerHp=208 enemyHp=7947 fp=2
+2026-11-02T04:37:02.6710727Z ACTIVE Player 달빛의 미망인 hp=364/909
+2026-11-02T04:37:03.4395117Z FP Player=3
+2026-11-02T04:37:03.4456218Z READY turn=28 after= playerHp=364 enemyHp=6072 fp=3
+2026-11-02T04:37:21.1538226Z INPUT Attack skill=widow_fan_cut turn=28 playerHp=364 enemyHp=6072 fp=3
+2026-11-02T04:37:21.1604113Z FP Player=4
+2026-11-02T04:37:21.1615166Z FP Player=5
+2026-11-02T04:37:21.2568816Z CAPTURE D:/codex-validation/manual-skill-play-20261102/captures/widow_fan_cut-28.png
+2026-11-02T04:37:22.5790407Z READY turn=29 after=widow_fan_cut playerHp=363 enemyHp=3962 fp=5
+2026-11-02T04:37:56.3550653Z INPUT Skill skill=moonlit_benediction turn=29 playerHp=363 enemyHp=3962 fp=5
+2026-11-02T04:37:56.3643097Z FP Player=2
+2026-11-02T04:37:56.3922225Z CAPTURE D:/codex-validation/manual-skill-play-20261102/captures/moonlit_benediction-29.png
+2026-11-02T04:37:57.8638593Z FP Player=3
+2026-11-02T04:37:58.0503511Z READY turn=30 after=moonlit_benediction playerHp=771 enemyHp=3962 fp=3
+2026-11-02T04:38:38.7866558Z INPUT Attack skill=widow_fan_cut turn=30 playerHp=771 enemyHp=3962 fp=3
+2026-11-02T04:38:38.7933744Z FP Player=4
+2026-11-02T04:38:38.8868549Z CAPTURE D:/codex-validation/manual-skill-play-20261102/captures/widow_fan_cut-30.png
+2026-11-02T04:38:39.6541234Z FP Player=5
+2026-11-02T04:38:39.6586940Z READY turn=31 after=widow_fan_cut playerHp=770 enemyHp=3767 fp=5
+2026-11-02T04:39:16.9108813Z INPUT Skill skill=eclipse_widow turn=31 playerHp=770 enemyHp=3767 fp=5
+2026-11-02T04:39:16.9170782Z FP Player=1
+2026-11-02T04:39:16.9959536Z CAPTURE D:/codex-validation/manual-skill-play-20261102/captures/eclipse_widow-31.png
+2026-11-02T04:39:18.1992055Z FP Player=2
+2026-11-02T04:39:18.2039473Z READY turn=32 after=eclipse_widow playerHp=770 enemyHp=3119 fp=2
+2026-11-02T04:40:15.5415537Z INPUT Escape skill= turn=32 playerHp=770 enemyHp=3119 fp=2
+2026-11-02T04:42:02.7402432Z SESSION FINISH runtimeErrors=0 distinct UI-submitted skills=20
+Manual UI skill session; setup only, no scripted combat input.
+2026-11-02T04:44:58.1279716Z Isolated save initialized; normal field booted.
+2026-11-02T04:45:00.1295741Z Prepared group 2; normal BattleFlow started; 5 starting FP, wounded actors, durable weak opponent. No action submitted.
+2026-11-02T04:45:02.4810865Z READY turn=1 after= playerHp=248 enemyHp=30000 fp=5
+2026-11-02T04:46:14.4468007Z INPUT Skill skill=memory_sanctuary turn=1 playerHp=248 enemyHp=30000 fp=5
+2026-11-02T04:46:14.4650094Z FP Player=2
+2026-11-02T04:46:14.5444250Z CAPTURE D:/codex-validation/manual-skill-play-20261102/captures/memory_sanctuary-1.png
+2026-11-02T04:46:18.9238282Z FP Player=3
+2026-11-02T04:46:18.9293871Z READY turn=2 after=memory_sanctuary playerHp=557 enemyHp=30000 fp=3
+2026-11-02T04:48:02.8933296Z INPUT Switch skill= turn=2 playerHp=557 enemyHp=30000 fp=3
+2026-11-02T04:48:03.4561546Z ACTIVE Player 재까마귀 hp=212/530
+2026-11-02T04:48:05.2236040Z FP Player=4
+2026-11-02T04:48:05.7761616Z READY turn=3 after= playerHp=211 enemyHp=30000 fp=4
+2026-11-02T04:48:55.9163403Z INPUT Skill skill=crow_dawn_beacon turn=3 playerHp=211 enemyHp=30000 fp=4
+2026-11-02T04:48:55.9229241Z FP Player=0
+2026-11-02T04:48:56.1595526Z CAPTURE D:/codex-validation/manual-skill-play-20261102/captures/crow_dawn_beacon-3.png
+2026-11-02T04:49:00.1062602Z FP Player=1
+2026-11-02T04:49:00.1102979Z READY turn=4 after=crow_dawn_beacon playerHp=210 enemyHp=29631 fp=1
+2026-11-02T04:51:02.2068176Z Victory target prepared; await normal UI attack input.
+2026-11-02T04:51:26.6312492Z INPUT Attack skill=peck turn=4 playerHp=210 enemyHp=1 fp=1
+2026-11-02T04:51:26.6384235Z FP Player=2
+2026-11-02T04:51:26.6399356Z FP Player=3
+2026-11-02T04:51:26.8743998Z CAPTURE D:/codex-validation/manual-skill-play-20261102/captures/peck-4.png
+2026-11-02T04:53:09.3527896Z SESSION FINISH runtimeErrors=0 distinct UI-submitted skills=3

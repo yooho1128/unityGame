@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using ShadowTheater.Battle;
 using ShadowTheater.Story;
 using UnityEngine;
@@ -27,6 +28,21 @@ namespace ShadowTheater.UI
         private Coroutine _transition;
         private MusicCue _current;
         private bool _hasCue;
+        private readonly Dictionary<MusicCue,AudioClip> _generated=new Dictionary<MusicCue,AudioClip>();
+        private readonly Dictionary<AudioClip,float> _positions=new Dictionary<AudioClip,float>();
+        private float _activeGain,_standbyGain,_duck=1f,_duckUntil,_duckDepth=1f;
+        public void DuckForSkill(float duration,float depth)
+        {
+            _duckUntil=Mathf.Max(_duckUntil,Time.unscaledTime+duration);
+            _duckDepth=Mathf.Min(_duckDepth,Mathf.Clamp(depth,.45f,1f));
+        }
+        private void Update()
+        {
+            float target=Time.unscaledTime<_duckUntil?_duckDepth:1f;
+            _duck=Mathf.MoveTowards(_duck,target,Time.unscaledDeltaTime*(target<_duck?5f:1.7f));
+            if(_duck>=.999f && target==1f)_duckDepth=1f;
+            RefreshVolume();
+        }
 
         private void Awake()
         {
@@ -51,7 +67,11 @@ namespace ShadowTheater.UI
             GameSettings.Changed -= RefreshVolume;
         }
 
-        private void OnDestroy() { if (Instance == this) Instance = null; }
+        private void OnDestroy()
+        {
+            if(Instance==this)Instance=null;
+            foreach(AudioClip clip in _generated.Values)if(clip!=null)Destroy(clip);
+        }
 
         public void EnterBattle(BattleMode mode)
         {
@@ -75,49 +95,68 @@ namespace ShadowTheater.UI
         private void Play(MusicCue cue, bool immediate = false)
         {
             if (_hasCue && _current == cue && _active != null && _active.isPlaying) return;
-            _current = cue;
-            _hasCue = true;
-            AudioClip clip = Resolve(cue);
-            if (clip == null) return;
-            if (_transition != null) StopCoroutine(_transition);
-            _transition = StartCoroutine(Crossfade(clip, immediate ? 0f : crossfadeDuration));
-        }
-
-        private IEnumerator Crossfade(AudioClip clip, float duration)
-        {
-            _standby.clip = clip;
-            _standby.volume = 0f;
-            _standby.Play();
-            float start = _active != null ? _active.volume : 0f;
-            float target = volume * GameSettings.MusicVolume;
-            float elapsed = 0f;
-            while (elapsed < duration)
+            AudioClip clip=Resolve(cue);
+            if(clip==null)return;
+            _current=cue;_hasCue=true;
+            if(_transition!=null)
             {
-                elapsed += Time.unscaledDeltaTime;
-                float p = Mathf.Clamp01(elapsed / duration);
-                _active.volume = Mathf.Lerp(start, 0f, p);
-                _standby.volume = Mathf.Lerp(0f, target, p);
-                yield return null;
+                StopCoroutine(_transition);
+                if(_standbyGain>_activeGain)
+                {
+                    AudioSource swap=_active;_active=_standby;_standby=swap;
+                    float gain=_activeGain;_activeGain=_standbyGain;_standbyGain=gain;
+                }
             }
-            _active.Stop();
-            _active.volume = 0f;
-            _standby.volume = target;
-            AudioSource swap = _active; _active = _standby; _standby = swap;
-            _transition = null;
+            if(_active.clip==clip && _active.isPlaying)
+            {
+                Remember(_standby);_standby.Stop();_standbyGain=0;
+                _transition=StartCoroutine(RestoreActive(immediate?0:crossfadeDuration));
+            }
+            else _transition=StartCoroutine(Crossfade(clip,immediate?0:crossfadeDuration));
         }
-
+        private void Remember(AudioSource source)
+        {
+            if(source!=null && source.clip!=null && source.isPlaying)_positions[source.clip]=source.time;
+        }
+        private IEnumerator RestoreActive(float duration)
+        {
+            float start=_activeGain;
+            for(float t=0;t<duration;t+=Time.unscaledDeltaTime)
+            {_activeGain=Mathf.Lerp(start,1f,t/duration);yield return null;}
+            _activeGain=1;RefreshVolume();_transition=null;
+        }
+        private IEnumerator Crossfade(AudioClip clip,float duration)
+        {
+            Remember(_standby);_standby.Stop();_standby.clip=clip;
+            _standbyGain=0;_standby.volume=0;
+            _standby.time=_positions.TryGetValue(clip,out float pos)?Mathf.Clamp(pos,0,Mathf.Max(0,clip.length-.05f)):0;
+            _standby.Play();float start=_activeGain,elapsed=0;
+            while(elapsed<duration)
+            {
+                elapsed+=Time.unscaledDeltaTime;float p=Mathf.Clamp01(elapsed/duration);
+                _activeGain=start*Mathf.Cos(p*Mathf.PI*.5f);_standbyGain=Mathf.Sin(p*Mathf.PI*.5f);
+                RefreshVolume();yield return null;
+            }
+            Remember(_active);_active.Stop();_active.volume=0;
+            AudioSource swap=_active;_active=_standby;_standby=swap;
+            _activeGain=1;_standbyGain=0;RefreshVolume();_transition=null;
+        }
         private void RefreshVolume()
         {
-            if (_active != null) _active.volume = volume * GameSettings.MusicVolume;
+            float gain=volume*GameSettings.MusicVolume*_duck;
+            if(_active!=null)_active.volume=gain*_activeGain;
+            if(_standby!=null)_standby.volume=gain*_standbyGain;
         }
 
         private AudioClip Resolve(MusicCue cue)
         {
             int index = (int)cue;
             if (clips != null && index >= 0 && index < clips.Length && clips[index] != null) return clips[index];
+            if (_generated.TryGetValue(cue, out AudioClip cached)) return cached;
             float[] samples = SynthesizeSamples(cue);
             var generated = AudioClip.Create("GeneratedMusic_" + cue, samples.Length, 1, SampleRate, false);
             generated.SetData(samples, 0);
+            _generated[cue] = generated;
             return generated;
         }
 
@@ -137,7 +176,7 @@ namespace ShadowTheater.UI
             const float duration = 8f;
             int count = Mathf.RoundToInt(SampleRate * duration);
             var samples = new float[count];
-            int root = RootCycle(cue);
+            int root = RootCycle(cue) * 64;
             int third = Mathf.RoundToInt(root * (cue == MusicCue.Act2 || cue == MusicCue.BossBattle ? 1.25f : 1.2f));
             int fifth = Mathf.RoundToInt(root * 1.5f);
             for (int i = 0; i < count; i++)

@@ -1,0 +1,3 @@
+Unity source operation check
+Scene=PrologueTheater; Player/Grid/GameFlow initialized=True; observed Play Mode for 12 seconds
+Play Mode stopped; player build not requested; runtime errors=0

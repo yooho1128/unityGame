@@ -33,6 +33,17 @@ namespace ShadowTheater.EditorTools
             Debug.Log("[ReleaseMusic] 13개 큐의 최종 음악 준비 완료 · 기존 음원 보존");
         }
 
+        [MenuItem("Tools/Shadow Theater/Release/Arrange Battle Music")]
+        public static void ArrangeBattleMusic()
+        {
+            Directory.CreateDirectory(Folder);
+            foreach(MusicCue cue in new[] {MusicCue.WildBattle,MusicCue.RivalBattle,MusicCue.BossBattle})
+            {
+                string path=$"{Folder}/{cue}.wav";Write(path,Compose(cue));
+                AssetDatabase.ImportAsset(path,ImportAssetOptions.ForceSynchronousImport);Configure(path);
+            }
+        }
+
         public static void Configure(string path)
         {
             var importer = AssetImporter.GetAtPath(path) as AudioImporter;
@@ -66,6 +77,14 @@ namespace ShadowTheater.EditorTools
                 for (int voice = 0; voice < 3; voice++)
                     Note(output, start, 4.7 * beat, root + Scale(scale, chord + voice * 2), .055f, 0);
                 Note(output, start, 3.8 * beat, root - 12 + Scale(scale, chord), .12f, 1);
+                if(battle)
+                {
+                    for(int step=0;step<8;step++)
+                        Note(output,start+step*.5*beat,.42*beat,root-12+Scale(scale,chord+(step%4==3?4:0)),bar>=8? .085f:.05f,2);
+                    if(bar%4==3)
+                        for(int step=0;step<4;step++)
+                            Note(output,start+(2+step*.5)*beat,.65*beat,root+24+Scale(scale,chord+step),.045f,3);
+                }
                 int steps = battle ? 8 : 4;
                 for (int step = 0; step < steps; step++)
                 {
@@ -87,6 +106,8 @@ namespace ShadowTheater.EditorTools
                     {
                         Drum(output, start + step * beat, step % 2 == 0, .14f, bar * 4 + step);
                         Drum(output, start + (step + .5) * beat, false, .035f, bar * 17 + step);
+                        if(bar>=8 && step%2==1)Drum(output,start+(step+.75)*beat,false,.045f,bar*31+step);
+                        if(cue==MusicCue.BossBattle && step==0)Drum(output,start,true,.12f,bar+93);
                     }
                 }
                 else if (cue == MusicCue.Act5 || cue == MusicCue.Act2)

@@ -456,6 +456,22 @@ namespace ShadowTheater.UI
 
         private void RebuildOptionsLayout()
         {
+            // Older generated canvases leave stretched rows at zero width.
+            if (optionContent is RectTransform content)
+            {
+                content.anchorMin = new Vector2(0f, 1f); content.anchorMax = Vector2.one;
+                content.pivot = new Vector2(.5f, 1f);
+                content.sizeDelta = new Vector2(0f, content.sizeDelta.y);
+                content.anchoredPosition = Vector2.zero;
+                var layout = content.GetComponent<VerticalLayoutGroup>();
+                if (layout != null)
+                {
+                    layout.childControlWidth = layout.childForceExpandWidth = true;
+                    layout.childControlHeight = true; layout.childForceExpandHeight = false;
+                }
+                var fitter = content.GetComponent<ContentSizeFitter>();
+                if (fitter != null) fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+            }
             Canvas.ForceUpdateCanvases();
             foreach (var row in _options) row.GetComponent<BattleOptionButton>()?.FitContent();
             UiListLayout.Rebuild(optionContent, Vector2.zero);

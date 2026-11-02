@@ -43,10 +43,12 @@ namespace ShadowTheater.UI
         }
         public static void Apply(Transform root,GameObject actions,GameObject message,GameObject options,GameObject result)
         {
+            EnsureStageArt(root);
             var background=root.Find("Backdrop")?.GetComponent<Image>();
             if(background!=null&&background.sprite==null)background.color=TheatreUiStyle.Midnight;
             Paint(root.Find("SafeArea/TopBar")?.gameObject,TheatreUiStyle.Surface);
             Paint(actions,TheatreUiStyle.Midnight);Paint(message,TheatreUiStyle.Surface);Paint(options,TheatreUiStyle.Surface);
+            Place(options!=null?options.transform:null,new Vector2(.04f,.035f),new Vector2(.96f,.50f));
             if(actions!=null)
             {
                 Place(actions.transform,new Vector2(.04f,.035f),new Vector2(.96f,.19f));
@@ -71,6 +73,24 @@ namespace ShadowTheater.UI
             Paint(badge.gameObject,TheatreUiStyle.Raised);
             var seal=RuntimeUiControls.Label(badge,title.font,"",42);seal.color=TheatreUiStyle.Brass;
             seal.fontStyle=FontStyle.Bold;seal.resizeTextForBestFit=true;seal.resizeTextMinSize=20;seal.resizeTextMaxSize=42;
+        }
+        private static void EnsureStageArt(Transform root)
+        {
+            if(root.Find("ReleaseStageArt")!=null)return;
+            var safeArea=root.Find("SafeArea");
+            if(Resources.Load<Sprite>("Art/BattleBackgrounds/Theater")==null)return;
+            var art=RuntimeUiControls.Rect(root,"ReleaseStageArt",Vector2.zero,Vector2.one);
+            art.gameObject.AddComponent<Image>().raycastTarget=false;
+            art.gameObject.AddComponent<BattleStageBackdrop>();
+            var backdrop=root.Find("Backdrop");
+            art.SetSiblingIndex(safeArea!=null?safeArea.GetSiblingIndex():backdrop!=null?backdrop.GetSiblingIndex()+1:0);
+        }
+        public static void ConfigureHealthFill(Image image)
+        {
+            if(image==null)return;
+            if(image.sprite==null)image.sprite=BattleFxSpriteLibrary.Get(BattleFxGlyph.Solid);
+            image.type=Image.Type.Filled;image.fillMethod=Image.FillMethod.Horizontal;
+            image.fillOrigin=0;image.raycastTarget=false;
         }
         public static void PresentResult(GameObject result,BattleOutcome outcome)
         {

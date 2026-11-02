@@ -1,0 +1,42 @@
+{
+  "baselineFiles": 5593,
+  "changed": [
+    "Assets/Scripts/Field/GameFlowController.cs",
+    "Assets/Scripts/UI/BattlePartySlot.cs",
+    "Assets/Scripts/UI/BattleStageStyle.cs",
+    "Assets/Scripts/UI/BattleUIController.cs",
+    "Assets/Scripts/UI/BattleUnitPanel.cs",
+    "Assets/Scripts/UI/SkillSignatureFx.cs"
+  ],
+  "unrelatedChanged": [],
+  "sourceFiles": 293,
+  "sourceMismatches": [],
+  "uiActions": 36,
+  "distinctUiSkills": 20,
+  "skills": [
+    "blood_fang",
+    "claw",
+    "crow_dawn_beacon",
+    "crow_sky_cremation",
+    "cut_string",
+    "eclipse_widow",
+    "ember_strike",
+    "fallen_crown",
+    "frost_sigil",
+    "guardian_oath",
+    "homeward_howl",
+    "inkshot",
+    "memory_sanctuary",
+    "moonlit_benediction",
+    "peck",
+    "puppet_string_reversal",
+    "slash",
+    "stitch",
+    "widow_fan_cut",
+    "zero_prophecy"
+  ],
+  "sessionFinish": [
+    "SESSION FINISH runtimeErrors=0 distinct UI-submitted skills=20",
+    "SESSION FINISH runtimeErrors=0 distinct UI-submitted skills=3"
+  ]
+}

@@ -53,8 +53,27 @@ namespace ShadowTheater.Field
         private void Awake()
         {
             Instance = this;
+            AttachLegacyFieldCanvases();
             if (battleRoot != null) battleRoot.SetActive(false);
             SaveManager.BeforeSave += WritePlayerPosition;
+        }
+
+        private void AttachLegacyFieldCanvases()
+        {
+            if (fieldRoot == null) return;
+            // Scenes generated before field UI was parented to FieldRoot need the same toggle.
+            foreach (GameObject root in gameObject.scene.GetRootGameObjects())
+            {
+                switch (root.name)
+                {
+                    case "DialogueCanvas": case "RegionArrivalCanvas": case "QuestHUDCanvas":
+                    case "ScriptBookCanvas": case "PartyStorageCanvas": case "WorldMapCanvas":
+                    case "SettlementShopCanvas": case "FieldInventoryCanvas": case "QuestLogCanvas":
+                    case "BossInvestigationJournalCanvas": case "FieldPauseCanvas":
+                        if (root.GetComponent<Canvas>() != null) root.transform.SetParent(fieldRoot.transform, false);
+                        break;
+                }
+            }
         }
 
         private void OnDestroy()
