@@ -1,0 +1,29 @@
+{
+  "baseline_files": 5603,
+  "changed_files": [
+    "Assets/Editor/MobileBuildConfigurator.cs",
+    "Assets/Editor/PresentationPolishPreview.cs",
+    "Assets/Editor/PresentationPolishPreview.cs.meta",
+    "Assets/Editor/SkillPartAssetImporter.cs.meta",
+    "Assets/Resources/Art/SkillParts.meta",
+    "Assets/Resources/Art/SkillParts/VfxElements.png.meta",
+    "Assets/Resources/Art/SkillParts/VfxSanctuary.png.meta",
+    "Assets/Resources/Art/SkillParts/VfxTheatre.png.meta",
+    "Assets/Resources/Art/SkillParts/VfxWeapons.png.meta",
+    "Assets/Resources/Data/SkillPartCatalog.json.meta",
+    "Assets/Resources/Data/SkillPresentationCatalog.json",
+    "Assets/Resources/Data/SkillPresentationCatalog.json.meta",
+    "Assets/Scripts/UI/SkillChoreographyCatalog.cs.meta",
+    "Assets/Scripts/UI/SkillPartLibrary.cs.meta",
+    "Assets/Scripts/UI/SkillPresentationProfile.cs.meta",
+    "Assets/Scripts/UI/SkillSignatureFx.cs.meta",
+    "Assets/Scripts/UI/SkillSoundSynthesis.cs.meta",
+    "Docs/Generated/SkillParts128/assignments.json",
+    "Tools/prepare-skill-parts.py"
+  ],
+  "new_input_files": [],
+  "originals_retained": true,
+  "unrelated_changes_retained": true,
+  "unrelated_git_status_entries_preserved": 2824,
+  "staging_empty": true
+}

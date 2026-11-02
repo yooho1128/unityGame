@@ -1,0 +1,17 @@
+{
+  "apk": "D:\\unityGame\\Builds\\Android\\ShadowTheater-v0.1.19-20261102.apk",
+  "bytes": 176034560,
+  "sha256": "36b0fbbcc392bd449c95137ba305524913374d8ff239c8dceac2cf38ebcde025",
+  "version": "0.1.19",
+  "version_code": 20,
+  "application_id": "com.yooho.shadowtheater",
+  "abi": "arm64-v8a",
+  "min_sdk": 26,
+  "signature_verified": true,
+  "previous_signer_preserved": true,
+  "signer_sha256": "ac4da6fb2714b50463bd7161314b895d67855380e3a73f1a776cdfed4c3d9fd9",
+  "zip_crc_passed": true,
+  "il2cpp_arm64": true,
+  "device_install_performed": false,
+  "build_exit": 0
+}

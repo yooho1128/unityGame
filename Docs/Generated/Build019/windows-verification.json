@@ -1,0 +1,13 @@
+{
+  "exe": "D:\\unityGame\\Builds\\Windows\\ShadowTheater-v0.1.19-20261102\\ShadowTheater.exe",
+  "zip": "D:\\unityGame\\Builds\\Windows\\ShadowTheater-v0.1.19-20261102.zip",
+  "bytes": 161725871,
+  "sha256": "6839297f284d5c1f3aef4be9305bb6fce312c4b78b222b38fc1edd581c95df17",
+  "files": 175,
+  "source_copy_hashes_match": true,
+  "runtime_assembly_updated": true,
+  "zip_crc_passed": true,
+  "machine": "AMD64",
+  "version": "0.1.19",
+  "build_exit": 0
+}
