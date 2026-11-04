@@ -1911,7 +1911,8 @@ namespace ShadowTheater.EditorTools
             hintImage.sprite = Resources.Load<Sprite>("Art/UI/ControlPlate"); hintImage.type = Image.Type.Sliced;
             hintImage.color = new Color(.09f,.06f,.17f,.88f); hintImage.raycastTarget = false;
             var hint = UiText("Hint", desktopHint, new Vector2(.035f,.08f), new Vector2(.965f,.92f), 21, TextAnchor.MiddleLeft);
-            hint.text = "이동  WASD / 방향키   ·   조사  Z / Space / Enter   ·   메뉴  Esc\n가방 I  ·  파티 P  ·  각본집 Tab  ·  지도 M  ·  퀘스트 Q  ·  상점 S\n게임패드  스틱 / D-Pad 이동   ·   A 선택   ·   B 뒤로";
+            hint.text = "이동  WASD / 방향키   ·   조사  Z / Space / Enter   ·   메뉴  Esc\n가방 I  ·  파티 P  ·  각본집 Tab  ·  지도 M  ·  퀘스트 Q  ·  상점 O\n게임패드  스틱 / D-Pad 이동   ·   패드 A 선택   ·   패드 B 뒤로";
+            desktopHint.gameObject.AddComponent<DesktopControlsView>();
             var desktopVisibility = desktopHint.gameObject.AddComponent<PlatformDisplayGroup>();
             var desktopSo = new SerializedObject(desktopVisibility);
             Set(desktopSo,"showOnMobile",false); Set(desktopSo,"showOnDesktop",true);

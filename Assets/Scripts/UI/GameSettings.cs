@@ -22,6 +22,8 @@ namespace ShadowTheater.UI
         private GameLanguage _language;
         private bool _fullscreen;
         private bool _vSync;
+        private bool _reducedMotion;
+        private bool _dialogueSounds;
         private int _resolutionIndex;
 
         private static readonly Vector2Int[] DesktopResolutions =
@@ -39,6 +41,15 @@ namespace ShadowTheater.UI
         public static GameLanguage Language => Instance != null ? Instance._language : GameLanguage.Korean;
         public static bool Fullscreen => Instance == null || Instance._fullscreen;
         public static bool VSync => Instance == null || Instance._vSync;
+        public static bool ReducedMotion => Instance != null && Instance._reducedMotion;
+        public static bool DialogueSounds => Instance == null || Instance._dialogueSounds;
+        public static int ResolutionCount => DesktopResolutions.Length;
+        public static int ResolutionIndex => Instance != null ? Instance._resolutionIndex : 2;
+        public static string GetResolutionLabel(int index)
+        {
+            var size = DesktopResolutions[Mathf.Clamp(index, 0, DesktopResolutions.Length - 1)];
+            return $"{size.x} × {size.y}";
+        }
         public static string ResolutionLabel
         {
             get
@@ -68,6 +79,8 @@ namespace ShadowTheater.UI
         public void SetMusicVolume(float value) { _musicVolume = Mathf.Clamp01(value); ApplyAndSave(); }
         public void SetSfxVolume(float value) { _sfxVolume = Mathf.Clamp01(value); ApplyAndSave(); }
         public void SetVibration(bool value) { _vibration = value; ApplyAndSave(); }
+        public void SetReducedMotion(bool value) { _reducedMotion = value; ApplyAndSave(); }
+        public void SetDialogueSounds(bool value) { _dialogueSounds = value; ApplyAndSave(); }
         public void SetTextSpeed(float value) { _textSpeed = Mathf.Clamp(value, 20f, 90f); ApplyAndSave(); }
         public void SetLanguage(GameLanguage value)
         {
@@ -80,6 +93,13 @@ namespace ShadowTheater.UI
         public void CycleResolution()
         {
             _resolutionIndex = (_resolutionIndex + 1) % DesktopResolutions.Length;
+            ApplyDisplayAndSave();
+        }
+        public void SetResolution(int index)
+        {
+            int next = Mathf.Clamp(index, 0, DesktopResolutions.Length - 1);
+            if (_resolutionIndex == next) return;
+            _resolutionIndex = next;
             ApplyDisplayAndSave();
         }
 
@@ -104,6 +124,8 @@ namespace ShadowTheater.UI
                 : GameLanguage.Korean;
             _fullscreen = PlayerPrefs.GetInt(Prefix + "fullscreen", 1) != 0;
             _vSync = PlayerPrefs.GetInt(Prefix + "vsync", 1) != 0;
+            _reducedMotion = PlayerPrefs.GetInt(Prefix + "reduced_motion", 0) != 0;
+            _dialogueSounds = PlayerPrefs.GetInt(Prefix + "dialogue_sounds", 1) != 0;
             _resolutionIndex = Mathf.Clamp(PlayerPrefs.GetInt(Prefix + "resolution", 2), 0,
                 DesktopResolutions.Length - 1);
         }
@@ -132,6 +154,8 @@ namespace ShadowTheater.UI
             PlayerPrefs.SetInt(Prefix + "language", (int)_language);
             PlayerPrefs.SetInt(Prefix + "fullscreen", _fullscreen ? 1 : 0);
             PlayerPrefs.SetInt(Prefix + "vsync", _vSync ? 1 : 0);
+            PlayerPrefs.SetInt(Prefix + "reduced_motion", _reducedMotion ? 1 : 0);
+            PlayerPrefs.SetInt(Prefix + "dialogue_sounds", _dialogueSounds ? 1 : 0);
             PlayerPrefs.SetInt(Prefix + "resolution", _resolutionIndex);
             PlayerPrefs.Save();
         }

@@ -84,7 +84,7 @@ namespace ShadowTheater.UI
             if (card != null)
             {
                 var background = card.GetComponent<Image>();
-                if (background != null) background.color = new Color(.035f, .055f, .085f, .95f);
+                TheatreUiStyle.Panel(background, new Color(.035f, .055f, .085f, .95f));
                 var outline = card.GetComponent<Outline>();
                 if (outline != null)
                 {

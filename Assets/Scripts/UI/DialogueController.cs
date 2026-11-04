@@ -47,6 +47,8 @@ namespace ShadowTheater.UI
         private Color _baseAccent = new Color(.71f, .38f, 1f, 1f);
         private int _lastInputFrame = -1;
         private int _session;
+        private StorySceneGraphic _sceneGraphic;
+        private Text _stageDirection;
 
         private void Awake()
         {
@@ -56,6 +58,7 @@ namespace ShadowTheater.UI
                 return;
             }
             Instance = this;
+            StylePresentation();
             if (dialogueBox != null) _dialogueBoxHome = dialogueBox.anchoredPosition;
             SetVisible(false);
         }
@@ -225,9 +228,23 @@ namespace ShadowTheater.UI
             var line = _sequence.lines[_lineIndex];
             if (!string.IsNullOrEmpty(line.setFlag)) SaveManager.SetFlag(line.setFlag, line.setFlagValue);
             ApplyEmotion(line.emotion);
+            if (_sceneGraphic != null)
+            {
+                _sceneGraphic.Cinematic = _sequence.cinematic;
+                _sceneGraphic.Accent = accentBar != null ? accentBar.color : TheatreUiStyle.Brass;
+            }
+            if (_stageDirection != null)
+            {
+                _stageDirection.text = L10n.Get($"dialogue.{_sequence.dialogueId}.{_lineIndex}.direction", line.stageDirection ?? string.Empty);
+                _stageDirection.gameObject.SetActive(!string.IsNullOrEmpty(line.stageDirection));
+            }
+            if (_sequence.cinematic && !string.IsNullOrEmpty(line.stageDirection))
+                GameFeedbackAudio.Play(FeedbackCue.Revelation);
+            else if (_lineIndex > 0) GameFeedbackAudio.Play(FeedbackCue.PageTurn);
             if (speakerText != null) speakerText.text = L10n.Get(
                 $"dialogue.{_sequence.dialogueId}.{_lineIndex}.speaker", L10n.Text(line.speaker));
             _fullLine = L10n.Get($"dialogue.{_sequence.dialogueId}.{_lineIndex}.text", L10n.Text(line.text));
+            FitBodyToFullLine();
             if (_typingRoutine != null) StopCoroutine(_typingRoutine);
             _typingRoutine = StartCoroutine(TypeLine());
         }
@@ -250,6 +267,7 @@ namespace ShadowTheater.UI
             }
 
             _awaitingChoice = true;
+            if (_stageDirection != null) _stageDirection.gameObject.SetActive(false);
             if (choiceRoot != null) choiceRoot.SetActive(true);
             if (continueText != null) continueText.gameObject.SetActive(false);
             for (int i = 0; i < choiceViews.Count; i++)
@@ -275,11 +293,29 @@ namespace ShadowTheater.UI
             if (continueText != null) continueText.gameObject.SetActive(false);
 
             float visibleCharacters = 0f;
+            int previousCount = 0;
+            float pause = 0f;
             while (visibleCharacters < _fullLine.Length)
             {
+                if (pause > 0f) { pause -= Time.unscaledDeltaTime; yield return null; continue; }
                 float speed = GameSettings.Instance != null ? GameSettings.TextSpeed : charactersPerSecond;
                 visibleCharacters += speed * Time.unscaledDeltaTime;
                 int count = Mathf.Min(_fullLine.Length, Mathf.FloorToInt(visibleCharacters));
+                if (count > previousCount)
+                {
+                    // Stop at the first punctuation even when a slow frame reveals several characters.
+                    for (int i = previousCount; i < count; i++)
+                    {
+                        char c = _fullLine[i];
+                        if (c == ',' || c == '，') pause = .07f;
+                        else if (c == '…' || c == '—') pause = .19f;
+                        else if ((c == '.' || c == '?' || c == '!') && i < _fullLine.Length - 1) pause = .12f;
+                        if (pause > 0f) { count = i + 1; visibleCharacters = count; break; }
+                    }
+                    if (!char.IsWhiteSpace(_fullLine[count - 1]) && !char.IsPunctuation(_fullLine[count - 1]))
+                        GameFeedbackAudio.Play(FeedbackCue.DialogueTick);
+                    previousCount = count;
+                }
                 if (bodyText != null) bodyText.text = _fullLine.Substring(0, count);
                 yield return null;
             }
@@ -388,8 +424,57 @@ namespace ShadowTheater.UI
                 dialogueBoxImage.color = Color.Lerp(new Color(.035f, .026f, .075f, .96f), color, .08f);
 
             StopEmotionMotion();
-            if (dialogueBox != null && (shake > 0f || pulse))
+            if (dialogueBox != null && !GameSettings.ReducedMotion && (shake > 0f || pulse))
                 _emotionRoutine = StartCoroutine(EmotionMotion(shake, pulse));
+        }
+
+        private void StylePresentation()
+        {
+            TheatreUiStyle.Panel(dialogueBoxImage, TheatreUiStyle.Surface);
+            if (bodyText != null)
+            {
+                bodyText.fontSize = 28; bodyText.lineSpacing = 1.18f;
+                bodyText.resizeTextForBestFit = false;
+                bodyText.verticalOverflow = VerticalWrapMode.Truncate;
+            }
+            if (speakerText != null) speakerText.fontSize = 24;
+            if (continueText != null)
+            {
+                continueText.fontSize = 18;
+                continueText.text = Application.isMobilePlatform ? "탭하여 계속  ›" : "Z / Space / Enter  계속  ›";
+                RuntimeUiControls.Place(continueText.rectTransform, new Vector2(.38f, .035f), new Vector2(.94f, .17f));
+            }
+            if (panelRoot == null || bodyText == null) return;
+            if (dialogueBox != null && Screen.width < Screen.height * 1.2f)
+            {
+                dialogueBox.anchorMax = new Vector2(dialogueBox.anchorMax.x, .40f);
+                if (choiceRoot != null)
+                    RuntimeUiControls.Place((RectTransform)choiceRoot.transform, new Vector2(.09f, .43f), new Vector2(.91f, .73f));
+            }
+            var scene = RuntimeUiControls.Rect(panelRoot.transform, "StoryAtmosphere", Vector2.zero, Vector2.one);
+            scene.SetAsFirstSibling();
+            _sceneGraphic = scene.gameObject.AddComponent<StorySceneGraphic>();
+            float captionBottom = dialogueBox != null ? dialogueBox.anchorMax.y + .035f : .33f;
+            var caption = RuntimeUiControls.Rect(panelRoot.transform, "StageDirection", new Vector2(.12f, captionBottom), new Vector2(.88f, captionBottom + .07f));
+            _stageDirection = RuntimeUiControls.Label(caption, bodyText.font, "", 22);
+            _stageDirection.color = TheatreUiStyle.Ivory; _stageDirection.fontStyle = FontStyle.Italic;
+            _stageDirection.resizeTextForBestFit = true; _stageDirection.resizeTextMinSize = 16; _stageDirection.resizeTextMaxSize = 22;
+            _stageDirection.gameObject.SetActive(false);
+        }
+
+        private void FitBodyToFullLine()
+        {
+            if (bodyText == null) return;
+            Canvas.ForceUpdateCanvases();
+            Vector2 size = bodyText.rectTransform.rect.size;
+            var settings = bodyText.GetGenerationSettings(size);
+            settings.resizeTextForBestFit = false;
+            for (int fontSize = 28; fontSize >= 16; fontSize--)
+            {
+                settings.fontSize = fontSize;
+                float height = bodyText.cachedTextGeneratorForLayout.GetPreferredHeight(_fullLine, settings) / bodyText.pixelsPerUnit;
+                if (height <= size.y || fontSize == 16) { bodyText.fontSize = fontSize; break; }
+            }
         }
 
         private IEnumerator EmotionMotion(float shake, bool pulse)
@@ -398,6 +483,7 @@ namespace ShadowTheater.UI
             float elapsed = 0f;
             while (elapsed < duration)
             {
+                if (GameSettings.ReducedMotion) break;
                 elapsed += Time.unscaledDeltaTime;
                 float fade = 1f - Mathf.Clamp01(elapsed / duration);
                 if (shake > 0f)

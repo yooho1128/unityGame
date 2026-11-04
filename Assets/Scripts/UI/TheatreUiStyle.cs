@@ -18,17 +18,16 @@ namespace ShadowTheater.UI
         public static void Panel(Image image, Color fill)
         {
             if (image == null) return;
-            image.color = fill;
-            var outline = image.GetComponent<Outline>() ?? image.gameObject.AddComponent<Outline>();
-            outline.effectColor = new Color(Brass.r, Brass.g, Brass.b, .25f);
-            outline.effectDistance = new Vector2(1f, -1f);
-            var shadow = image.GetComponent<Shadow>();
-            // Outline derives from Shadow; never configure it as a drop shadow.
-            foreach (var candidate in image.GetComponents<Shadow>())
-                if (!(candidate is Outline)) { shadow = candidate; break; }
-            if (shadow == null || shadow is Outline) shadow = image.gameObject.AddComponent<Shadow>();
-            shadow.effectColor = new Color(0f, .01f, .025f, .32f);
-            shadow.effectDistance = new Vector2(0f, -4f);
+            SurfaceImage(image, fill, 14f);
+        }
+
+        public static void SurfaceImage(Image image, Color fill, float radius = 10f, bool border = true)
+        {
+            if (image == null) return;
+            image.sprite = null; image.overrideSprite = null; image.type = Image.Type.Simple; image.color = fill;
+            foreach (var effect in image.GetComponents<Shadow>()) effect.enabled = false;
+            var surface = image.GetComponent<RoundedSurface>() ?? image.gameObject.AddComponent<RoundedSurface>();
+            surface.Configure(radius, new Color(.40f, .48f, .59f, .30f), border ? 1f : 0f);
         }
 
         public static void Button(Button button, bool primary = false)
@@ -37,19 +36,70 @@ namespace ShadowTheater.UI
             Panel(button.targetGraphic as Image, primary ? Brass : Raised);
             var colors = button.colors;
             colors.normalColor = Color.white;
-            colors.highlightedColor = new Color(1f, .96f, .85f);
-            colors.selectedColor = new Color(1f, .94f, .76f);
-            colors.pressedColor = new Color(.76f, .79f, .84f);
+            colors.highlightedColor = new Color(1.18f, 1.18f, 1.18f);
+            colors.selectedColor = new Color(1.12f, 1.16f, 1.20f);
+            colors.pressedColor = new Color(.78f, .82f, .88f);
             colors.disabledColor = new Color(.48f, .53f, .60f, .6f);
             colors.colorMultiplier = 1f;
             colors.fadeDuration = .12f;
             button.colors = colors;
             button.transition = Selectable.Transition.ColorTint;
+            if (button.GetComponent<HandheldButtonFeedback>() == null)
+                button.gameObject.AddComponent<HandheldButtonFeedback>();
+            if (Application.isPlaying && button.GetComponent<UiButtonSound>() == null)
+                button.gameObject.AddComponent<UiButtonSound>();
             foreach (var text in button.GetComponentsInChildren<Text>(true))
             {
                 text.color = primary ? Midnight : Ivory;
                 text.raycastTarget = false;
             }
+            var label = button.transform.Find("Label")?.GetComponent<Text>();
+            if (label != null)
+            {
+                label.fontSize = Mathf.Min(label.fontSize, 24);
+                label.fontStyle = FontStyle.Normal;
+                label.resizeTextForBestFit = true;
+                label.resizeTextMinSize = 14; label.resizeTextMaxSize = label.fontSize;
+                label.rectTransform.offsetMin = new Vector2(14f, 5f);
+                label.rectTransform.offsetMax = new Vector2(-14f, -5f);
+            }
+        }
+
+        public static void Slider(Slider slider)
+        {
+            if (slider == null || slider.fillRect == null || slider.handleRect == null) return;
+            var fill = slider.fillRect; var handle = slider.handleRect;
+            var root = slider.transform;
+            var background = slider.GetComponent<Image>();
+            if (background != null)
+            {
+                background.color = Color.clear;
+                foreach (var effect in background.GetComponents<Shadow>()) effect.enabled = false;
+            }
+            var track = root.Find("ModernTrack") as RectTransform;
+            if (track == null)
+            {
+                track = RuntimeUiControls.Rect(root, "ModernTrack", new Vector2(0, .5f), new Vector2(1, .5f));
+                track.offsetMin = new Vector2(12, -3); track.offsetMax = new Vector2(-12, 3);
+                var image = track.gameObject.AddComponent<Image>(); image.raycastTarget = false;
+                SurfaceImage(image, Raised, 3, false);
+                track.SetAsFirstSibling();
+            }
+            fill.SetParent(track, false);
+            RuntimeUiControls.Place(fill, Vector2.zero, Vector2.one);
+            SurfaceImage(fill.GetComponent<Image>(), Brass, 3, false);
+            fill.GetComponent<Image>().raycastTarget = false;
+            var handleArea = root.Find("ModernHandleArea") as RectTransform;
+            if (handleArea == null)
+                handleArea = RuntimeUiControls.Rect(root, "ModernHandleArea", Vector2.zero, Vector2.one);
+            handleArea.offsetMin = new Vector2(12, 0); handleArea.offsetMax = new Vector2(-12, 0);
+            handle.SetParent(handleArea, false);
+            handle.anchorMin = handle.anchorMax = new Vector2(.5f, .5f);
+            handle.sizeDelta = new Vector2(24, 24); handle.anchoredPosition = Vector2.zero;
+            SurfaceImage(handle.GetComponent<Image>(), Ivory, 12, false);
+            slider.fillRect = null; slider.handleRect = null;
+            slider.fillRect = fill; slider.handleRect = handle;
+            slider.targetGraphic = handle.GetComponent<Image>();
         }
 
         public static void Text(Text text, Color color, bool bold = false)

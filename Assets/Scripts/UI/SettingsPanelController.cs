@@ -24,6 +24,7 @@ namespace ShadowTheater.UI
         [SerializeField] private Text resolutionValue;
         [SerializeField] private Text vSyncValue;
         private bool _refreshing;
+        private SettingsPanelView _presentation;
 
         private void Awake()
         {
@@ -36,6 +37,15 @@ namespace ShadowTheater.UI
         {
             if (titleRoot != null) titleRoot.SetActive(false);
             if (root != null) root.SetActive(true);
+            if (_presentation == null && root != null)
+            {
+                var label = root.GetComponentInChildren<Text>(true);
+                if (label != null && label.font != null)
+                {
+                    _presentation = root.GetComponent<SettingsPanelView>() ?? root.AddComponent<SettingsPanelView>();
+                    _presentation.Build(this, label.font);
+                }
+            }
             Refresh();
             DesktopPlatformController.SelectFirstUsable(root);
         }
@@ -44,6 +54,7 @@ namespace ShadowTheater.UI
         {
             if (root != null) root.SetActive(false);
             if (titleRoot != null) titleRoot.SetActive(true);
+            DesktopPlatformController.SelectFirstUsable(titleRoot);
         }
 
         public void SetMaster(float value)

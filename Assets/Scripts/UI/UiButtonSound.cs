@@ -20,8 +20,23 @@ namespace ShadowTheater.UI
         {
             foreach (var root in scene.GetRootGameObjects())
                 foreach (var button in root.GetComponentsInChildren<Button>(true))
-                    if (button.GetComponent<VirtualDPadButton>() == null && button.GetComponent<UiButtonSound>() == null)
+                {
+                    if (button.GetComponent<VirtualDPadButton>() != null) continue;
+                    if (button.transition == Selectable.Transition.None) continue;
+                    if (button.GetComponent<UiButtonSound>() == null)
                         button.gameObject.AddComponent<UiButtonSound>();
+                    var image = button.targetGraphic as Image;
+                    if (image == null || image.color.a < .15f) continue;
+                    bool surface = image.sprite == null || image.GetComponent<Outline>() != null ||
+                        button.GetComponent<HandheldButtonFeedback>() != null;
+                    if (!surface) continue;
+                    if (button.transform.Find("Label") != null)
+                        TheatreUiStyle.Button(button, button.name == "NewGameButton" || button.name == "Save");
+                    else
+                        TheatreUiStyle.SurfaceImage(image, image.color);
+                    if (button.GetComponent<HandheldButtonFeedback>() == null)
+                        button.gameObject.AddComponent<HandheldButtonFeedback>();
+                }
         }
 
         private void Play()

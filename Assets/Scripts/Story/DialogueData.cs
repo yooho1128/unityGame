@@ -17,6 +17,7 @@ namespace ShadowTheater.Story
     public class DialogueSequence
     {
         public string dialogueId;
+        public bool cinematic;
         public List<DialogueLine> lines = new List<DialogueLine>();
         public List<DialogueChoice> choices = new List<DialogueChoice>();
     }
@@ -27,6 +28,8 @@ namespace ShadowTheater.Story
         public string speaker;
         public string text;
         public string emotion;
+        // Optional stage direction shown briefly with the line, without shifting translation indices.
+        public string stageDirection;
         public string requiredFlag;
         public int requiredFlagValue = 1;
         public string blockedFlag;

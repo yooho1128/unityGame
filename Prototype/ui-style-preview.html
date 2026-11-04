@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Shadow Theater · 설정 UI 디자인 미리보기</title>
+<style>
+:root{color-scheme:dark;--bg:#090e17;--surface:#131a25;--raised:#1f2834;--row:#18202d;--ivory:#f5edda;--muted:#a6b5c2;--gold:#d6b36e;--mint:#94d1ba;--line:#667a964d}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ivory);font:20px/1.4 system-ui,"Noto Sans KR",sans-serif}main{width:min(1180px,89vw);margin:4.5vh auto;border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:28px;min-height:91vh;display:flex;flex-direction:column}h1{font-size:34px;font-weight:500;margin:0 0 12px}.hint{font-size:17px;color:var(--muted);margin:0 0 30px}nav{display:flex;gap:12px;margin-bottom:20px}button,select{font:inherit;color:var(--ivory);background:var(--raised);border:1px solid var(--line);border-radius:12px;min-height:48px;cursor:pointer}button:hover,select:hover{filter:brightness(1.18)}button:active{transform:scale(.98)}button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--mint);outline-offset:3px}nav button{flex:1}.selected{background:var(--gold);color:var(--bg)}.page{display:grid;gap:12px;margin-bottom:24px}.page[hidden]{display:none}.row{background:var(--row);border-radius:12px;min-height:112px;padding:14px 24px;display:flex;flex-direction:column;justify-content:space-between;gap:10px}.heading{display:flex;align-items:center;justify-content:space-between}.value{color:var(--gold)}input[type=range]{width:100%;accent-color:var(--gold);height:32px;cursor:pointer}.segments{display:flex;gap:10px}.segments button{flex:1;font-size:20px}.row select{width:100%;padding:4px 16px}.switchline{display:flex;justify-content:space-between;align-items:center;color:var(--mint);font-size:18px}.switch{width:84px;min-height:46px;border:0;border-radius:24px;background:#3b8573;position:relative}.switch:before{content:"";position:absolute;top:7px;left:7px;width:32px;height:32px;border-radius:50%;background:var(--ivory);transform:translateX(38px);transition:transform .14s}.switch[aria-checked=false]{background:var(--raised)}.switch[aria-checked=false]:before{transform:translateX(0)}footer{margin-top:auto;display:grid;gap:18px}footer small{font-size:12px;color:var(--muted);text-align:center}.back{width:100%}@media(max-width:600px){body{font-size:18px}main{padding:20px}.row{padding:14px 16px}.hint{font-size:14px}nav{gap:8px}.segments button{font-size:16px}}
+</style>
+<main>
+<h1>설정</h1><p class="hint">변경 사항은 자동으로 저장됩니다</p>
+<nav aria-label="설정 분류"><button role="tab" class="selected" aria-selected="true" data-tab="sound">사운드</button><button role="tab" aria-selected="false" data-tab="display">화면</button><button role="tab" aria-selected="false" data-tab="play">플레이</button></nav>
+<section class="page" id="sound" aria-label="사운드 설정"></section>
+<section class="page" id="display" hidden aria-label="화면 설정">
+<div class="row"><span>화면 모드</span><div class="segments"><button class="selected" aria-pressed="true">전체 화면</button><button aria-pressed="false">창 모드</button></div></div>
+<label class="row">해상도<select aria-label="해상도"><option>1280 × 720</option><option>1600 × 900</option><option selected>1920 × 1080</option><option>2560 × 1440</option></select></label>
+<div class="row"><span>수직 동기화</span><div class="switchline"><span id="sync-state">켜짐</span><button class="switch" role="switch" aria-checked="true" aria-label="수직 동기화"></button></div></div>
+</section>
+<section class="page" id="play" hidden aria-label="플레이 설정"><div class="row"><span>대화 속도</span><div class="segments"><button aria-pressed="false">느리게</button><button class="selected" aria-pressed="true">보통</button><button aria-pressed="false">빠르게</button></div></div></section>
+<footer><button class="back">돌아가기</button><small>디자인 미리보기 · Unity 실행 화면이 아닙니다. 여기서 바꾼 값은 게임에 저장되지 않습니다.</small></footer>
+</main>
+<script>
+const sound=document.querySelector('#sound');
+[['전체 음량',90],['음악',75],['환경음',80],['효과음',90]].forEach(([name,value])=>{
+const row=document.createElement('label');row.className='row';
+const heading=document.createElement('span');heading.className='heading';heading.textContent=name;
+const output=document.createElement('output');output.className='value';output.textContent=value+'%';heading.append(output);
+const input=document.createElement('input');Object.assign(input,{type:'range',min:0,max:100,value});input.setAttribute('aria-label',name);
+input.addEventListener('input',()=>output.textContent=input.value+'%');row.append(heading,input);sound.append(row);
+});
+document.querySelectorAll('[data-tab]').forEach(button=>button.onclick=()=>{
+document.querySelectorAll('[data-tab]').forEach(b=>{b.classList.toggle('selected',b===button);b.setAttribute('aria-selected',b===button)});
+document.querySelectorAll('.page').forEach(p=>p.hidden=p.id!==button.dataset.tab);
+});
+document.querySelectorAll('.segments button').forEach(button=>button.onclick=()=>{
+button.parentElement.querySelectorAll('button').forEach(b=>{b.classList.toggle('selected',b===button);b.setAttribute('aria-pressed',b===button)});
+});
+document.querySelector('.switch').onclick=function(){const on=this.getAttribute('aria-checked')!=='true';this.setAttribute('aria-checked',on);document.querySelector('#sync-state').textContent=on?'켜짐':'꺼짐'};
+document.querySelector('.back').onclick=()=>document.querySelector('[data-tab=sound]').click();
+</script>
+</html>

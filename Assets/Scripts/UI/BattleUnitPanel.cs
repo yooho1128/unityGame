@@ -26,6 +26,9 @@ namespace ShadowTheater.UI
         private BattleUnit _boundUnit;
         private float _displayedHp, _healthStart, _healthElapsed, _healthDuration;
         private int _healthTarget, _healthMax = 1;
+        private Image _damageTrail;
+        private float _trailStart, _trailHp;
+        private bool _showDamageTrail;
         public float DisplayedHp => _displayedHp;
         public bool Represents(BattleUnit unit) => _boundUnit == unit;
         private RectTransform _actorMotion;
@@ -81,6 +84,7 @@ namespace ShadowTheater.UI
                 _portraitRotation = portrait.rectTransform.localRotation;
             }
             _motionPhase = (GetInstanceID() & 15) * 0.41f;
+            CreateDamageTrail();
         }
         public void ResetMotion() => MotionRoot.localPosition = _restPosition;
 
@@ -96,10 +100,17 @@ namespace ShadowTheater.UI
                 portrait.preserveAspect = true;
             }
             if (accent != null) accent.color = unit.Instance.AccentColor;
-            if (_boundUnit != unit)
+            bool changedUnit = _boundUnit != unit;
+            if (changedUnit)
+            {
                 _displayedHp = _healthStart = _healthTarget = unit.Hp;
+                _trailHp = _trailStart = unit.Hp;
+                _showDamageTrail = false;
+            }
             if (_boundUnit != unit || _healthTarget != unit.Hp || _healthMax != unit.MaxHp)
             {
+                _showDamageTrail = !changedUnit && unit.Hp < _healthTarget && _healthMax == unit.MaxHp;
+                _trailStart = Mathf.Max(_trailHp, _displayedHp);
                 _healthStart = _displayedHp; _healthTarget = unit.Hp; _healthMax = Mathf.Max(1, unit.MaxHp);
                 _healthElapsed = 0f; _healthDuration = Mathf.Max(.01f, healthDuration);
             }
@@ -126,13 +137,52 @@ namespace ShadowTheater.UI
             float p = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(_healthElapsed / _healthDuration));
             _displayedHp = Mathf.Lerp(_healthStart, _healthTarget, p);
             float ratio = Mathf.Clamp01(_displayedHp / _healthMax);
+            // Leave the lost portion briefly visible, then settle after the main HP fill.
+            float trailProgress = Mathf.SmoothStep(0f, 1f,
+                Mathf.Clamp01((_healthElapsed - .16f) / (_healthDuration + .22f)));
+            _trailHp = _showDamageTrail
+                ? Mathf.Max(_displayedHp, Mathf.Lerp(_trailStart, _healthTarget, trailProgress)) : _displayedHp;
+            if (_damageTrail != null) _damageTrail.fillAmount = Mathf.Clamp01(_trailHp / _healthMax);
             if (hpFill != null)
             {
                 hpFill.fillAmount = ratio;
                 hpFill.color = ratio > .5f ? new Color(.35f,.92f,.65f) : ratio > .2f
                     ? new Color(1f,.72f,.25f) : new Color(1f,.28f,.36f);
             }
-            if (hpText != null) hpText.text = $"{Mathf.Clamp(Mathf.RoundToInt(_displayedHp), 0, _healthMax)} / {_healthMax}";
+            if (hpText != null)
+            {
+                bool low = _healthTarget > 0 && (float)_healthTarget / _healthMax <= .2f;
+                string state = _healthTarget <= 0 ? "  · " + L10n.Get("battle.hp_empty", "기절")
+                    : low ? "  · " + L10n.Get("battle.hp_low", "위험") : string.Empty;
+                hpText.text = $"HP  {Mathf.Clamp(Mathf.RoundToInt(_displayedHp), 0, _healthMax)} / {_healthMax}{state}";
+                hpText.color = low ? new Color(1f, .62f, .57f) : _healthTarget <= 0 ? TheatreUiStyle.Muted : TheatreUiStyle.Ivory;
+            }
+        }
+
+        private void CreateDamageTrail()
+        {
+            if (hpFill == null || _damageTrail != null) return;
+            var source = hpFill.rectTransform;
+            var go = new GameObject("DamageTrail", typeof(RectTransform), typeof(Image));
+            var rect = (RectTransform)go.transform;
+            rect.SetParent(source.parent, false);
+            rect.SetSiblingIndex(source.GetSiblingIndex());
+            rect.anchorMin = source.anchorMin; rect.anchorMax = source.anchorMax;
+            rect.pivot = source.pivot; rect.sizeDelta = source.sizeDelta;
+            rect.anchoredPosition3D = source.anchoredPosition3D;
+            rect.localScale = source.localScale; rect.localRotation = source.localRotation;
+            _damageTrail = go.GetComponent<Image>();
+            _damageTrail.sprite = hpFill.sprite; _damageTrail.type = hpFill.type;
+            _damageTrail.fillMethod = hpFill.fillMethod; _damageTrail.fillOrigin = hpFill.fillOrigin;
+            _damageTrail.fillClockwise = hpFill.fillClockwise; _damageTrail.fillAmount = 0f;
+            _damageTrail.color = TheatreUiStyle.Brass; _damageTrail.raycastTarget = false;
+            hpFill.raycastTarget = false;
+            if (hpText != null)
+            {
+                hpText.resizeTextForBestFit = true;
+                hpText.resizeTextMinSize = 14; hpText.resizeTextMaxSize = hpText.fontSize;
+                hpText.raycastTarget = false;
+            }
         }
 
         private static Color ElementColor(ShadowElement element) => ElementChart.ColorFor(element);

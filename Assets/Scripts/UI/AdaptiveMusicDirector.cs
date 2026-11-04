@@ -38,7 +38,10 @@ namespace ShadowTheater.UI
         }
         private void Update()
         {
+            if (Time.unscaledTime >= _duckUntil) _duckDepth = 1f;
             float target=Time.unscaledTime<_duckUntil?_duckDepth:1f;
+            if (DialogueController.Instance != null && DialogueController.Instance.IsPlaying)
+                target = Mathf.Min(target, .66f);
             _duck=Mathf.MoveTowards(_duck,target,Time.unscaledDeltaTime*(target<_duck?5f:1.7f));
             if(_duck>=.999f && target==1f)_duckDepth=1f;
             RefreshVolume();

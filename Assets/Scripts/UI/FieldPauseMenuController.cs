@@ -84,7 +84,7 @@ namespace ShadowTheater.UI
                 else if (Input.GetKeyDown(KeyCode.P)) PartyStorageController.Instance?.Open();
                 else if (Input.GetKeyDown(KeyCode.M)) WorldMapController.Instance?.Open();
                 else if (Input.GetKeyDown(KeyCode.Q)) QuestLogController.Instance?.Open();
-                else if (Input.GetKeyDown(KeyCode.S)) SettlementShopController.Instance?.Open();
+                else if (Input.GetKeyDown(KeyCode.O)) SettlementShopController.Instance?.Open();
             }
 #elif UNITY_ANDROID
             if (Input.GetKeyDown(KeyCode.Escape)) HandleBack();
@@ -122,6 +122,7 @@ namespace ShadowTheater.UI
             if (IsOpen || SaveManager.Current == null || !CanOpen()) return;
             IsOpen = true;
             FieldUiModalState.Show(root);
+            PauseMenuPresentation.Apply(root);
             titleConfirmRoot?.SetActive(false);
             if (PlayerController.Instance != null)
             {

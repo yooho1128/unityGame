@@ -138,10 +138,12 @@
     },
     {
       "dialogueId": "boss_moonlit_post",
+      "cinematic": true,
       "lines": [
         { "speaker": "달빛의 미망인", "text": "아… 나는 복수를 원한 게 아니었어. 누군가 마지막 장면을 기억해 주길 바랐을 뿐.", "emotion": "sad" },
         { "speaker": "각본집", "text": "새로운 비극이 기록되었습니다. 『달이 지지 않던 밤』", "emotion": "mystery", "setFlag": "memory_moonlit_restored", "setFlagValue": 1 },
-        { "speaker": "아리아", "text": "멀리서 검은 종소리가 들려와요. 검열단도 이 기억이 돌아온 걸 알아챈 것 같아요.", "emotion": "warning" }
+        { "speaker": "아리아", "text": "멀리서 검은 종소리가 들려와요. 검열단도 이 기억이 돌아온 걸 알아챈 것 같아요.",
+          "stageDirection": "달빛 아래 남은 그림자가 천천히 고개를 든다. 멀리서 다음 종이 울린다.", "emotion": "warning" }
       ]
     },
     {
@@ -297,9 +299,11 @@
     },
     {
       "dialogueId":"boss_ash_king_post",
+      "cinematic": true,
       "lines":[
         {"speaker":"재의 왕","text":"백성을 구한 왕으로 기억되고 싶었다… 그래서 백성의 목소리부터 지워 버렸구나.","emotion":"sad"},
-        {"speaker":"각본집","text":"제2막 『왕관의 재』가 기록되었습니다.","emotion":"mystery","setFlag":"act2_complete","setFlagValue":1}
+        {"speaker":"각본집","text":"제2막 『왕관의 재』가 기록되었습니다.",
+          "stageDirection": "왕좌에 쌓인 재 사이로, 서로 다른 크기의 발자국이 드러난다.","emotion":"mystery","setFlag":"act2_complete","setFlagValue":1}
       ]
     },
     {
@@ -360,9 +364,11 @@
     },
     {
       "dialogueId":"boss_archive_dragon_post",
+      "cinematic": true,
       "lines":[
         {"speaker":"무한서고의 용","text":"나의 이름은 아르키온. 책을 소유하는 용이 아니라, 누구나 읽을 하늘을 지키는 기록룡이다.","emotion":"relief"},
-        {"speaker":"각본집","text":"제3막 『금기의 서고』가 기록되었습니다.","emotion":"mystery","setFlag":"act3_complete","setFlagValue":1}
+        {"speaker":"각본집","text":"제3막 『금기의 서고』가 기록되었습니다.",
+          "stageDirection": "닫혀 있던 책장들이 바람을 받아, 서로 다른 속도로 넘어간다.","emotion":"mystery","setFlag":"act3_complete","setFlagValue":1}
       ]
     },
     {"dialogueId":"npc_marsh_guide_intro","lines":[{"speaker":"늪의 안내자","text":"독안개가 짙은 곳일수록 늪뱀이 남긴 돌자국을 따라가. 그들은 사람을 습격한 적이 없어.","emotion":"serious"},{"speaker":"늪의 안내자","text":"동쪽 울음 마을에선 모두 야수 가면을 써. 얼굴을 감춘 이유부터 물어봐 줘.","emotion":"sad"}]},
@@ -375,7 +381,9 @@
     {"dialogueId":"boss_bloodmane_pre","lines":[{"speaker":"붉은 뿔의 추격자","text":"야수를 찾아라! 가면을 벗겨라! 명령이 끝날 때까지 사냥은 멈추지 않는다!","emotion":"rage"},{"speaker":"극단주","text":"사냥할 야수는 없었다. 네가 따르던 명령부터 이 무대에서 끝내겠다.","emotion":"resolve"}]},
     {"dialogueId":"boss_bloodmane_post","lines":[{"speaker":"붉은 뿔의 추격자","text":"내가 쫓은 것은 야수가 아니라 두려움에 떠는 사람들이었구나… 이제 뿔을 내려놓겠다.","emotion":"relief","setFlag":"truth_first_howl","setFlagValue":1}]},
     {"dialogueId":"boss_night_beast_pre","lines":[{"speaker":"밤을 삼킨 짐승","text":"내게 공포를 넘겨라! 너희는 밝은 곳으로 도망쳐라! 밤은 내가 전부 삼키겠다!","emotion":"rage"},{"speaker":"극단주","text":"혼자 삼킨 공포가 너를 짐승으로 만들었다. 이번에는 모두가 그 울음을 함께 듣겠다.","emotion":"resolve"}]},
-    {"dialogueId":"boss_night_beast_post","lines":[{"speaker":"밤을 삼킨 짐승","text":"루페온… 그것이 짐승이 되기 전 나의 이름이었다. 이제 울음을 혼자 품지 않겠다.","emotion":"relief"},{"speaker":"각본집","text":"제4막 『야수의 밤』이 기록되었습니다.","emotion":"mystery","setFlag":"act4_complete","setFlagValue":1}]},
+    {"dialogueId":"boss_night_beast_post",
+      "cinematic": true,"lines":[{"speaker":"밤을 삼킨 짐승","text":"루페온… 그것이 짐승이 되기 전 나의 이름이었다. 이제 울음을 혼자 품지 않겠다.","emotion":"relief"},{"speaker":"각본집","text":"제4막 『야수의 밤』이 기록되었습니다.",
+          "stageDirection": "숲의 긴 울음이 잦아든다. 나뭇잎 사이에서 작은 숨소리가 돌아온다.","emotion":"mystery","setFlag":"act4_complete","setFlagValue":1}]},
     {"dialogueId":"npc_thread_merchant_intro","lines":[{"speaker":"실타래 상인","text":"이 시장에선 팔과 다리뿐 아니라 웃음과 목소리도 부품처럼 팔려. 인형사는 망가지지 않는 도시를 원했거든.","emotion":"sad"},{"speaker":"실타래 상인","text":"태엽 골목의 무희를 찾아가. 멈춘 시간을 풀면 오페라로 가는 문이 열릴 거야.","emotion":"serious"}]},
     {"dialogueId":"npc_thread_merchant_repeat","lines":[{"speaker":"실타래 상인","text":"몸을 고치는 일과 주인을 바꾸는 일은 달라. 여기선 그 경계가 오래전에 사라졌지.","emotion":"calm"},{"speaker":"실타래 상인","text":"실밥 벌판에서 붉은 실 한 가닥을 보아도 잡아당기진 마. 천 조각 발이 먼저 향하는 곳을 지켜봐.","emotion":"mystery"}]},
     {"dialogueId":"npc_second_dancer_intro","lines":[{"speaker":"초침 무희","text":"나는 마지막 한 박자를 반복하라는 명령을 받았어. 관객들이 대피할 때까지 멈추지 않았지.","emotion":"sad"},{"speaker":"초침 무희","text":"이제 다음 동작은 내가 고를게. 오페라의 문을 열어 줄 테니 프리마돈나의 실을 끊어 줘.","emotion":"hope","setFlag":"clock_alley_released","setFlagValue":1}]},
@@ -388,7 +396,9 @@
     {"dialogueId":"puppet_choice_force","lines":[{"speaker":"봉합 기사","text":"자유를 강요하는 순간 그것도 새 실이 될 수 있다. 네 선택을 끝까지 지켜보겠다.","emotion":"fear"}]},
     {"dialogueId":"npc_stitched_knight_repeat","lines":[{"speaker":"봉합 기사","text":"대무대의 인형사는 누구도 다치지 않는 완벽한 공연을 아직 포기하지 않았다.","emotion":"serious"}]},
     {"dialogueId":"boss_last_puppeteer_pre","lines":[{"speaker":"마지막 인형사","text":"선택은 실수를 낳고 실수는 상처를 낳는다. 내가 모든 실을 쥐면 누구도 망가지지 않는다!","emotion":"rage"},{"speaker":"극단주","text":"상처받지 않는 대신 살아 있지도 않은 무대다. 배우들에게 자신의 대사를 돌려줘라.","emotion":"resolve"}]},
-    {"dialogueId":"boss_last_puppeteer_post","lines":[{"speaker":"마지막 인형사","text":"마리온… 완벽한 인형극보다 서툰 배우들의 선택을 사랑했어야 했다.","emotion":"relief"},{"speaker":"각본집","text":"제5막 『꼭두각시 도시』가 기록되었습니다.","emotion":"mystery","setFlag":"act5_complete","setFlagValue":1}]},
+    {"dialogueId":"boss_last_puppeteer_post",
+      "cinematic": true,"lines":[{"speaker":"마지막 인형사","text":"마리온… 완벽한 인형극보다 서툰 배우들의 선택을 사랑했어야 했다.","emotion":"relief"},{"speaker":"각본집","text":"제5막 『꼭두각시 도시』가 기록되었습니다.",
+          "stageDirection": "끊어진 실이 바닥에 내려앉는다. 무대에서는 아직 서툰 첫걸음이 들린다.","emotion":"mystery","setFlag":"act5_complete","setFlagValue":1}]},
     {"dialogueId":"npc_ink_conductor_intro","lines":[{"speaker":"먹칠 역무원","text":"검열단은 목적지를 지우면 누구도 떠날 수 없다고 믿었지. 나는 수감 열차를 백지 감옥 반대편 선로로 돌렸다.","emotion":"serious"},{"speaker":"먹칠 역무원","text":"동쪽 감옥에 갇힌 이름들을 찾아 줘. 번호만 남아도 사람은 사라지지 않아.","emotion":"hope"}]},
     {"dialogueId":"npc_ink_conductor_repeat","lines":[{"speaker":"먹칠 역무원","text":"지워진 표도 손에 쥔 사람이 목적지를 기억한다면 길이 된다.","emotion":"calm"},{"speaker":"먹칠 역무원","text":"막차가 떠난 뒤에도 발소리가 하나 더 들린다. 표가 없던 승객은 아직 지워진 승강장을 찾는 모양이야.","emotion":"mystery"}]},
     {"dialogueId":"boss_zero_warden_pre","lines":[{"speaker":"제0호 간수","text":"규칙 제0조. 이름을 가진 자는 고통을 기억한다. 그러므로 이름을 수감한다.","emotion":"cold"},{"speaker":"극단주","text":"고통을 가둔 것이 아니라 사람을 가뒀다. 백지 규칙부터 찢겠다.","emotion":"resolve"}]},
@@ -403,7 +413,9 @@
     {"dialogueId":"boss_mute_judge_pre","lines":[{"speaker":"무언의 재판장","text":"피고는 기억을 소유한 죄로 유죄. 변론은 새로운 고통을 생산하므로 허가하지 않는다.","emotion":"cold"},{"speaker":"극단주","text":"말할 기회를 지운 판결은 정의가 아니다. 네 침묵까지 증언대로 부르겠다.","emotion":"resolve"}]},
     {"dialogueId":"boss_mute_judge_post","lines":[{"speaker":"무언의 재판장","text":"나는 모든 판결이 거짓임을 알면서 침묵했다. 그 침묵도 판결의 일부였구나.","emotion":"sad","setFlag":"truth_nox_family","setFlagValue":1}]},
     {"dialogueId":"boss_high_censor_nox_pre","lines":[{"speaker":"대검열관 노크스","text":"기억이 가족을 파괴했다. 이름이 비극을 되살렸다. 모두 지우면 누구도 다시 아프지 않는다!","emotion":"rage"},{"speaker":"극단주","text":"고통을 없애려 사람까지 지운 세계는 구원이 아니다. 네가 지운 이름 전부와 함께 이 막을 올리겠다.","emotion":"resolve"}]},
-    {"dialogueId":"boss_high_censor_nox_post","lines":[{"speaker":"대검열관 노크스","text":"녹티스… 가족이 마지막으로 불러 준 이름이다. 그 이름마저 내가 먼저 지웠구나.","emotion":"sad"},{"speaker":"각본집","text":"제6막 『검은 검열단』이 기록되었습니다.","emotion":"mystery","setFlag":"act6_complete","setFlagValue":1}]},
+    {"dialogueId":"boss_high_censor_nox_post",
+      "cinematic": true,"lines":[{"speaker":"대검열관 노크스","text":"녹티스… 가족이 마지막으로 불러 준 이름이다. 그 이름마저 내가 먼저 지웠구나.","emotion":"sad"},{"speaker":"각본집","text":"제6막 『검은 검열단』이 기록되었습니다.",
+          "stageDirection": "먹물이 마른 자리에 빈칸이 남는다. 이번에는 누구도 서둘러 덮지 않는다.","emotion":"mystery","setFlag":"act6_complete","setFlagValue":1}]},
     {
       "dialogueId": "npc_wave_bard_intro",
       "lines": [
@@ -559,12 +571,14 @@
     },
     {
       "dialogueId": "boss_true_name_selene_post",
+      "cinematic": true,
       "lines": [
         {"speaker": "셀레네", "text": "애도는 붙잡는 사슬이 아니라 기억을 품고 다시 걷는 달빛이었구나.", "emotion": "relief"},
         {"speaker": "셀레네", "text": "나는 누군가의 미망인이기 전에 셀레네였지. 그 이름으로 다음 발걸음을 고르겠다.", "emotion": "calm"},
         {"speaker": "극단주", "text": "비극도 남기되, 그것만이 네 전부라고 쓰지는 않겠다.", "emotion": "calm"},
         {"speaker": "셀레네", "text": "뒤집힌 로비의 안내원을 찾아가라. 그곳부터는 네가 기록한 방식이 너에게 질문할 것이다.", "emotion": "calm"},
-        {"speaker": "각본집", "text": "제7막 『기억의 바다』가 기록되었습니다.", "emotion": "mystery", "setFlag": "act7_complete", "setFlagValue": 1}
+        {"speaker": "각본집", "text": "제7막 『기억의 바다』가 기록되었습니다.",
+          "stageDirection": "물 위의 달빛이 길게 이어진다. 셀레네는 그 길에 자신의 발을 내딛는다.", "emotion": "mystery", "setFlag": "act7_complete", "setFlagValue": 1}
       ]
     },
     {
@@ -600,11 +614,13 @@
     },
     {
       "dialogueId": "boss_interlude_manager_post",
+      "cinematic": true,
       "lines": [
         {"speaker": "막간의 관리자", "text": "배우들이 스스로 다음 장면을 고를 수 있다는 걸 믿지 못했구나.", "emotion": "relief"},
         {"speaker": "막간의 관리자", "text": "내가 지킨 건 배우가 아니라 기다리게 하는 내 역할이었구나.", "emotion": "calm"},
         {"speaker": "극단주", "text": "쉬고 싶은 배우를 재촉하지는 않을게. 나가고 싶은 배우의 길도 막지 말자.", "emotion": "calm"},
-        {"speaker": "막간의 관리자", "text": "최초 배우의 분장실은 동쪽이다. 그가 첫 대사를 왜 말했는지 직접 들어라.", "emotion": "calm"}
+        {"speaker": "막간의 관리자", "text": "최초 배우의 분장실은 동쪽이다. 그가 첫 대사를 왜 말했는지 직접 들어라.",
+          "stageDirection": "무대 뒤의 문이 열린다. 잠깐의 정적 뒤로, 다음 장면의 발소리가 이어진다.", "emotion": "calm"}
       ]
     },
     {
