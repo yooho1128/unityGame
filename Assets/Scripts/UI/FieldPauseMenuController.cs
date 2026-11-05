@@ -34,6 +34,7 @@ namespace ShadowTheater.UI
         private bool _refreshing;
         private bool _returning;
         private BattleReviewView _review;
+        private SettingsPanelController _settings;
         public bool IsOpen { get; private set; }
 
         private void Awake()
@@ -50,6 +51,10 @@ namespace ShadowTheater.UI
                 RuntimeUiControls.Button(card,goldText.font,"전투 복기",new Vector2(.68f,.625f),new Vector2(.93f,.68f),()=>
                 {if(IsOpen&&!_returning)_review.Open();});
                 _review=new BattleReviewView(root.transform,goldText.font);
+                _settings = SettingsPanelController.CreateForMenu(root.transform, card.gameObject, goldText.font);
+                var settingsButton = RuntimeUiControls.Button(card, goldText.font, L10n.Get("settings.heading", "설정"),
+                    new Vector2(.65f, .92f), new Vector2(.83f, .975f), OpenSettings);
+                settingsButton.name = "FullSettingsButton";
             }
         }
 
@@ -62,6 +67,7 @@ namespace ShadowTheater.UI
 
         private void OnDisable()
         {
+            _settings?.DismissWithParent();
             L10n.Changed -= RefreshIfOpen;
             GameSettings.Changed -= RefreshAudioIfOpen;
             SaveManager.CurrentChanged -= OnSaveChanged;
@@ -76,6 +82,8 @@ namespace ShadowTheater.UI
 
         private void Update()
         {
+            // The settings view owns Back; closing it must not also close its parent in the same frame.
+            if (_settings != null && _settings.BlocksParentInput) return;
 #if ENABLE_LEGACY_INPUT_MANAGER && (UNITY_EDITOR || UNITY_STANDALONE)
             if (Input.GetKeyDown(KeyCode.Escape) || Input.GetButtonDown("Cancel")) HandleBack();
             if (!FieldUiModalState.AnyOpen)
@@ -93,6 +101,8 @@ namespace ShadowTheater.UI
 
         private void HandleBack()
         {
+            if (IsOpen && titleConfirmRoot != null && titleConfirmRoot.activeSelf)
+            { CancelReturnToTitle(); return; }
             if(IsOpen&&_review?.IsOpen==true){_review.Close();return;}
             if (QuestLogController.Instance != null && QuestLogController.Instance.IsOpen)
             { QuestLogController.Instance.Close(); return; }
@@ -138,12 +148,19 @@ namespace ShadowTheater.UI
         {
             _review?.Close();
             if (!IsOpen || _returning) return;
+            _settings?.DismissWithParent();
             IsOpen = false;
             titleConfirmRoot?.SetActive(false);
             root?.SetActive(false);
             ReleasePlayer();
         }
         private void OnSaveChanged(){if(IsOpen)Close();}
+
+        private void OpenSettings()
+        {
+            if (!IsOpen || _returning || _review?.IsOpen == true || titleConfirmRoot?.activeSelf == true) return;
+            _settings?.Open();
+        }
 
         public void SaveNow()
         {

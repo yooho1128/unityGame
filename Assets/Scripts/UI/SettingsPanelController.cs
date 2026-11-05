@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace ShadowTheater.UI
@@ -25,9 +26,30 @@ namespace ShadowTheater.UI
         [SerializeField] private Text vSyncValue;
         private bool _refreshing;
         private SettingsPanelView _presentation;
+        private Font _runtimeFont;
+        private GameObject _returnSelection;
+        private int _closedFrame = -1;
+        private bool _runtimeConfigured;
+        public bool IsOpen => root != null && root.activeInHierarchy;
+        public bool BlocksParentInput => IsOpen || _closedFrame == Time.frameCount;
+
+        public static SettingsPanelController CreateForMenu(Transform parent, GameObject returnPanel, Font font)
+        {
+            var panel = RuntimeUiControls.Rect(parent, "FullSettings", Vector2.zero, Vector2.one);
+            panel.gameObject.AddComponent<Image>().color = TheatreUiStyle.Midnight;
+            var controller = panel.gameObject.AddComponent<SettingsPanelController>();
+            controller.root = panel.gameObject;
+            controller.titleRoot = returnPanel;
+            controller._runtimeFont = font;
+            controller._runtimeConfigured = true;
+            panel.gameObject.SetActive(false);
+            return controller;
+        }
 
         private void Awake()
         {
+            // Runtime panels can be created under an inactive pause menu; their first Awake may occur on Open.
+            if (_runtimeConfigured) return;
             if (root != null) root.SetActive(false);
             if (vibrationRow != null) vibrationRow.SetActive(Application.isMobilePlatform);
             if (desktopDisplayRoot != null) desktopDisplayRoot.SetActive(!Application.isMobilePlatform);
@@ -35,26 +57,44 @@ namespace ShadowTheater.UI
 
         public void Open()
         {
+            if (IsOpen || root == null) return;
+            _returnSelection = EventSystem.current != null ? EventSystem.current.currentSelectedGameObject : null;
             if (titleRoot != null) titleRoot.SetActive(false);
             if (root != null) root.SetActive(true);
             if (_presentation == null && root != null)
             {
                 var label = root.GetComponentInChildren<Text>(true);
-                if (label != null && label.font != null)
+                var font = _runtimeFont != null ? _runtimeFont : label != null ? label.font : null;
+                if (font != null)
                 {
                     _presentation = root.GetComponent<SettingsPanelView>() ?? root.AddComponent<SettingsPanelView>();
-                    _presentation.Build(this, label.font);
+                    _presentation.Build(this, font);
                 }
             }
             Refresh();
-            DesktopPlatformController.SelectFirstUsable(root);
+            if (_presentation != null) _presentation.FocusCurrentTab();
+            else DesktopPlatformController.SelectFirstUsable(root);
         }
 
         public void Close()
         {
+            CloseInternal(true);
+        }
+
+        public void DismissWithParent() => CloseInternal(false);
+
+        private void CloseInternal(bool restoreFocus)
+        {
+            if (root == null || !root.activeSelf) return;
+            _closedFrame = Time.frameCount;
             if (root != null) root.SetActive(false);
             if (titleRoot != null) titleRoot.SetActive(true);
-            DesktopPlatformController.SelectFirstUsable(titleRoot);
+            if (!restoreFocus) return;
+            var previous = _returnSelection != null ? _returnSelection.GetComponent<Selectable>() : null;
+            if (EventSystem.current != null && previous != null && previous.IsActive() && previous.IsInteractable())
+                EventSystem.current.SetSelectedGameObject(_returnSelection);
+            else DesktopPlatformController.SelectFirstUsable(titleRoot);
+            _returnSelection = null;
         }
 
         public void SetMaster(float value)

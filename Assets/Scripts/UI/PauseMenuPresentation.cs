@@ -13,7 +13,7 @@ namespace ShadowTheater.UI
             var card = root.transform.Find("Card");
             if (card == null) return;
             TheatreUiStyle.Panel(card.GetComponent<Image>(), TheatreUiStyle.Surface);
-            foreach (var button in root.GetComponentsInChildren<Button>(true))
+            foreach (var button in card.GetComponentsInChildren<Button>(true))
                 TheatreUiStyle.Button(button, button.name == "Save");
             foreach (var slider in card.GetComponentsInChildren<Slider>(true)) TheatreUiStyle.Slider(slider);
             foreach (var text in card.GetComponentsInChildren<Text>(true))
@@ -23,11 +23,19 @@ namespace ShadowTheater.UI
                 text.color = text.name == "Gold" ? TheatreUiStyle.Brass : TheatreUiStyle.Ivory;
                 text.resizeTextForBestFit = true; text.resizeTextMinSize = 16; text.resizeTextMaxSize = Mathf.Min(26, text.fontSize);
             }
-            if (Screen.width < Screen.height * 1.2f) return;
+            var settingsLabel = card.Find("FullSettingsButton")?.GetComponentInChildren<Text>();
+            if (settingsLabel != null) settingsLabel.text = L10n.Get("settings.heading", "설정");
+            if (Screen.width < Screen.height * 1.2f)
+            {
+                Place(card, "Header", .07f, .91f, .62f, .98f, 34);
+                Place(card, "FullSettingsButton", .65f, .92f, .83f, .975f);
+                return;
+            }
+            Place(card, "Header", .045f, .87f, .65f, .97f, 34);
+            Place(card, "FullSettingsButton", .70f, .885f, .88f, .96f);
             RuntimeUiControls.Place((RectTransform)card, new Vector2(.12f, .09f), new Vector2(.88f, .91f));
             Backing(card, "JourneyCard", .045f, .38f, .485f, .84f);
             Backing(card, "AudioCard", .505f, .38f, .955f, .84f);
-            Place(card, "Header", .045f, .87f, .80f, .97f, 34);
             Place(card, "Close", .905f, .885f, .96f, .96f);
             Place(card, "Region", .065f, .73f, .465f, .80f, 26);
             Place(card, "PlayTime", .065f, .65f, .465f, .71f, 20);

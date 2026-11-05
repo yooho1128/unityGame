@@ -22,6 +22,7 @@ namespace ShadowTheater.UI
         private bool _dropdownWasExpanded;
         private CanvasGroup _entryFade;
         private float _entryTime;
+        private Button _back, _guideUp, _guideDown;
 
         public void Build(SettingsPanelController owner, Font font)
         {
@@ -43,7 +44,10 @@ namespace ShadowTheater.UI
             StretchTop(tabRow, 28, 126, 28, 48);
             AddTab(tabRow, shell, "settings.audio_tab", "사운드");
             if (!Application.isMobilePlatform) AddTab(tabRow, shell, "settings.display_tab", "화면");
+            int playIndex = _pages.Count;
             AddTab(tabRow, shell, "settings.play_tab", "플레이");
+            int controlsIndex = _pages.Count;
+            AddTab(tabRow, shell, "settings.controls_tab", "조작법");
             for (int i = 0; i < _tabs.Count; i++)
                 RuntimeUiControls.Place((RectTransform)_tabs[i].transform,
                     new Vector2((float)i / _tabs.Count + .006f, 0), new Vector2((float)(i + 1) / _tabs.Count - .006f, 1));
@@ -53,6 +57,7 @@ namespace ShadowTheater.UI
             AudioRow(audio, "settings.music", "음악", () => GameSettings.MusicVolume, owner.SetMusic);
             AudioRow(audio, "settings.ambience", "환경음", () => GameSettings.AmbienceVolume, owner.SetAmbience);
             AudioRow(audio, "settings.sfx", "효과음", () => GameSettings.SfxVolume, owner.SetSfx);
+            AudioPreview(audio);
             if (!Application.isMobilePlatform)
             {
                 Transform display = _pages[1].content;
@@ -69,7 +74,7 @@ namespace ShadowTheater.UI
                 _refresh.Add(() => dropdown.SetValueWithoutNotify(GameSettings.ResolutionIndex));
                 Switch(display, "settings.vsync", "수직 동기화", () => GameSettings.VSync, owner.ToggleVSync);
             }
-            Transform play = _pages[_pages.Count - 1].content;
+            Transform play = _pages[playIndex].content;
             Switch(play, "settings.dialogue_sounds", "대화 효과음", () => GameSettings.DialogueSounds,
                 () => GameSettings.Instance?.SetDialogueSounds(!GameSettings.DialogueSounds));
             Switch(play, "settings.reduced_motion", "연출 움직임 줄이기", () => GameSettings.ReducedMotion,
@@ -78,14 +83,20 @@ namespace ShadowTheater.UI
                 new[] { "settings.slow", "settings.normal", "settings.fast" }, new[] { "느리게", "보통", "빠르게" },
                 () => GameSettings.TextSpeed < 33f ? 0 : GameSettings.TextSpeed < 60f ? 1 : 2,
                 index => GameSettings.Instance?.SetTextSpeed(index == 0 ? 24f : index == 1 ? 42f : 72f));
+            TextPreview(play);
             if (Application.isMobilePlatform)
                 Switch(play, "settings.vibration", "진동", () => GameSettings.Vibration, owner.ToggleVibration);
             if (GameSettings.EnglishEnabled)
                 Segments(play, "settings.language", "언어", new[] { "settings.korean", "settings.english" },
                     new[] { "한국어", "English" }, () => GameSettings.Language == GameLanguage.Korean ? 0 : 1,
                     index => GameSettings.Instance?.SetLanguage(index == 0 ? GameLanguage.Korean : GameLanguage.English));
-            var back = RuntimeUiControls.Button(shell, _font, "돌아가기", new Vector2(.04f, .025f), new Vector2(.96f, .085f), owner.Close);
-            Localize(back.GetComponentInChildren<Text>(), "settings.back", "돌아가기");
+            ControlGuide(_pages[controlsIndex].content);
+            _guideUp = RuntimeUiControls.Button(shell, _font, "위로 보기", new Vector2(.04f, .025f), new Vector2(.27f, .085f), () => ScrollGuide(-1));
+            _guideDown = RuntimeUiControls.Button(shell, _font, "아래로 보기", new Vector2(.29f, .025f), new Vector2(.52f, .085f), () => ScrollGuide(1));
+            Localize(_guideUp.GetComponentInChildren<Text>(), "settings.scroll_up", "위로 보기");
+            Localize(_guideDown.GetComponentInChildren<Text>(), "settings.scroll_down", "아래로 보기");
+            _back = RuntimeUiControls.Button(shell, _font, "돌아가기", new Vector2(.04f, .025f), new Vector2(.96f, .085f), owner.Close);
+            Localize(_back.GetComponentInChildren<Text>(), "settings.back", "돌아가기");
             SelectTab(0);
             RefreshAll();
         }
@@ -108,6 +119,12 @@ namespace ShadowTheater.UI
         {
             foreach (var refresh in _localize) refresh();
             foreach (var refresh in _refresh) refresh();
+        }
+
+        public void FocusCurrentTab()
+        {
+            if (!Application.isMobilePlatform && EventSystem.current != null && _tabs.Count > _selected)
+                EventSystem.current.SetSelectedGameObject(_tabs[_selected].gameObject);
         }
 
         private void AddTab(Transform tabs, Transform shell, string key, string fallback)
@@ -141,7 +158,25 @@ namespace ShadowTheater.UI
                 _pages[i].gameObject.SetActive(i == index);
                 TheatreUiStyle.Button(_tabs[i], i == index);
             }
+            if (_back != null)
+            {
+                bool guide = index == _pages.Count - 1;
+                _guideUp.gameObject.SetActive(guide); _guideDown.gameObject.SetActive(guide);
+                RuntimeUiControls.Place((RectTransform)_back.transform,
+                    new Vector2(guide ? .54f : .04f, .025f), new Vector2(.96f, .085f));
+            }
             _lastFocus = null;
+        }
+
+        private void ScrollGuide(float direction)
+        {
+            var scroll = _pages[_selected];
+            Canvas.ForceUpdateCanvases();
+            scroll.StopMovement();
+            var position = scroll.content.anchoredPosition;
+            float height = scroll.viewport.rect.height;
+            position.y = Mathf.Clamp(position.y + direction * height * .72f, 0, Mathf.Max(0, scroll.content.rect.height - height));
+            scroll.content.anchoredPosition = position;
         }
 
         private RectTransform Row(Transform parent, string key, string fallback)
@@ -185,6 +220,85 @@ namespace ShadowTheater.UI
                 buttons.Add(button);
             }
             _refresh.Add(() => { for (int i = 0; i < buttons.Count; i++) TheatreUiStyle.Button(buttons[i], i == selected()); });
+        }
+
+        private void TextPreview(Transform parent)
+        {
+            var row = Row(parent, "settings.text_preview", "대화 속도 미리보기");
+            row.GetComponent<LayoutElement>().preferredHeight = 192;
+            var heading = row.GetComponentInChildren<Text>();
+            RuntimeUiControls.Place(heading.rectTransform, new Vector2(.04f, .76f), new Vector2(.96f, .94f));
+            var sample = RuntimeUiControls.Label(row, _font, "", 20);
+            sample.alignment = TextAnchor.UpperLeft; sample.lineSpacing = 1.15f;
+            sample.supportRichText = false;
+            RuntimeUiControls.Place(sample.rectTransform, new Vector2(.04f, .34f), new Vector2(.96f, .72f));
+            var preview = row.gameObject.AddComponent<SettingsTextPreview>();
+            preview.Initialize(sample);
+            var replay = RuntimeUiControls.Button(row, _font, "다시 보기", new Vector2(.04f, .06f), new Vector2(.96f, .29f), preview.Replay);
+            Localize(replay.GetComponentInChildren<Text>(), "settings.preview_replay", "다시 보기");
+        }
+
+        private void AudioPreview(Transform parent)
+        {
+            var row = Row(parent, "settings.audio_preview", "효과음 미리듣기");
+            row.GetComponent<LayoutElement>().preferredHeight = 156;
+            var heading = row.GetComponentInChildren<Text>();
+            RuntimeUiControls.Place(heading.rectTransform, new Vector2(.04f, .74f), new Vector2(.96f, .94f));
+            var status = Label(row, "settings.preview_audio_hint", "현재 음량으로 재생합니다", 16, TheatreUiStyle.Muted);
+            RuntimeUiControls.Place(status.rectTransform, new Vector2(.04f, .06f), new Vector2(.96f, .28f));
+            var confirm = RuntimeUiControls.Button(row, _font, "버튼 소리", new Vector2(.04f, .35f), new Vector2(.49f, .65f),
+                () => PreviewSound(FeedbackCue.Confirm, status));
+            var dialogue = RuntimeUiControls.Button(row, _font, "대화 소리", new Vector2(.51f, .35f), new Vector2(.96f, .65f),
+                () => PreviewSound(FeedbackCue.PageTurn, status));
+            Localize(confirm.GetComponentInChildren<Text>(), "settings.preview_button", "버튼 소리");
+            Localize(dialogue.GetComponentInChildren<Text>(), "settings.preview_dialogue", "대화 소리");
+            // Preview buttons play one deliberate sample rather than also playing the normal press cue.
+            var confirmSound = confirm.GetComponent<UiButtonSound>();
+            if (confirmSound != null) confirmSound.enabled = false;
+            var dialogueSound = dialogue.GetComponent<UiButtonSound>();
+            if (dialogueSound != null) dialogueSound.enabled = false;
+        }
+
+        private static void PreviewSound(FeedbackCue cue, Text status)
+        {
+            if (GameSettings.MasterVolume <= 0f || GameSettings.SfxVolume <= 0f)
+                status.text = L10n.Get("settings.preview_muted", "전체 음량 또는 효과음 음량이 0입니다");
+            else if (cue == FeedbackCue.PageTurn && !GameSettings.DialogueSounds)
+                status.text = L10n.Get("settings.preview_dialogue_off", "플레이 탭에서 대화 효과음을 켜 주세요");
+            else
+            {
+                GameFeedbackAudio.Play(cue);
+                status.text = L10n.Get("settings.preview_played", "현재 설정으로 재생했습니다");
+            }
+        }
+
+        private void ControlGuide(Transform parent)
+        {
+            if (Application.isMobilePlatform)
+                GuideRow(parent, "settings.touch_heading", "터치 조작", "settings.touch_guide",
+                    "왼쪽 방향 패드로 이동\n오른쪽 버튼으로 대화·조사\n화면의 메뉴 버튼으로 가방·파티·설정 열기");
+            else
+            {
+                GuideRow(parent, "controls.keyboard", "키보드", "settings.keyboard_guide",
+                    "WASD / 방향키  이동\nZ / Space / Enter  조사·대화\nEsc  메뉴·뒤로");
+                GuideRow(parent, "settings.shortcuts_heading", "빠른 메뉴", "settings.shortcuts_guide",
+                    "I  가방  ·  P  파티  ·  Tab  각본집\nM  지도  ·  Q  퀘스트  ·  O  상점\n대화 선택지는 1 / 2 / 3으로 선택");
+                GuideRow(parent, "controls.gamepad", "게임패드", "settings.gamepad_guide",
+                    "스틱 / D-Pad  이동·메뉴 탐색\n패드 A  조사·선택·대화 진행\n패드 B  메뉴에서 뒤로");
+            }
+            GuideRow(parent, "settings.ui_heading", "설정과 목록", "settings.ui_guide",
+                "목록은 스크롤해서 더 볼 수 있습니다.\n선택된 슬라이더는 좌우 입력으로 조절합니다.\n설정을 닫으면 이전 메뉴로 돌아갑니다.");
+        }
+
+        private void GuideRow(Transform parent, string titleKey, string title, string bodyKey, string body)
+        {
+            var row = Row(parent, titleKey, title);
+            row.GetComponent<LayoutElement>().preferredHeight = 192;
+            RuntimeUiControls.Place(row.GetComponentInChildren<Text>().rectTransform,
+                new Vector2(.04f, .76f), new Vector2(.96f, .95f));
+            var text = Label(row, bodyKey, body, 18, TheatreUiStyle.Muted);
+            text.alignment = TextAnchor.UpperLeft; text.lineSpacing = 1.15f;
+            RuntimeUiControls.Place(text.rectTransform, new Vector2(.04f, .08f), new Vector2(.96f, .70f));
         }
 
         private void Switch(Transform parent, string key, string fallback, Func<bool> value, UnityEngine.Events.UnityAction toggle)

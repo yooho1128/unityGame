@@ -225,6 +225,7 @@ namespace ShadowTheater.UI
 
         private void ShowCurrentLine()
         {
+            if (panelRoot != null) DesktopPlatformController.SelectFirstUsable(panelRoot);
             var line = _sequence.lines[_lineIndex];
             if (!string.IsNullOrEmpty(line.setFlag)) SaveManager.SetFlag(line.setFlag, line.setFlagValue);
             ApplyEmotion(line.emotion);
@@ -284,6 +285,7 @@ namespace ShadowTheater.UI
             if (_visibleChoices.Count > choiceViews.Count)
                 Debug.LogWarning($"[Dialogue] 선택지 UI가 부족합니다: {_sequence.dialogueId} " +
                                  $"({_visibleChoices.Count}/{choiceViews.Count})");
+            if (choiceRoot != null) DesktopPlatformController.SelectFirstUsable(choiceRoot);
         }
 
         private IEnumerator TypeLine()
@@ -306,10 +308,7 @@ namespace ShadowTheater.UI
                     // Stop at the first punctuation even when a slow frame reveals several characters.
                     for (int i = previousCount; i < count; i++)
                     {
-                        char c = _fullLine[i];
-                        if (c == ',' || c == '，') pause = .07f;
-                        else if (c == '…' || c == '—') pause = .19f;
-                        else if ((c == '.' || c == '?' || c == '!') && i < _fullLine.Length - 1) pause = .12f;
+                        pause = DialogueTextPacing.PauseAfter(_fullLine[i], i == _fullLine.Length - 1);
                         if (pause > 0f) { count = i + 1; visibleCharacters = count; break; }
                     }
                     if (!char.IsWhiteSpace(_fullLine[count - 1]) && !char.IsPunctuation(_fullLine[count - 1]))
